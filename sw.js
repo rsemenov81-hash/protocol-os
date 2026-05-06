@@ -1,5 +1,5 @@
 // Protocol OS Service Worker — network-first so updates always pick up
-const CACHE = 'protocol-os-v7';
+const CACHE = 'protocol-os-v8';
 const ASSETS = ['./', './Protocol-OS.html'];
 
 self.addEventListener('install', e => {
