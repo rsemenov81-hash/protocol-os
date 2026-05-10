@@ -472,6 +472,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
   @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); } 50% { box-shadow: 0 0 0 12px transparent; } }
+  @keyframes vialRoll { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes fingerLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-3px); } }
+  @keyframes fingerRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+  @keyframes arrowFlow { 0% { stroke-dashoffset: 30; opacity: 0.4; } 50% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0.4; } }
+  .vial-roll { animation: vialRoll 2.4s linear infinite; transform-origin: center; }
+  .finger-l { animation: fingerLeft 1.6s ease-in-out infinite; transform-origin: center; }
+  .finger-r { animation: fingerRight 1.6s ease-in-out infinite; transform-origin: center; }
+  .arrow-flow { stroke-dasharray: 30; animation: arrowFlow 1.6s ease-in-out infinite; }
   .anim-slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
   .anim-fade-in { animation: fadeIn 0.25s ease-out; }
   .pulse-dot { animation: pulseGlow 2.4s infinite; }
@@ -1773,15 +1781,128 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
     }
     const Prompt = () => {
       const [f, setF] = useState(f0);
-      const m = vialMath(item.mgPerVial, parseFloat(f.diluentMl), parseFloat(f.doseMcg));
+      const buildComps = () => {
+        if (pep && pep.ingredients && Object.keys(pep.ingredients).length > 0) {
+          return Object.entries(pep.ingredients).map(([cid, frac]) => ({
+            id: cid, name: findPep(cid)?.name || cid, icon: findPep(cid)?.icon || '💊',
+            mg: parseFloat((item.mgPerVial * frac).toFixed(2))
+          }));
+        }
+        return [];
+      };
+      const [components, setComponents] = useState(buildComps);
+      const totalMg = components.length ? components.reduce((s,c)=>s+c.mg,0) : item.mgPerVial;
+      const m = vialMath(totalMg, parseFloat(f.diluentMl), parseFloat(f.doseMcg));
+      const fillPct = m ? Math.min(100, m.unitsPerDose) : 0;
+      const updateComp = (i, mg) => { const next=[...components]; next[i] = {...next[i], mg: parseFloat(mg)||0}; setComponents(next); };
       return (
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:20,fontWeight:700}}>Reconstitute</h3>
-          <p style={{margin:'0 0 16px',fontSize:13,color:'var(--text-dim)'}}>{item.peptideName} · <b style={{color:'var(--text)'}}>{item.mgPerVial} mg</b></p>
-          <Field label="🧪 BAC water added (mL)"><input type="number" step="0.1" value={f.diluentMl} onChange={e => setF({...f, diluentMl: e.target.value})} className="input"/></Field>
-          <Field label="Reference dose (mcg)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input"/></Field>
-          {m && <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.25)',padding:14,borderRadius:14,marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:22,fontFamily:'SF Mono, monospace',fontWeight:700,color:'white'}}>{(m.mcgPerMl/1000).toFixed(2)} mg/mL</div><div style={{fontSize:12,color:'var(--text-dim)',marginTop:4}}>{m.mcgPerUnit.toFixed(1)} mcg/unit · ~{m.totalDoses} doses</div></div>}
-          <button className="btn btn-primary" style={{width:'100%'}} onClick={() => { closeModal(); doRecon({...item, suggestedDiluentMl: parseFloat(f.diluentMl), suggestedDoseMcg: parseFloat(f.doseMcg)}, false); }}>Reconstitute</button>
+          <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>{item.peptideName} · <b style={{color:'var(--text)'}}>{totalMg.toFixed(2)} mg</b></p>
+          
+          <div style={{background:'linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,69,58,0.05))',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:14}}>
+            <div style={{display:'flex',gap:14,alignItems:'center'}}>
+              <div style={{flexShrink:0,width:90,height:60,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg viewBox="0 0 100 60" style={{width:'100%',height:'100%'}}>
+                  <defs>
+                    <linearGradient id="vialGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="rgba(180,200,220,0.95)"/>
+                      <stop offset="50%" stopColor="rgba(140,170,200,0.8)"/>
+                      <stop offset="100%" stopColor="rgba(180,200,220,0.95)"/>
+                    </linearGradient>
+                    <linearGradient id="fluidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="rgba(120,200,255,0.4)"/>
+                      <stop offset="50%" stopColor="rgba(100,210,255,0.7)"/>
+                      <stop offset="100%" stopColor="rgba(120,200,255,0.4)"/>
+                    </linearGradient>
+                  </defs>
+                  
+                  <g className="finger-l">
+                    <ellipse cx="14" cy="30" rx="9" ry="11" fill="rgba(255,200,170,0.85)" stroke="rgba(220,160,130,0.7)" strokeWidth="0.6"/>
+                    <ellipse cx="14" cy="30" rx="5.5" ry="7.5" fill="rgba(255,180,150,0.5)"/>
+                  </g>
+                  <g className="finger-r">
+                    <ellipse cx="86" cy="30" rx="9" ry="11" fill="rgba(255,200,170,0.85)" stroke="rgba(220,160,130,0.7)" strokeWidth="0.6"/>
+                    <ellipse cx="86" cy="30" rx="5.5" ry="7.5" fill="rgba(255,180,150,0.5)"/>
+                  </g>
+                  
+                  <g className="vial-roll" style={{transformOrigin:'50px 30px'}}>
+                    <rect x="25" y="22" width="50" height="16" rx="2" fill="url(#vialGrad)" stroke="rgba(100,140,170,0.6)" strokeWidth="0.6"/>
+                    <rect x="27" y="28" width="46" height="6" rx="1" fill="url(#fluidGrad)"/>
+                    <rect x="22" y="24" width="3.5" height="12" rx="1" fill="rgba(80,90,110,0.85)"/>
+                    <rect x="74.5" y="24" width="3.5" height="12" rx="1" fill="rgba(80,90,110,0.85)"/>
+                    <line x1="32" y1="22" x2="32" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                    <line x1="38" y1="22" x2="38" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                    <line x1="44" y1="22" x2="44" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                    <line x1="50" y1="22" x2="50" y2="38" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+                    <line x1="56" y1="22" x2="56" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                    <line x1="62" y1="22" x2="62" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                    <line x1="68" y1="22" x2="68" y2="38" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"/>
+                  </g>
+                  
+                  <path d="M 38 14 Q 50 8, 62 14" fill="none" stroke="rgba(100,210,255,0.85)" strokeWidth="1.2" strokeLinecap="round" className="arrow-flow"/>
+                  <polyline points="60,11 62,14 60,17" fill="none" stroke="rgba(100,210,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="arrow-flow"/>
+                  <path d="M 62 46 Q 50 52, 38 46" fill="none" stroke="rgba(100,210,255,0.85)" strokeWidth="1.2" strokeLinecap="round" className="arrow-flow"/>
+                  <polyline points="40,49 38,46 40,43" fill="none" stroke="rgba(100,210,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="arrow-flow"/>
+                </svg>
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#FFD60A',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>⚠️ Reconstitution Tips</div>
+                <ul style={{margin:0,padding:0,listStyle:'none',display:'flex',flexDirection:'column',gap:3,fontSize:11,color:'var(--text-2)',lineHeight:1.4}}>
+                  <li><b style={{color:'#FF453A'}}>NEVER shake</b> the vial</li>
+                  <li>Slowly <b style={{color:'#64D2FF'}}>rotate horizontally</b> between fingers</li>
+                  <li>Aim BAC water down the <b>side</b> of vial, not on powder</li>
+                  <li>Refrigerate · use within 28 days</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <Field label="🧪 BAC water added (mL)"><input type="number" step="0.1" value={f.diluentMl} onChange={e => setF({...f, diluentMl: e.target.value})} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
+          <Field label="Reference dose (mcg of total blend)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
+          {components.length > 0 && (
+            <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>🧪 Blend Components</div>
+              {components.map((c, i) => {
+                const compMcgPerMl = parseFloat(f.diluentMl) > 0 ? (c.mg * 1000) / parseFloat(f.diluentMl) : 0;
+                const compMcgPerUnit = compMcgPerMl / 100;
+                const doseInShot = m ? m.volPerDose * compMcgPerMl : 0;
+                return (
+                  <div key={c.id} style={{marginBottom:8,padding:10,background:'rgba(0,0,0,0.25)',borderRadius:10,border:'1px solid var(--border)'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                      <span style={{fontSize:16}}>{c.icon}</span>
+                      <span style={{flex:1,fontSize:12,fontWeight:600}}>{c.name}</span>
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,alignItems:'center'}}>
+                      <div>
+                        <label style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>mg in vial</label>
+                        <input type="number" step="0.1" value={c.mg} onChange={e => updateComp(i, e.target.value)} className="input" style={{padding:'7px 10px',fontSize:12,fontFamily:'SF Mono, monospace',fontWeight:700}}/>
+                      </div>
+                      <div style={{fontSize:10,color:'var(--text-dim)',lineHeight:1.4}}>
+                        <div>{compMcgPerUnit.toFixed(1)} <span style={{color:'var(--text-faint)'}}>mcg/unit</span></div>
+                        <div>{doseInShot.toFixed(0)} <span style={{color:'var(--text-faint)'}}>mcg per shot</span></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {m && (
+            <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.3)',padding:18,borderRadius:14,textAlign:'center',marginBottom:14}}>
+              <div style={{fontSize:11,color:'var(--accent-2)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:6}}>Pull Syringe To</div>
+              <div style={{fontSize:42,fontWeight:800,fontFamily:'SF Mono, monospace',color:'white',lineHeight:1}}>{m.unitsPerDose.toFixed(1)}<span style={{fontSize:18,color:'var(--text-dim)',marginLeft:6,fontWeight:600}}>units</span></div>
+              <div style={{height:10,background:'rgba(0,0,0,0.4)',borderRadius:5,marginTop:12,overflow:'hidden',position:'relative'}}>
+                <div style={{height:'100%',background:'linear-gradient(90deg, var(--accent), var(--accent-2))',width:`${fillPct}%`,transition:'width 0.4s'}}/>
+                {[10,20,30,40,50,60,70,80,90].map(p => <div key={p} style={{position:'absolute',top:0,bottom:0,left:`${p}%`,width:1,background:'rgba(255,255,255,0.2)'}}/>)}
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:9,color:'var(--text-faint)',marginTop:4,fontFamily:'SF Mono, monospace'}}><span>0</span><span>50</span><span>100</span></div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginTop:12}}>
+                <div style={{background:'rgba(0,0,0,0.3)',padding:8,borderRadius:8,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Concentration</div><div style={{fontSize:12,fontWeight:700,fontFamily:'SF Mono, monospace',color:'white',marginTop:2}}>{(m.mcgPerMl/1000).toFixed(2)} mg/mL</div></div>
+                <div style={{background:'rgba(0,0,0,0.3)',padding:8,borderRadius:8,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Total Doses</div><div style={{fontSize:12,fontWeight:700,fontFamily:'SF Mono, monospace',color:'white',marginTop:2}}>~{m.totalDoses}</div></div>
+              </div>
+            </div>
+          )}
+          <button className="btn btn-primary" style={{width:'100%'}} onClick={() => { closeModal(); doRecon({...item, mgPerVial: totalMg, suggestedDiluentMl: parseFloat(f.diluentMl), suggestedDoseMcg: parseFloat(f.doseMcg)}, false); }}>Reconstitute</button>
         </div>
       );
     };
