@@ -639,8 +639,159 @@ function vialExpiration(reconstitutedAt) {
   return { expiry, daysLeft, expired: daysLeft <= 0, warning: daysLeft <= 7 };
 }
 
+// -------- Skincare protocol defaults --------
+const SKINCARE_DEFAULT = {
+  sculptraDate: '2026-05-15',
+  faceStampingStartDate: '2026-06-17',
+  exosomeSessions: ['2026-06-28', '2026-07-26', '2026-08-23'],
+  weeklySchedule: { 0:'scalp-stamp', 1:'standard', 2:'standard', 3:'face-stamp', 4:'standard', 5:'standard', 6:'scalp-stamp' },
+  routines: {
+    'am': { label:'AM Routine', icon:'🌅', steps:[
+      { id:'am1', step:'1', name:'Cleanse', product:'Water rinse OR LRP Toleriane Foaming', quantity:'Coin-sized, 30 sec', wait:'Pat dry', notes:'' },
+      { id:'am2', step:'2', name:'Scalp anti-androgen', product:'Clascoterone 5%', quantity:'1 mL, frontal/temporal zones', wait:'Wait 30 min until dry', notes:'' },
+      { id:'am3', step:'3', name:'Hydration', product:'COSRX Snail Mucin Essence', quantity:'2-3 drops', wait:'60-90 sec', notes:'' },
+      { id:'am4', step:'4', name:'Neuropeptide', product:'TO Argireline 10%', quantity:"3-4 drops, forehead/glabella/crow's feet", wait:'60-90 sec', notes:'Avoid Sculptra zones until day 14 post-Sculptra' },
+      { id:'am5', step:'5', name:'Dermal remodeling', product:'DNA Code Copper Peptides (≥1% GHK-Cu) OR TO Multi-Peptide', quantity:'3-4 drops, full face', wait:'2-3 min', notes:'' },
+      { id:'am6', step:'6', name:'Barrier', product:'OneSkin OS-01 Face', quantity:'Pea-sized', wait:'60 sec', notes:'' },
+      { id:'am7', step:'7', name:'SPF (primary)', product:'OneSkin OS-01 SPF 30+', quantity:'~1/4 tsp face + neck', wait:'Reapply q2h outdoor', notes:'Backup: LRP Toleriane Double Repair UV SPF 30 for gym/high-sweat' }
+    ]},
+    'pm-standard': { label:'PM — Standard', icon:'🌙', steps:[
+      { id:'pms1a', step:'1a', name:'Oil cleanse', product:'Jojoba/squalane cleansing oil', quantity:'Quarter-sized, 60 sec, emulsify, rinse', wait:'—', notes:'' },
+      { id:'pms1b', step:'1b', name:'Water cleanse', product:'LRP Toleriane Foaming', quantity:'Coin-sized, 30 sec', wait:'Pat dry', notes:'' },
+      { id:'pms2', step:'2', name:'Scalp anti-androgen', product:'Clascoterone 5%', quantity:'1 mL', wait:'30 min', notes:'' },
+      { id:'pms3', step:'3', name:'Scalp vasodilator (optional)', product:'Minoxidil 5% foam', quantity:'Half-cap, frontal central only', wait:'20-30 min', notes:'Avoid temple zone until day 21 post-Sculptra' },
+      { id:'pms4', step:'4', name:'Barrier prep', product:'Aquaphor Healing Balm Stick', quantity:'Thin layer: lips, nasolabial folds, lateral canthi, lids, nostrils', wait:'60 sec', notes:'' },
+      { id:'pms5', step:'5', name:'Retinoid', product:'Tretinoin 0.05% or 0.1%', quantity:'Pea-sized — see tretinoin schedule', wait:'20 min', notes:'', tag:'tretinoin' },
+      { id:'pms6', step:'6', name:'Occlusive', product:'Hada Labo Aging Care Cream', quantity:'Nickel-sized', wait:'Immediate', notes:'' },
+      { id:'pms7', step:'7', name:'Orbital', product:'Hada Labo Eye Cream OR COSRX Snail Patches 2-3x/wk', quantity:'Pearl-sized', wait:'Done', notes:'' }
+    ]},
+    'pm-scalp-stamp': { label:'PM — Scalp Stamping', icon:'💉', steps:[
+      { id:'pss1', step:'1', name:'Stamp sanitation', product:'70% IPA submerge 3-5 min, air dry', quantity:'Before AND after', wait:'—', notes:'' },
+      { id:'pss2', step:'2', name:'Face cleanse', product:'Full double cleanse (oil + water)', quantity:'Standard', wait:'—', notes:'' },
+      { id:'pss3', step:'3', name:'Scalp cleanse', product:'Water rinse, towel dry completely', quantity:'Must be 100% dry', wait:'—', notes:'' },
+      { id:'pss4', step:'4', name:'Stamp scalp', product:'0.25mm hydra stamp — straight down (no rolling)', quantity:'2-3 passes per zone, frontal + temporal transplant gaps', wait:'~3-5 min', notes:'Light-moderate pressure. No bleeding. Skip any zone with active pimple or scab' },
+      { id:'pss5', step:'5', name:'Clascoterone 5%', product:'Clascoterone 5%', quantity:'1 mL', wait:'Within 5 min of stamping', notes:'' },
+      { id:'pss6', step:'6', name:'SKIP minoxidil foam tonight', product:'⏭ Skipped — PG/ethanol through channels = dermatitis risk', quantity:'—', wait:'—', notes:'', tag:'skip' },
+      { id:'pss7', step:'7', name:'Aquaphor barrier prep', product:'Aquaphor Healing Balm Stick', quantity:'Thin layer', wait:'60 sec', notes:'' },
+      { id:'pss8', step:'8', name:'Tretinoin (per schedule)', product:'Tretinoin 0.05% or 0.1%', quantity:'Per tretinoin schedule', wait:'20 min', notes:'', tag:'tretinoin' },
+      { id:'pss9', step:'9', name:'Hada Labo cream + eye cream', product:'Hada Labo Aging Care Cream + Eye Cream', quantity:'Standard', wait:'—', notes:'' },
+      { id:'pss10', step:'10', name:'Post-stamp sanitation', product:'70% IPA submerge stamp', quantity:"Don't skip", wait:'—', notes:'' }
+    ]},
+    'pm-face-stamp': { label:'PM — Face Stamping', icon:'✨', steps:[
+      { id:'pfs1', step:'1', name:'Stamp sanitation', product:'70% IPA', quantity:'Before AND after', wait:'—', notes:'' },
+      { id:'pfs2', step:'2', name:'Double cleanse', product:'Oil + water cleanse', quantity:'Pat completely dry', wait:'—', notes:'' },
+      { id:'pfs3', step:'3', name:'Scalp routine', product:'Clascoterone, then Minoxidil 5% foam (scalp not stamped tonight)', quantity:'30 min gap between', wait:'—', notes:'' },
+      { id:'pfs4', step:'4', name:'Aquaphor barrier prep', product:'Aquaphor Healing Balm Stick', quantity:'Thin layer', wait:'—', notes:'' },
+      { id:'pfs5', step:'5', name:'Stamp face', product:'0.25mm hydra stamp — forehead, glabella, mid-cheek (medial to Sculptra), perioral, jawline', quantity:'2-3 passes per zone', wait:'—', notes:'Until day 28 post-Sculptra: avoid lateral cheek/zygomatic, temple, any injector-targeted zone' },
+      { id:'pfs6', step:'6', name:'Copper peptides', product:'DNA Code Copper Peptides — full face', quantity:'Within 5 min of stamping', wait:'—', notes:'' },
+      { id:'pfs7', step:'7', name:'SKIP tretinoin tonight', product:'⏭ Skipped — Stamping + tret = barrier collapse', quantity:'—', wait:'—', notes:'', tag:'skip' },
+      { id:'pfs8', step:'8', name:'OneSkin OS-01 Face', product:'OneSkin OS-01 Face', quantity:'Pea-sized', wait:'60 sec', notes:'' },
+      { id:'pfs9', step:'9', name:'Hada Labo cream + eye cream', product:'Hada Labo Aging Care Cream + Eye Cream', quantity:'Standard', wait:'—', notes:'' },
+      { id:'pfs10', step:'10', name:'Post-stamp sanitation', product:'70% IPA submerge stamp', quantity:"Don't skip", wait:'—', notes:'' }
+    ]},
+    'pm-exosome': { label:'PM — Exosome Session', icon:'🧬', steps:[
+      { id:'pex1', step:'1', name:'Reconstitute ASCE+ HRLV', product:'Mix lyophilized powder with diluent — gentle swirl only (no shake)', quantity:'Wait 2-3 min for dissolution', wait:'Use within 4 hours; ideally immediately', notes:'Shaking shears exosome lipid bilayers' },
+      { id:'pex2', step:'2', name:'Sterilize device', product:'70% IPA on microneedling pen/cartridge', quantity:'Fresh cartridge if cartridge-based', wait:'—', notes:'' },
+      { id:'pex3', step:'3', name:'Cleanse scalp', product:'Water rinse only', quantity:'Towel completely dry', wait:'—', notes:'No surfactants — they disrupt exosome lipids' },
+      { id:'pex4', step:'4', name:'Microneedle target zone', product:'1.0-1.5mm depth, frontal + temporal transplant gaps', quantity:'2-3 passes per direction (H/V/diagonal)', wait:'~3-5 min over zone', notes:'' },
+      { id:'pex5', step:'5', name:'Apply exosomes', product:'Within 60 seconds of microneedling', quantity:'Massage gently into scalp', wait:'—', notes:'Ensure contact with microchannel-exposed dermis' },
+      { id:'pex6', step:'6', name:'Leave on 12h', product:'Do not rinse', quantity:'Sleep on clean pillowcase', wait:'—', notes:'' },
+      { id:'pex7', step:'7', name:'24h hold', product:'No clascoterone, no minoxidil foam, no shampoo for 24h', quantity:'Avoid hot showers on scalp for 48h', wait:'—', notes:'Resume clascoterone hour 24+, minoxidil hour 48+, shampoo hour 48+' }
+    ]}
+  },
+  tretinoinSchedule: [
+    { id:'tr1', from:'2026-05-17', to:'2026-05-18', cadence:'skip', skipDow:null, label:'Final Sculptra massage — SKIP' },
+    { id:'tr2', from:'2026-05-19', to:'2026-05-25', cadence:'every3', skipDow:3, label:'Sculptra integration 1 · every 3rd night (skip Wed)' },
+    { id:'tr3', from:'2026-05-26', to:'2026-06-07', cadence:'eod', skipDow:3, label:'Sculptra integration 2 · every other night (skip Wed)' },
+    { id:'tr4', from:'2026-06-08', to:'2099-12-31', cadence:'baseline', skipDow:3, label:'Full resumption · Mon/Tue/Thu/Fri/Sat (skip Wed)' }
+  ],
+  stampingCadence: [
+    { id:'sc1', from:'2026-05-17', to:'2026-05-30', days:[6], label:'Conservative ramp · Sat only (weeks 1-2)' },
+    { id:'sc2', from:'2026-05-31', to:'2099-12-31', days:[0,6], label:'2x weekly · Sun + Sat' }
+  ],
+  sculptraRestrictions: [
+    { id:'sr1', endDay:5, label:'Complete 5-5-5 massage protocol' },
+    { id:'sr2', endDay:14, label:'No sauna, hot yoga, very hot showers' },
+    { id:'sr3', endDay:14, label:'Argireline 10%: avoid Sculptra zones' },
+    { id:'sr4', endDay:21, label:'No facial massage outside Sculptra protocol' },
+    { id:'sr5', endDay:21, label:'Minoxidil foam: avoid temple zone' },
+    { id:'sr6', endDay:28, label:'No face stamping over Sculptra zones' },
+    { id:'sr7', endDay:28, label:'No VT Reedle Shots, PVA peel-off PDRN masks' }
+  ]
+};
+
+function dayPostSculptra(sculptraDateStr, dateStr) {
+  if (!sculptraDateStr) return null;
+  const d0 = new Date(sculptraDateStr + 'T00:00:00');
+  const dT = new Date(dateStr + 'T00:00:00');
+  return Math.floor((dT - d0) / 86400000);
+}
+
+function inExosomeWindow(skincare, dateStr) {
+  for (const s of (skincare.exosomeSessions || [])) {
+    const sd = new Date(s + 'T00:00:00');
+    const dT = new Date(dateStr + 'T00:00:00');
+    const diff = Math.round((dT - sd) / 86400000);
+    if (diff === 0) return { type:'session', date:s };
+    if (diff > 0 && diff <= 7) return { type:'post', date:s, daysSince:diff };
+    if (diff < 0 && diff >= -7) return { type:'pre', date:s, daysUntil:-diff };
+  }
+  return null;
+}
+
+function effectiveStampingDays(skincare, dateStr) {
+  const win = inExosomeWindow(skincare, dateStr);
+  if (win) return { paused:true, days:[], reason:`Exosome ${win.type === 'session' ? 'session day' : win.type === 'pre' ? `in ${win.daysUntil}d` : `${win.daysSince}d ago`} (${win.date}) — stamping hold ±7d` };
+  for (const band of (skincare.stampingCadence || [])) {
+    if (dateStr >= band.from && dateStr <= band.to) return { paused:false, days:band.days || [], label:band.label };
+  }
+  return { paused:false, days:[] };
+}
+
+function tretinoinForDate(skincare, dateStr) {
+  const dow = new Date(dateStr + 'T00:00:00').getDay();
+  for (const band of (skincare.tretinoinSchedule || [])) {
+    if (dateStr >= band.from && dateStr <= band.to) {
+      if (band.cadence === 'skip') return { skip:true, reason:band.label, band };
+      if (band.skipDow != null && dow === band.skipDow) return { skip:true, reason:'Day-of-week skip', band };
+      const start = new Date(band.from + 'T00:00:00');
+      const today = new Date(dateStr + 'T00:00:00');
+      const diff = Math.floor((today - start) / 86400000);
+      if (band.cadence === 'every3') { const off = (diff % 3) !== 0; return { skip:off, reason: off ? 'Every 3rd night cadence — off night' : 'On night', band }; }
+      if (band.cadence === 'eod') { const off = (diff % 2) !== 0; return { skip:off, reason: off ? 'Every other night — off night' : 'On night', band }; }
+      if (band.cadence === 'baseline') { const off = ![1,2,4,5,6].includes(dow); return { skip:off, reason: off ? 'Rest day (Sun/Wed)' : 'On night', band }; }
+      return { skip:false, band };
+    }
+  }
+  return { skip:false };
+}
+
+function todaysPMKey(skincare, dateStr) {
+  if ((skincare.exosomeSessions || []).includes(dateStr)) return 'pm-exosome';
+  const dow = new Date(dateStr + 'T00:00:00').getDay();
+  const intent = (skincare.weeklySchedule || {})[dow] || 'standard';
+  const stamp = effectiveStampingDays(skincare, dateStr);
+  if (intent === 'scalp-stamp') {
+    if (stamp.paused || !stamp.days.includes(dow)) return 'pm-standard';
+    return 'pm-scalp-stamp';
+  }
+  if (intent === 'face-stamp') {
+    if (stamp.paused) return 'pm-standard';
+    if (dateStr < (skincare.faceStampingStartDate || '0000-01-01')) return 'pm-standard';
+    return 'pm-face-stamp';
+  }
+  return 'pm-standard';
+}
+
+function activeSculptraRestrictions(skincare, dateStr) {
+  const dpostSc = dayPostSculptra(skincare.sculptraDate, dateStr);
+  if (dpostSc == null || dpostSc < 0) return { dayPost:dpostSc, active:[] };
+  const active = (skincare.sculptraRestrictions || []).filter(r => dpostSc <= (r.endDay || 0));
+  return { dayPost:dpostSc, active };
+}
+
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('today');
   const [logs, setLogs] = useState([]);
   const [storage, setStorage] = useState([]);
   const [vials, setVials] = useState([]);
@@ -649,6 +800,14 @@ function App() {
   const [modalContent, setModalContent] = useState(null);
   const [search, setSearch] = useState('');
   const [quickLogOpen, setQuickLogOpen] = useState(false);
+  const [skincare, setSkincare] = useState(() => {
+    try { const v = JSON.parse(localStorage.getItem('protocol_os_skincare') || 'null'); return v || SKINCARE_DEFAULT; }
+    catch { return SKINCARE_DEFAULT; }
+  });
+  const [skincareDone, setSkincareDone] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('protocol_os_skincare_done') || '{}'); }
+    catch { return {}; }
+  });
 
   useEffect(() => {
     try {
@@ -1053,6 +1212,8 @@ function App() {
   useEffect(() => { localStorage.setItem('protocol_os_storage', JSON.stringify(storage)); }, [storage]);
   useEffect(() => { localStorage.setItem('protocol_os_vials', JSON.stringify(vials)); }, [vials]);
   useEffect(() => { localStorage.setItem('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
+  useEffect(() => { localStorage.setItem('protocol_os_skincare', JSON.stringify(skincare)); }, [skincare]);
+  useEffect(() => { localStorage.setItem('protocol_os_skincare_done', JSON.stringify(skincareDone)); }, [skincareDone]);
 
   const showToast = (message, type = 'success', undoFn = null) => {
     setToast({ message, type, undoFn });
@@ -1076,7 +1237,8 @@ function App() {
   };
 
   const tabs = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'today', icon: Calendar, label: 'Today' },
+    { id: 'skincare', icon: Heart, label: 'Skincare' },
     { id: 'storage', icon: Package, label: 'Storage' },
     { id: 'vials', icon: Beaker, label: 'Vials' },
     { id: 'protocol', icon: Activity, label: 'Protocol' },
@@ -1121,7 +1283,8 @@ function App() {
         </header>
 
         <main className="flex-1 fade-in" key={activeTab}>
-          {activeTab === 'dashboard' && <DashboardTab logs={logs} vials={vials} storage={storage} setActiveTab={setActiveTab} setQuickLogOpen={setQuickLogOpen}/>}
+          {activeTab === 'today' && <TodayTab logs={logs} setLogs={setLogs} vials={vials} setVials={setVials} protocols={protocols} storage={storage} skincare={skincare} skincareDone={skincareDone} setSkincareDone={setSkincareDone} openModal={openModal} closeModal={closeModal} showToast={showToast} setActiveTab={setActiveTab}/>}
+          {activeTab === 'skincare' && <SkincareTab skincare={skincare} setSkincare={setSkincare} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
           {activeTab === 'storage' && <StorageTab storage={storage} setStorage={setStorage} vials={vials} setVials={setVials} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} search={search}/>}
           {activeTab === 'protocol' && <ProtocolTab protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} storage={storage} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
           {activeTab === 'vials' && <VialsTab vials={vials} setVials={setVials} storage={storage} setStorage={setStorage} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
@@ -2668,6 +2831,755 @@ function ActionBtn({ icon: Icon, onClick, danger, title }) {
 
 function EmptyState({ icon: Icon, text }) {
   return <div className="flex flex-col items-center justify-center py-16 px-6 glass rounded-2xl border border-zinc-800/60 border-dashed text-zinc-500"><div className="w-14 h-14 bg-zinc-800/40 rounded-full flex items-center justify-center mb-3"><Icon size={26} className="text-zinc-600" strokeWidth={1.5}/></div><div className="text-sm font-medium text-center max-w-sm">{text}</div></div>;
+}
+
+// ============================================================
+// TODAY TAB — combines daily skincare protocol + peptide doses
+// ============================================================
+const DOW_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PM_KIND_LABELS = { 'standard':'Standard PM', 'scalp-stamp':'Scalp Stamping PM', 'face-stamp':'Face Stamping PM' };
+
+function TodayTab({ logs, setLogs, vials, setVials, protocols, storage, skincare, skincareDone, setSkincareDone, openModal, closeModal, showToast, setActiveTab }) {
+  const dateKey = todayLocal();
+  const dow = new Date(dateKey + 'T00:00:00').getDay();
+  const prettyDate = new Date(dateKey + 'T00:00:00').toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  const pmKey = todaysPMKey(skincare, dateKey);
+  const tret = tretinoinForDate(skincare, dateKey);
+  const stampInfo = effectiveStampingDays(skincare, dateKey);
+  const sculptra = activeSculptraRestrictions(skincare, dateKey);
+  const exoWin = inExosomeWindow(skincare, dateKey);
+  const isExoSessionDay = exoWin && exoWin.type === 'session';
+  const [activeProfile, setActiveProfile] = useState(() => localStorage.getItem('protocol_os_active_profile') || 'Roman');
+  useEffect(() => { localStorage.setItem('protocol_os_active_profile', activeProfile); }, [activeProfile]);
+
+  const amSteps = (skincare.routines.am && skincare.routines.am.steps) || [];
+  const pmRoutine = skincare.routines[pmKey] || skincare.routines['pm-standard'];
+  const pmSteps = (pmRoutine && pmRoutine.steps) || [];
+
+  const todayDone = skincareDone[dateKey] || {};
+  const isDone = (kind, id) => !!(todayDone[kind] && todayDone[kind][id]);
+  const toggleStep = (kind, id) => {
+    setSkincareDone(prev => {
+      const dateData = { ...(prev[dateKey] || {}) };
+      const kindMap = { ...(dateData[kind] || {}) };
+      if (kindMap[id]) delete kindMap[id]; else kindMap[id] = true;
+      dateData[kind] = kindMap;
+      return { ...prev, [dateKey]: dateData };
+    });
+  };
+
+  // Today's peptides from active protocols (filtered by profile)
+  const myProtocols = useMemo(() => {
+    return protocols.filter(p => {
+      if (p.active === false) return false;
+      if (p.profile !== activeProfile) return false;
+      const days = (p.schedule && p.schedule.days) || [0,1,2,3,4,5,6];
+      return days.includes(dow);
+    });
+  }, [protocols, dow, activeProfile]);
+
+  const peptidesByTime = useMemo(() => {
+    const groups = { morning:[], preworkout:[], noon:[], evening:[], bedtime:[], anytime:[] };
+    myProtocols.forEach(p => {
+      const t = (p.schedule && p.schedule.timeOfDay) || 'anytime';
+      (groups[t] || groups.anytime).push(p);
+    });
+    return groups;
+  }, [myProtocols]);
+
+  const peptideTakenToday = (protoId) => logs.some(l => l.protocolId === protoId && (l.datetime||'').slice(0,10) === dateKey);
+
+  const equivalentVialsFor = (peptideId) => {
+    const ids = new Set(getEquivalentIds(peptideId));
+    return vials.filter(v => ids.has(v.peptideId) && v.active !== false && v.remainingMcg > 0);
+  };
+
+  const administerPeptide = (proto) => {
+    const myVials = equivalentVialsFor(proto.peptideId);
+    const vial = myVials[0];
+    const mcgPerMl0 = (vial && vial.mcgPerMl) || 0;
+    const defaultMcg = proto.doseMcg;
+    const defaultMl = mcgPerMl0 ? defaultMcg / mcgPerMl0 : 0;
+    let f0 = { datetime: nowLocal(), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: defaultMcg, vialId: vial ? vial.id : '', site: '', notes: '' };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const targetVial = vials.find(v => v.id === f.vialId) || vial;
+      const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
+      const isOral = targetVial && targetVial.formType === 'oral';
+      const setMl = (ml) => { const mcg = mcgPerMl ? (parseFloat(ml) || 0) * mcgPerMl : f.doseMcg; setF(p => ({...p, doseMl: ml, doseMcg: Math.round(mcg)})); };
+      const setMcg = (mcg) => { const ml = mcgPerMl ? (parseFloat(mcg) || 0) / mcgPerMl : 0; setF(p => ({...p, doseMcg: mcg, doseMl: ml > 0 ? ml.toFixed(3) : ''})); };
+      const setUnits = (u) => setMl(((parseFloat(u) || 0) / 100).toFixed(3));
+      const onVialChange = (vid) => {
+        const tv = vials.find(v => v.id === vid);
+        const newMcgPerMl = (tv && tv.mcgPerMl) || 0;
+        const newMl = newMcgPerMl ? f.doseMcg / newMcgPerMl : 0;
+        setF(p => ({...p, vialId: vid, doseMl: newMl > 0 ? newMl.toFixed(3) : ''}));
+      };
+      const submit = () => {
+        const d = parseFloat(f.doseMcg);
+        if (!d) return showToast('Enter dose', 'error');
+        const tv = vials.find(v => v.id === f.vialId);
+        if (tv && d > tv.remainingMcg) return showToast('Dose exceeds vial remaining', 'error');
+        const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, doseMl: parseFloat(f.doseMl) || null, site: f.site, notes: f.notes };
+        const prevLogs = logs, prevVials = vials;
+        setLogs([log, ...logs]);
+        if (tv) setVials(vials.map(x => x.id === tv.id ? { ...x, remainingMcg: x.remainingMcg - d, lastDose: f.datetime } : x));
+        const volStr = f.doseMl ? ` (${f.doseMl} mL)` : '';
+        showToast(`✓ ${fmtMcg(d)}${volStr} ${proto.peptideName}`, 'success', () => { setLogs(prevLogs); setVials(prevVials); });
+        closeModal();
+      };
+      const units = parseFloat(f.doseMl) ? (parseFloat(f.doseMl) * 100).toFixed(1) : '';
+      return (
+        <div className="space-y-4">
+          <div><h3 className="text-xl font-bold text-white">Administer · {proto.peptideName}</h3></div>
+          {myVials.length > 1 ? (
+            <FormSelect label="Source Vial" value={f.vialId} onChange={e => onVialChange(e.target.value)}>
+              {myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName} · {fmtMcg(v.remainingMcg)} left</option>)}
+            </FormSelect>
+          ) : myVials.length === 1 ? (
+            <div className="text-xs text-zinc-400 bg-zinc-950/40 p-3 rounded-lg border border-zinc-800/60">📦 Source: <b className="text-white">{myVials[0].peptideName}</b> · {fmtMcg(myVials[0].remainingMcg)} left</div>
+          ) : (
+            <div className="text-xs text-amber-300 bg-amber-500/10 p-3 rounded-lg border border-amber-500/30">⚠ No active vial. Log saved without deduction.</div>
+          )}
+          {targetVial && !isOral && mcgPerMl > 0 && (
+            <div className="bg-gradient-to-br from-sky-950/40 to-teal-950/40 border border-sky-500/30 p-3 rounded-xl">
+              <div className="text-sky-400 text-[10px] uppercase tracking-widest font-bold mb-1">Concentration</div>
+              <div className="text-white font-mono text-sm font-bold">{(mcgPerMl/1000).toFixed(2)} mg/mL · {(mcgPerMl/100).toFixed(1)} mcg/unit</div>
+            </div>
+          )}
+          {targetVial && !isOral && mcgPerMl > 0 ? (
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1.5">💉 Syringe</label>
+              <div className="grid grid-cols-3 gap-2">
+                <div><input type="number" step="0.01" value={f.doseMl} onChange={e => setMl(e.target.value)} placeholder="mL" className="input rounded-xl px-3 py-2 text-sm w-full text-center font-mono"/><div className="text-center text-[9px] text-zinc-500 uppercase tracking-widest font-bold mt-1">mL</div></div>
+                <div><input type="number" step="1" value={units} onChange={e => setUnits(e.target.value)} placeholder="units" className="input rounded-xl px-3 py-2 text-sm w-full text-center font-mono"/><div className="text-center text-[9px] text-zinc-500 uppercase tracking-widest font-bold mt-1">units</div></div>
+                <div><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} placeholder="mcg" className="input rounded-xl px-3 py-2 text-sm w-full text-center font-mono"/><div className="text-center text-[9px] text-zinc-500 uppercase tracking-widest font-bold mt-1">mcg</div></div>
+              </div>
+            </div>
+          ) : (
+            <FormInput label="Dose (mcg)" type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)}/>
+          )}
+          <div>
+            <label className="block text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-2">Site (optional)</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {INJECTION_SITES.map(s => <button key={s.id} type="button" onClick={() => setF({...f, site: s.id})} className={`px-2 py-1.5 rounded-lg text-[11px] font-medium ${f.site === s.id ? 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-500/40' : 'bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 border border-zinc-800'}`}>{s.label}</button>)}
+            </div>
+          </div>
+          <FormInput label="Notes (optional)" isTextArea value={f.notes} onChange={e => setF({...f, notes: e.target.value})}/>
+          <div className="flex gap-2 pt-2">
+            <button onClick={closeModal} className="flex-1 py-3 rounded-xl btn-ghost font-medium text-sm">Cancel</button>
+            <button onClick={submit} className="flex-1 py-3 rounded-xl btn-primary text-white font-bold text-sm">Confirm Dose</button>
+          </div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  // Manual override for a single skincare step (per-day only)
+  const editStepForToday = (kind, step) => {
+    let f0 = { product: step.product || '', quantity: step.quantity || '', wait: step.wait || '', notes: step.notes || '' };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const save = () => {
+        setSkincareDone(prev => {
+          const dateData = { ...(prev[dateKey] || {}) };
+          const overrides = { ...(dateData.overrides || {}) };
+          overrides[step.id] = { product: f.product, quantity: f.quantity, wait: f.wait, notes: f.notes };
+          dateData.overrides = overrides;
+          return { ...prev, [dateKey]: dateData };
+        });
+        showToast('Override saved for today');
+        closeModal();
+      };
+      const reset = () => {
+        setSkincareDone(prev => {
+          const dateData = { ...(prev[dateKey] || {}) };
+          const overrides = { ...(dateData.overrides || {}) };
+          delete overrides[step.id];
+          dateData.overrides = overrides;
+          return { ...prev, [dateKey]: dateData };
+        });
+        showToast('Override cleared');
+        closeModal();
+      };
+      return (
+        <div className="space-y-4">
+          <div><h3 className="text-xl font-bold text-white">Adjust step · today only</h3><p className="text-xs text-zinc-500 mt-1">Step {step.step} · {step.name}</p></div>
+          <FormInput label="Product" value={f.product} onChange={e => setF({...f, product: e.target.value})}/>
+          <FormInput label="Quantity" value={f.quantity} onChange={e => setF({...f, quantity: e.target.value})}/>
+          <FormInput label="Wait / timing" value={f.wait} onChange={e => setF({...f, wait: e.target.value})}/>
+          <FormInput label="Notes" isTextArea value={f.notes} onChange={e => setF({...f, notes: e.target.value})}/>
+          <div className="flex gap-2 pt-2">
+            <button onClick={reset} className="px-3 py-2.5 rounded-xl btn-ghost font-medium text-xs">Reset to default</button>
+            <button onClick={closeModal} className="flex-1 py-2.5 rounded-xl btn-ghost font-medium text-sm">Cancel</button>
+            <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-primary text-white font-bold text-sm">Save</button>
+          </div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  const overrides = todayDone.overrides || {};
+  const applyOverride = (step) => {
+    const o = overrides[step.id];
+    if (!o) return step;
+    return { ...step, product: o.product || step.product, quantity: o.quantity || step.quantity, wait: o.wait || step.wait, notes: o.notes || step.notes, overridden: true };
+  };
+
+  const amTotal = amSteps.length;
+  const amDone = amSteps.filter(s => isDone('am', s.id)).length;
+  const pmTotal = pmSteps.length;
+  const pmDone = pmSteps.filter(s => isDone('pm', s.id)).length;
+  const pepTotal = myProtocols.length;
+  const pepDone = myProtocols.filter(p => peptideTakenToday(p.id)).length;
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="glass rounded-2xl border border-zinc-800/60 p-5 ring-gradient relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-30" style={{background:'radial-gradient(circle, #06b6d4 0%, transparent 60%)'}}/>
+        <div className="relative">
+          <div className="text-[11px] uppercase tracking-widest text-cyan-400 font-bold mb-1 flex items-center gap-1.5"><Calendar size={12}/> Today</div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{prettyDate}</h1>
+          <div className="text-zinc-400 text-xs mt-1 flex flex-wrap gap-x-3 gap-y-1">
+            {sculptra.dayPost != null && sculptra.dayPost >= 0 && <span>🧴 Sculptra day <b className="text-white">{sculptra.dayPost}</b></span>}
+            <span>🌙 {PM_KIND_LABELS[pmKey.replace('pm-','')] || pmRoutine.label}</span>
+            {isExoSessionDay && <span className="text-violet-300 font-bold">🧬 EXOSOME SESSION DAY</span>}
+            {exoWin && !isExoSessionDay && <span className="text-amber-300">🧬 Exosome window ({exoWin.type === 'pre' ? `in ${exoWin.daysUntil}d` : `${exoWin.daysSince}d ago`})</span>}
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4 text-xs">
+            <div className="px-3 py-1.5 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-200"><b>AM</b> {amDone}/{amTotal}</div>
+            <div className="px-3 py-1.5 rounded-lg bg-violet-500/15 ring-1 ring-violet-500/30 text-violet-200"><b>PM</b> {pmDone}/{pmTotal}</div>
+            <div className="px-3 py-1.5 rounded-lg bg-cyan-500/15 ring-1 ring-cyan-500/30 text-cyan-200"><b>Peptides</b> {pepDone}/{pepTotal}</div>
+            <button onClick={() => setActiveTab('skincare')} className="px-3 py-1.5 rounded-lg btn-ghost text-zinc-300 ml-auto flex items-center gap-1.5"><Edit2 size={12}/> Edit routine</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile pills (for peptides) */}
+      <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/60">
+        {PROFILES.map(p => {
+          const count = protocols.filter(x => x.profile === p && x.active !== false && ((x.schedule && x.schedule.days) || [0,1,2,3,4,5,6]).includes(dow)).length;
+          return (
+            <button key={p} onClick={() => setActiveProfile(p)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${activeProfile === p ? 'nav-active' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'}`}>
+              {p} <span className={`text-[10px] px-1.5 py-0.5 rounded ${activeProfile === p ? 'bg-cyan-500/30 text-cyan-200' : 'bg-zinc-800 text-zinc-500'}`}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Restrictions & windows */}
+      {(sculptra.active.length > 0 || exoWin || tret.skip || stampInfo.paused) && (
+        <div className="glass rounded-2xl border border-amber-500/30 p-4 space-y-2">
+          <div className="text-[11px] uppercase tracking-widest text-amber-400 font-bold flex items-center gap-1.5"><AlertTriangle size={12}/> Active restrictions / context</div>
+          <ul className="space-y-1.5 text-xs">
+            {sculptra.active.map(r => <li key={r.id} className="flex gap-2 text-amber-100"><ShieldAlert size={12} className="text-amber-400 shrink-0 mt-0.5"/>Sculptra day {sculptra.dayPost} · {r.label} (until day {r.endDay})</li>)}
+            {exoWin && exoWin.type === 'pre' && <li className="flex gap-2 text-violet-200"><AlertCircle size={12} className="text-violet-400 shrink-0 mt-0.5"/>Stamping pause — exosome session in {exoWin.daysUntil}d ({exoWin.date})</li>}
+            {exoWin && exoWin.type === 'post' && <li className="flex gap-2 text-violet-200"><AlertCircle size={12} className="text-violet-400 shrink-0 mt-0.5"/>Stamping pause — {exoWin.daysSince}d since exosome session ({exoWin.date})</li>}
+            {exoWin && exoWin.type === 'session' && <li className="flex gap-2 text-violet-200"><Zap size={12} className="text-violet-400 shrink-0 mt-0.5"/>Exosome session today — 24h hold after on clascoterone, minoxidil foam, shampoo</li>}
+            {tret.skip && <li className="flex gap-2 text-rose-200"><X size={12} className="text-rose-400 shrink-0 mt-0.5"/>Tretinoin: SKIP tonight — {tret.reason}{tret.band ? ` (${tret.band.label})` : ''}</li>}
+            {!tret.skip && tret.band && <li className="flex gap-2 text-emerald-200"><Check size={12} className="text-emerald-400 shrink-0 mt-0.5"/>Tretinoin: ON tonight — {tret.band.label}</li>}
+            {stampInfo.paused && <li className="flex gap-2 text-zinc-300"><Info size={12} className="text-zinc-400 shrink-0 mt-0.5"/>Stamping: {stampInfo.reason}</li>}
+          </ul>
+        </div>
+      )}
+
+      {/* AM Routine */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-2xl">🌅</span>
+          <h2 className="text-lg font-bold text-white tracking-tight">AM Routine</h2>
+          <div className="flex-1 h-px bg-gradient-to-r from-zinc-700 to-transparent"/>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{amDone}/{amTotal} done</span>
+        </div>
+        <div className="space-y-2">
+          {amSteps.map(s => <SkinStepCard key={s.id} step={applyOverride(s)} done={isDone('am', s.id)} onToggle={() => toggleStep('am', s.id)} onEdit={() => editStepForToday('am', s)} tretSkip={s.tag === 'tretinoin' && tret.skip ? tret.reason : null}/>)}
+        </div>
+      </div>
+
+      {/* PM Routine */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-2xl">{pmRoutine.icon}</span>
+          <h2 className="text-lg font-bold text-white tracking-tight">{pmRoutine.label}</h2>
+          <div className="flex-1 h-px bg-gradient-to-r from-zinc-700 to-transparent"/>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{pmDone}/{pmTotal} done</span>
+        </div>
+        <div className="space-y-2">
+          {pmSteps.map(s => <SkinStepCard key={s.id} step={applyOverride(s)} done={isDone('pm', s.id)} onToggle={() => toggleStep('pm', s.id)} onEdit={() => editStepForToday('pm', s)} tretSkip={s.tag === 'tretinoin' && tret.skip ? tret.reason : null}/>)}
+        </div>
+      </div>
+
+      {/* Peptides today */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-2xl">💉</span>
+          <h2 className="text-lg font-bold text-white tracking-tight">Peptides Today</h2>
+          <div className="flex-1 h-px bg-gradient-to-r from-zinc-700 to-transparent"/>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{pepDone}/{pepTotal} dosed</span>
+        </div>
+        {myProtocols.length === 0 ? (
+          <EmptyState icon={Activity} text={`No peptide doses scheduled for ${DOW_LABELS[dow]}. Manage active protocols in the Protocol tab.`}/>
+        ) : (
+          (() => {
+            const sections = [
+              { key:'morning', label:'Morning', icon:'🌅' }, { key:'preworkout', label:'Pre-workout', icon:'💪' },
+              { key:'noon', label:'Mid-day', icon:'☀️' }, { key:'evening', label:'Evening', icon:'🌆' },
+              { key:'bedtime', label:'Before bed', icon:'🌙' }, { key:'anytime', label:'Any time', icon:'⏱' }
+            ];
+            return (
+              <div className="space-y-4">
+                {sections.map(s => peptidesByTime[s.key].length > 0 && (
+                  <div key={s.key}>
+                    <div className="flex items-center gap-2 mb-2 px-1 text-zinc-500 text-xs font-bold uppercase tracking-widest"><span>{s.icon}</span>{s.label}</div>
+                    <div className="space-y-2">{peptidesByTime[s.key].map(p => <TodayPeptideCard key={p.id} proto={p} taken={peptideTakenToday(p.id)} vialList={equivalentVialsFor(p.peptideId)} onAdminister={() => administerPeptide(p)} onOpenVials={() => setActiveTab('vials')}/>)}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()
+        )}
+      </div>
+
+      <div className="text-center text-[10px] uppercase tracking-widest text-zinc-600 font-bold py-2">Tap any step to mark complete · pencil icon to override for today</div>
+    </div>
+  );
+}
+
+function SkinStepCard({ step, done, onToggle, onEdit, tretSkip }) {
+  const isSkip = step.tag === 'skip' || tretSkip;
+  return (
+    <div className={`rounded-2xl border p-3.5 transition-all ${done ? 'bg-emerald-500/5 border-emerald-500/30 opacity-70' : isSkip ? 'bg-rose-500/5 border-rose-500/30' : 'bg-zinc-900/40 border-zinc-800/60 hover:border-cyan-500/40'}`}>
+      <div className="flex items-start gap-3">
+        <button onClick={onToggle} className={`mt-0.5 w-6 h-6 rounded-md shrink-0 flex items-center justify-center transition-all ${done ? 'bg-emerald-500/30 ring-1 ring-emerald-500/60 text-emerald-300' : 'bg-zinc-900/80 border border-zinc-700 hover:border-cyan-500/50 text-transparent hover:text-cyan-400'}`}>
+          <Check size={14} strokeWidth={3}/>
+        </button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-zinc-500 font-mono tabular-nums w-7">{step.step}</span>
+            <div className={`font-bold text-sm ${done ? 'line-through text-zinc-500' : 'text-white'}`}>{step.name}</div>
+            {step.overridden && <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-500/30 font-bold uppercase tracking-wider">Adjusted</span>}
+            {isSkip && <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30 font-bold uppercase tracking-wider">Skip</span>}
+          </div>
+          {step.product && <div className={`text-xs mt-1 ${done ? 'text-zinc-600' : 'text-zinc-300'}`}>{step.product}</div>}
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-[11px]">
+            {step.quantity && <span className={done ? 'text-zinc-600' : 'text-zinc-400'}><span className="text-zinc-500">Qty:</span> {step.quantity}</span>}
+            {step.wait && step.wait !== '—' && <span className={done ? 'text-zinc-600' : 'text-cyan-300'}>⏱ {step.wait}</span>}
+          </div>
+          {step.notes && <div className={`text-[11px] mt-1 ${done ? 'text-zinc-600' : 'text-amber-300/90'}`}>⚠ {step.notes}</div>}
+          {tretSkip && <div className="text-[11px] mt-1 text-rose-300">⏭ {tretSkip}</div>}
+        </div>
+        <button onClick={onEdit} title="Adjust for today" className="text-zinc-500 hover:text-cyan-400 p-1 shrink-0"><Edit2 size={13}/></button>
+      </div>
+    </div>
+  );
+}
+
+function TodayPeptideCard({ proto, taken, vialList, onAdminister, onOpenVials }) {
+  const pep = findPep(proto.peptideId);
+  const vial = vialList[0];
+  const mcgPerMl = (vial && vial.mcgPerMl) || 0;
+  const ml = mcgPerMl ? proto.doseMcg / mcgPerMl : 0;
+  const units = ml * 100;
+  const isOral = vial && vial.formType === 'oral';
+  return (
+    <div className={`rounded-2xl border p-4 transition-all ${taken ? 'bg-emerald-500/5 border-emerald-500/30 opacity-70' : 'bg-gradient-to-br from-slate-800/40 to-slate-900/40 border-slate-700/50 hover:border-sky-400/50'}`}>
+      <div className="flex items-start gap-3">
+        <div className={`text-3xl shrink-0 ${taken ? 'grayscale' : ''}`}>{pep && pep.icon || '💊'}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className={`font-bold text-base ${taken ? 'line-through text-zinc-500' : 'text-white'}`}>{proto.peptideName}</div>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800/60 text-zinc-400 font-bold uppercase tracking-wider">{(proto.schedule && proto.schedule.timeOfDay) || 'anytime'}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/60"><div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Dose</div><div className={`font-bold font-mono text-sm ${taken ? 'text-zinc-500' : 'text-sky-300'}`}>{fmtMcg(proto.doseMcg)}</div></div>
+            <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/60"><div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">{isOral ? 'Form' : 'Volume'}</div><div className={`font-bold font-mono text-sm ${taken ? 'text-zinc-500' : 'text-white'}`}>{isOral ? 'Oral' : (mcgPerMl ? `${ml.toFixed(3)} mL` : '—')}</div></div>
+            <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/60"><div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">{isOral ? '—' : 'On syringe'}</div><div className={`font-bold font-mono text-sm ${taken ? 'text-zinc-500' : 'text-cyan-300'}`}>{isOral ? '—' : (mcgPerMl ? `${units.toFixed(1)} u` : '—')}</div></div>
+          </div>
+          {vial ? (
+            <div className="text-[11px] text-zinc-500 mt-2">From <b className="text-zinc-300">{vial.peptideName}</b> · {fmtMcg(vial.remainingMcg)} left{mcgPerMl ? ` · ${(mcgPerMl/1000).toFixed(2)} mg/mL` : ''}</div>
+          ) : (
+            <div className="text-[11px] text-amber-300 mt-2 flex items-center gap-1"><AlertTriangle size={11}/> No active vial — <button onClick={onOpenVials} className="text-sky-400 underline hover:text-sky-300">reconstitute</button></div>
+          )}
+        </div>
+        <div className="shrink-0">
+          {taken ? (
+            <div className="px-3 py-2 rounded-xl bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center gap-1.5 ring-1 ring-emerald-500/30"><Check size={14}/> Taken</div>
+          ) : (
+            <button onClick={onAdminister} className="px-4 py-2.5 rounded-xl btn-primary text-white font-bold text-xs flex items-center gap-1.5"><Zap size={12}/> Administer</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SKINCARE TAB — editable protocol
+// ============================================================
+function SkincareTab({ skincare, setSkincare, openModal, closeModal, confirmModal, showToast }) {
+  const [openRoutine, setOpenRoutine] = useState('am');
+  const [openSection, setOpenSection] = useState('dates');
+
+  const updateField = (path, value) => {
+    setSkincare(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      const keys = path.split('.');
+      let obj = next;
+      for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+      obj[keys[keys.length - 1]] = value;
+      return next;
+    });
+  };
+
+  const updateRoutineStep = (routineKey, stepId, patch) => {
+    setSkincare(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      const arr = next.routines[routineKey].steps;
+      const idx = arr.findIndex(s => s.id === stepId);
+      if (idx >= 0) arr[idx] = { ...arr[idx], ...patch };
+      return next;
+    });
+  };
+
+  const deleteStep = (routineKey, stepId) => {
+    confirmModal('Delete step?', 'This removes the step from the protocol.', () => {
+      setSkincare(prev => {
+        const next = JSON.parse(JSON.stringify(prev));
+        next.routines[routineKey].steps = next.routines[routineKey].steps.filter(s => s.id !== stepId);
+        return next;
+      });
+      showToast('Step removed');
+    }, 'Delete');
+  };
+
+  const moveStep = (routineKey, stepId, dir) => {
+    setSkincare(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      const arr = next.routines[routineKey].steps;
+      const idx = arr.findIndex(s => s.id === stepId);
+      const swap = idx + dir;
+      if (idx < 0 || swap < 0 || swap >= arr.length) return prev;
+      [arr[idx], arr[swap]] = [arr[swap], arr[idx]];
+      return next;
+    });
+  };
+
+  const addStep = (routineKey) => {
+    let f0 = { name:'', product:'', quantity:'', wait:'', notes:'', step:'' };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const save = () => {
+        if (!f.name) return showToast('Name required', 'error');
+        setSkincare(prev => {
+          const next = JSON.parse(JSON.stringify(prev));
+          next.routines[routineKey].steps.push({ id:'st_'+uid(), step: f.step || String(next.routines[routineKey].steps.length + 1), name:f.name, product:f.product, quantity:f.quantity, wait:f.wait, notes:f.notes });
+          return next;
+        });
+        showToast('Step added');
+        closeModal();
+      };
+      return (
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold text-white">Add step · {skincare.routines[routineKey].label}</h3>
+          <div className="grid grid-cols-3 gap-2">
+            <FormInput label="Step #" value={f.step} onChange={e => setF({...f, step: e.target.value})}/>
+            <div className="col-span-2"><FormInput label="Name" value={f.name} onChange={e => setF({...f, name: e.target.value})}/></div>
+          </div>
+          <FormInput label="Product" value={f.product} onChange={e => setF({...f, product: e.target.value})}/>
+          <FormInput label="Quantity" value={f.quantity} onChange={e => setF({...f, quantity: e.target.value})}/>
+          <FormInput label="Wait / timing" value={f.wait} onChange={e => setF({...f, wait: e.target.value})}/>
+          <FormInput label="Notes" isTextArea value={f.notes} onChange={e => setF({...f, notes: e.target.value})}/>
+          <div className="flex gap-2 pt-2">
+            <button onClick={closeModal} className="flex-1 py-2.5 rounded-xl btn-ghost font-medium text-sm">Cancel</button>
+            <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-primary text-white font-bold text-sm">Add</button>
+          </div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  const editStep = (routineKey, step) => {
+    let f0 = { ...step };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const save = () => {
+        updateRoutineStep(routineKey, step.id, { step:f.step, name:f.name, product:f.product, quantity:f.quantity, wait:f.wait, notes:f.notes });
+        showToast('Step updated');
+        closeModal();
+      };
+      return (
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold text-white">Edit step</h3>
+          <div className="grid grid-cols-3 gap-2">
+            <FormInput label="Step #" value={f.step} onChange={e => setF({...f, step: e.target.value})}/>
+            <div className="col-span-2"><FormInput label="Name" value={f.name} onChange={e => setF({...f, name: e.target.value})}/></div>
+          </div>
+          <FormInput label="Product" value={f.product} onChange={e => setF({...f, product: e.target.value})}/>
+          <FormInput label="Quantity" value={f.quantity} onChange={e => setF({...f, quantity: e.target.value})}/>
+          <FormInput label="Wait / timing" value={f.wait} onChange={e => setF({...f, wait: e.target.value})}/>
+          <FormInput label="Notes" isTextArea value={f.notes || ''} onChange={e => setF({...f, notes: e.target.value})}/>
+          <div className="flex gap-2 pt-2">
+            <button onClick={closeModal} className="flex-1 py-2.5 rounded-xl btn-ghost font-medium text-sm">Cancel</button>
+            <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-primary text-white font-bold text-sm">Save</button>
+          </div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  const addExoSession = () => {
+    let f0 = { date: todayLocal() };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const save = () => {
+        setSkincare(prev => ({...prev, exosomeSessions: [...(prev.exosomeSessions || []), f.date].sort()}));
+        showToast('Session added');
+        closeModal();
+      };
+      return (
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold text-white">Add exosome session</h3>
+          <FormInput label="Date" type="date" value={f.date} onChange={e => setF({...f, date: e.target.value})}/>
+          <div className="flex gap-2 pt-2"><button onClick={closeModal} className="flex-1 py-2.5 rounded-xl btn-ghost font-medium text-sm">Cancel</button><button onClick={save} className="flex-1 py-2.5 rounded-xl btn-primary text-white font-bold text-sm">Add</button></div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  const removeExoSession = (d) => {
+    setSkincare(prev => ({...prev, exosomeSessions: (prev.exosomeSessions || []).filter(x => x !== d)}));
+    showToast('Session removed');
+  };
+
+  const addCadenceBand = (which) => {
+    let f0 = which === 'stamping'
+      ? { from: todayLocal(), to: '2099-12-31', days: '0,6', label: '' }
+      : { from: todayLocal(), to: '2099-12-31', cadence: 'baseline', skipDow: 3, label: '' };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const save = () => {
+        if (which === 'stamping') {
+          const days = (f.days || '').split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x) && x >= 0 && x <= 6);
+          setSkincare(prev => ({...prev, stampingCadence: [...(prev.stampingCadence || []), { id:'sc_'+uid(), from:f.from, to:f.to, days, label:f.label || 'Custom band' }]}));
+        } else {
+          setSkincare(prev => ({...prev, tretinoinSchedule: [...(prev.tretinoinSchedule || []), { id:'tr_'+uid(), from:f.from, to:f.to, cadence:f.cadence, skipDow: f.skipDow === '' ? null : parseInt(f.skipDow), label:f.label || 'Custom band' }]}));
+        }
+        showToast('Added');
+        closeModal();
+      };
+      return (
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold text-white">Add {which === 'stamping' ? 'stamping' : 'tretinoin'} band</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <FormInput label="From" type="date" value={f.from} onChange={e => setF({...f, from: e.target.value})}/>
+            <FormInput label="To" type="date" value={f.to} onChange={e => setF({...f, to: e.target.value})}/>
+          </div>
+          {which === 'stamping' ? (
+            <FormInput label="Days (0=Sun ... 6=Sat, comma-sep)" value={f.days} onChange={e => setF({...f, days: e.target.value})}/>
+          ) : (
+            <>
+              <FormSelect label="Cadence" value={f.cadence} onChange={e => setF({...f, cadence: e.target.value})}>
+                <option value="baseline">Baseline (Mon/Tue/Thu/Fri/Sat)</option>
+                <option value="eod">Every other night</option>
+                <option value="every3">Every 3rd night</option>
+                <option value="skip">SKIP entire band</option>
+              </FormSelect>
+              <FormSelect label="Skip day-of-week (optional)" value={f.skipDow == null ? '' : String(f.skipDow)} onChange={e => setF({...f, skipDow: e.target.value})}>
+                <option value="">None</option>
+                {DOW_LABELS.map((d,i) => <option key={i} value={i}>{d}</option>)}
+              </FormSelect>
+            </>
+          )}
+          <FormInput label="Label" value={f.label} onChange={e => setF({...f, label: e.target.value})}/>
+          <div className="flex gap-2 pt-2"><button onClick={closeModal} className="flex-1 py-2.5 rounded-xl btn-ghost font-medium text-sm">Cancel</button><button onClick={save} className="flex-1 py-2.5 rounded-xl btn-primary text-white font-bold text-sm">Add</button></div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
+  const removeBand = (which, id) => {
+    setSkincare(prev => ({...prev, [which]: (prev[which] || []).filter(b => b.id !== id)}));
+    showToast('Removed');
+  };
+
+  const resetAll = () => {
+    confirmModal('Reset skincare protocol?', 'This restores all routines, dates, and schedules to defaults. Daily completion history is preserved.', () => {
+      setSkincare(JSON.parse(JSON.stringify(SKINCARE_DEFAULT)));
+      showToast('Reset to defaults');
+    }, 'Reset');
+  };
+
+  const ROUTINE_ORDER = ['am','pm-standard','pm-scalp-stamp','pm-face-stamp','pm-exosome'];
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Skincare Protocol</h2>
+          <p className="text-xs text-zinc-500 mt-0.5">Edit routines, schedules, and reference dates</p>
+        </div>
+        <button onClick={resetAll} className="btn-ghost px-4 py-2 rounded-xl text-xs font-bold text-zinc-300 flex items-center gap-1.5"><Trash2 size={12}/> Reset to defaults</button>
+      </div>
+
+      {/* Reference dates */}
+      <CollapsibleSection title="Reference dates" icon={Calendar} open={openSection === 'dates'} onToggle={() => setOpenSection(openSection === 'dates' ? '' : 'dates')}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <FormInput label="Sculptra injection date" type="date" value={skincare.sculptraDate || ''} onChange={e => updateField('sculptraDate', e.target.value)}/>
+          <FormInput label="Face stamping start date" type="date" value={skincare.faceStampingStartDate || ''} onChange={e => updateField('faceStampingStartDate', e.target.value)}/>
+          <div>
+            <label className="block text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1.5">Exosome sessions</label>
+            <div className="space-y-1.5">
+              {(skincare.exosomeSessions || []).map(d => (
+                <div key={d} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                  <span className="text-xs text-white font-mono flex-1">{d}</span>
+                  <button onClick={() => removeExoSession(d)} className="text-zinc-500 hover:text-rose-400"><X size={12}/></button>
+                </div>
+              ))}
+              <button onClick={addExoSession} className="w-full py-1.5 rounded-lg btn-ghost text-xs text-zinc-400 flex items-center justify-center gap-1.5"><Plus size={11}/> Add session</button>
+            </div>
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* Weekly schedule */}
+      <CollapsibleSection title="Weekly PM schedule" icon={Moon} open={openSection === 'weekly'} onToggle={() => setOpenSection(openSection === 'weekly' ? '' : 'weekly')}>
+        <p className="text-xs text-zinc-500 mb-3">Intended PM protocol per weekday. Stamping nights auto-demote to Standard during exosome blackouts and conservative ramp periods. Face stamping waits until the start date.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {DOW_LABELS.map((d, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-800/60">
+              <span className="text-xs font-bold text-zinc-300 w-16">{d}</span>
+              <select value={(skincare.weeklySchedule || {})[i] || 'standard'} onChange={e => updateField(`weeklySchedule.${i}`, e.target.value)} className="input rounded-lg px-2 py-1.5 text-xs flex-1">
+                <option value="standard">🌙 Standard PM</option>
+                <option value="scalp-stamp">💉 Scalp Stamping PM</option>
+                <option value="face-stamp">✨ Face Stamping PM</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      </CollapsibleSection>
+
+      {/* Stamping cadence ramp */}
+      <CollapsibleSection title="Stamping cadence ramp" icon={Activity} open={openSection === 'stamping'} onToggle={() => setOpenSection(openSection === 'stamping' ? '' : 'stamping')}>
+        <p className="text-xs text-zinc-500 mb-3">Date bands defining which DOW are active for hydra stamping. Most recent band wins.</p>
+        <div className="space-y-2">
+          {(skincare.stampingCadence || []).map(b => (
+            <div key={b.id} className="flex items-start gap-2 p-3 rounded-lg bg-zinc-900/40 border border-zinc-800/60">
+              <div className="flex-1 text-xs">
+                <div className="font-bold text-white">{b.label || 'Band'}</div>
+                <div className="text-zinc-500 mt-1">{b.from} → {b.to}</div>
+                <div className="text-cyan-300 mt-1">Days: {(b.days || []).map(d => DOW_LABELS[d]).join(', ') || '—'}</div>
+              </div>
+              <button onClick={() => removeBand('stampingCadence', b.id)} className="text-zinc-500 hover:text-rose-400 p-1"><Trash2 size={12}/></button>
+            </div>
+          ))}
+          <button onClick={() => addCadenceBand('stamping')} className="w-full py-2 rounded-lg btn-ghost text-xs text-zinc-300 flex items-center justify-center gap-1.5"><Plus size={11}/> Add band</button>
+        </div>
+      </CollapsibleSection>
+
+      {/* Tretinoin schedule */}
+      <CollapsibleSection title="Tretinoin schedule" icon={Droplet} open={openSection === 'tret'} onToggle={() => setOpenSection(openSection === 'tret' ? '' : 'tret')}>
+        <p className="text-xs text-zinc-500 mb-3">Cadence bands. Today's effective tretinoin state shows in the Today tab.</p>
+        <div className="space-y-2">
+          {(skincare.tretinoinSchedule || []).map(b => (
+            <div key={b.id} className="flex items-start gap-2 p-3 rounded-lg bg-zinc-900/40 border border-zinc-800/60">
+              <div className="flex-1 text-xs">
+                <div className="font-bold text-white">{b.label || b.cadence}</div>
+                <div className="text-zinc-500 mt-1">{b.from} → {b.to}</div>
+                <div className="text-cyan-300 mt-1">Cadence: <span className="font-mono">{b.cadence}</span>{b.skipDow != null && ` · skip ${DOW_LABELS[b.skipDow]}`}</div>
+              </div>
+              <button onClick={() => removeBand('tretinoinSchedule', b.id)} className="text-zinc-500 hover:text-rose-400 p-1"><Trash2 size={12}/></button>
+            </div>
+          ))}
+          <button onClick={() => addCadenceBand('tretinoin')} className="w-full py-2 rounded-lg btn-ghost text-xs text-zinc-300 flex items-center justify-center gap-1.5"><Plus size={11}/> Add band</button>
+        </div>
+      </CollapsibleSection>
+
+      {/* Routines */}
+      <div>
+        <h3 className="text-lg font-bold text-white tracking-tight mb-3">Routines</h3>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {ROUTINE_ORDER.map(k => {
+            const r = skincare.routines[k];
+            if (!r) return null;
+            return <button key={k} onClick={() => setOpenRoutine(k)} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${openRoutine === k ? 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-500/40' : 'bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800/60 border border-zinc-800'}`}><span className="mr-1">{r.icon}</span>{r.label}</button>;
+          })}
+        </div>
+        {openRoutine && skincare.routines[openRoutine] && (
+          <div className="glass rounded-2xl border border-zinc-800/60 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-bold text-white text-sm flex items-center gap-2"><span className="text-xl">{skincare.routines[openRoutine].icon}</span>{skincare.routines[openRoutine].label}</div>
+              <button onClick={() => addStep(openRoutine)} className="btn-primary px-3 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1.5"><Plus size={11}/> Add step</button>
+            </div>
+            <div className="space-y-2">
+              {(skincare.routines[openRoutine].steps || []).map((s, i, arr) => (
+                <div key={s.id} className="p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+                  <div className="flex items-start gap-2">
+                    <div className="flex flex-col gap-0.5 pt-0.5">
+                      <button onClick={() => moveStep(openRoutine, s.id, -1)} disabled={i === 0} className="text-zinc-500 hover:text-cyan-400 disabled:opacity-30"><TrendingUp size={12}/></button>
+                      <button onClick={() => moveStep(openRoutine, s.id, 1)} disabled={i === arr.length - 1} className="text-zinc-500 hover:text-cyan-400 disabled:opacity-30"><TrendingDown size={12}/></button>
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-500 font-mono tabular-nums w-7 pt-1">{s.step}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-white text-sm">{s.name}</div>
+                      {s.product && <div className="text-xs text-zinc-400 mt-1">{s.product}</div>}
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[11px] text-zinc-500">
+                        {s.quantity && <span>Qty: {s.quantity}</span>}
+                        {s.wait && s.wait !== '—' && <span>⏱ {s.wait}</span>}
+                      </div>
+                      {s.notes && <div className="text-[11px] text-amber-300/70 mt-1">⚠ {s.notes}</div>}
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <ActionBtn icon={Edit2} onClick={() => editStep(openRoutine, s)}/>
+                      <ActionBtn icon={Trash2} danger onClick={() => deleteStep(openRoutine, s.id)}/>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(skincare.routines[openRoutine].steps || []).length === 0 && <div className="text-xs text-zinc-500 py-6 text-center">No steps. Tap "Add step".</div>}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Sculptra restrictions */}
+      <CollapsibleSection title="Sculptra restrictions (post-injection day cutoffs)" icon={ShieldAlert} open={openSection === 'sculptra'} onToggle={() => setOpenSection(openSection === 'sculptra' ? '' : 'sculptra')}>
+        <div className="space-y-2">
+          {(skincare.sculptraRestrictions || []).map((r, i) => (
+            <div key={r.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900/40 border border-zinc-800/60">
+              <input type="number" value={r.endDay} onChange={e => {
+                setSkincare(prev => { const next = JSON.parse(JSON.stringify(prev)); next.sculptraRestrictions[i].endDay = parseInt(e.target.value) || 0; return next; });
+              }} className="input rounded-lg px-2 py-1 text-xs w-20 font-mono"/>
+              <input type="text" value={r.label} onChange={e => {
+                setSkincare(prev => { const next = JSON.parse(JSON.stringify(prev)); next.sculptraRestrictions[i].label = e.target.value; return next; });
+              }} className="input rounded-lg px-2 py-1 text-xs flex-1"/>
+              <button onClick={() => setSkincare(prev => ({...prev, sculptraRestrictions: prev.sculptraRestrictions.filter(x => x.id !== r.id)}))} className="text-zinc-500 hover:text-rose-400 p-1"><X size={12}/></button>
+            </div>
+          ))}
+          <button onClick={() => setSkincare(prev => ({...prev, sculptraRestrictions: [...(prev.sculptraRestrictions || []), { id:'sr_'+uid(), endDay:28, label:'New restriction' }]}))} className="w-full py-2 rounded-lg btn-ghost text-xs text-zinc-300 flex items-center justify-center gap-1.5"><Plus size={11}/> Add restriction</button>
+        </div>
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+function CollapsibleSection({ title, icon: Icon, open, onToggle, children }) {
+  return (
+    <div className="glass rounded-2xl border border-zinc-800/60 overflow-hidden">
+      <button onClick={onToggle} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-zinc-800/30 transition-colors">
+        {Icon && <Icon size={14} className="text-cyan-400"/>}
+        <span className="text-sm font-bold text-white flex-1 text-left">{title}</span>
+        <ArrowRight size={14} className={`text-zinc-500 transition-transform ${open ? 'rotate-90' : ''}`}/>
+      </button>
+      {open && <div className="p-4 border-t border-zinc-800/60">{children}</div>}
+    </div>
+  );
 }
 
 const _root = ReactDOM.createRoot(document.getElementById('root'));
