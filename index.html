@@ -918,13 +918,53 @@ function App() {
   const [protocols, setProtocols] = useState([]);
   const [activeTab, setActiveTab] = useState('protocol');
   const [activeProfile, setActiveProfile] = useState(() => localStorage.getItem('protocol_os_active_profile') || 'Roman');
-  const [skincare, setSkincare] = useState(() => {
-    try { const v = JSON.parse(localStorage.getItem('protocol_os_skincare') || 'null'); return v || SKINCARE_DEFAULT; }
-    catch { return SKINCARE_DEFAULT; }
+  const [skincareAll, setSkincareAll] = useState(() => {
+    const freshAll = () => Object.fromEntries(PROFILES.map(p => [p, JSON.parse(JSON.stringify(SKINCARE_DEFAULT))]));
+    try {
+      const raw = JSON.parse(localStorage.getItem('protocol_os_skincare') || 'null');
+      if (!raw) return freshAll();
+      // Migration: old single-shape (has top-level `routines`) → assign to current active profile, others get defaults
+      if (raw.routines) {
+        const seedFor = localStorage.getItem('protocol_os_active_profile') || 'Roman';
+        const out = freshAll();
+        out[seedFor] = raw;
+        return out;
+      }
+      // Per-profile shape; backfill any missing profiles with defaults
+      const out = freshAll();
+      PROFILES.forEach(p => { if (raw[p]) out[p] = raw[p]; });
+      return out;
+    } catch { return freshAll(); }
   });
-  const [skincareDone, setSkincareDone] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('protocol_os_skincare_done') || '{}'); }
-    catch { return {}; }
+  const [skincareDoneAll, setSkincareDoneAll] = useState(() => {
+    const freshAll = () => Object.fromEntries(PROFILES.map(p => [p, {}]));
+    try {
+      const raw = JSON.parse(localStorage.getItem('protocol_os_skincare_done') || 'null');
+      if (!raw) return freshAll();
+      // Migration: old date-keyed shape → assign to current active profile
+      const firstKey = Object.keys(raw)[0];
+      if (firstKey && /^\d{4}-\d{2}-\d{2}$/.test(firstKey)) {
+        const seedFor = localStorage.getItem('protocol_os_active_profile') || 'Roman';
+        const out = freshAll();
+        out[seedFor] = raw;
+        return out;
+      }
+      const out = freshAll();
+      PROFILES.forEach(p => { if (raw[p]) out[p] = raw[p]; });
+      return out;
+    } catch { return freshAll(); }
+  });
+  const skincare = skincareAll[activeProfile] || SKINCARE_DEFAULT;
+  const setSkincare = (updater) => setSkincareAll(prev => {
+    const cur = prev[activeProfile] || JSON.parse(JSON.stringify(SKINCARE_DEFAULT));
+    const next = typeof updater === 'function' ? updater(cur) : updater;
+    return { ...prev, [activeProfile]: next };
+  });
+  const skincareDone = skincareDoneAll[activeProfile] || {};
+  const setSkincareDone = (updater) => setSkincareDoneAll(prev => {
+    const cur = prev[activeProfile] || {};
+    const next = typeof updater === 'function' ? updater(cur) : updater;
+    return { ...prev, [activeProfile]: next };
   });
   const [viewDate, setViewDate] = useState(() => new Date());
   const [toast, setToast] = useState(null);
@@ -1335,8 +1375,8 @@ function App() {
   useEffect(() => { localStorage.setItem('protocol_os_vials', JSON.stringify(vials)); }, [vials]);
   useEffect(() => { localStorage.setItem('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { localStorage.setItem('protocol_os_active_profile', activeProfile); }, [activeProfile]);
-  useEffect(() => { localStorage.setItem('protocol_os_skincare', JSON.stringify(skincare)); }, [skincare]);
-  useEffect(() => { localStorage.setItem('protocol_os_skincare_done', JSON.stringify(skincareDone)); }, [skincareDone]);
+  useEffect(() => { localStorage.setItem('protocol_os_skincare', JSON.stringify(skincareAll)); }, [skincareAll]);
+  useEffect(() => { localStorage.setItem('protocol_os_skincare_done', JSON.stringify(skincareDoneAll)); }, [skincareDoneAll]);
 
   const showToast = (message, type = 'success', undoFn = null) => {
     setToast({ message, type, undoFn });
@@ -1371,7 +1411,7 @@ function App() {
         <TopBar viewDate={viewDate} setViewDate={setViewDate} activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols}/>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
           {activeTab === 'protocol' && <ProtocolView viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} storage={storage} skincare={skincare} skincareDone={skincareDone} setSkincareDone={setSkincareDone} setActiveTab={setActiveTab} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
-          {activeTab === 'skincare' && <SkincareView skincare={skincare} setSkincare={setSkincare} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
+          {activeTab === 'skincare' && <SkincareView activeProfile={activeProfile} skincare={skincare} setSkincare={setSkincare} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
           {activeTab === 'inventory' && <InventoryView activeProfile={activeProfile} vials={vials} setVials={setVials} storage={storage} setStorage={setStorage} logs={logs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
           {activeTab === 'lab' && <LabView storage={storage} vials={vials}/>}
           {activeTab === 'math' && <MathView/>}
@@ -2423,7 +2463,7 @@ function SkinStep({ step, done, onToggle, onEdit, tretSkipReason }) {
   );
 }
 
-function SkincareView({ skincare, setSkincare, openModal, closeModal, confirmModal, showToast }) {
+function SkincareView({ activeProfile, skincare, setSkincare, openModal, closeModal, confirmModal, showToast }) {
   const [tab, setTab] = useState('routines');
   const [openRoutine, setOpenRoutine] = useState('am');
 
@@ -2571,6 +2611,14 @@ function SkincareView({ skincare, setSkincare, openModal, closeModal, confirmMod
   const ROUTINE_ORDER = ['am','pm-standard','pm-scalp-stamp','pm-face-stamp','pm-exosome'];
   return (
     <div style={{paddingBottom:40,paddingTop:8}}>
+      <div className="card" style={{padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',gap:10,background:'linear-gradient(135deg, rgba(10,132,255,0.10), rgba(94,92,230,0.06))',borderColor:'rgba(10,132,255,0.25)'}}>
+        <div style={{width:36,height:36,borderRadius:12,background:'rgba(10,132,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:18}}>✨</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:11,color:'var(--text-dim)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em'}}>Editing routine for</div>
+          <div style={{fontSize:15,fontWeight:700,color:'var(--accent-2)',letterSpacing:'-0.01em'}}>{activeProfile}</div>
+        </div>
+        <div style={{fontSize:10,color:'var(--text-faint)',textAlign:'right',lineHeight:1.4}}>Switch profile<br/>in top bar</div>
+      </div>
       <div style={{display:'flex',justifyContent:'center',margin:'6px 0 16px'}}>
         <div className="seg-control" style={{display:'flex',flexWrap:'wrap',gap:2}}>
           {[['routines','Routines'],['schedule','Schedule'],['dates','Dates'],['rules','Rules']].map(([id,l]) => <button key={id} className={`seg-item ${tab===id?'active':''}`} onClick={() => setTab(id)}>{l}</button>)}
