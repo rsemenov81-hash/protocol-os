@@ -676,6 +676,23 @@ const PEPTIDE_DB = [
   {id:"fit",ingredients:{"cjc1295-no-dac":0.5,"ipamorelin":0.5},name:"FIT Stack (CJC + Ipa)",category:"GH Secretagogue",icon:"⚡",purpose:"Stack: CJC-1295 (no DAC) + Ipamorelin for pulsatile GH.",benefits:["GH pulse","Sleep","Recovery"],protocol:{doseRange:"200 mcg of each",defaultDoseMcg:200,timing:"Nighttime fasted",cycle:"5 on / 2 off · 8-12w",cycleDays:60,route:"SubQ"},reconstitution:{typicalVialMg:10,defaultDiluentMl:2},synergy:["Tesamorelin"],avoid:["Eating within 2h"],contraindications:["Active malignancy","Pregnancy"]},
   {id:"coremend",ingredients:{"bpc157":0.333,"kpv":0.333,"tb500":0.333},name:"Coremend Blend (KPV/BPC/TB)",category:"Healing",icon:"🩹",purpose:"Stack: KPV + BPC-157 + TB-500 for gut and tissue healing.",benefits:["Gut repair","Tissue healing","Anti-inflammatory"],protocol:{doseRange:"500 mcg daily",defaultDoseMcg:500,timing:"AM",cycle:"4-6 weeks",cycleDays:35,route:"SubQ"},reconstitution:{typicalVialMg:35,defaultDiluentMl:2},synergy:["GHK-Cu"],avoid:["Continuous use"],contraindications:["Active malignancy"]},
   {id:"pe-pin-sel",ingredients:{"pe-22-28":0.333,"pinealon":0.333,"selank":0.333},name:"PE-22-28 + Pinealon + Selank",category:"Cognitive",icon:"🧠",purpose:"Cognitive blend: PE-22-28 (focus) + Pinealon (circadian) + Selank (calm).",benefits:["Focus","Mood","Anti-anxiety","Circadian"],protocol:{doseRange:"500 mcg daily",defaultDoseMcg:500,timing:"AM, M-F",cycle:"4 weeks",cycleDays:28,route:"SubQ"},reconstitution:{typicalVialMg:30,defaultDiluentMl:3},synergy:["Cerebrolysin"],avoid:["Late-evening dosing"],contraindications:["Pregnancy"]},
+  {id:"igf1-lr3",name:"IGF-1 LR3",category:"Anabolic",icon:"💪",purpose:"Long-acting IGF-1 analogue (~20-30h); direct anabolic signaling — muscle hyperplasia/hypertrophy, nutrient partitioning.",benefits:["Muscle growth","Recovery","Nutrient partitioning"],protocol:{doseRange:"20-50 mcg/day",defaultDoseMcg:40,timing:"AM or post-workout",cycle:"4 weeks on / 4+ off",cycleDays:28,route:"SubQ"},reconstitution:{typicalVialMg:1,defaultDiluentMl:2},synergy:["Tesamorelin","Testosterone"],avoid:["Dihexa (oncogenic synergy)","Continuous use"],contraindications:["Active/suspected malignancy","Family cancer history — surveil"]},
+  {id:"lgd-4033",name:"LGD-4033 (Ligandrol)",category:"Anabolic",icon:"⚗️",purpose:"Oral SARM — selective androgen receptor agonist; muscle/strength with less androgenic effect than testosterone.",benefits:["Lean mass","Strength","Recomp"],protocol:{doseRange:"5-10 mg/day",defaultDoseMcg:5000,timing:"AM",cycle:"6-8 weeks",cycleDays:56,route:"Oral/Sublingual"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:["Testosterone"],avoid:["Stacking on already-high androgen load"],contraindications:["Hepatic concern (raises ALT/AST)","Crushes HDL — monitor lipids"]},
+  {id:"j-147",name:"J-147",category:"Cognitive",icon:"🧠",purpose:"Curcumin-derived neuroprotective; targets mitochondrial ATP synthase, enhances neurogenesis. Strong Alzheimer's/aging preclinical data.",benefits:["Neuroprotection","Neurogenesis","Mitochondrial support","Cognitive"],protocol:{doseRange:"10-50 mg/day",defaultDoseMcg:10000,timing:"AM",cycle:"Ongoing",cycleDays:90,route:"Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:["Mitochondrial peptides"],avoid:[],contraindications:["Limited human data"]},
+  {id:"atx-304",name:"ATX-304",category:"Metabolic",icon:"🔥",purpose:"Direct pan-AMPK activator (oral); fat oxidation, insulin sensitivity, mitochondrial signaling — exercise mimetic.",benefits:["Fat oxidation","Insulin sensitivity","Metabolic"],protocol:{doseRange:"25-50 mg/day",defaultDoseMcg:25000,timing:"AM",cycle:"Ongoing",cycleDays:60,route:"Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["MOTS-c (AMPK overlap — redundant)"],contraindications:["Experimental"]},
+  {id:"flrg242",name:"FLRG242",category:"Anabolic",icon:"💪",purpose:"Follistatin-based myostatin inhibitor; muscle growth via myostatin/activin neutralization. More selective than ActRIIB traps (skips BMP9/10 vascular toxicity).",benefits:["Muscle growth","Recomp"],protocol:{doseRange:"100 mcg/day or 5mg q2wk",defaultDoseMcg:100,timing:"AM",cycle:"20-30 days",cycleDays:30,route:"SubQ"},reconstitution:{typicalVialMg:5,defaultDiluentMl:1},synergy:["Testosterone","IGF-1"],avoid:["ACE-031 (additive myostatin/activin)"],contraindications:["Experimental","Suppresses FSH"]},
+  {id:"melanotan1",name:"Melanotan I",category:"Other",icon:"☀️",purpose:"MC1R-selective melanocortin — tanning + UV photoprotection via melanin. Minimal MC4R (little libido/nausea vs MT-2).",benefits:["Tanning","Photoprotection"],protocol:{doseRange:"250-500 mcg/day load",defaultDoseMcg:250,timing:"Any",cycle:"Load then maintain",cycleDays:30,route:"SubQ"},reconstitution:{typicalVialMg:10,defaultDiluentMl:2},synergy:[],avoid:[],contraindications:["Darkens moles — melanoma surveillance"]},
+  {id:"orexin-a",name:"Orexin-A",category:"Cognitive",icon:"⚡",purpose:"Wakefulness/arousal neuropeptide (intranasal); daytime alertness, focus, mood.",benefits:["Wakefulness","Alertness","Focus"],protocol:{doseRange:"PRN intranasal",defaultDoseMcg:0,timing:"AM only",cycle:"PRN",cycleDays:30,route:"Intranasal"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["Afternoon/evening dosing (fragments sleep)"],contraindications:["Sleep disorders — time carefully"]},
+  {id:"noopept",name:"Noopept",category:"Cognitive",icon:"🧠",purpose:"Fast-acting nootropic (intranasal); raises BDNF/NGF, focus and memory.",benefits:["Focus","Memory","Neuroprotection"],protocol:{doseRange:"PRN intranasal",defaultDoseMcg:0,timing:"AM",cycle:"Cycle (TrkB hedge)",cycleDays:28,route:"Intranasal"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["Continuous use (cycle for TrkB)"],contraindications:[]},
+  {id:"adalank",name:"Adalank",category:"Cognitive",icon:"🌊",purpose:"Selank-type anxiolytic analogue (intranasal); calm, immune, mild cognitive.",benefits:["Anti-anxiety","Calm","Immune"],protocol:{doseRange:"PRN intranasal",defaultDoseMcg:0,timing:"AM",cycle:"Cycle",cycleDays:28,route:"Intranasal"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:[],contraindications:[]},
+  {id:"neurolux",ingredients:{"semax":0.42,"selank":0.17,"pinealon":0.21,"pe-22-28":0.21},name:"Neurolux (Semax+Selank+Pinealon+PE22-28)",category:"Cognitive",icon:"🧠",purpose:"Comprehensive cognitive blend: N-Acetyl-Semax 20mg + N-Acetyl-Selank 8mg + Pinealon 10mg + PE22-28 10mg. Focus + calm + circadian in one.",benefits:["Focus","Mood","Anti-anxiety","Circadian","Neuroprotection"],protocol:{doseRange:"~12u/day",defaultDoseMcg:500,timing:"AM",cycle:"4 on / 2-4 off (TrkB hedge)",cycleDays:28,route:"SubQ"},reconstitution:{typicalVialMg:48,defaultDiluentMl:4.8},synergy:[],avoid:["Running continuously (cycle for TrkB)"],contraindications:["Pregnancy"]},
+  {id:"tadalafil",name:"Tadalafil",category:"Other",icon:"❤️",purpose:"PDE5 inhibitor; vascular/endothelial benefit, erectile function, BPH. Low-dose daily.",benefits:["Vascular","Erectile","Endothelial","BPH"],protocol:{doseRange:"2.5-5 mg/day",defaultDoseMcg:2500,timing:"Daily",cycle:"Ongoing",cycleDays:365,route:"Sublingual/Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["Nitrates"],contraindications:["Nitrate use","Severe cardiovascular disease"]},
+  {id:"anastrozole",name:"Anastrozole",category:"Hormone",icon:"🚫",purpose:"Aromatase inhibitor — blocks testosterone→estradiol conversion. Manages high E2 on TRT.",benefits:["E2 control"],protocol:{doseRange:"0.125-0.5 mg, 1-2x/wk",defaultDoseMcg:250,timing:"PRN to labs",cycle:"As needed",cycleDays:365,route:"Sublingual/Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:["Testosterone"],avoid:["Prophylactic use","Over-suppression"],contraindications:["Low E2 (<20 — joint/bone/lipid harm)","Use sensitive E2 assay"]},
+  {id:"testosterone",name:"Testosterone",category:"Hormone",icon:"⚡",purpose:"Primary androgen — anabolic/androgenic baseline. TRT foundation.",benefits:["Muscle","Libido","Mood","Energy","Bone"],protocol:{doseRange:"15-25 mg/day SubQ",defaultDoseMcg:20000,timing:"Daily AM",cycle:"Ongoing",cycleDays:365,route:"SubQ"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:["HCG (always)","Anastrozole (if needed)"],avoid:["TRT without HCG"],contraindications:["Polycythemia (monitor HCT)","Prostate cancer"]},
+  {id:"finasteride",name:"Finasteride",category:"Other",icon:"💊",purpose:"5α-reductase inhibitor — blocks T→DHT. Hair-loss Rx.",benefits:["Hair preservation"],protocol:{doseRange:"1 mg/day (or topical)",defaultDoseMcg:1000,timing:"Daily",cycle:"Ongoing",cycleDays:365,route:"Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:[],contraindications:["Watch libido/mood/sleep (allopregnanolone). Topical spares systemic."]},
+  {id:"9-me-bc",name:"9-Me-BC",category:"Cognitive",icon:"🧠",purpose:"Dopaminergic/neurogenic nootropic; dopamine receptor sensitization, neuroprotection.",benefits:["Dopaminergic","Neurogenesis","Mood"],protocol:{doseRange:"5-20 mg/day",defaultDoseMcg:20000,timing:"AM",cycle:"Short cycles",cycleDays:14,route:"Oral"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["SSRIs/MAOIs (serotonin syndrome risk)"],contraindications:["Concurrent serotonergics (e.g. sertraline)"]},
+  {id:"l-carnitine",name:"L-Carnitine",category:"Metabolic",icon:"🔥",purpose:"Mitochondrial fatty-acid transport; fat oxidation, energy. (ALCAR variant crosses BBB for cognition.)",benefits:["Fat oxidation","Energy","Recovery"],protocol:{doseRange:"500-2000 mg",defaultDoseMcg:1000000,timing:"Pre-workout/AM",cycle:"Ongoing",cycleDays:365,route:"SubQ/IM"},reconstitution:{typicalVialMg:0,defaultDiluentMl:0},synergy:[],avoid:["High-dose oral (TMAO via gut FMO3 — injectable/ALCAR preferred)"],contraindications:["Seizure history"]},
+  {id:"l-glutathione",name:"L-Glutathione",category:"Other",icon:"🛡️",purpose:"Master antioxidant; detox, immune, skin. Note: SubQ/IM largely degraded by γ-GT — IV is the effective route.",benefits:["Antioxidant","Detox","Skin","Immune"],protocol:{doseRange:"600-1200 mg",defaultDoseMcg:1200000,timing:"2-3x/wk",cycle:"Ongoing",cycleDays:365,route:"IV (best) / SubQ-IM (low yield)"},reconstitution:{typicalVialMg:1200,defaultDiluentMl:3},synergy:["NAC","Glycine","Vitamin C"],avoid:["SubQ/IM expecting IV-level delivery"],contraindications:[]},
 ];
 
 const CATEGORIES = [...new Set(PEPTIDE_DB.map(p => p.category))].sort();
@@ -763,6 +780,27 @@ function vialExpiration(reconstitutedAt) {
   return { expiry, daysLeft, expired: daysLeft <= 0, warning: daysLeft <= 7 };
 }
 
+
+function SyncConfig({ initialUrl, initialToken, onSave, onClose }) {
+  const [u, setU] = useState(initialUrl || '');
+  const [t, setT] = useState(initialToken || '');
+  return (
+    <div>
+      <h3 style={{margin:'0 0 6px',fontSize:18,fontWeight:700}}>☁️ Cloud Sync Setup</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>Connect once. After this, your protocol auto-syncs across every device + Claude — no files.</p>
+      <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Worker URL</label>
+      <input value={u} onChange={e=>setU(e.target.value)} placeholder="https://protocol-sync.<you>.workers.dev"
+        style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+      <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Sync token</label>
+      <input value={t} onChange={e=>setT(e.target.value)} placeholder="your SYNC_TOKEN secret" type="password"
+        style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+        <button className="btn btn-primary" onClick={()=>onSave(u.trim(),t.trim())} disabled={!u||!t}>Connect</button>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [logs, setLogs] = useState([]);
@@ -1181,6 +1219,69 @@ function App() {
   useEffect(() => { localStorage.setItem('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { localStorage.setItem('protocol_os_active_profile', activeProfile); }, [activeProfile]);
 
+  // ── Cloud sync (Cloudflare Worker + KV): auto-sync everywhere, no files ──
+  const [syncUrl, setSyncUrl] = useState(() => localStorage.getItem('protocol_os_sync_url') || '');
+  const [syncToken, setSyncToken] = useState(() => localStorage.getItem('protocol_os_sync_token') || '');
+  const [syncStatus, setSyncStatus] = useState('idle'); // idle | pushing | pulling | ok | error | off
+  const syncReady = syncUrl && syncToken;
+  const lastPushRef = React.useRef('');
+
+  const cloudEndpoint = () => {
+    const base = syncUrl.replace(/\/+$/, '');
+    return `${base}/sync?profile=${encodeURIComponent(activeProfile)}&token=${encodeURIComponent(syncToken)}`;
+  };
+
+  const cloudPull = async (announce) => {
+    if (!syncReady) return;
+    setSyncStatus('pulling');
+    try {
+      const r = await fetch(cloudEndpoint(), { method: 'GET' });
+      if (!r.ok) throw new Error('GET ' + r.status);
+      const d = await r.json();
+      if (!d._empty) {
+        if (Array.isArray(d.protocols)) setProtocols(d.protocols);
+        if (Array.isArray(d.vials)) setVials(d.vials);
+        if (Array.isArray(d.storage)) setStorage(d.storage);
+        if (Array.isArray(d.logs)) setLogs(prev => {
+          const byId = {}; [...prev, ...d.logs].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
+          return Object.values(byId);
+        });
+      }
+      setSyncStatus('ok');
+      if (announce) showToast('Pulled latest from cloud');
+    } catch (e) { console.error(e); setSyncStatus('error'); if (announce) showToast('Cloud pull failed', 'error'); }
+  };
+
+  const cloudPush = async (announce) => {
+    if (!syncReady) return;
+    const payload = JSON.stringify({ protocols, vials, storage, logs });
+    if (payload === lastPushRef.current && !announce) return; // no change
+    lastPushRef.current = payload;
+    setSyncStatus('pushing');
+    try {
+      const r = await fetch(cloudEndpoint(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload });
+      if (!r.ok) throw new Error('POST ' + r.status);
+      setSyncStatus('ok');
+      if (announce) showToast('Synced to cloud');
+    } catch (e) { console.error(e); setSyncStatus('error'); if (announce) showToast('Cloud sync failed', 'error'); }
+  };
+
+  // Pull once on load when configured
+  useEffect(() => { if (syncReady) cloudPull(false); /* eslint-disable-next-line */ }, []);
+  // Debounced auto-push whenever data changes
+  useEffect(() => {
+    if (!syncReady) { setSyncStatus('off'); return; }
+    const t = setTimeout(() => cloudPush(false), 1500);
+    return () => clearTimeout(t);
+  }, [protocols, vials, storage, logs, syncUrl, syncToken]);
+
+  const saveSyncConfig = (u, tok) => {
+    setSyncUrl(u); setSyncToken(tok);
+    localStorage.setItem('protocol_os_sync_url', u);
+    localStorage.setItem('protocol_os_sync_token', tok);
+    showToast('Cloud sync configured');
+  };
+
   // ── Claude sync: Export (adherence + full state out) / Import (protocol in) ──
   const exportData = () => {
     const payload = {
@@ -1258,9 +1359,26 @@ function App() {
       <div className="ambient"/>
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'20px 18px 0'}}>
         <TopBar viewDate={viewDate} setViewDate={setViewDate} activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols}/>
-        <div style={{display:'flex',gap:8,marginBottom:14}}>
-          <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={exportData}>⬆️ Export for Claude</button>
-          <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={() => importInputRef.current && importInputRef.current.click()}>⬇️ Import from Claude</button>
+        <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center'}}>
+          {syncReady ? (
+            <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={() => { cloudPull(true); }}>
+              {syncStatus==='pushing'?'☁️ Syncing…':syncStatus==='pulling'?'☁️ Pulling…':syncStatus==='error'?'⚠️ Sync error — tap to retry':'☁️ Synced — tap to refresh'}
+            </button>
+          ) : (
+            <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={() => openModal(
+              <SyncConfig initialUrl={syncUrl} initialToken={syncToken} onSave={(u,t)=>{saveSyncConfig(u,t);closeModal();setTimeout(()=>cloudPull(true),300);}} onClose={closeModal}/>
+            )}>🔗 Set up cloud sync</button>
+          )}
+          <button className="btn btn-ghost" style={{fontSize:13,padding:'8px 10px'}} title="Manual file export/import" onClick={() => openModal(
+            <div>
+              <h3 style={{margin:'0 0 12px',fontSize:17,fontWeight:700}}>Manual sync (fallback)</h3>
+              <div style={{display:'flex',gap:8,marginBottom:10}}>
+                <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>⬆️ Export file</button>
+                <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>⬇️ Import file</button>
+              </div>
+              {syncReady && <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openModal(<SyncConfig initialUrl={syncUrl} initialToken={syncToken} onSave={(u,t)=>{saveSyncConfig(u,t);closeModal();}} onClose={closeModal}/>)}>⚙️ Edit cloud sync settings</button>}
+            </div>
+          )}>⋯</button>
           <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
         </div>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
