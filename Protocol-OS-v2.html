@@ -1181,6 +1181,52 @@ function App() {
   useEffect(() => { localStorage.setItem('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { localStorage.setItem('protocol_os_active_profile', activeProfile); }, [activeProfile]);
 
+  // ── Claude sync: Export (adherence + full state out) / Import (protocol in) ──
+  const exportData = () => {
+    const payload = {
+      _format: 'protocol-os-export/v1',
+      exportedAt: new Date().toISOString(),
+      activeProfile,
+      protocols, vials, storage,
+      logs, // daily adherence — this is what the peptide-tracker skill reads
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `protocol-os-export-${todayLocal()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('Exported — share the JSON with Claude');
+  };
+  const importInputRef = React.useRef(null);
+  const handleImportFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const d = JSON.parse(reader.result);
+        // Replace skill-managed protocols; merge logs by id so adherence history is preserved.
+        if (Array.isArray(d.protocols)) setProtocols(d.protocols);
+        if (Array.isArray(d.vials)) setVials(d.vials);
+        if (Array.isArray(d.storage)) setStorage(d.storage);
+        if (Array.isArray(d.logs)) {
+          setLogs(prev => {
+            const byId = {}; [...prev, ...d.logs].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
+            return Object.values(byId);
+          });
+        }
+        showToast('Imported protocol from Claude');
+      } catch (err) {
+        console.error(err);
+        showToast('Import failed — invalid JSON', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const showToast = (message, type = 'success', undoFn = null) => {
     setToast({ message, type, undoFn });
     setTimeout(() => setToast(null), undoFn ? 6000 : 3000);
@@ -1212,6 +1258,11 @@ function App() {
       <div className="ambient"/>
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'20px 18px 0'}}>
         <TopBar viewDate={viewDate} setViewDate={setViewDate} activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols}/>
+        <div style={{display:'flex',gap:8,marginBottom:14}}>
+          <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={exportData}>⬆️ Export for Claude</button>
+          <button className="btn btn-ghost" style={{flex:1,fontSize:13,padding:'8px 10px'}} onClick={() => importInputRef.current && importInputRef.current.click()}>⬇️ Import from Claude</button>
+          <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
+        </div>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
           {activeTab === 'protocol' && <ProtocolView viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} storage={storage} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
           {activeTab === 'inventory' && <InventoryView activeProfile={activeProfile} vials={vials} setVials={setVials} storage={storage} setStorage={setStorage} logs={logs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast}/>}
