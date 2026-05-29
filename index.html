@@ -790,9 +790,11 @@ function SyncConfig({ initialUrl, initialToken, onSave, onClose }) {
       <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>Connect once. After this, your protocol auto-syncs across every device + Claude — no files.</p>
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Worker URL</label>
       <input value={u} onChange={e=>setU(e.target.value)} placeholder="https://protocol-sync.<you>.workers.dev"
+        autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="url"
         style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Sync token</label>
-      <input value={t} onChange={e=>setT(e.target.value)} placeholder="your SYNC_TOKEN secret" type="password"
+      <input value={t} onChange={e=>setT(e.target.value)} placeholder="your SYNC_TOKEN secret"
+        autoCapitalize="none" autoCorrect="off" spellCheck={false}
         style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
@@ -1249,7 +1251,7 @@ function App() {
       }
       setSyncStatus('ok');
       if (announce) showToast('Pulled latest from cloud');
-    } catch (e) { console.error(e); setSyncStatus('error'); if (announce) showToast('Cloud pull failed', 'error'); }
+    } catch (e) { console.error(e); setSyncStatus('error'); showToast('Sync failed: ' + (e.message||e) + ' — check URL/token in ⋯ settings', 'error'); }
   };
 
   const cloudPush = async (announce) => {
