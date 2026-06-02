@@ -1589,6 +1589,17 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       };
       const units = parseFloat(f.doseMl) ? (parseFloat(f.doseMl)*100).toFixed(1) : '';
       const setQuickTime = (h) => { const dt = new Date(viewDate); dt.setHours(h,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset()); setF({...f, datetime: dt.toISOString().slice(0,16)}); };
+      // "In this shot" — for blend vials, how much of EACH component the current draw delivers.
+      const vialPep = targetVial ? findPep(targetVial.peptideId) : null;
+      const drawMl = parseFloat(f.doseMl) || 0;
+      const shotBreakdown = (vialPep && vialPep.ingredients && targetVial && targetVial.diluentMl > 0)
+        ? Object.entries(vialPep.ingredients).sort((a,b)=>b[1]-a[1]).map(([cid, frac]) => {
+            const sub = findPep(cid);
+            const compMg = (targetVial.mgPerVial || 0) * frac;
+            const compMcgPerMl = (compMg * 1000) / targetVial.diluentMl;
+            return { id: cid, name: sub ? sub.name : cid, icon: sub ? sub.icon : '💊', pct: Math.round(frac*100), mcgInShot: drawMl * compMcgPerMl };
+          })
+        : null;
       return (
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>{existingLog ? 'Edit Dose' : 'Administer'}</h3>
@@ -1604,15 +1615,36 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           {myVials.length === 0 && <div style={{marginBottom:16,fontSize:13,padding:12,borderRadius:12,background:'rgba(255,159,10,0.08)',border:'1px solid rgba(255,159,10,0.25)',color:'#FFD60A'}}>⚠ No active vial. Log saved without deduction.</div>}
           {targetVial && !isOral && mcgPerMl > 0 && <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.25)',padding:14,borderRadius:14,marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:18,fontFamily:'SF Mono, monospace',fontWeight:700}}>{isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:2}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit</div></div>}
           {targetVial && !isOral && mcgPerMl > 0 ? (
-            <Field label="💉 Syringe">
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-                {[['mL',f.doseMl,setMl,'0.01'],['Units',units,setUnits,'1'],[isIU?'IU':'mcg',f.doseMcg,setMcg,'1']].map(([l,v,fn,st]) => (
+            <Field label="💉 Draw to (syringe units)">
+              {/* PRIMARY: pull-to units — what you actually draw */}
+              <div style={{display:'flex',alignItems:'center',gap:10,background:'rgba(0,0,0,0.3)',border:'1px solid var(--border)',borderRadius:14,padding:'10px 14px'}}>
+                <input type="number" step="1" value={units} onChange={e => setUnits(e.target.value)} className="input" style={{flex:1,fontSize:34,fontWeight:800,textAlign:'center',fontFamily:'SF Mono, monospace',padding:'8px 10px',background:'transparent',border:'none'}}/>
+                <span style={{fontSize:14,color:'var(--text-dim)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em'}}>units</span>
+              </div>
+              {/* SECONDARY: equivalent mL and mass */}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:8}}>
+                {[['mL',f.doseMl,setMl,'0.01'],[isIU?'IU':'mcg',f.doseMcg,setMcg,'1']].map(([l,v,fn,st]) => (
                   <div key={l}>
                     <input type="number" step={st} value={v} onChange={e => fn(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/>
                     <div style={{textAlign:'center',fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,marginTop:4,letterSpacing:'0.06em'}}>{l}</div>
                   </div>
                 ))}
               </div>
+              {/* "In this shot" — per-component breakdown for blends */}
+              {shotBreakdown && shotBreakdown.length > 0 && (
+                <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',borderRadius:14,padding:'10px 12px',marginTop:10}}>
+                  <div style={{fontSize:10,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>🧪 In this shot</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    {shotBreakdown.map(c => (
+                      <div key={c.id} style={{display:'flex',alignItems:'center',gap:8}}>
+                        <span style={{fontSize:14}}>{c.icon}</span>
+                        <span style={{flex:1,fontSize:12,color:'var(--text-2)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.name} <span style={{color:'var(--text-faint)'}}>· {c.pct}%</span></span>
+                        <span style={{fontSize:12,fontWeight:700,fontFamily:'SF Mono, monospace',color:'var(--accent-2)'}}>{fmtMcg(c.mcgInShot)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div style={{textAlign:'center',fontSize:11,color:'var(--text-dim)',marginTop:10}}>→ Will deduct <b style={{color:'var(--accent-2)',fontFamily:'SF Mono, monospace'}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</b></div>
             </Field>
           ) : (
