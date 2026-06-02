@@ -440,11 +440,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
     --text-2: #c7c7cc;
     --text-dim: #8e8e93;
     --text-faint: #636366;
-    --accent: #0A84FF;
-    --accent-2: #64D2FF;
-    --accent-3: #5E5CE6;
-    --accent-glow: rgba(10, 132, 255, 0.45);
-    --gradient: linear-gradient(135deg, #0A84FF 0%, #64D2FF 50%, #5E5CE6 100%);
+    --accent: #f5f5f7;
+    --on-accent: #1c1c1e;
+    --accent-2: #aeaeb2;
+    --accent-3: #8e8e93;
+    --accent-glow: rgba(255,255,255,0.22);
+    --gradient: linear-gradient(135deg, #ffffff 0%, #c7c7cc 50%, #8e8e93 100%);
     --success: #30D158;
     --success-light: rgba(48,209,88,0.06);
     --warning: #FFD60A;
@@ -464,8 +465,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .hide-scrollbar { scrollbar-width: none; }
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .ambient::before { content:''; position:absolute; top:-20%; left:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(10,132,255,0.18), transparent 60%); filter: blur(60px); animation: pulse 12s ease-in-out infinite alternate; }
-  .ambient::after { content:''; position:absolute; bottom:-20%; right:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(94,92,230,0.15), transparent 60%); filter: blur(60px); animation: pulse 14s ease-in-out infinite alternate-reverse; }
+  .ambient::before { content:''; position:absolute; top:-20%; left:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(174,174,178,0.18), transparent 60%); filter: blur(60px); animation: pulse 12s ease-in-out infinite alternate; }
+  .ambient::after { content:''; position:absolute; bottom:-20%; right:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(174,174,178,0.15), transparent 60%); filter: blur(60px); animation: pulse 14s ease-in-out infinite alternate-reverse; }
   @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.15); opacity: 1; } }
   .glass { background: var(--glass); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); border: 1px solid var(--border); }
   .glass-strong { background: var(--glass-strong); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border: 1px solid var(--border-strong); }
@@ -488,8 +489,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: rgba(0,0,0,0.5); }
   .btn { padding: 9px 14px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; font-size: 13px; transition: all 0.15s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 20px rgba(10,132,255,0.35); }
-  .btn-primary:hover { background: #1a93ff; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 6px 22px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .btn-primary:hover { filter: brightness(1.08); }
   .btn-primary:disabled { background: rgba(255,255,255,0.08); color: var(--text-faint); box-shadow: none; cursor: not-allowed; }
   .btn-ghost { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
   .btn-ghost:hover { background: rgba(255,255,255,0.12); }
@@ -507,7 +508,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .seg-item { padding: 8px 16px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--text-dim); cursor: pointer; border: none; background: transparent; transition: all 0.2s; }
   .seg-item.active { background: rgba(255,255,255,0.14); color: var(--text); }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-  .chip-blue { background: rgba(10,132,255,0.15); color: var(--accent-2); border: 1px solid rgba(10,132,255,0.3); }
+  .chip-blue { background: rgba(174,174,178,0.15); color: var(--accent-2); border: 1px solid rgba(174,174,178,0.3); }
   .chip-green { background: rgba(48,209,88,0.15); color: var(--success); border: 1px solid rgba(48,209,88,0.3); }
   .chip-amber { background: rgba(255,159,10,0.15); color: var(--warn); border: 1px solid rgba(255,159,10,0.3); }
   .chip-grey { background: rgba(255,255,255,0.06); color: var(--text-dim); border: 1px solid var(--border); }
@@ -534,10 +535,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
     --text-2: #c7c7cc;
     --text-dim: #8e8e93;
     --text-faint: #636366;
-    --accent: #0A84FF;
-    --accent-2: #64D2FF;
-    --accent-3: #5E5CE6;
-    --accent-glow: rgba(10, 132, 255, 0.45);
+    --accent: #f5f5f7;
+    --on-accent: #1c1c1e;
+    --accent-2: #aeaeb2;
+    --accent-3: #8e8e93;
+    --accent-glow: rgba(255,255,255,0.22);
     --success: #30D158;
     --warning: #FFD60A;
     --danger: #FF453A;
@@ -554,8 +556,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .hide-scrollbar { scrollbar-width: none; }
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .ambient::before { content:''; position:absolute; top:-20%; left:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(10,132,255,0.18), transparent 60%); filter: blur(60px); animation: pulse 12s ease-in-out infinite alternate; }
-  .ambient::after { content:''; position:absolute; bottom:-20%; right:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(94,92,230,0.15), transparent 60%); filter: blur(60px); animation: pulse 14s ease-in-out infinite alternate-reverse; }
+  .ambient::before { content:''; position:absolute; top:-20%; left:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(174,174,178,0.18), transparent 60%); filter: blur(60px); animation: pulse 12s ease-in-out infinite alternate; }
+  .ambient::after { content:''; position:absolute; bottom:-20%; right:-10%; width:60%; height:60%; background: radial-gradient(circle, rgba(174,174,178,0.15), transparent 60%); filter: blur(60px); animation: pulse 14s ease-in-out infinite alternate-reverse; }
   @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.15); opacity: 1; } }
   .glass { background: var(--glass); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); border: 1px solid var(--border); }
   .glass-strong { background: var(--glass-strong); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border: 1px solid var(--border-strong); }
@@ -570,8 +572,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: rgba(0,0,0,0.5); }
   .btn { padding: 9px 14px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; font-size: 13px; transition: all 0.15s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 20px rgba(10,132,255,0.35); }
-  .btn-primary:hover { background: #1a93ff; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 6px 22px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .btn-primary:hover { filter: brightness(1.08); }
   .btn-primary:disabled { background: rgba(255,255,255,0.08); color: var(--text-faint); box-shadow: none; cursor: not-allowed; }
   .btn-ghost { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
   .btn-ghost:hover { background: rgba(255,255,255,0.12); }
@@ -589,7 +591,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
   .seg-item { padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--text-dim); cursor: pointer; border: none; background: transparent; transition: all 0.2s; }
   .seg-item.active { background: rgba(255,255,255,0.14); color: var(--text); }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-  .chip-blue { background: rgba(10,132,255,0.15); color: var(--accent-2); border: 1px solid rgba(10,132,255,0.3); }
+  .chip-blue { background: rgba(174,174,178,0.15); color: var(--accent-2); border: 1px solid rgba(174,174,178,0.3); }
   .chip-green { background: rgba(48,209,88,0.15); color: var(--success); border: 1px solid rgba(48,209,88,0.3); }
   .chip-amber { background: rgba(255,159,10,0.15); color: var(--warn); border: 1px solid rgba(255,159,10,0.3); }
   .chip-grey { background: rgba(255,255,255,0.06); color: var(--text-dim); border: 1px solid var(--border); }
@@ -604,6 +606,58 @@ Check your Browserslist config to be sure that your targets are set up correctly
 </head>
 <body>
 <div id="root"></div>
+<style>
+  /* ── Phase 5 — iOS-27 glass redesign: graphite+white, auto light/dark (loaded last → wins) ── */
+  :root { color-scheme: light dark; }
+  html { transition: background 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+  /* Glass buttons — frosted, hairline border, inset highlight */
+  .btn { backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); transition: all 0.25s cubic-bezier(0.16,1,0.3,1); }
+  .btn-ghost { background: var(--bg-card-2); border: 1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+  .btn-ghost:hover { background: var(--glass-hover); }
+  .btn-primary { backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); }
+  .btn:active { transform: scale(0.96); }
+
+  /* Smooth depth transitions on surfaces */
+  .card, .glass, .glass-strong, .pill-nav, .pill-nav-item, .seg-item, .input { transition: all 0.28s cubic-bezier(0.16,1,0.3,1); }
+  .card { box-shadow: 0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.12); }
+  .pill-nav { box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.10); }
+
+  /* ── Auto LIGHT mode ── */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #ececf0;
+      --bg-card: rgba(255,255,255,0.72);
+      --bg-card-2: rgba(0,0,0,0.04);
+      --bg-input: rgba(0,0,0,0.04);
+      --glass: rgba(255,255,255,0.70);
+      --glass-strong: rgba(255,255,255,0.86);
+      --glass-hover: rgba(255,255,255,0.95);
+      --border: rgba(0,0,0,0.09);
+      --border-light: rgba(0,0,0,0.06);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #1c1c1e;
+      --text-2: #3a3a3c;
+      --text-dim: #6c6c70;
+      --text-faint: #a0a0a5;
+      --accent: #1c1c1e;
+      --on-accent: #ffffff;
+      --accent-2: #48484a;
+      --accent-3: #6c6c70;
+      --accent-glow: rgba(0,0,0,0.14);
+      --gradient: linear-gradient(135deg, #1c1c1e 0%, #48484a 50%, #8e8e93 100%);
+    }
+    body { background: var(--bg); }
+    .input { background: rgba(0,0,0,0.045); color: var(--text); }
+    .input:focus { background: rgba(0,0,0,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .gradient-text { background: linear-gradient(135deg, #1c1c1e 0%, #48484a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .pill-nav { background: rgba(255,255,255,0.80); box-shadow: 0 12px 40px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.6); }
+    .card { box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.07); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); }
+    input[type="date"], input[type="datetime-local"] { color-scheme: light; }
+    .ambient::before, .ambient::after { opacity: 0.5; }
+  }
+</style>
 <script type="text/babel" data-presets="react">
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1411,7 +1465,7 @@ function App() {
           <div className="glass-strong" style={{borderRadius:100,padding:'12px 18px',display:'flex',gap:10,alignItems:'center',boxShadow:'0 12px 32px rgba(0,0,0,0.4)'}}>
             {toast.type === 'error' ? <AlertTriangle size={18} color="#FF453A"/> : <CheckCircle size={18} color="#30D158"/>}
             <span style={{fontSize:14,fontWeight:500}}>{toast.message}</span>
-            {toast.undoFn && <button onClick={() => { toast.undoFn(); setToast(null); }} style={{marginLeft:6,fontSize:12,fontWeight:700,color:'var(--accent-2)',background:'rgba(10,132,255,0.15)',border:'1px solid rgba(10,132,255,0.3)',borderRadius:100,padding:'6px 12px',cursor:'pointer'}}>Undo</button>}
+            {toast.undoFn && <button onClick={() => { toast.undoFn(); setToast(null); }} style={{marginLeft:6,fontSize:12,fontWeight:700,color:'var(--accent-2)',background:'rgba(174,174,178,0.15)',border:'1px solid rgba(174,174,178,0.3)',borderRadius:100,padding:'6px 12px',cursor:'pointer'}}>Undo</button>}
           </div>
         </div>
       )}
@@ -1467,7 +1521,7 @@ function DateButton({ viewDate, setViewDate, isToday, dateLabel, day }) {
                 const dt = new Date(calMonth.getFullYear(), calMonth.getMonth(), d);
                 const isToday2 = dt.toDateString() === today.toDateString();
                 const isSel = dt.toDateString() === sel.toDateString();
-                return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(10,132,255,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
+                return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(174,174,178,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
               })}
             </div>
             <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
@@ -1498,9 +1552,9 @@ function TopBar({ viewDate, setViewDate, activeProfile, setActiveProfile, protoc
         {PROFILES.map(p => {
           const count = protocols.filter(x => x.profile === p && x.active !== false).length;
           return (
-            <button key={p} onClick={() => setActiveProfile(p)} style={{flex:1,padding:'7px',borderRadius:8,border:'none',background:activeProfile===p?'rgba(10,132,255,0.18)':'transparent',color:activeProfile===p?'var(--accent-2)':'var(--text-dim)',fontWeight:700,fontSize:12,cursor:'pointer',boxShadow:activeProfile===p?'inset 0 0 0 1px rgba(10,132,255,0.4)':'none',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+            <button key={p} onClick={() => setActiveProfile(p)} style={{flex:1,padding:'7px',borderRadius:8,border:'none',background:activeProfile===p?'rgba(174,174,178,0.18)':'transparent',color:activeProfile===p?'var(--accent-2)':'var(--text-dim)',fontWeight:700,fontSize:12,cursor:'pointer',boxShadow:activeProfile===p?'inset 0 0 0 1px rgba(174,174,178,0.4)':'none',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
               {p}
-              <span style={{fontSize:10,padding:'2px 7px',borderRadius:100,background:activeProfile===p?'rgba(10,132,255,0.25)':'rgba(255,255,255,0.08)'}}>{count}</span>
+              <span style={{fontSize:10,padding:'2px 7px',borderRadius:100,background:activeProfile===p?'rgba(174,174,178,0.25)':'rgba(255,255,255,0.08)'}}>{count}</span>
             </button>
           );
         })}
@@ -1635,7 +1689,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName} · {fmtDoseUnit(v.remainingMcg, v)} left</option>)}</select></Field>}
           {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {fmtDoseUnit(targetVial.remainingMcg, targetVial)} left</div>}
           {myVials.length === 0 && <div style={{marginBottom:16,fontSize:13,padding:12,borderRadius:12,background:'rgba(255,159,10,0.08)',border:'1px solid rgba(255,159,10,0.25)',color:'#FFD60A'}}>⚠ No active vial. Log saved without deduction.</div>}
-          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.25)',padding:14,borderRadius:14,marginBottom:16,position:'relative'}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:18,fontFamily:'SF Mono, monospace',fontWeight:700}}>{isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:2}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit · {targetVial.diluentMl} mL BAC</div><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{position:'absolute',top:10,right:10,background:'rgba(255,255,255,0.08)',border:'1px solid var(--border)',borderRadius:8,padding:'4px 8px',fontSize:11,color:'var(--text-2)',cursor:'pointer',fontWeight:600}}>✎ Edit</button></div>}
+          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{background:'linear-gradient(135deg, rgba(174,174,178,0.12), rgba(174,174,178,0.08))',border:'1px solid rgba(174,174,178,0.25)',padding:14,borderRadius:14,marginBottom:16,position:'relative'}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:18,fontFamily:'SF Mono, monospace',fontWeight:700}}>{isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:2}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit · {targetVial.diluentMl} mL BAC</div><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{position:'absolute',top:10,right:10,background:'rgba(255,255,255,0.08)',border:'1px solid var(--border)',borderRadius:8,padding:'4px 8px',fontSize:11,color:'var(--text-2)',cursor:'pointer',fontWeight:600}}>✎ Edit</button></div>}
           {targetVial && !isOral && (needsRecon || editRecon) && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:6}}>{needsRecon ? '⚠️ Reconstitution needed' : '✎ Edit reconstitution'}</div>
@@ -1652,7 +1706,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           {targetVial && !isOral && mcgPerMl > 0 && !editRecon ? (
             <Field label="💉 Draw to (syringe units)">
               {/* PRIMARY: pull-to units — what you actually draw */}
-              <div style={{display:'flex',alignItems:'center',gap:10,background:'rgba(0,0,0,0.3)',border:'1px solid var(--border)',borderRadius:14,padding:'10px 14px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:14,padding:'10px 14px'}}>
                 <input type="number" step="1" value={units} onChange={e => setUnits(e.target.value)} className="input" style={{flex:1,fontSize:34,fontWeight:800,textAlign:'center',fontFamily:'SF Mono, monospace',padding:'8px 10px',background:'transparent',border:'none'}}/>
                 <span style={{fontSize:14,color:'var(--text-dim)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em'}}>units</span>
               </div>
@@ -1723,7 +1777,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(10,132,255,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(174,174,178,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
             </div>
           </Field>
           <Field label="Time of Day"><select value={f.timeOfDay} onChange={e => setF({...f, timeOfDay: e.target.value})} className="input"><option value="morning">🌅 Morning</option><option value="preworkout">💪 Pre-workout</option><option value="noon">☀️ Mid-day</option><option value="evening">🌆 Evening</option><option value="bedtime">🌙 Before bed</option><option value="anytime">⏱ Any time</option></select></Field>
@@ -1778,7 +1832,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(10,132,255,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(174,174,178,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
             </div>
           </Field>
           <Field label="Time of Day"><select value={f.timeOfDay} onChange={e => setF({...f, timeOfDay: e.target.value})} className="input"><option value="morning">🌅 Morning</option><option value="preworkout">💪 Pre-workout</option><option value="noon">☀️ Mid-day</option><option value="evening">🌆 Evening</option><option value="bedtime">🌙 Before bed</option><option value="anytime">⏱ Any time</option></select></Field>
@@ -1797,7 +1851,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     <div style={{paddingBottom:40}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'6px 4px 8px'}}>
         <div style={{fontSize:11,color:'var(--text-dim)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>{dueThisDay.length === 0 ? 'Rest day' : `${dueThisDay.length} due`}</div>
-        <button onClick={addProtocol} style={{background:'rgba(10,132,255,0.15)',border:'1px solid rgba(10,132,255,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
+        <button onClick={addProtocol} style={{background:'rgba(174,174,178,0.15)',border:'1px solid rgba(174,174,178,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
       </div>
       {dueThisDay.length === 0 && myProtocols.length === 0 && (
         <div style={{textAlign:'center',padding:'60px 20px',color:'var(--text-dim)'}}>
@@ -1868,7 +1922,7 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
             {isLogged && log && <span style={{color:'var(--text-faint)', fontWeight:400}}> @ {new Date(log.datetime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>}
           </div>
         </div>
-        <button onClick={(e) => { e.stopPropagation(); onAdminister(); }} disabled={!isLogged && isFuture} title={isLogged?'Logged — tap to edit':isFuture?'Future dose':'Administer'} style={{flexShrink:0, width:30, height:30, borderRadius:'50%', border:'none', background:actionBg, color:isLogged?'#000':isSkipped?'var(--warn)':isFuture?'var(--text-faint)':'white', cursor:isFuture && !isLogged?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:isLogged?'0 2px 10px rgba(48,209,88,0.4)':'none', transition:'transform 0.15s cubic-bezier(0.16,1,0.3,1)'}}>
+        <button onClick={(e) => { e.stopPropagation(); onAdminister(); }} disabled={!isLogged && isFuture} title={isLogged?'Logged — tap to edit':isFuture?'Future dose':'Administer'} style={{flexShrink:0, width:30, height:30, borderRadius:'50%', border:'none', background:actionBg, color:isLogged?'#000':isSkipped?'var(--warn)':isFuture?'var(--text-faint)':'var(--on-accent)', cursor:isFuture && !isLogged?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:isLogged?'0 2px 10px rgba(48,209,88,0.4)':'0 2px 10px rgba(0,0,0,0.25)', transition:'transform 0.15s cubic-bezier(0.16,1,0.3,1)'}}>
           {isLogged ? <Check size={15} strokeWidth={3}/> : isSkipped ? '⏭' : isFuture ? '—' : <Plus size={16} strokeWidth={3}/>}
         </button>
       </div>
@@ -2146,7 +2200,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
             </div>
           )}
           {m && (
-            <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.3)',padding:18,borderRadius:14,textAlign:'center',marginBottom:14}}>
+            <div style={{background:'linear-gradient(135deg, rgba(174,174,178,0.12), rgba(174,174,178,0.08))',border:'1px solid rgba(174,174,178,0.3)',padding:18,borderRadius:14,textAlign:'center',marginBottom:14}}>
               <div style={{fontSize:11,color:'var(--accent-2)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:6}}>Pull Syringe To</div>
               <div style={{fontSize:42,fontWeight:800,fontFamily:'SF Mono, monospace',color:'white',lineHeight:1}}>{m.unitsPerDose.toFixed(1)}<span style={{fontSize:18,color:'var(--text-dim)',marginLeft:6,fontWeight:600}}>units</span></div>
               <div style={{height:10,background:'rgba(0,0,0,0.4)',borderRadius:5,marginTop:12,overflow:'hidden',position:'relative'}}>
@@ -2171,7 +2225,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
         <div style={{fontSize:12,color:'var(--text-dim)',fontWeight:600}}>{totalVials} items · {fmtMoney(totalCost)}</div>
-        <button onClick={() => handleAdd()} style={{background:'rgba(10,132,255,0.15)',border:'1px solid rgba(10,132,255,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
+        <button onClick={() => handleAdd()} style={{background:'rgba(174,174,178,0.15)',border:'1px solid rgba(174,174,178,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
       </div>
       <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search storage..." className="input" style={{marginBottom:16}}/>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -2219,8 +2273,8 @@ function LabView({ storage, vials }) {
     <div style={{paddingBottom:40}}>
       <div style={{margin:'8px 0 14px'}}><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search compounds..." className="input"/></div>
       <div style={{display:'flex',gap:6,overflowX:'auto',marginBottom:16,paddingBottom:4}} className="hide-scrollbar">
-        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(10,132,255,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
-        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(10,132,255,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
+        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(174,174,178,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
+        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(174,174,178,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {filtered.map(p => {
@@ -2352,7 +2406,7 @@ function MathView() {
         <Field label="Dose (mcg of total blend)"><input type="number" value={dose} onChange={e => setDose(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
         
         {math && (
-          <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.08), rgba(94,92,230,0.05))',border:'1px solid var(--accent)',padding:22,borderRadius:18,textAlign:'center',marginTop:8}}>
+          <div style={{background:'linear-gradient(135deg, rgba(174,174,178,0.08), rgba(174,174,178,0.05))',border:'1px solid var(--accent)',padding:22,borderRadius:18,textAlign:'center',marginTop:8}}>
             <div style={{fontSize:11,color:'var(--accent)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:8}}>Pull Syringe To</div>
             <div style={{fontSize:52,fontWeight:800,fontFamily:'SF Mono, monospace',color:'var(--text)',lineHeight:1}}>{math.unitsPerDose.toFixed(1)}<span style={{fontSize:22,color:'var(--text-dim)',marginLeft:8,fontWeight:600}}>units</span></div>
             <div style={{height:8,background:'rgba(0,0,0,0.08)',borderRadius:4,marginTop:14,overflow:'hidden'}}><div style={{height:'100%',background:'linear-gradient(90deg, var(--accent), var(--accent-2))',width:`${fillPct}%`,transition:'width 0.4s'}}/></div>
