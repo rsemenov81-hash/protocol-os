@@ -724,6 +724,11 @@ const fmtDateTime = (ts) => { const d = new Date(ts); return `${d.toLocaleDateSt
 const todayLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
 const nowLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
 const fmtMcg = (n) => { if (n == null || isNaN(n)) return '—'; if (n >= 1000) return (n / 1000).toFixed(2).replace(/\.?0+$/, '') + ' mg'; return Math.round(n) + ' mcg'; };
+// IU-aware dose formatting. For IU vials the stored mcg-number IS the IU value (1 mcg-unit ≡ 1 IU proxy).
+const fmtIU = (n) => { if (n == null || isNaN(n)) return '—'; return Math.round(n).toLocaleString() + ' IU'; };
+const isIUVial = (v) => !!(v && v.unitLabel === 'IU');
+const fmtDoseUnit = (n, v) => isIUVial(v) ? fmtIU(n) : fmtMcg(n);
+const doseUnitLabel = (v) => isIUVial(v) ? 'IU' : 'mcg';
 const fmtMoney = (n) => n == null ? '—' : '$' + Number(n).toFixed(2);
 const findPep = (id) => PEPTIDE_DB.find(p => p.id === id);
 
@@ -1535,6 +1540,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const targetVial = vials.find(v => v.id === f.vialId) || vial;
       const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
       const isOral = targetVial && targetVial.formType === 'oral';
+      const isIU = isIUVial(targetVial);
       const setMl = (ml) => { const mcg = mcgPerMl ? (parseFloat(ml)||0) * mcgPerMl : f.doseMcg; setF(p => ({...p, doseMl: ml, doseMcg: Math.round(mcg)})); };
       const setMcg = (mcg) => { const ml = mcgPerMl ? (parseFloat(mcg)||0) / mcgPerMl : 0; setF(p => ({...p, doseMcg: mcg, doseMl: ml > 0 ? ml.toFixed(3) : ''})); };
       const setUnits = (u) => setMl(((parseFloat(u)||0)/100).toFixed(3));
@@ -1544,6 +1550,8 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         if (!d) return showToast('Enter dose', 'error');
         const tv = vials.find(v => v.id === f.vialId);
         const prevLogs = logs, prevVials = vials;
+        // IU vials: store doseValue+doseUnit alongside doseMcg (kept populated for sync-compat).
+        const unitTag = (isIUVial(tv) || isIU) ? { doseValue: d, doseUnit: 'IU' } : {};
         if (existingLog) {
           // Edit mode: adjust delta
           const oldDose = existingLog.doseMcg || 0;
@@ -1557,16 +1565,16 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             if (oldVial && oldVial.id === tv.id) updatedVials = updatedVials.map(x => x.id === tv.id ? {...x, remainingMcg: x.remainingMcg - delta, lastDose: f.datetime} : x);
             else updatedVials = updatedVials.map(x => x.id === tv.id ? {...x, remainingMcg: x.remainingMcg - d, lastDose: f.datetime} : x);
           }
-          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, site: f.site, notes: f.notes};
+          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, site: f.site, notes: f.notes};
           setLogs(logs.map(l => l.id === existingLog.id ? updatedLog : l));
           setVials(updatedVials);
-          showToast(`Updated · ${fmtMcg(d)} ${proto.peptideName}`, 'success', () => { setLogs(prevLogs); setVials(prevVials); });
+          showToast(`Updated · ${fmtDoseUnit(d, tv || targetVial)} ${proto.peptideName}`, 'success', () => { setLogs(prevLogs); setVials(prevVials); });
         } else {
           if (tv && d > tv.remainingMcg) return showToast('Exceeds vial', 'error');
-          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, doseMl: parseFloat(f.doseMl) || null, site: f.site, notes: f.notes };
+          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, doseMl: parseFloat(f.doseMl) || null, site: f.site, notes: f.notes };
           setLogs([log, ...logs]);
           if (tv) setVials(vials.map(x => x.id === tv.id ? { ...x, remainingMcg: x.remainingMcg - d, lastDose: f.datetime } : x));
-          showToast(`✓ ${proto.profile} · ${fmtMcg(d)} ${proto.peptideName}`, 'success', () => { setLogs(prevLogs); setVials(prevVials); });
+          showToast(`✓ ${proto.profile} · ${fmtDoseUnit(d, tv || targetVial)} ${proto.peptideName}`, 'success', () => { setLogs(prevLogs); setVials(prevVials); });
         }
         closeModal();
       };
@@ -1591,24 +1599,24 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {[['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
           </Field>
-          {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName} · {fmtMcg(v.remainingMcg)} left</option>)}</select></Field>}
-          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {fmtMcg(targetVial.remainingMcg)} left</div>}
+          {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName} · {fmtDoseUnit(v.remainingMcg, v)} left</option>)}</select></Field>}
+          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {fmtDoseUnit(targetVial.remainingMcg, targetVial)} left</div>}
           {myVials.length === 0 && <div style={{marginBottom:16,fontSize:13,padding:12,borderRadius:12,background:'rgba(255,159,10,0.08)',border:'1px solid rgba(255,159,10,0.25)',color:'#FFD60A'}}>⚠ No active vial. Log saved without deduction.</div>}
-          {targetVial && !isOral && mcgPerMl > 0 && <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.25)',padding:14,borderRadius:14,marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:18,fontFamily:'SF Mono, monospace',fontWeight:700}}>{(mcgPerMl/1000).toFixed(2)} mg/mL</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:2}}>{(mcgPerMl/100).toFixed(1)} mcg/unit</div></div>}
+          {targetVial && !isOral && mcgPerMl > 0 && <div style={{background:'linear-gradient(135deg, rgba(10,132,255,0.12), rgba(94,92,230,0.08))',border:'1px solid rgba(10,132,255,0.25)',padding:14,borderRadius:14,marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:'var(--accent-2)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Concentration</div><div style={{fontSize:18,fontFamily:'SF Mono, monospace',fontWeight:700}}>{isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:2}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit</div></div>}
           {targetVial && !isOral && mcgPerMl > 0 ? (
             <Field label="💉 Syringe">
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-                {[['mL',f.doseMl,setMl,'0.01'],['Units',units,setUnits,'1'],['mcg',f.doseMcg,setMcg,'1']].map(([l,v,fn,st]) => (
+                {[['mL',f.doseMl,setMl,'0.01'],['Units',units,setUnits,'1'],[isIU?'IU':'mcg',f.doseMcg,setMcg,'1']].map(([l,v,fn,st]) => (
                   <div key={l}>
                     <input type="number" step={st} value={v} onChange={e => fn(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/>
                     <div style={{textAlign:'center',fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,marginTop:4,letterSpacing:'0.06em'}}>{l}</div>
                   </div>
                 ))}
               </div>
-              <div style={{textAlign:'center',fontSize:11,color:'var(--text-dim)',marginTop:10}}>→ Will deduct <b style={{color:'var(--accent-2)',fontFamily:'SF Mono, monospace'}}>{f.doseMcg ? fmtMcg(f.doseMcg) : '—'}</b></div>
+              <div style={{textAlign:'center',fontSize:11,color:'var(--text-dim)',marginTop:10}}>→ Will deduct <b style={{color:'var(--accent-2)',fontFamily:'SF Mono, monospace'}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</b></div>
             </Field>
           ) : (
-            <Field label="Dose (mcg)"><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
+            <Field label={`Dose (${isIU ? 'IU' : 'mcg'})`}><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
           )}
           
           <div style={{display:'grid',gridTemplateColumns: existingLog ? '1fr 1fr 1.2fr' : '1fr 1.2fr',gap:8,marginTop:8}}>
@@ -1787,7 +1795,7 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
             <span style={{color:'var(--text-faint)'}}>·</span>
             <span style={{fontFamily:'SF Mono, monospace'}}>{day}/{proto.cycleDays}</span>
             <span style={{color:'var(--text-faint)'}}>·</span>
-            <span style={{fontFamily:'SF Mono, monospace', fontWeight:600, color:isLogged?'var(--text-faint)':'var(--text)'}} className={isLogged?'struck':''}>{fmtMcg(log?.doseMcg || proto.doseMcg)}</span>
+            <span style={{fontFamily:'SF Mono, monospace', fontWeight:600, color:isLogged?'var(--text-faint)':'var(--text)'}} className={isLogged?'struck':''}>{log?.doseUnit === 'IU' ? fmtIU(log.doseValue != null ? log.doseValue : log.doseMcg) : fmtDoseUnit(log?.doseMcg || proto.doseMcg, activeVial)}</span>
             {isLogged && log && <span style={{color:'var(--text-faint)', fontFamily:'SF Mono, monospace'}}>@ {new Date(log.datetime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>}
           </div>
           {!isSkipped && mcgPerUnit > 0 && (
@@ -1865,10 +1873,10 @@ function VialsList({ activeProfile, vials, setVials, visibleVials, storage, setS
             </div>
             {exp?.expired && <div style={{padding:10,borderRadius:10,background:'rgba(255,69,58,0.08)',border:'1px solid rgba(255,69,58,0.25)',color:'var(--danger)',fontSize:12,marginBottom:12,display:'flex',alignItems:'center',gap:6}}><AlertCircle size={12}/> BAC expired ({Math.abs(exp.daysLeft)}d ago)</div>}
             <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:8,marginBottom:12}}>
-              {[['Doses Left',dosesLeft],['Per Dose',fmtMcg(v.doseMcg)],['Units',(v.unitsPerDose || 0).toFixed(1)]].map(([l,val]) => <div key={l} style={{background:'rgba(0,0,0,0.25)',borderRadius:12,padding:'10px 12px',border:'1px solid var(--border)'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>{l}</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>{val}</div></div>)}
+              {[['Doses Left',dosesLeft],['Per Dose',fmtDoseUnit(v.doseMcg, v)],['Units',(v.unitsPerDose || 0).toFixed(1)]].map(([l,val]) => <div key={l} style={{background:'rgba(0,0,0,0.25)',borderRadius:12,padding:'10px 12px',border:'1px solid var(--border)'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>{l}</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>{val}</div></div>)}
             </div>
             <div>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text-dim)',fontWeight:600,marginBottom:6}}><span>Vial Used</span><span>{fmtMcg(v.remainingMcg)} / {fmtMcg(v.totalMcg)}</span></div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text-dim)',fontWeight:600,marginBottom:6}}><span>Vial Used</span><span>{fmtDoseUnit(v.remainingMcg, v)} / {fmtDoseUnit(v.totalMcg, v)}</span></div>
               <div style={{height:6,background:'rgba(255,255,255,0.06)',borderRadius:3,overflow:'hidden'}}><div style={{height:'100%',background:'linear-gradient(90deg, var(--accent), var(--success))',width:`${100-usedPct}%`,transition:'width 0.5s'}}/></div>
             </div>
             {lastLog && <div style={{fontSize:11,color:'var(--text-faint)',textAlign:'center',marginTop:10}}>Last: {fmtDateTime(lastLog.datetime)}</div>}
@@ -1886,14 +1894,20 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
   const totalVials = visibleStorage.reduce((sum, s) => sum + (s.vialCount || 0), 0);
 
   const handleAdd = (item = null) => {
-    let f0 = item || { peptideId: '', customName: '', mgPerVial: '', vialCount: 1, purchaseDate: todayLocal(), vendor: '', suggestedDiluentMl: '', suggestedDoseMcg: '', notes: '', costPerVial: '', formType: 'liquid' };
+    // Vial-size field is shown in the item's unit. IU items store mgPerVial as a /1000 proxy,
+    // so surface it as IU (×1000) for editing and convert back on save.
+    let f0 = item
+      ? { ...item, unitLabel: item.unitLabel || '', mgPerVial: item.unitLabel === 'IU' ? (item.mgPerVial || 0) * 1000 : item.mgPerVial }
+      : { peptideId: '', customName: '', mgPerVial: '', vialCount: 1, purchaseDate: todayLocal(), vendor: '', suggestedDiluentMl: '', suggestedDoseMcg: '', notes: '', costPerVial: '', formType: 'liquid', unitLabel: '' };
     const Modal = () => {
       const [f, setF] = useState(f0);
+      const isIU = f.unitLabel === 'IU';
       const apply = (id) => { const p = findPep(id); if (p) setF(prev => ({...prev, peptideId: id, mgPerVial: p.reconstitution.typicalVialMg || prev.mgPerVial, suggestedDiluentMl: p.reconstitution.defaultDiluentMl || prev.suggestedDiluentMl, suggestedDoseMcg: p.protocol.defaultDoseMcg || prev.suggestedDoseMcg, formType: /oral/i.test(p.protocol.route) ? 'oral' : prev.formType})); else setF(prev => ({...prev, peptideId: id})); };
       const onSave = () => {
         if (!f.peptideId) return showToast('Pick compound', 'error');
         if (f.peptideId === '__custom__' && !f.customName.trim()) return showToast('Enter name', 'error');
-        const entry = { ...f, id: item?.id || uid(), peptideName: f.peptideId === '__custom__' ? f.customName : findPep(f.peptideId).name, mgPerVial: parseFloat(f.mgPerVial) || 0, vialCount: parseInt(f.vialCount) || 1, suggestedDiluentMl: parseFloat(f.suggestedDiluentMl) || null, suggestedDoseMcg: parseFloat(f.suggestedDoseMcg) || null, costPerVial: parseFloat(f.costPerVial) || 0, inventoryProfile: item?.inventoryProfile || getInventoryProfile(activeProfile) };
+        const sizeEntered = parseFloat(f.mgPerVial) || 0; // in IU when isIU, else mg
+        const entry = { ...f, id: item?.id || uid(), peptideName: f.peptideId === '__custom__' ? f.customName : findPep(f.peptideId).name, mgPerVial: isIU ? sizeEntered / 1000 : sizeEntered, unitLabel: isIU ? 'IU' : null, iuPerVial: isIU ? sizeEntered : null, vialCount: parseInt(f.vialCount) || 1, suggestedDiluentMl: parseFloat(f.suggestedDiluentMl) || null, suggestedDoseMcg: parseFloat(f.suggestedDoseMcg) || null, costPerVial: parseFloat(f.costPerVial) || 0, inventoryProfile: item?.inventoryProfile || getInventoryProfile(activeProfile) };
         if (item) setStorage(storage.map(s => s.id === item.id ? entry : s));
         else setStorage([entry, ...storage]);
         showToast(item ? 'Updated' : 'Added'); closeModal();
@@ -1904,9 +1918,12 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
           <p style={{margin:'0 0 18px',fontSize:13,color:'var(--text-dim)'}}>Manage un-reconstituted inventory</p>
           <Field label="Compound"><select value={f.peptideId} onChange={e => apply(e.target.value)} className="input"><option value="" disabled>Select...</option>{CATEGORIES.map(cat => <optgroup key={cat} label={cat}>{PEPTIDE_DB.filter(p => p.category === cat).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}<option value="__custom__">+ Custom</option></select></Field>
           {f.peptideId === '__custom__' && <Field><input value={f.customName} onChange={e => setF({...f, customName: e.target.value})} placeholder="Custom name" className="input"/></Field>}
-          <Field label="Form"><select value={f.formType||'liquid'} onChange={e => setF({...f, formType: e.target.value})} className="input"><option value="liquid">💧 Liquid (Injectable)</option><option value="spray">💨 Nasal Spray</option><option value="oral">💊 Oral</option></select></Field>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
-            <Field label="mg per vial"><input type="number" step="0.1" value={f.mgPerVial} onChange={e => setF({...f, mgPerVial: e.target.value})} className="input"/></Field>
+            <Field label="Form"><select value={f.formType||'liquid'} onChange={e => setF({...f, formType: e.target.value})} className="input"><option value="liquid">💧 Liquid (Injectable)</option><option value="spray">💨 Nasal Spray</option><option value="oral">💊 Oral</option></select></Field>
+            <Field label="Dose unit"><select value={f.unitLabel||''} onChange={e => setF({...f, unitLabel: e.target.value})} className="input"><option value="">MCG (default)</option><option value="IU">IU (e.g. HCG)</option></select></Field>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+            <Field label={isIU ? 'IU per vial' : 'mg per vial'}><input type="number" step={isIU ? '1' : '0.1'} value={f.mgPerVial} onChange={e => setF({...f, mgPerVial: e.target.value})} className="input"/></Field>
             <Field label="# vials"><input type="number" value={f.vialCount} onChange={e => setF({...f, vialCount: e.target.value})} className="input"/></Field>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
@@ -1929,7 +1946,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
       const totalMcg = it.mgPerVial * 1000;
       let extra = {};
       if (!oral) { const m = vialMath(it.mgPerVial, it.suggestedDiluentMl, it.suggestedDoseMcg); extra = { unitsPerDose: m.unitsPerDose, mcgPerMl: m.mcgPerMl, mcgPerUnit: m.mcgPerUnit, diluentMl: it.suggestedDiluentMl }; }
-      const newVial = { id: uid(), storageId: it.id, peptideId: it.peptideId, peptideName: it.peptideName, mgPerVial: it.mgPerVial, doseMcg: it.suggestedDoseMcg, totalMcg, remainingMcg: totalMcg, ...extra, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: pep?.protocol.cycleDays || 30, active: true, costPerVial: it.costPerVial || 0, formType: oral ? 'oral' : 'liquid', inventoryProfile: it.inventoryProfile || null };
+      const newVial = { id: uid(), storageId: it.id, peptideId: it.peptideId, peptideName: it.peptideName, mgPerVial: it.mgPerVial, doseMcg: it.suggestedDoseMcg, totalMcg, remainingMcg: totalMcg, ...extra, unitLabel: it.unitLabel || null, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: pep?.protocol.cycleDays || 30, active: true, costPerVial: it.costPerVial || 0, formType: oral ? 'oral' : 'liquid', inventoryProfile: it.inventoryProfile || null };
       setVials([newVial, ...vials]);
       if (it.vialCount > 1) setStorage(storage.map(s => s.id === it.id ? { ...s, vialCount: s.vialCount - 1 } : s));
       else setStorage(storage.filter(s => s.id !== it.id));
@@ -1966,10 +1983,11 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
       const m = vialMath(totalMg, parseFloat(f.diluentMl), parseFloat(f.doseMcg));
       const fillPct = m ? Math.min(100, m.unitsPerDose) : 0;
       const updateComp = (i, mg) => { const next=[...components]; next[i] = {...next[i], mg: parseFloat(mg)||0}; setComponents(next); };
+      const iu = isIUVial(item);
       return (
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:20,fontWeight:700}}>Reconstitute</h3>
-          <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>{item.peptideName} · <b style={{color:'var(--text)'}}>{totalMg.toFixed(2)} mg</b></p>
+          <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>{item.peptideName} · <b style={{color:'var(--text)'}}>{iu ? `${Math.round(totalMg*1000).toLocaleString()} IU` : `${totalMg.toFixed(2)} mg`}</b></p>
           
           <div style={{background:'linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,69,58,0.05))',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:14}}>
             <div style={{display:'flex',gap:14,alignItems:'center'}}>
@@ -2029,7 +2047,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
             </div>
           </div>
           <Field label="🧪 BAC water added (mL)"><input type="number" step="0.1" value={f.diluentMl} onChange={e => setF({...f, diluentMl: e.target.value})} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
-          <Field label="Reference dose (mcg of total blend)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
+          <Field label={iu ? 'Reference dose (IU)' : 'Reference dose (mcg of total blend)'}><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
           {components.length > 0 && (
             <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>🧪 Blend Components</div>
@@ -2099,7 +2117,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
                 <div style={{fontSize:24}}>{pep?.icon || (isCustom ? '📦' : '💊')}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:15,fontWeight:700,lineHeight:1.2}}>{item.peptideName}</div>
-                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:3}}>{item.vendor || '—'} · {item.vialCount}× {item.mgPerVial > 0 ? `${item.mgPerVial}mg` : ''}{item.costPerVial > 0 ? ` · $${item.costPerVial}` : ''}</div>
+                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:3}}>{item.vendor || '—'} · {item.vialCount}× {item.mgPerVial > 0 ? (isIUVial(item) ? `${Math.round(item.mgPerVial*1000).toLocaleString()} IU` : `${item.mgPerVial}mg`) : ''}{item.costPerVial > 0 ? ` · $${item.costPerVial}` : ''}</div>
                 </div>
                 <div style={{display:'flex',gap:4}}>
                   <button onClick={() => handleAdd(item)} style={{width:30,height:30,borderRadius:8,border:'none',background:'rgba(255,255,255,0.06)',color:'var(--text-dim)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><Edit2 size={13}/></button>

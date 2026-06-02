@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pos-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-c", "import os; os.chdir('/Users/romansemenov/Documents/GitHub/protocol-os'); from http.server import test, SimpleHTTPRequestHandler; test(SimpleHTTPRequestHandler, port=8775, bind='127.0.0.1')"],
+      "port": 8775
+    }
+  ]
+}
