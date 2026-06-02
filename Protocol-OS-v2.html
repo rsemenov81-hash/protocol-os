@@ -1528,7 +1528,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     const vial = myVials[0];
     const mcgPerMl0 = (vial && vial.mcgPerMl) || 0;
     const defaultMl = mcgPerMl0 ? proto.doseMcg / mcgPerMl0 : 0;
-    const dt = new Date(viewDate); dt.setHours(8,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+    const dt = new Date(viewDate); const _now = new Date(); dt.setHours(_now.getHours(), _now.getMinutes(), 0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
     let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : '', doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ''), site: existingLog.site || '', notes: existingLog.notes || '' } : { datetime: dt.toISOString().slice(0,16), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: proto.doseMcg, vialId: vial ? vial.id : '', site: '', notes: '' };
     const Modal = () => {
       const [f, setF] = useState(f0);
