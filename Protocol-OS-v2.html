@@ -1816,7 +1816,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       {blocks.map(b => byBlock[b.key].length > 0 && (
         <div key={b.key}>
           <div className="section-h"><span style={{fontSize:16}}>{b.icon}</span><span>{b.label}</span><span className="count">{byBlock[b.key].length}</span></div>
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(165px, 1fr))',gap:6}}>
             {byBlock[b.key].map(p => {
               const log = logs.find(l => l.protocolId === p.id && l.datetime.slice(0,10) === dateKey);
               const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending';
@@ -1851,35 +1851,37 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
   const isSkipped = status === 'skipped';
   const cls = isLogged ? 'card card-logged' : isSkipped ? 'card card-skipped' : 'card';
   
+  const actionBg = isLogged ? 'var(--success)' : isSkipped ? 'rgba(255,159,10,0.2)' : isFuture ? 'rgba(255,255,255,0.05)' : 'var(--accent)';
   return (
-    <div className={cls} style={{padding:'10px 12px'}}>
-      <div style={{display:'flex', alignItems:'center', gap:10}}>
-        <div style={{fontSize:22, flexShrink:0, opacity:isLogged?0.55:1, width:28, textAlign:'center'}}>{pep?.icon || '💊'}</div>
+    <div className={cls} style={{padding:'9px 10px', display:'flex', flexDirection:'column', gap:6, minWidth:0}}>
+      <div style={{display:'flex', alignItems:'flex-start', gap:8, minWidth:0}}>
+        <div style={{fontSize:18, flexShrink:0, opacity:isLogged?0.55:1, width:22, textAlign:'center', lineHeight:'20px'}}>{pep?.icon || '💊'}</div>
         <div style={{flex:1, minWidth:0, cursor:'pointer'}} onClick={onEdit}>
-          <div style={{fontSize:14, fontWeight:600, letterSpacing:'-0.01em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} className={isLogged?'struck':''}>{proto.peptideName}</div>
-          <div style={{fontSize:10, color:'var(--text-dim)', marginTop:2, display:'flex', gap:6, alignItems:'center', flexWrap:'wrap'}}>
+          <div style={{fontSize:13, fontWeight:600, letterSpacing:'-0.01em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} className={isLogged?'struck':''}>{proto.peptideName}</div>
+          <div style={{fontSize:10, color:'var(--text-dim)', marginTop:1, display:'flex', gap:5, alignItems:'center', flexWrap:'wrap'}}>
             <span style={{fontWeight:600, color:'var(--accent-2)'}}>{daysStr}</span>
             <span style={{color:'var(--text-faint)'}}>·</span>
             <span style={{fontFamily:'SF Mono, monospace'}}>{day}/{proto.cycleDays}</span>
-            <span style={{color:'var(--text-faint)'}}>·</span>
-            <span style={{fontFamily:'SF Mono, monospace', fontWeight:600, color:isLogged?'var(--text-faint)':'var(--text)'}} className={isLogged?'struck':''}>{log?.doseUnit === 'IU' ? fmtIU(log.doseValue != null ? log.doseValue : log.doseMcg) : fmtDoseUnit(log?.doseMcg || proto.doseMcg, activeVial)}</span>
-            {isLogged && log && <span style={{color:'var(--text-faint)', fontFamily:'SF Mono, monospace'}}>@ {new Date(log.datetime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>}
           </div>
-          {!isSkipped && mcgPerUnit > 0 && (
-            <div style={{marginTop:6, display:'flex', gap:6, alignItems:'center'}}>
-              <svg viewBox="0 0 100 8" style={{width:'100%', height:7, flex:1}}>
-                <rect x="0" y="2" width="100" height="4" fill="rgba(255,255,255,0.06)" rx="2"/>
-                <rect x="0" y="2" width={fillPct} height="4" fill={isLogged?'rgba(48,209,88,0.5)':'var(--accent)'} rx="2"/>
-                {[10,20,30,40,50,60,70,80,90].map(p => <line key={p} x1={p} y1="1" x2={p} y2="7" stroke="rgba(255,255,255,0.18)" strokeWidth="0.4"/>)}
-              </svg>
-              <span style={{fontSize:9, color:'var(--text-faint)', fontFamily:'SF Mono, monospace', flexShrink:0, minWidth:34, textAlign:'right'}}>{units.toFixed(1)}u</span>
-            </div>
-          )}
+          <div style={{fontSize:11, marginTop:1, fontFamily:'SF Mono, monospace', fontWeight:600, color:isLogged?'var(--text-faint)':'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} className={isLogged?'struck':''}>
+            {log?.doseUnit === 'IU' ? fmtIU(log.doseValue != null ? log.doseValue : log.doseMcg) : fmtDoseUnit(log?.doseMcg || proto.doseMcg, activeVial)}
+            {isLogged && log && <span style={{color:'var(--text-faint)', fontWeight:400}}> @ {new Date(log.datetime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>}
+          </div>
         </div>
-        <button onClick={(e) => { e.stopPropagation(); onAdminister(); }} disabled={!isLogged && isFuture} style={{padding:isLogged?'8px':'8px 12px', borderRadius:isLogged?'50%':10, border:'none', background:isLogged?'var(--success)':isSkipped?'rgba(255,159,10,0.2)':isFuture?'rgba(255,255,255,0.05)':'var(--accent)', color:isLogged?'#000':isSkipped?'var(--warn)':'white', fontSize:12, fontWeight:700, cursor:isFuture && !isLogged?'not-allowed':'pointer', minHeight:0, width:isLogged?34:'auto', height:isLogged?34:'auto', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:isLogged?'0 2px 10px rgba(48,209,88,0.4)':'none', flexShrink:0}}>
-          {isLogged ? <Check size={16} strokeWidth={3}/> : isSkipped ? '⏭' : isFuture ? '—' : 'Administer'}
+        <button onClick={(e) => { e.stopPropagation(); onAdminister(); }} disabled={!isLogged && isFuture} title={isLogged?'Logged — tap to edit':isFuture?'Future dose':'Administer'} style={{flexShrink:0, width:30, height:30, borderRadius:'50%', border:'none', background:actionBg, color:isLogged?'#000':isSkipped?'var(--warn)':isFuture?'var(--text-faint)':'white', cursor:isFuture && !isLogged?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:isLogged?'0 2px 10px rgba(48,209,88,0.4)':'none', transition:'transform 0.15s cubic-bezier(0.16,1,0.3,1)'}}>
+          {isLogged ? <Check size={15} strokeWidth={3}/> : isSkipped ? '⏭' : isFuture ? '—' : <Plus size={16} strokeWidth={3}/>}
         </button>
       </div>
+      {!isSkipped && mcgPerUnit > 0 && (
+        <div style={{display:'flex', gap:6, alignItems:'center'}}>
+          <svg viewBox="0 0 100 8" style={{width:'100%', height:7, flex:1}}>
+            <rect x="0" y="2" width="100" height="4" fill="rgba(255,255,255,0.06)" rx="2"/>
+            <rect x="0" y="2" width={fillPct} height="4" fill={isLogged?'rgba(48,209,88,0.5)':'var(--accent)'} rx="2"/>
+            {[10,20,30,40,50,60,70,80,90].map(p => <line key={p} x1={p} y1="1" x2={p} y2="7" stroke="rgba(255,255,255,0.18)" strokeWidth="0.4"/>)}
+          </svg>
+          <span style={{fontSize:9, color:'var(--text-faint)', fontFamily:'SF Mono, monospace', flexShrink:0, minWidth:30, textAlign:'right'}}>{units.toFixed(1)}u</span>
+        </div>
+      )}
     </div>
   );
 }
