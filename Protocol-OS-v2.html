@@ -1295,6 +1295,7 @@ function App() {
   const [syncStatus, setSyncStatus] = useState('idle'); // idle | pushing | pulling | ok | error | off
   const syncReady = syncUrl && syncToken;
   const lastPushRef = React.useRef('');
+  const pulledOnce = React.useRef(false); // never push until we've pulled at least once (prevents stale local data overwriting fresher cloud)
 
   const cloudEndpoint = () => {
     const base = syncUrl.replace(/\/+$/, '');
@@ -1308,6 +1309,7 @@ function App() {
       const r = await fetch(cloudEndpoint(), { method: 'GET' });
       if (!r.ok) throw new Error('GET ' + r.status);
       const d = await r.json();
+      pulledOnce.current = true; // a successful pull (even if cloud is empty) unlocks pushing
       if (!d._empty) {
         if (Array.isArray(d.protocols)) setProtocols(d.protocols);
         if (Array.isArray(d.vials)) setVials(d.vials);
@@ -1324,6 +1326,7 @@ function App() {
 
   const cloudPush = async (announce) => {
     if (!syncReady) return;
+    if (!pulledOnce.current) return; // safety: don't push local state before the first successful pull (prevents seed/stale overwrite)
     const payload = JSON.stringify({ protocols, vials, storage, logs });
     if (payload === lastPushRef.current && !announce) return; // no change
     lastPushRef.current = payload;
