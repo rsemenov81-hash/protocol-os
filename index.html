@@ -1595,7 +1595,13 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   const equivVialsFor = (peptideId) => { const ids = new Set(getEquivalentIds(peptideId)); return vials.filter(v => ids.has(v.peptideId) && v.active !== false && v.remainingMcg > 0 && isItemVisibleToProfile(v, activeProfile)); };
 
   const administer = (proto, existingLog = null) => {
-    const myVials = equivVialsFor(proto.peptideId);
+    const protoPep = findPep(proto.peptideId);
+    const isOralProto = /oral|sublingual/i.test((protoPep && protoPep.protocol && protoPep.protocol.route) || '');
+    const _ids = new Set(getEquivalentIds(proto.peptideId));
+    const _matchAll = vials.filter(v => _ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile));
+    const _ready = _matchAll.filter(v => (v.mcgPerMl || 0) > 0 && (v.remainingMcg || 0) > 0);
+    // Prefer a reconstituted vial; otherwise fall back to any matching vial so we can prompt to reconstitute it.
+    const myVials = _ready.length ? _ready : _matchAll;
     const vial = myVials[0];
     const mcgPerMl0 = (vial && vial.mcgPerMl) || 0;
     const defaultMl = mcgPerMl0 ? proto.doseMcg / mcgPerMl0 : 0;
@@ -1607,25 +1613,41 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       // (the modal closes over a stale `vials`; we also persist via setVials below).
       const [reconPatch, setReconPatch] = useState(null);
       const baseVial = vials.find(v => v.id === f.vialId) || vial;
-      const targetVial = (reconPatch && baseVial && reconPatch.id === baseVial.id) ? { ...baseVial, ...reconPatch } : baseVial;
+      // reconPatch may carry a full freshly-created vial (no baseVial) or a patch onto baseVial.
+      const targetVial = (reconPatch && reconPatch.id === (f.vialId || (baseVial && baseVial.id))) ? { ...(baseVial || {}), ...reconPatch } : baseVial;
       const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
-      const isOral = targetVial && targetVial.formType === 'oral';
+      const hasConc = mcgPerMl > 0;
+      const isOral = (targetVial && targetVial.formType === 'oral') || isOralProto;
       const isIU = isIUVial(targetVial);
-      // Phase 3 — per-vial reconstitution memory: ask once if unknown, store on vial, allow later edit.
+      // Reconstitution: ask whenever a non-oral compound has no usable concentration; always editable later.
       const [reconMl, setReconMl] = useState(targetVial && targetVial.diluentMl ? String(targetVial.diluentMl) : '');
+      const [reconMg, setReconMg] = useState(targetVial && targetVial.mgPerVial ? String(targetVial.mgPerVial) : '');
       const [editRecon, setEditRecon] = useState(false);
-      const needsRecon = !!(targetVial && !isOral && !(mcgPerMl > 0));
+      const needsRecon = !isOral && !hasConc;
       const saveRecon = () => {
         const ml = parseFloat(reconMl);
-        if (!ml || ml <= 0) return showToast('Enter BAC water mL', 'error');
-        const tv = targetVial;
-        const totalMcg = tv.totalMcg || (tv.mgPerVial || 0) * 1000;
+        const mg = parseFloat(reconMg);
+        if (!mg || mg <= 0) return showToast('Enter vial size (mg)', 'error');
+        if (!ml || ml <= 0) return showToast('Enter BAC water (mL)', 'error');
+        const totalMcg = mg * 1000;
         const npm = totalMcg / ml;
-        const refDose = tv.doseMcg || proto.doseMcg || 0;
+        const refDose = (targetVial && targetVial.doseMcg) || proto.doseMcg || 0;
         const unitsPerDose = npm ? refDose / (npm / 100) : 0;
-        const patch = { id: tv.id, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, totalMcg, reconstitutedAt: tv.reconstitutedAt || new Date().toISOString() };
-        setReconPatch(patch); // immediate UI
-        setVials(vials.map(x => x.id === tv.id ? { ...x, ...patch, remainingMcg: x.remainingMcg != null ? x.remainingMcg : totalMcg } : x)); // persist + sync
+        if (targetVial && targetVial.id) {
+          const keepRemaining = (targetVial.remainingMcg != null && targetVial.remainingMcg > 0) ? targetVial.remainingMcg : totalMcg;
+          const patch = { id: targetVial.id, mgPerVial: mg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, totalMcg, remainingMcg: keepRemaining, active: true, reconstitutedAt: targetVial.reconstitutedAt || new Date().toISOString() };
+          setReconPatch(patch);
+          setVials(vials.map(x => x.id === targetVial.id ? { ...x, ...patch } : x));
+        } else {
+          // No vial existed for this compound — create a reconstituted one on the fly.
+          const nv = { id: 'adm_' + uid(), peptideId: proto.peptideId, peptideName: proto.peptideName, mgPerVial: mg, doseMcg: refDose, totalMcg, remainingMcg: totalMcg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: (protoPep && protoPep.protocol.cycleDays) || 30, active: true, formType: 'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
+          setVials([nv, ...vials]);
+          setReconPatch({ ...nv });
+          setF(p => ({ ...p, vialId: nv.id }));
+        }
+        // Recompute the syringe draw (mL/units) from the current dose now that we know the concentration.
+        const nMl = npm ? (parseFloat(f.doseMcg) || refDose) / npm : 0;
+        setF(p => ({ ...p, doseMl: nMl > 0 ? nMl.toFixed(3) : '' }));
         setEditRecon(false);
         showToast('Reconstitution saved');
       };
@@ -1700,23 +1722,24 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             </div>
           </Field>
           {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName} · {fmtDoseUnit(v.remainingMcg, v)} left</option>)}</select></Field>}
-          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {fmtDoseUnit(targetVial.remainingMcg, targetVial)} left</div>}
+          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? `${fmtDoseUnit(targetVial.remainingMcg, targetVial)} left` : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
           {myVials.length === 0 && <div style={{marginBottom:16,fontSize:13,padding:12,borderRadius:12,background:'rgba(255,159,10,0.08)',border:'1px solid rgba(255,159,10,0.25)',color:'#FFD60A'}}>⚠ No active vial. Log saved without deduction.</div>}
           {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit · {targetVial.diluentMl} mL BAC</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>✎ Edit reconstitution</button></div>}
-          {targetVial && !isOral && (needsRecon || editRecon) && (
+          {!isOral && (needsRecon || editRecon) && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:700,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:6}}>{needsRecon ? '⚠️ Reconstitution needed' : '✎ Edit reconstitution'}</div>
-              <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>How much BAC water was added to this <b style={{color:'var(--text)'}}>{targetVial.mgPerVial ? (isIU ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU` : `${targetVial.mgPerVial} mg`) : ''}</b> vial?</div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'end'}}>
+              <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{needsRecon ? '🧪 Set reconstitution' : '✎ Edit reconstitution'}</div>
+              <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>Enter vial size and BAC water to dose this {isIU ? 'in IU' : 'by syringe units'}. {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose below)</span>}</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+                <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={isIU ? '1' : '0.1'} value={isIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(isIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
                 <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>BAC water (mL)</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
-                <div style={{display:'flex',gap:6}}>
-                  {editRecon && !needsRecon && <button className="btn btn-ghost" onClick={() => setEditRecon(false)}>Cancel</button>}
-                  <button className="btn btn-primary" onClick={saveRecon}>Save</button>
-                </div>
+              </div>
+              <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
+                {editRecon && <button className="btn btn-ghost" onClick={() => setEditRecon(false)}>Cancel</button>}
+                <button className="btn btn-primary" onClick={saveRecon}>Save reconstitution</button>
               </div>
             </div>
           )}
-          {targetVial && !isOral && mcgPerMl > 0 && !editRecon ? (
+          {hasConc && !editRecon ? (
             <Field label="💉 Draw syringe to">
               {/* HERO: syringe units — the primary focus */}
               <div style={{background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:22,padding:'14px 16px 16px',textAlign:'center'}}>
@@ -1743,14 +1766,14 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
                 </div>
               )}
             </Field>
-          ) : (isOral || !targetVial) ? (
+          ) : !editRecon ? (
             <Field label={`Dose (${isIU ? 'IU' : 'mcg'})`}><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
           ) : null}
           
           <div style={{display:'grid',gridTemplateColumns: existingLog ? '1fr 1fr 1.2fr' : '1fr 1.2fr',gap:8,marginTop:8}}>
             <button className="btn btn-ghost" onClick={closeModal}>Cancel</button>
             {existingLog && <button className="btn btn-danger" onClick={undoLog}>Undo</button>}
-            <button className="btn btn-primary" onClick={submit} disabled={needsRecon || editRecon}>{existingLog ? 'Save Changes' : 'Confirm Dose'}</button>
+            <button className="btn btn-primary" onClick={submit} disabled={editRecon}>{existingLog ? 'Save Changes' : 'Confirm Dose'}</button>
           </div>
         </div>
       );
