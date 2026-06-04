@@ -2655,14 +2655,21 @@ function MathView() {
         <Field label="Dose (mcg of total blend)"><input type="number" value={dose} onChange={e => setDose(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
         
         {math && (
-          <div style={{background:'linear-gradient(135deg, rgba(79,214,230,0.08), rgba(79,214,230,0.05))',border:'1px solid var(--accent)',padding:22,borderRadius:18,textAlign:'center',marginTop:8}}>
-            <div style={{fontSize:11,color:'var(--accent)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:8}}>Pull Syringe To</div>
-            <div style={{fontSize:52,fontWeight:800,fontFamily:'SF Mono, monospace',color:'var(--text)',lineHeight:1}}>{math.unitsPerDose.toFixed(1)}<span style={{fontSize:22,color:'var(--text-dim)',marginLeft:8,fontWeight:600}}>units</span></div>
-            <div style={{height:8,background:'rgba(0,0,0,0.08)',borderRadius:4,marginTop:14,overflow:'hidden'}}><div style={{height:'100%',background:'linear-gradient(90deg, var(--accent), var(--accent-2))',width:`${fillPct}%`,transition:'width 0.4s'}}/></div>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'var(--text-faint)',marginTop:4,fontFamily:'SF Mono, monospace'}}><span>0</span><span>50</span><span>100</span></div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:16}}>
-              <div style={{background:'rgba(0,0,0,0.3)',padding:10,borderRadius:10,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Concentration</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>{(math.mcgPerMl/1000).toFixed(2)} mg/mL</div></div>
-              <div style={{background:'rgba(0,0,0,0.3)',padding:10,borderRadius:10,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Total Doses</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>~{math.totalDoses}</div></div>
+          <div className="lg" style={{borderRadius:20, padding:'18px 18px 16px', marginTop:14}}>
+            <div style={{display:'flex', alignItems:'baseline', gap:8}}>
+              <span style={{fontFamily:'var(--mono)', fontSize:40, fontWeight:700, color:'var(--accent)', lineHeight:1}}>{math.unitsPerDose.toFixed(1)}</span>
+              <span style={{fontSize:16, fontWeight:600, color:'var(--text-dim)'}}>units</span>
+              <span style={{marginLeft:'auto', fontFamily:'var(--mono)', fontSize:13, color:'var(--text)'}}>{dose} mcg</span>
+            </div>
+            <div style={{fontSize:12, color:'var(--text-dim)', margin:'8px 0 16px'}}>on a U-100 insulin syringe</div>
+            <Syringe units={math.unitsPerDose} color="var(--accent)"/>
+            <div style={{display:'flex', justifyContent:'space-between', marginTop:12}}>
+              {[['Concentration', (math.mcgPerMl/1000).toFixed(2)+' mg/mL'],['Volume', mlPerDose.toFixed(3)+' mL'],['Doses / vial', '~'+math.totalDoses]].map(([k,v]) => (
+                <div key={k} style={{textAlign:'center'}}>
+                  <div style={{fontFamily:'var(--mono)', fontSize:15, fontWeight:700, color:'var(--text)', whiteSpace:'nowrap'}}>{v}</div>
+                  <div style={{fontSize:9.5, color:'var(--text-faint)', textTransform:'uppercase', letterSpacing:'0.05em', marginTop:3}}>{k}</div>
+                </div>
+              ))}
             </div>
           </div>
         )}
