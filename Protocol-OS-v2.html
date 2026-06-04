@@ -889,6 +889,16 @@ const LG_BLOCKS = [
   { id:'pm',  label:'PM Block',    hint:'Evening' },
   { id:'prn', label:'As Needed',   hint:'No fixed schedule' },
 ];
+// Preferred reconstitution solvent per compound (default: bacteriostatic water).
+const SOLVENT_OVERRIDE = { 'ara-290':'PBS (phosphate-buffered saline)', 'igf1-lr3':'acetic acid', 'aod9604':'acetic acid' };
+function solventFor(peptideId, components) {
+  // For a blend/pen, surface any special-solvent component.
+  if (components && components.length) {
+    const special = components.map(c => c.peptideId || c.id).find(id => SOLVENT_OVERRIDE[id]);
+    if (special) return SOLVENT_OVERRIDE[special] + ' (for ' + (findPep(special) ? findPep(special).name : special) + ')';
+  }
+  return SOLVENT_OVERRIDE[peptideId] || 'bacteriostatic water (BAC)';
+}
 // Route icon (line-art): syringe / pill / spray
 function RouteIcon({ route, color, s=16 }) {
   const p = { width:s, height:s, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.7, strokeLinecap:'round', strokeLinejoin:'round' };
@@ -1511,6 +1521,29 @@ function App() {
     URL.revokeObjectURL(url);
     showToast('Exported — share the JSON with Claude');
   };
+  // CSV of every administration for the active profile (opens in Excel/Sheets).
+  const exportHistoryCSV = () => {
+    const mine = logs.filter(l => (l.profile || activeProfile) === activeProfile && !l.skipped)
+      .slice().sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
+    const esc = (s) => { s = (s == null ? '' : String(s)); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
+    const rows = [['Profile','Compound','Date','Time','Dose','Unit','Units (syringe)','mL','Site','Notes']];
+    mine.forEach(l => {
+      const dt = new Date(l.datetime);
+      const dose = l.doseUnit === 'IU' ? (l.doseValue != null ? l.doseValue : l.doseMcg) : l.doseMcg;
+      const unit = l.doseUnit === 'IU' ? 'IU' : (l.doseMcg >= 1000 ? 'mcg' : 'mcg');
+      const u = l.doseMl != null ? (l.doseMl * 100).toFixed(1) : '';
+      rows.push([activeProfile, l.peptide || l.peptideName || l.peptideId || '', dt.toLocaleDateString('en-CA'),
+        dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', l.site || '', l.notes || '']);
+    });
+    const csv = rows.map(r => r.map(esc).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `protocol-os-history-${activeProfile}-${todayLocal()}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${mine.length} administrations (${activeProfile})`);
+  };
   const importInputRef = React.useRef(null);
   const handleImportFile = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -1587,6 +1620,7 @@ function App() {
                 <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>⬆️ Export file</button>
                 <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>⬇️ Import file</button>
               </div>
+              <button className="btn btn-ghost" style={{width:'100%',marginBottom:10}} onClick={()=>{exportHistoryCSV();}}>📊 Download history (CSV) · {activeProfile}</button>
               {syncReady && <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openModal(<SyncConfig initialUrl={syncUrl} initialToken={syncToken} onSave={(u,t)=>{saveSyncConfig(u,t);closeModal();}} onClose={closeModal}/>)}>⚙️ Edit cloud sync settings</button>}
             </div>
           )}>⋯</button>
@@ -1879,6 +1913,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
               <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{needsRecon ? '🧪 Set reconstitution' : '✎ Edit reconstitution'}</div>
               <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>Enter vial size and BAC water to dose this {isIU ? 'in IU' : 'by syringe units'}. {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose below)</span>}</div>
+              {SOLVENT_OVERRIDE[proto.peptideId] && <div style={{fontSize:11.5,color:'var(--rt-oral, #f4b94a)',background:'rgba(244,185,74,0.10)',border:'1px solid rgba(244,185,74,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId]}</b> (not plain BAC)</div>}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
                 <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={isIU ? '1' : '0.1'} value={isIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(isIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
                 <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>BAC water (mL)</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
@@ -1949,7 +1984,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     const Modal = () => {
       const [f, setF] = useState(init);
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
-      const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1]}; if (map[k]) setF({...f, days: map[k]}); };
+      const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
       const onSave = () => { setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: parseFloat(f.doseMcg), schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate} : p)); showToast('Updated'); closeModal(); };
       const onRemove = () => confirmModal('Remove protocol?', `Remove ${proto.peptideName}?`, () => { setProtocols(protocols.filter(p => p.id !== proto.id)); showToast('Removed'); }, 'Remove');
       const dl = ['S','M','T','W','T','F','S'];
@@ -1960,7 +1995,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <Field label="Dose (mcg)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input"/></Field>
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
-              {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
+              {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly'],['asneeded','As needed ⚡']].map(([k,l]) => { const on = k==='asneeded' && f.days.length===0; return <button key={k} onClick={() => setPreset(k)} style={{background:on?'rgba(244,185,74,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(on?'rgba(244,185,74,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',fontSize:11,color:on?'var(--amber)':'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>; })}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
               {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(79,214,230,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
@@ -1988,7 +2023,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const pep = findPep(f.peptideId);
       const apply = (id) => { const p = findPep(id); if (p) setF(prev => ({...prev, peptideId: id, doseMcg: p.protocol.defaultDoseMcg, cycleDays: p.protocol.cycleDays || 30})); };
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
-      const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1]}; if (map[k]) setF({...f, days: map[k]}); };
+      const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
       const onSave = () => {
         if (!f.peptideId) return showToast('Pick compound', 'error');
         if (!f.doseMcg) return showToast('Set dose', 'error');
