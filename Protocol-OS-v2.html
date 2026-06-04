@@ -881,7 +881,7 @@ function deliveryFor(proto, vial) {
   const dMcg = proto.doseMcg || 0;
   if (route === 'oral') {
     const per = proto.oralPerUnitMcg || 0;
-    if (per > 0) { const n = Math.round((dMcg/per)*2)/2; return { route, chip: n+(n===1?' cap':' caps'), n, kind:'caps' }; }
+    if (per > 0) { const n = Math.max(0.5, Math.round((dMcg/per)*2)/2); return { route, chip: n+(n===1?' cap':' caps'), n, kind:'caps' }; }
     return { route, chip:'oral', kind:'caps' };
   }
   if (route === 'nasal') {
@@ -1590,8 +1590,9 @@ function App() {
     const rows = [['Profile','Compound','Date','Time','Dose','Unit','Units (syringe)','mL','Site','Notes']];
     mine.forEach(l => {
       const dt = new Date(l.datetime);
-      const dose = l.doseUnit === 'IU' ? (l.doseValue != null ? l.doseValue : l.doseMcg) : l.doseMcg;
-      const unit = l.doseUnit === 'IU' ? 'IU' : (l.doseMcg >= 1000 ? 'mcg' : 'mcg');
+      const isMg = l.doseUnit !== 'IU' && l.doseMcg != null && l.doseMcg >= 1000;
+      const dose = l.doseUnit === 'IU' ? (l.doseValue != null ? l.doseValue : l.doseMcg) : (isMg ? l.doseMcg/1000 : l.doseMcg);
+      const unit = l.doseUnit === 'IU' ? 'IU' : (isMg ? 'mg' : 'mcg');
       const u = l.doseMl != null ? (l.doseMl * 100).toFixed(1) : '';
       rows.push([activeProfile, l.peptide || l.peptideName || l.peptideId || '', dt.toLocaleDateString('en-CA'),
         dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', l.site || '', l.notes || '']);
@@ -1826,7 +1827,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   // route filter counts (over shown)
   const vialFor = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); return (vials||[]).find(v => ids.has(v.peptideId) && v.active !== false); };
   const routeForProto = (p) => routeOf(p, vialFor(p));
-  const routeCounts = { all: shownProtocols.length, inj:0, oral:0, nasal:0 };
+  const routeCounts = { all: shownProtocols.length, inj:0, oral:0, nasal:0, pen:0 };
   shownProtocols.forEach(p => { routeCounts[routeForProto(p)]++; });
   const filteredProtocols = routeFilter === 'all' ? shownProtocols : shownProtocols.filter(p => routeForProto(p) === routeFilter);
 
@@ -1862,7 +1863,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
       const hasConc = mcgPerMl > 0;
       const adminRoute = routeOf(proto, targetVial);
-      const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution" routes
+      const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || adminRoute === 'pen' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution prompt" routes
       const adminDelivery = deliveryFor(proto, targetVial);
       const isIU = isIUVial(targetVial);
       // Reconstitution: ask whenever a non-oral compound has no usable concentration; always editable later.
@@ -2077,7 +2078,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const toggleDay = (d) => setF({ ...f, days: f.days.includes(d) ? f.days.filter(x=>x!==d) : [...f.days, d].sort() });
       const total = f.comps.reduce((s,c)=> s + (parseFloat(c.mcg)||0), 0);
       const mpm = total / PEN_VOL_ML; const std = parseFloat(f.units)||0; const drawMl = std/100;
-      const pm = PEN_META[f.color];
+      const pm = PEN_META[f.color] || PEN_META.blue;
       const solventNote = solventFor(null, f.comps.map(c=>({peptideId:c.peptideId})));
       const onSave = () => {
         const comps = f.comps.filter(c => c.peptideId && (parseFloat(c.mcg)||0) > 0).map(c => { const p = findPep(c.peptideId); return { peptideId: c.peptideId, name: p ? p.name : c.peptideId, icon: p ? p.icon : '💊', mcg: parseFloat(c.mcg)||0 }; });
@@ -2209,7 +2210,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <RouteFields f={f} setF={setF}/>
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
-              {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
+              {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly'],['asneeded','As needed ⚡']].map(([k,l]) => { const on = k==='asneeded' && f.days.length===0; return <button key={k} onClick={() => setPreset(k)} style={{background:on?'rgba(244,185,74,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(on?'rgba(244,185,74,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',fontSize:11,color:on?'var(--amber)':'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>; })}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
               {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(79,214,230,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
@@ -2363,7 +2364,7 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
   else if (dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
   else { dv = String(Math.round(dMcg)); du = 'mcg'; }
 
-  const deliver = deliveryFor(proto, activeVial).chip;
+  const deliver = deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip;
 
   const stockPct = (activeVial && activeVial.totalMcg) ? Math.round((activeVial.remainingMcg / activeVial.totalMcg) * 100) : null;
   const low = stockPct != null && stockPct < 22;
