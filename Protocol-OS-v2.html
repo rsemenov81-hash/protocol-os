@@ -862,8 +862,10 @@ const ROUTE_META = {
   oral:  { label:'Oral',   color:'#f4b94a', verb:'Take'  },
   nasal: { label:'Nasal',  color:'#c78bf0', verb:'Spray' },
 };
-// Derive route from a vial's formType or the compound's route string.
+// Derive route. Explicit protocol route wins; else vial formType; else compound route string.
 function routeOf(proto, vial) {
+  const pr = proto && proto.route;
+  if (pr === 'inj' || pr === 'oral' || pr === 'nasal' || pr === 'spray' || pr === 'pen') return pr === 'spray' ? 'nasal' : pr;
   const ft = vial && vial.formType;
   if (ft === 'oral') return 'oral';
   if (ft === 'spray' || ft === 'nasal') return 'nasal';
@@ -872,6 +874,24 @@ function routeOf(proto, vial) {
   if (/oral|capsule|sublingual|tablet/.test(r)) return 'oral';
   if (/nasal|intranasal|spray/.test(r)) return 'nasal';
   return 'inj';
+}
+// Route-appropriate delivery: syringe units (inj) / # pills (oral) / # sprays (nasal).
+function deliveryFor(proto, vial) {
+  const route = routeOf(proto, vial);
+  const dMcg = proto.doseMcg || 0;
+  if (route === 'oral') {
+    const per = proto.oralPerUnitMcg || 0;
+    if (per > 0) { const n = Math.round((dMcg/per)*2)/2; return { route, chip: n+(n===1?' cap':' caps'), n, kind:'caps' }; }
+    return { route, chip:'oral', kind:'caps' };
+  }
+  if (route === 'nasal') {
+    const perSpray = (proto.sprayMcgPerMl || 0) * (proto.sprayMlPerSpray || 0);
+    if (perSpray > 0) { const n = Math.max(1, Math.round(dMcg/perSpray)); return { route, chip: n+(n===1?' spray':' sprays'), n, kind:'sprays', perSpray }; }
+    return { route, chip:'spray', kind:'sprays' };
+  }
+  // injection
+  if (vial && vial.mcgPerMl) { const u = dMcg/(vial.mcgPerMl/100); return { route, chip:(Math.round(u*10)/10)+'u', n:u, kind:'units' }; }
+  return { route, chip:'—', kind:'units' };
 }
 // Map schedule timing → time block (am / pre / pm / prn).
 function blockOf(proto) {
@@ -940,6 +960,38 @@ function Syringe({ units, max, color }) {
       <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="rgba(255,255,255,.45)" strokeWidth="1.3"/>
       {ticks}
     </svg>
+  );
+}
+
+// Type selector + route-specific dosing fields for the protocol new/edit forms.
+function RouteFields({ f, setF }) {
+  const route = f.route || 'inj';
+  const oralUnit = f.oralUnitLabel || 'mcg';
+  const lbl = { fontSize:12, color:'var(--text-dim)', fontWeight:600, display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em' };
+  const preview = deliveryFor({ ...f, doseMcg: parseFloat(f.doseMcg)||0, route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||0, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||0, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||0 }, null);
+  return (
+    <>
+      <Field label="Type">
+        <div style={{display:'flex',gap:7}}>
+          {[['inj','💉 Injection','#4fd6e6'],['oral','💊 Oral','#f4b94a'],['nasal','👃 Nasal spray','#c78bf0']].map(([k,l,col]) => { const on=route===k; return <button key={k} onClick={()=>setF({...f,route:k})} style={{flex:1,padding:'10px 4px',borderRadius:12,fontSize:12,fontWeight:600,border:'1px solid '+(on?col+'66':'var(--border)'),background:on?col+'1f':'rgba(255,255,255,.04)',color:on?col:'var(--text-dim)',cursor:'pointer'}}>{l}</button>; })}
+        </div>
+      </Field>
+      {route === 'oral' ? (
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'flex-end',marginBottom:10}}>
+          <div><label style={lbl}>Dose per cap ({oralUnit})</label><input type="number" value={(f.oralPerUnitMcg!=null && f.oralPerUnitMcg!=='') ? (oralUnit==='mg'?(f.oralPerUnitMcg/1000):f.oralPerUnitMcg) : ''} onChange={e=>{const v=parseFloat(e.target.value)||0; setF({...f, oralPerUnitMcg: oralUnit==='mg'? v*1000 : v});}} className="input"/></div>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u=><button key={u} onClick={()=>setF({...f,oralUnitLabel:u})} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:13,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(oralUnit===u?'rgba(79,214,230,.5)':'var(--border)'),background:oralUnit===u?'rgba(79,214,230,.16)':'rgba(255,255,255,.04)',color:oralUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+        </div>
+      ) : route === 'nasal' ? (
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+          <Field label="Conc (mcg/mL)"><input type="number" value={f.sprayMcgPerMl||''} onChange={e=>setF({...f,sprayMcgPerMl:e.target.value})} className="input"/></Field>
+          <Field label="mL per spray"><input type="number" step="0.01" value={f.sprayMlPerSpray||''} onChange={e=>setF({...f,sprayMlPerSpray:e.target.value})} className="input"/></Field>
+        </div>
+      ) : null}
+      <Field label="Standard dose (mcg)"><input type="number" value={f.doseMcg} onChange={e=>setF({...f,doseMcg:e.target.value})} className="input"/></Field>
+      {(route==='oral'||route==='nasal') && (parseFloat(f.doseMcg)||0)>0 && preview.n!=null && (
+        <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'-2px 2px 12px'}}>→ {route==='oral'?'Take':'Use'} <b style={{color: route==='oral'?'var(--rt-oral)':'#c78bf0'}}>{preview.chip}</b> per dose {route==='inj'?'':''}</div>
+      )}
+    </>
   );
 }
 
@@ -1798,7 +1850,9 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const targetVial = (reconPatch && reconPatch.id === (f.vialId || (baseVial && baseVial.id))) ? { ...(baseVial || {}), ...reconPatch } : baseVial;
       const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
       const hasConc = mcgPerMl > 0;
-      const isOral = (targetVial && targetVial.formType === 'oral') || isOralProto;
+      const adminRoute = routeOf(proto, targetVial);
+      const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution" routes
+      const adminDelivery = deliveryFor(proto, targetVial);
       const isIU = isIUVial(targetVial);
       // Reconstitution: ask whenever a non-oral compound has no usable concentration; always editable later.
       const [reconMl, setReconMl] = useState(targetVial && targetVial.diluentMl ? String(targetVial.diluentMl) : '');
@@ -1958,7 +2012,18 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               )}
             </Field>
           ) : !editRecon ? (
-            <Field label={`Dose (${isIU ? 'IU' : 'mcg'})`}><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
+            <>
+              {(() => { const live = deliveryFor({ ...proto, doseMcg: parseFloat(f.doseMcg)||proto.doseMcg }, targetVial); if ((adminRoute==='oral'||adminRoute==='nasal') && live.n!=null) return (
+                <div className="lg" style={{borderRadius:16,padding:'14px 16px',marginBottom:12,display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:44,height:44,borderRadius:13,background:ROUTE_META[adminRoute].color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+ROUTE_META[adminRoute].color+'40',flexShrink:0}}><RouteIcon route={adminRoute} color={ROUTE_META[adminRoute].color} s={22}/></div>
+                  <div>
+                    <div style={{fontSize:18,fontWeight:700,color:'var(--text)'}}>{adminRoute==='oral'?'Take':'Use'} {live.chip}</div>
+                    <div style={{fontSize:12,color:'var(--text-dim)',marginTop:2}}>{fmtDoseUnit(parseFloat(f.doseMcg)||proto.doseMcg, targetVial)}{adminRoute==='oral'?' · with water':' · 1 spray per nostril'}</div>
+                  </div>
+                </div>
+              ); return null; })()}
+              <Field label={`Dose (${isIU ? 'IU' : 'mcg'})`}><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
+            </>
           ) : null}
           
           <div style={{display:'grid',gridTemplateColumns: existingLog ? '1fr 1fr 1.2fr' : '1fr 1.2fr',gap:8,marginTop:8}}>
@@ -1980,19 +2045,19 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const editProtocol = (proto) => {
-    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning' };
+    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning', route: proto.route || routeOf(proto, null), oralUnitLabel: proto.oralUnitLabel || 'mcg' };
     const Modal = () => {
       const [f, setF] = useState(init);
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
       const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
-      const onSave = () => { setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: parseFloat(f.doseMcg), schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate} : p)); showToast('Updated'); closeModal(); };
+      const onSave = () => { setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: parseFloat(f.doseMcg), route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate} : p)); showToast('Updated'); closeModal(); };
       const onRemove = () => confirmModal('Remove protocol?', `Remove ${proto.peptideName}?`, () => { setProtocols(protocols.filter(p => p.id !== proto.id)); showToast('Removed'); }, 'Remove');
       const dl = ['S','M','T','W','T','F','S'];
       return (
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>Edit Protocol</h3>
           <p style={{margin:'0 0 20px',fontSize:14,color:'var(--text-dim)'}}>{proto.peptideName}</p>
-          <Field label="Dose (mcg)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input"/></Field>
+          <RouteFields f={f} setF={setF}/>
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
               {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly'],['asneeded','As needed ⚡']].map(([k,l]) => { const on = k==='asneeded' && f.days.length===0; return <button key={k} onClick={() => setPreset(k)} style={{background:on?'rgba(244,185,74,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(on?'rgba(244,185,74,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',fontSize:11,color:on?'var(--amber)':'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>; })}
@@ -2017,7 +2082,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const addProtocol = () => {
-    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal() };
+    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal(), route: 'inj', oralUnitLabel: 'mcg' };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
@@ -2027,7 +2092,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const onSave = () => {
         if (!f.peptideId) return showToast('Pick compound', 'error');
         if (!f.doseMcg) return showToast('Set dose', 'error');
-        const proto = { id: uid(), profile: activeProfile, peptideId: f.peptideId, peptideName: pep.name, doseMcg: parseFloat(f.doseMcg), schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, active: true, createdAt: new Date().toISOString() };
+        const proto = { id: uid(), profile: activeProfile, peptideId: f.peptideId, peptideName: pep.name, doseMcg: parseFloat(f.doseMcg), route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, active: true, createdAt: new Date().toISOString() };
         setProtocols([proto, ...protocols]);
         showToast(`Added ${pep.name}`); closeModal();
       };
@@ -2047,7 +2112,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             </select>
           </Field>
           {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
-          <Field label="Dose (mcg)"><input type="number" value={f.doseMcg} onChange={e => setF({...f, doseMcg: e.target.value})} className="input"/></Field>
+          <RouteFields f={f} setF={setF}/>
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
               {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
@@ -2158,11 +2223,7 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
   else if (dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
   else { dv = String(Math.round(dMcg)); du = 'mcg'; }
 
-  let deliver;
-  if (route === 'inj' && units != null) deliver = (Math.round(units*10)/10) + 'u';
-  else if (route === 'oral') deliver = 'oral';
-  else if (route === 'nasal') deliver = 'spray';
-  else deliver = '—';
+  const deliver = deliveryFor(proto, activeVial).chip;
 
   const stockPct = (activeVial && activeVial.totalMcg) ? Math.round((activeVial.remainingMcg / activeVial.totalMcg) * 100) : null;
   const low = stockPct != null && stockPct < 22;
