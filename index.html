@@ -8,7 +8,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Protocol OS">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#07080b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%230A84FF'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%230A84FF'/%3E%3C/svg%3E">
@@ -667,6 +670,61 @@ Check your Browserslist config to be sure that your targets are set up correctly
     .ambient::after { background: radial-gradient(circle, rgba(244,63,94,0.13), transparent 60%); }
   }
 </style>
+<style>
+  /* ══════════ Liquid Glass redesign (iOS-26) — loaded last, wins ══════════ */
+  :root {
+    color-scheme: dark;
+    --bg: #07080b;
+    --accent: #4fd6e6; --accent-2: #4fd6e6; --accent-3: #4fd6e6; --on-accent: #04211b;
+    --accent-glow: rgba(79,214,230,0.45);
+    --grad: linear-gradient(180deg, #4fd6e6, #34b9c9);
+    --rt-inj: #4fd6e6; --rt-oral: #f4b94a; --rt-nasal: #c78bf0;
+    --green: #5fdc97; --amber: #f4b94a; --red: #ff6b6b;
+    --success: #5fdc97; --warn: #f4b94a; --danger: #ff6b6b;
+    --text: #f3f6f8; --text-2: rgba(255,255,255,0.78); --text-dim: rgba(255,255,255,0.60); --text-faint: rgba(255,255,255,0.38);
+    --border: rgba(255,255,255,0.12); --border-light: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.16); --hair: rgba(255,255,255,0.12);
+    --glass: linear-gradient(150deg, rgba(255,255,255,.13), rgba(255,255,255,.045) 46%, rgba(255,255,255,.03)), rgba(17,19,25,.40);
+    --glass-strong: linear-gradient(150deg, rgba(255,255,255,.15), rgba(255,255,255,.05) 46%, rgba(255,255,255,.03)), rgba(17,19,25,.72);
+    --glass-hover: linear-gradient(150deg, rgba(255,255,255,.17), rgba(255,255,255,.06) 46%, rgba(255,255,255,.04)), rgba(30,34,44,.5);
+    --bg-card: rgba(17,19,25,0.40); --bg-card-2: rgba(255,255,255,0.05); --bg-input: rgba(255,255,255,0.05);
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+    --r-lg: 18px; --r-md: 14px;
+  }
+  html, body { background: #07080b !important; color: var(--text); font-family: -apple-system, 'Hanken Grotesk', system-ui, sans-serif; }
+  .mono, [data-mono] { font-family: var(--mono); }
+
+  /* ambient light field the glass refracts */
+  .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .ambient::before { content:''; position:absolute; width:440px; height:440px; left:-150px; top:60px; border-radius:50%; background:radial-gradient(circle, rgba(86,120,255,.22), transparent 70%); filter:blur(76px); animation:none; }
+  .ambient::after  { content:''; position:absolute; width:400px; height:400px; right:-150px; top:300px; border-radius:50%; background:radial-gradient(circle, rgba(60,214,210,.18), transparent 70%); filter:blur(76px); animation:none; }
+  .ambient .lg-blob { position:absolute; width:380px; height:380px; left:30px; bottom:-150px; border-radius:50%; background:radial-gradient(circle, rgba(196,110,220,.16), transparent 70%); filter:blur(76px); }
+
+  /* liquid-glass material */
+  .lg { position:relative; background: var(--glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%);
+        border: 1px solid rgba(255,255,255,.14);
+        box-shadow: 0 8px 30px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.30), inset 0 -10px 24px -16px rgba(0,0,0,.6); }
+  .lg::before { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(155deg, rgba(255,255,255,.34), rgba(255,255,255,0) 36%); opacity:.75; }
+  .lg > * { position:relative; z-index:1; }
+
+  /* map existing classes onto the glass look */
+  .card { background: var(--glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.14); border-radius:18px;
+          box-shadow: 0 8px 30px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.30), inset 0 -10px 24px -16px rgba(0,0,0,.6); }
+  .card-logged { background: rgba(95,220,151,0.07) !important; border-color: rgba(95,220,151,0.28) !important; }
+  .card-skipped { background: rgba(244,185,74,0.07) !important; border-color: rgba(244,185,74,0.25) !important; }
+  .glass { background: var(--glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.14); }
+  .glass-strong { background: var(--glass-strong); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border:1px solid rgba(255,255,255,.16);
+                  box-shadow: 0 8px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.3); }
+  .input { background: rgba(255,255,255,0.05); border:1px solid var(--hair); color: var(--text); border-radius:14px; }
+  .input:focus { border-color: rgba(79,214,230,.5); box-shadow: 0 0 0 3px rgba(79,214,230,.18); background: rgba(255,255,255,0.07); }
+  .btn-primary { background: linear-gradient(180deg,#4fd6e6,#34b9c9); color:#04211b; box-shadow: 0 8px 22px -6px rgba(79,214,230,.6), inset 0 1px 0 rgba(255,255,255,.5); }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost { background: var(--glass); border:1px solid var(--hair); color: var(--text); }
+  .pill-nav { background: var(--glass); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.14); border-radius:26px;
+              box-shadow: 0 8px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.3); }
+  .pill-nav-item.active { background: rgba(79,214,230,0.16); box-shadow: inset 0 0 0 1px rgba(79,214,230,.30); color: var(--accent); }
+  .gradient-text { background: none; -webkit-text-fill-color: var(--text); color: var(--text); }
+  .section-h { color: var(--text-dim); }
+</style>
 <script type="text/babel" data-presets="react">
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -794,6 +852,86 @@ const fmtDoseUnit = (n, v) => isIUVial(v) ? fmtIU(n) : fmtMcg(n);
 const doseUnitLabel = (v) => isIUVial(v) ? 'IU' : 'mcg';
 const fmtMoney = (n) => n == null ? '—' : '$' + Number(n).toFixed(2);
 const findPep = (id) => PEPTIDE_DB.find(p => p.id === id);
+
+/* ══════════ Liquid Glass kit — route/block mapping, syringe, icons ══════════ */
+const LG = { accent:'#4fd6e6', green:'#5fdc97', amber:'#f4b94a', red:'#ff6b6b',
+  text:'#f3f6f8', dim:'rgba(255,255,255,0.60)', dim2:'rgba(255,255,255,0.38)', hair:'rgba(255,255,255,0.12)',
+  mono:"'JetBrains Mono', ui-monospace, monospace" };
+const ROUTE_META = {
+  inj:   { label:'Inject', color:'#4fd6e6', verb:'Draw'  },
+  oral:  { label:'Oral',   color:'#f4b94a', verb:'Take'  },
+  nasal: { label:'Nasal',  color:'#c78bf0', verb:'Spray' },
+};
+// Derive route from a vial's formType or the compound's route string.
+function routeOf(proto, vial) {
+  const ft = vial && vial.formType;
+  if (ft === 'oral') return 'oral';
+  if (ft === 'spray' || ft === 'nasal') return 'nasal';
+  const pep = findPep(proto && proto.peptideId);
+  const r = ((pep && pep.protocol && pep.protocol.route) || '').toLowerCase();
+  if (/oral|capsule|sublingual|tablet/.test(r)) return 'oral';
+  if (/nasal|intranasal|spray/.test(r)) return 'nasal';
+  return 'inj';
+}
+// Map schedule timing → time block (am / pre / pm / prn).
+function blockOf(proto) {
+  const sched = proto.schedule || {};
+  const tod = (sched.timeOfDay || '').toLowerCase();
+  const days = sched.days;
+  if (Array.isArray(days) && days.length === 0) return 'prn';
+  if (/pre|work/.test(tod)) return 'pre';
+  if (/eve|night|bed|pm/.test(tod)) return 'pm';
+  return 'am';
+}
+const LG_BLOCKS = [
+  { id:'am',  label:'AM Block',    hint:'Morning' },
+  { id:'pre', label:'Pre-Workout', hint:'Before training' },
+  { id:'pm',  label:'PM Block',    hint:'Evening' },
+  { id:'prn', label:'As Needed',   hint:'No fixed schedule' },
+];
+// Route icon (line-art): syringe / pill / spray
+function RouteIcon({ route, color, s=16 }) {
+  const p = { width:s, height:s, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.7, strokeLinecap:'round', strokeLinejoin:'round' };
+  if (route === 'oral') return <svg {...p}><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-45 12 12)"/><path d="M9 9l6 6"/></svg>;
+  if (route === 'nasal') return <svg {...p}><path d="M9.4 9.5V6.6h3.4v2.9"/><rect x="10.4" y="3.4" width="2.6" height="3.2" rx="0.7"/><rect x="7" y="9.2" width="8.4" height="11.4" rx="2.4"/><path d="M15.2 4.3h2.4M15.4 6.2l2.3 .3M15.5 2.5l2-1"/></svg>;
+  return <svg {...p}><path d="M18 3l3 3M16 5l3 3"/><path d="M17.5 6.5L9 15l-1.5 4.5L3 21l1.5-4.5L13 8"/><path d="M11 10l3 3"/></svg>;
+}
+// Tab-bar line-art icons
+function NavIcon({ id, color }) {
+  const p = { width:22, height:22, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.8, strokeLinecap:'round', strokeLinejoin:'round' };
+  if (id==='protocol') return <svg {...p}><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>;
+  if (id==='inventory') return <svg {...p}><path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M3 8v8l9 4 9-4V8"/></svg>;
+  if (id==='lab') return <svg {...p}><path d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"/></svg>;
+  return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h3M14 9h2M14 14.5h2M9 13v3M7.9 17.1l2.2-2.2M10.1 17.1l-2.2-2.2"/></svg>;
+}
+// Procedural U-100 insulin syringe filled to `units`.
+function Syringe({ units, max, color }) {
+  color = color || LG.accent;
+  const u = Math.max(0, +units || 0);
+  const M = max || (u<=10?10 : u<=30?30 : u<=50?50 : 100);
+  const X0=30, X1=202, W=X1-X0, Y=10, H=20;
+  const fillW = Math.min(1, u/M) * W;
+  const px = X0 + fillW;
+  const ticks = [];
+  for (let i=0;i<=10;i++){
+    const x = X0 + W*i/10, major = i%2===0;
+    ticks.push(<line key={'t'+i} x1={x} y1={Y+H} x2={x} y2={Y+H+(major?8:4)} stroke="rgba(255,255,255,.40)" strokeWidth="1"/>);
+    if (major) ticks.push(<text key={'l'+i} x={x} y={Y+H+19} fill="rgba(255,255,255,.5)" fontSize="8" fontFamily={LG.mono} textAnchor="middle">{Math.round(M/10*i)}</text>);
+  }
+  return (
+    <svg viewBox="0 0 246 50" width="100%" style={{display:'block'}}>
+      <rect x="2" y="7" width="7" height={H+6} rx="2" fill={color}/>
+      <line x1="9" y1={Y+H/2} x2={px} y2={Y+H/2} stroke={color} strokeWidth="3"/>
+      <rect x={X0} y={Y} width={W} height={H} rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" strokeWidth="1.3"/>
+      <rect x={X0} y={Y} width={fillW} height={H} fill={color} opacity="0.34"/>
+      <rect x={Math.max(X0,px-1.6)} y={Y} width="1.6" height={H} fill={color}/>
+      <rect x={px-1.5} y={Y-3} width="3" height={H+6} rx="1" fill={color}/>
+      <rect x={X1} y={Y+H/2-5} width="7" height="10" rx="1" fill="rgba(255,255,255,.28)"/>
+      <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="rgba(255,255,255,.45)" strokeWidth="1.3"/>
+      {ticks}
+    </svg>
+  );
+}
 
 function compoundFingerprint(p) {
   if (!p) return '';
@@ -1464,9 +1602,9 @@ function App() {
 
       <div className="pill-nav-wrap">
         <div className="pill-nav">
-          {[['protocol','⚗️','Protocol'],['inventory','📦','Inventory'],['lab','🧬','Lab'],['math','🔢','Math']].map(([id,icon,label]) => (
+          {[['protocol','Protocol'],['inventory','Inventory'],['lab','Lab'],['math','Math']].map(([id,label]) => (
             <button key={id} onClick={() => setActiveTab(id)} className={`pill-nav-item ${activeTab===id?'active':''}`}>
-              <span style={{fontSize:20,lineHeight:1}}>{icon}</span><span>{label}</span>
+              <NavIcon id={id} color={activeTab===id?'var(--accent)':'var(--text-faint)'}/><span>{label}</span>
             </button>
           ))}
         </div>
@@ -1477,7 +1615,7 @@ function App() {
           <div className="glass-strong" style={{borderRadius:100,padding:'12px 18px',display:'flex',gap:10,alignItems:'center',boxShadow:'0 12px 32px rgba(0,0,0,0.4)'}}>
             {toast.type === 'error' ? <AlertTriangle size={18} color="#FF453A"/> : <CheckCircle size={18} color="#30D158"/>}
             <span style={{fontSize:14,fontWeight:500}}>{toast.message}</span>
-            {toast.undoFn && <button onClick={() => { toast.undoFn(); setToast(null); }} style={{marginLeft:6,fontSize:12,fontWeight:700,color:'var(--accent-2)',background:'rgba(192,132,252,0.15)',border:'1px solid rgba(192,132,252,0.3)',borderRadius:100,padding:'6px 12px',cursor:'pointer'}}>Undo</button>}
+            {toast.undoFn && <button onClick={() => { toast.undoFn(); setToast(null); }} style={{marginLeft:6,fontSize:12,fontWeight:700,color:'var(--accent-2)',background:'rgba(79,214,230,0.15)',border:'1px solid rgba(79,214,230,0.3)',borderRadius:100,padding:'6px 12px',cursor:'pointer'}}>Undo</button>}
           </div>
         </div>
       )}
@@ -1533,7 +1671,7 @@ function DateButton({ viewDate, setViewDate, isToday, dateLabel, day }) {
                 const dt = new Date(calMonth.getFullYear(), calMonth.getMonth(), d);
                 const isToday2 = dt.toDateString() === today.toDateString();
                 const isSel = dt.toDateString() === sel.toDateString();
-                return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(192,132,252,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
+                return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(79,214,230,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
               })}
             </div>
             <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
@@ -1564,9 +1702,9 @@ function TopBar({ viewDate, setViewDate, activeProfile, setActiveProfile, protoc
         {PROFILES.map(p => {
           const count = protocols.filter(x => x.profile === p && x.active !== false).length;
           return (
-            <button key={p} onClick={() => setActiveProfile(p)} style={{flex:1,padding:'7px',borderRadius:8,border:'none',background:activeProfile===p?'rgba(192,132,252,0.18)':'transparent',color:activeProfile===p?'var(--accent-2)':'var(--text-dim)',fontWeight:700,fontSize:12,cursor:'pointer',boxShadow:activeProfile===p?'inset 0 0 0 1px rgba(192,132,252,0.4)':'none',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+            <button key={p} onClick={() => setActiveProfile(p)} style={{flex:1,padding:'7px',borderRadius:8,border:'none',background:activeProfile===p?'rgba(79,214,230,0.18)':'transparent',color:activeProfile===p?'var(--accent-2)':'var(--text-dim)',fontWeight:700,fontSize:12,cursor:'pointer',boxShadow:activeProfile===p?'inset 0 0 0 1px rgba(79,214,230,0.4)':'none',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
               {p}
-              <span style={{fontSize:10,padding:'2px 7px',borderRadius:100,background:activeProfile===p?'rgba(192,132,252,0.25)':'rgba(255,255,255,0.08)'}}>{count}</span>
+              <span style={{fontSize:10,padding:'2px 7px',borderRadius:100,background:activeProfile===p?'rgba(79,214,230,0.25)':'rgba(255,255,255,0.08)'}}>{count}</span>
             </button>
           );
         })}
@@ -1577,20 +1715,29 @@ function TopBar({ viewDate, setViewDate, activeProfile, setActiveProfile, protoc
 
 function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, storage, openModal, closeModal, confirmModal, showToast }) {
   const dow = viewDate.getDay();
+  const [routeFilter, setRouteFilter] = useState('all');
   const myProtocols = protocols.filter(p => p.profile === activeProfile && p.active !== false);
-  const dueThisDay = myProtocols.filter(p => { const days = (p.schedule && p.schedule.days) || [0,1,2,3,4,5,6]; return days.includes(dow); });
+  const isPrn = (p) => { const d = p.schedule && p.schedule.days; return Array.isArray(d) && d.length === 0; };
+  const isDue = (p) => { const d = (p.schedule && p.schedule.days) || [0,1,2,3,4,5,6]; return d.includes(dow); };
+  const dueThisDay = myProtocols.filter(p => isDue(p) && !isPrn(p));
+  const shownProtocols = myProtocols.filter(p => isDue(p) || isPrn(p));
 
-  const blocks = [
-    { key:'morning', icon:'🌅', label:'AM Block' },
-    { key:'preworkout', icon:'💪', label:'Pre-Workout' },
-    { key:'noon', icon:'☀️', label:'Mid-Day' },
-    { key:'evening', icon:'🌆', label:'Evening' },
-    { key:'bedtime', icon:'🌙', label:'Nightcap' },
-    { key:'anytime', icon:'⏱', label:'Anytime' }
-  ];
-  const byBlock = {};
-  blocks.forEach(b => byBlock[b.key] = []);
-  dueThisDay.forEach(p => { const t = (p.schedule && p.schedule.timeOfDay) || 'anytime'; if (byBlock[t]) byBlock[t].push(p); else byBlock.anytime.push(p); });
+  // today's progress (scheduled, non-PRN)
+  const hasLogToday = (p) => logs.some(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey && !l.skipped);
+  const scheduledCount = dueThisDay.length;
+  const loggedCount = dueThisDay.filter(hasLogToday).length;
+  const dueCount = scheduledCount - loggedCount;
+
+  // route filter counts (over shown)
+  const vialFor = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); return (vials||[]).find(v => ids.has(v.peptideId) && v.active !== false); };
+  const routeForProto = (p) => routeOf(p, vialFor(p));
+  const routeCounts = { all: shownProtocols.length, inj:0, oral:0, nasal:0 };
+  shownProtocols.forEach(p => { routeCounts[routeForProto(p)]++; });
+  const filteredProtocols = routeFilter === 'all' ? shownProtocols : shownProtocols.filter(p => routeForProto(p) === routeFilter);
+
+  const blocks = LG_BLOCKS;
+  const byBlock = { am:[], pre:[], pm:[], prn:[] };
+  filteredProtocols.forEach(p => { const b = blockOf(p); (byBlock[b] || byBlock.am).push(p); });
 
   const equivVialsFor = (peptideId) => { const ids = new Set(getEquivalentIds(peptideId)); return vials.filter(v => ids.has(v.peptideId) && v.active !== false && v.remainingMcg > 0 && isItemVisibleToProfile(v, activeProfile)); };
 
@@ -1713,7 +1860,10 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         : null;
       return (
         <div>
-          <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>{existingLog ? 'Edit Dose' : 'Administer'}</h3>
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
+            <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>{existingLog ? 'Edit Dose' : 'Administer'}</h3>
+            <button onClick={() => { closeModal(); editProtocol(proto); }} title="Edit protocol" className="lg" style={{width:34,height:34,borderRadius:'50%',display:'grid',placeItems:'center',padding:0,cursor:'pointer',flexShrink:0}}><Edit2 size={15} color="var(--text-dim)"/></button>
+          </div>
           <p style={{margin:'0 0 20px',fontSize:14,color:'var(--text-dim)'}}>{proto.peptideName} · <span style={{color:'var(--accent-2)',fontWeight:600}}>{proto.profile}</span></p>
           <Field label="Date & Time">
             <input type="datetime-local" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
@@ -1740,26 +1890,32 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             </div>
           )}
           {hasConc && !editRecon ? (
-            <Field label="💉 Draw syringe to">
-              {/* HERO: syringe units — the primary focus */}
-              <div style={{background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:22,padding:'14px 16px 16px',textAlign:'center'}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',color:'var(--accent-2)',textTransform:'uppercase'}}>Draw to</div>
-                <input type="number" step="1" inputMode="decimal" value={units} onChange={e => setUnits(e.target.value)} style={{width:'100%',fontSize:64,lineHeight:1,fontWeight:850,textAlign:'center',fontFamily:'SF Mono, monospace',background:'transparent',border:'none',outline:'none',color:'var(--accent)',letterSpacing:'-2px',padding:'2px 0 0'}}/>
-                <div style={{fontSize:14,fontWeight:700,color:'var(--text-dim)',letterSpacing:'0.08em',marginTop:'-2px'}}>UNITS</div>
-                <input type="range" className="aurora-range" min="1" max={maxU} step="1" value={Math.min(maxU, Math.round(parseFloat(units)||0))} onChange={e => setUnits(e.target.value)} style={{width:'100%',marginTop:14}}/>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:9,color:'var(--text-faint)',fontFamily:'SF Mono, monospace',marginTop:2}}><span>1u</span><span>{Math.round(maxU/2)}u</span><span>{maxU}u</span></div>
-                <div style={{fontSize:13,color:'var(--text-dim)',marginTop:10,fontFamily:'SF Mono, monospace'}}>= <b style={{color:'var(--text)'}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</b> total · {f.doseMl || '0'} mL</div>
+            <Field label="💉 Draw on syringe">
+              {/* LG syringe panel — big computed units + U-100 syringe + conc/mL footer */}
+              <div className="lg" style={{borderRadius:16, padding:'14px 16px'}}>
+                <div style={{display:'flex', alignItems:'baseline', gap:8, marginBottom:12}}>
+                  <input type="number" step="1" inputMode="decimal" value={units} onChange={e => setUnits(e.target.value)}
+                    style={{width:'2.6em', fontFamily:'var(--mono)', fontSize:30, fontWeight:700, color:'var(--accent)', background:'transparent', border:'none', outline:'none', padding:0}}/>
+                  <span style={{fontSize:14, fontWeight:600, color:'var(--text-dim)'}}>units</span>
+                  <span style={{marginLeft:'auto', fontFamily:'var(--mono)', fontSize:13, color:'var(--text)'}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</span>
+                </div>
+                <Syringe units={parseFloat(units)||0} color="var(--accent)"/>
+                <div style={{display:'flex', justifyContent:'space-between', marginTop:10, fontFamily:'var(--mono)', fontSize:10.5, color:'var(--text-faint)'}}>
+                  <span>Conc {isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</span>
+                  <span>≈ {(parseFloat(f.doseMl)||0).toFixed(3)} mL</span>
+                  <span>recon · SC</span>
+                </div>
               </div>
-              {/* "In this shot" — per-component breakdown for blends, updates with the slider */}
+              {/* "In this shot" — per-component breakdown for blends, updates live */}
               {shotBreakdown && shotBreakdown.length > 0 && (
-                <div style={{background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:16,padding:'11px 12px',marginTop:10}}>
-                  <div style={{fontSize:10,fontWeight:800,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>🧪 In this shot</div>
+                <div className="lg" style={{borderRadius:16,padding:'11px 12px',marginTop:10}}>
+                  <div style={{fontSize:10,fontWeight:800,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>In this shot</div>
                   <div style={{display:'flex',flexDirection:'column',gap:7}}>
                     {shotBreakdown.map(c => (
                       <div key={c.id} style={{display:'flex',alignItems:'center',gap:8}}>
                         <span style={{fontSize:15}}>{c.icon}</span>
                         <span style={{flex:1,fontSize:12,color:'var(--text-2)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.name} <span style={{color:'var(--text-faint)'}}>· {c.pct}%</span></span>
-                        <span className="gradient-text" style={{fontSize:13,fontWeight:800,fontFamily:'SF Mono, monospace'}}>{fmtMcg(c.mcgInShot)}</span>
+                        <span style={{fontSize:13,fontWeight:800,fontFamily:'var(--mono)',color:'var(--accent)'}}>{fmtMcg(c.mcgInShot)}</span>
                       </div>
                     ))}
                   </div>
@@ -1807,7 +1963,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(192,132,252,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(79,214,230,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
             </div>
           </Field>
           <Field label="Time of Day"><select value={f.timeOfDay} onChange={e => setF({...f, timeOfDay: e.target.value})} className="input"><option value="morning">🌅 Morning</option><option value="preworkout">💪 Pre-workout</option><option value="noon">☀️ Mid-day</option><option value="evening">🌆 Evening</option><option value="bedtime">🌙 Before bed</option><option value="anytime">⏱ Any time</option></select></Field>
@@ -1862,7 +2018,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly']].map(([k,l]) => <button key={k} onClick={() => setPreset(k)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 12px',fontSize:11,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(192,132,252,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+              {dl.map((d,i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(79,214,230,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
             </div>
           </Field>
           <Field label="Time of Day"><select value={f.timeOfDay} onChange={e => setF({...f, timeOfDay: e.target.value})} className="input"><option value="morning">🌅 Morning</option><option value="preworkout">💪 Pre-workout</option><option value="noon">☀️ Mid-day</option><option value="evening">🌆 Evening</option><option value="bedtime">🌙 Before bed</option><option value="anytime">⏱ Any time</option></select></Field>
@@ -1877,96 +2033,145 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     openModal(<Modal/>);
   };
 
+  const pct = scheduledCount ? loggedCount / scheduledCount : 0;
+  const filters = [['all','All','#4fd6e6'],['inj','Inject',ROUTE_META.inj.color],['oral','Oral',ROUTE_META.oral.color],['nasal','Nasal',ROUTE_META.nasal.color]];
   return (
-    <div style={{paddingBottom:40}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'6px 4px 8px'}}>
-        <div style={{fontSize:11,color:'var(--text-dim)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.08em'}}>{dueThisDay.length === 0 ? 'Rest day' : `${dueThisDay.length} due`}</div>
-        <button onClick={addProtocol} style={{background:'rgba(192,132,252,0.15)',border:'1px solid rgba(192,132,252,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
+    <div style={{paddingBottom:40}} className="anim-fade-in">
+      {/* summary pill */}
+      <div className="lg" style={{borderRadius:20, padding:'14px 16px', display:'flex', alignItems:'center', gap:14, marginBottom:16}}>
+        {(() => { const r=20, C=2*Math.PI*r; return (
+          <div style={{position:'relative', width:48, height:48, flex:'0 0 auto'}}>
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,.14)" strokeWidth="4"/>
+              <circle cx="24" cy="24" r={r} fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C*(1-pct)} transform="rotate(-90 24 24)"/>
+            </svg>
+            <div style={{position:'absolute', inset:0, display:'grid', placeItems:'center', fontFamily:LG.mono, fontSize:12, fontWeight:700, color:LG.text}}>{Math.round(pct*100)}%</div>
+          </div>
+        ); })()}
+        <div style={{flex:1, minWidth:0}}>
+          <div style={{fontSize:16, fontWeight:700, color:LG.text}}>{scheduledCount === 0 ? 'Rest day' : `${dueCount} ${dueCount===1?'dose':'doses'} due`}</div>
+          <div style={{fontSize:12.5, color:LG.dim, marginTop:2}}>{loggedCount} logged · {scheduledCount} scheduled today</div>
+        </div>
+        <button onClick={addProtocol} className="lg" style={{width:42, height:42, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer'}}><Plus size={19} color="var(--accent)"/></button>
       </div>
-      {dueThisDay.length === 0 && myProtocols.length === 0 && (
-        <div style={{textAlign:'center',padding:'60px 20px',color:'var(--text-dim)'}}>
+
+      {myProtocols.length === 0 ? (
+        <div style={{textAlign:'center',padding:'60px 20px',color:LG.dim}}>
           <div style={{fontSize:60,opacity:0.4,marginBottom:16}}>⚗️</div>
           <h3 style={{margin:'0 0 6px',fontWeight:600}}>No protocols yet</h3>
           <p style={{margin:'0 0 20px',fontSize:14}}>Add a compound to start tracking {activeProfile}'s protocol</p>
           <button className="btn btn-primary" onClick={addProtocol}>+ Add First Compound</button>
         </div>
-      )}
-      {dueThisDay.length === 0 && myProtocols.length > 0 && (
-        <div style={{textAlign:'center',padding:'40px 20px',color:'var(--text-dim)'}}>
-          <div style={{fontSize:50,opacity:0.4,marginBottom:12}}>😴</div>
-          <p style={{margin:0,fontSize:14}}>{activeProfile}'s rest day. Nothing scheduled.</p>
+      ) : (<>
+        {/* route filter chips */}
+        <div style={{display:'flex', gap:7, marginBottom:16}}>
+          {filters.map(([k,label,col]) => { const active = routeFilter === k; const cnt = routeCounts[k]; return (
+            <button key={k} onClick={() => setRouteFilter(k)} style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 4px', borderRadius:13, fontSize:12.5, fontWeight:600, cursor:'pointer', border:'1px solid '+(active?col+'55':LG.hair), background:active?col+'1f':'rgba(255,255,255,.04)', color:active?col:LG.dim}}>
+              {label}<span style={{fontFamily:LG.mono, fontSize:10.5, fontWeight:700, color:active?col:LG.dim2}}>{cnt}</span>
+            </button>
+          ); })}
         </div>
-      )}
-      {blocks.map(b => byBlock[b.key].length > 0 && (
-        <div key={b.key}>
-          <div className="section-h"><span style={{fontSize:16}}>{b.icon}</span><span>{b.label}</span><span className="count">{byBlock[b.key].length}</span></div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(165px, 1fr))',gap:6}}>
-            {byBlock[b.key].map(p => {
-              const log = logs.find(l => l.protocolId === p.id && l.datetime.slice(0,10) === dateKey);
-              const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending';
-              return <DoseCard key={p.id} proto={p} log={log} status={status} isFuture={isFuture} vials={vials} onAdminister={() => administer(p, log)} onEdit={() => editProtocol(p)}/>;
-            })}
+        {shownProtocols.length === 0 && (
+          <div style={{textAlign:'center',padding:'40px 20px',color:LG.dim}}>
+            <div style={{fontSize:50,opacity:0.4,marginBottom:12}}>😴</div>
+            <p style={{margin:0,fontSize:14}}>{activeProfile}'s rest day. Nothing scheduled.</p>
           </div>
-        </div>
-      ))}
+        )}
+        {blocks.map((b, bi) => byBlock[b.id].length > 0 && (
+          <div key={b.id} style={{marginTop: bi===0?0:20}}>
+            <div style={{display:'flex', alignItems:'center', gap:9, padding:'0 4px 11px'}}>
+              <span style={{fontSize:13, fontWeight:700, letterSpacing:'0.03em', color: b.id==='prn'?LG.amber:LG.text}}>{b.label}</span>
+              <span style={{fontSize:11, color:LG.dim2, fontWeight:500}}>{b.hint}</span>
+              <span style={{fontFamily:LG.mono, fontSize:11, color:LG.dim2, marginLeft:'auto'}}>{byBlock[b.id].length}</span>
+              <div style={{flex:'0 0 18px', height:1, background:LG.hair}}/>
+            </div>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(2, minmax(0,1fr))', gap:12}}>
+              {byBlock[b.id].map(p => {
+                const log = logs.find(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey);
+                const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending';
+                return <DoseCard key={p.id} proto={p} log={log} status={status} isFuture={isFuture} vials={vials} onAdminister={() => administer(p, log)} onEdit={() => editProtocol(p)}/>;
+              })}
+            </div>
+          </div>
+        ))}
+      </>)}
     </div>
   );
 }
 
 function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit }) {
-  const pep = findPep(proto.peptideId);
   const sched = proto.schedule || {};
   const days = sched.days || [0,1,2,3,4,5,6];
   const allDays = days.length === 7;
   const dayChars = ['S','M','T','W','T','F','S'];
-  const daysStr = allDays ? 'Daily' : (days.length === 5 && [1,2,3,4,5].every(d => days.includes(d)) ? 'Wkdys' : days.map(d => dayChars[d]).join(''));
-  
+  const daysStr = allDays ? 'Daily' : (days.length === 5 && [1,2,3,4,5].every(d => days.includes(d)) ? 'Wkdys' : (days.length === 0 ? 'As needed' : days.map(d => dayChars[d]).join('')));
   const elapsed = Math.floor((Date.now() - new Date(proto.startDate).getTime()) / 86400000);
-  const day = Math.max(1, Math.min(elapsed + 1, proto.cycleDays));
-  
-  // Find an active vial for syringe math
+  const day = Math.max(1, Math.min(elapsed + 1, proto.cycleDays || 1));
+
   const equivIds = new Set(getEquivalentIds(proto.peptideId));
-  const activeVial = (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && v.mcgPerMl > 0);
-  const mcgPerUnit = activeVial ? activeVial.mcgPerMl / 100 : 0;
-  const units = mcgPerUnit ? (proto.doseMcg / mcgPerUnit) : 0;
-  const fillPct = mcgPerUnit ? Math.min(100, units) : 0;
-  
+  const activeVial = (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl||0) > 0 && (v.remainingMcg||0) > 0)
+                  || (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false);
+  const route = routeOf(proto, activeVial);
+  const rt = ROUTE_META[route];
+  const mcgPerUnit = activeVial && activeVial.mcgPerMl ? activeVial.mcgPerMl / 100 : 0;
+  const dMcg = (log && log.doseMcg != null) ? log.doseMcg : proto.doseMcg;
+  const units = mcgPerUnit ? (dMcg / mcgPerUnit) : null;
+
+  const isIU = isIUVial(activeVial) || (log && log.doseUnit === 'IU');
+  let dv, du;
+  if (isIU) { dv = String(Math.round(log && log.doseValue != null ? log.doseValue : dMcg)); du = 'IU'; }
+  else if (dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
+  else { dv = String(Math.round(dMcg)); du = 'mcg'; }
+
+  let deliver;
+  if (route === 'inj' && units != null) deliver = (Math.round(units*10)/10) + 'u';
+  else if (route === 'oral') deliver = 'oral';
+  else if (route === 'nasal') deliver = 'spray';
+  else deliver = '—';
+
+  const stockPct = (activeVial && activeVial.totalMcg) ? Math.round((activeVial.remainingMcg / activeVial.totalMcg) * 100) : null;
+  const low = stockPct != null && stockPct < 22;
+
   const isLogged = status === 'logged';
   const isSkipped = status === 'skipped';
   const cls = isLogged ? 'card card-logged' : isSkipped ? 'card card-skipped' : 'card';
-  
-  const actionBg = isLogged ? 'var(--success)' : isSkipped ? 'rgba(255,159,10,0.2)' : isFuture ? 'rgba(255,255,255,0.05)' : 'var(--grad)';
+  const meta = (proto.cycleDays > 0 && days.length > 0) ? `${daysStr} · ${day}/${proto.cycleDays}` : daysStr;
+  const disabled = isFuture && !isLogged;
+
   return (
-    <div className={cls} style={{padding:'9px 10px', display:'flex', flexDirection:'column', gap:6, minWidth:0}}>
-      <div style={{display:'flex', alignItems:'flex-start', gap:8, minWidth:0}}>
-        <div style={{fontSize:18, flexShrink:0, opacity:isLogged?0.55:1, width:22, textAlign:'center', lineHeight:'20px'}}>{pep?.icon || '💊'}</div>
-        <div style={{flex:1, minWidth:0, cursor:'pointer'}} onClick={onEdit}>
-          <div style={{fontSize:13, fontWeight:600, letterSpacing:'-0.01em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} className={isLogged?'struck':''}>{proto.peptideName}</div>
-          <div style={{fontSize:10, color:'var(--text-dim)', marginTop:1, display:'flex', gap:5, alignItems:'center', flexWrap:'wrap'}}>
-            <span style={{fontWeight:600, color:'var(--accent-2)'}}>{daysStr}</span>
-            <span style={{color:'var(--text-faint)'}}>·</span>
-            <span style={{fontFamily:'SF Mono, monospace'}}>{day}/{proto.cycleDays}</span>
+    <button onClick={() => { if (!disabled) onAdminister(); }} className={cls}
+      style={{textAlign:'left', borderRadius:18, padding:'10px 11px', display:'flex', flexDirection:'column', gap:6, width:'100%', minWidth:0, opacity:isLogged?0.62:disabled?0.5:1, cursor:disabled?'default':'pointer'}}>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+        <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
+          <div style={{width:25, height:25, borderRadius:8, background:rt.color+'24', display:'grid', placeItems:'center', boxShadow:'inset 0 0 0 1px '+rt.color+'40', flexShrink:0}}>
+            <RouteIcon route={route} color={rt.color} s={15}/>
           </div>
-          <div style={{fontSize:11, marginTop:1, fontFamily:'SF Mono, monospace', fontWeight:600, color:isLogged?'var(--text-faint)':'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} className={isLogged?'struck':''}>
-            {log?.doseUnit === 'IU' ? fmtIU(log.doseValue != null ? log.doseValue : log.doseMcg) : fmtDoseUnit(log?.doseMcg || proto.doseMcg, activeVial)}
-            {isLogged && log && <span style={{color:'var(--text-faint)', fontWeight:400}}> @ {new Date(log.datetime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>}
-          </div>
+          <span style={{fontSize:10, fontWeight:700, letterSpacing:'0.05em', color:rt.color, textTransform:'uppercase'}}>{rt.label}</span>
         </div>
-        <button onClick={(e) => { e.stopPropagation(); onAdminister(); }} disabled={!isLogged && isFuture} title={isLogged?'Logged — tap to edit':isFuture?'Future dose':'Administer'} style={{flexShrink:0, width:30, height:30, borderRadius:'50%', border:'none', background:actionBg, color:isLogged?'#000':isSkipped?'var(--warn)':isFuture?'var(--text-faint)':'var(--on-accent)', cursor:isFuture && !isLogged?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:isLogged?'0 2px 10px rgba(48,209,88,0.4)':'0 2px 10px rgba(0,0,0,0.25)', transition:'transform 0.15s cubic-bezier(0.16,1,0.3,1)'}}>
-          {isLogged ? <Check size={15} strokeWidth={3}/> : isSkipped ? '⏭' : isFuture ? '—' : <Plus size={16} strokeWidth={3}/>}
-        </button>
+        <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0,
+          background:isLogged?LG.green:isSkipped?'rgba(244,185,74,.18)':'rgba(79,214,230,.12)',
+          border:isLogged?'none':isSkipped?('1.6px solid '+LG.amber):('1.6px solid '+LG.accent)}}>
+          {isLogged ? <Check size={14} strokeWidth={3} color="#06231a"/> : isSkipped ? <span style={{fontSize:12,color:LG.amber}}>⏭</span> : <Plus size={13} strokeWidth={3} color={LG.accent}/>}
+        </div>
       </div>
-      {!isSkipped && mcgPerUnit > 0 && (
-        <div style={{display:'flex', gap:6, alignItems:'center'}}>
-          <svg viewBox="0 0 100 8" style={{width:'100%', height:7, flex:1}}>
-            <rect x="0" y="2" width="100" height="4" fill="rgba(255,255,255,0.06)" rx="2"/>
-            <rect x="0" y="2" width={fillPct} height="4" fill={isLogged?'rgba(48,209,88,0.5)':'var(--accent)'} rx="2"/>
-            {[10,20,30,40,50,60,70,80,90].map(p => <line key={p} x1={p} y1="1" x2={p} y2="7" stroke="rgba(255,255,255,0.18)" strokeWidth="0.4"/>)}
-          </svg>
-          <span style={{fontSize:9, color:'var(--text-faint)', fontFamily:'SF Mono, monospace', flexShrink:0, minWidth:30, textAlign:'right'}}>{units.toFixed(1)}u</span>
-        </div>
-      )}
-    </div>
+      <div style={{fontSize:13.5, fontWeight:600, color:isLogged?LG.dim:LG.text, lineHeight:1.16, minHeight:31, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', textDecoration:isLogged?'line-through':'none'}}>{proto.peptideName}</div>
+      <div style={{display:'flex', alignItems:'baseline', gap:4}}>
+        <span style={{fontFamily:LG.mono, fontSize:17, fontWeight:700, color:isLogged?LG.dim:LG.text}}>{dv}</span>
+        <span style={{fontFamily:LG.mono, fontSize:10, color:LG.dim}}>{du}</span>
+        <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:11, fontWeight:600, color:rt.color, background:rt.color+'1c', border:'1px solid '+rt.color+'33', borderRadius:7, padding:'2px 7px', whiteSpace:'nowrap'}}>{deliver}</span>
+      </div>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, paddingTop:6, borderTop:'1px solid '+LG.hair}}>
+        <span style={{fontSize:10.5, color:LG.dim, fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{meta}</span>
+        {stockPct != null ? (
+          <div style={{display:'flex', alignItems:'center', gap:5, flexShrink:0}}>
+            <div style={{width:24, height:3.5, borderRadius:2, background:'rgba(255,255,255,.14)', overflow:'hidden'}}>
+              <div style={{width:Math.max(0,Math.min(100,stockPct))+'%', height:'100%', borderRadius:2, background:low?LG.amber:LG.green}}/>
+            </div>
+            <span style={{fontFamily:LG.mono, fontSize:9, color:low?LG.amber:LG.dim2}}>{low?'low':stockPct+'%'}</span>
+          </div>
+        ) : <span style={{fontFamily:LG.mono, fontSize:9, color:LG.dim2}}>no vial</span>}
+      </div>
+    </button>
   );
 }
 
@@ -1991,7 +2196,8 @@ function InventoryView({ activeProfile, vials, setVials, storage, setStorage, lo
 }
 
 function VialsList({ activeProfile, vials, setVials, visibleVials, storage, setStorage, logs, confirmModal, showToast }) {
-  const active = visibleVials.filter(v => v.active !== false);
+  const pctOf = (v) => (v.totalMcg ? (v.remainingMcg / v.totalMcg) : 2); // unreconstituted → sort last
+  const active = visibleVials.filter(v => v.active !== false).slice().sort((a,b) => pctOf(a) - pctOf(b)); // lowest stock first
   if (active.length === 0) return <div style={{textAlign:'center',padding:60,color:'var(--text-dim)'}}><div style={{fontSize:50,opacity:0.4}}>🧪</div><p>No active vials. Reconstitute one from Storage.</p></div>;
   const vialToStorageEntry = (v) => ({ id: uid(), peptideId: v.peptideId, peptideName: v.peptideName, mgPerVial: v.mgPerVial, vialCount: 1, purchaseDate: v.reconstitutedAt ? v.reconstitutedAt.slice(0,10) : todayLocal(), vendor: '', suggestedDiluentMl: v.diluentMl, suggestedDoseMcg: v.doseMcg, costPerVial: v.costPerVial || 0, formType: v.formType || 'liquid', unitLabel: v.unitLabel || null, iuPerVial: v.unitLabel === 'IU' ? Math.round((v.mgPerVial||0)*1000) : null, inventoryProfile: v.inventoryProfile || getInventoryProfile(activeProfile) });
   const moveToStorage = (v) => confirmModal('Move back to storage?', `Return ${v.peptideName} to un-reconstituted storage.`, () => {
@@ -2244,7 +2450,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
             </div>
           )}
           {m && (
-            <div style={{background:'linear-gradient(135deg, rgba(192,132,252,0.12), rgba(192,132,252,0.08))',border:'1px solid rgba(192,132,252,0.3)',padding:18,borderRadius:14,textAlign:'center',marginBottom:14}}>
+            <div style={{background:'linear-gradient(135deg, rgba(79,214,230,0.12), rgba(79,214,230,0.08))',border:'1px solid rgba(79,214,230,0.3)',padding:18,borderRadius:14,textAlign:'center',marginBottom:14}}>
               <div style={{fontSize:11,color:'var(--accent-2)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:6}}>Pull Syringe To</div>
               <div style={{fontSize:42,fontWeight:800,fontFamily:'SF Mono, monospace',color:'white',lineHeight:1}}>{m.unitsPerDose.toFixed(1)}<span style={{fontSize:18,color:'var(--text-dim)',marginLeft:6,fontWeight:600}}>units</span></div>
               <div style={{height:10,background:'rgba(0,0,0,0.4)',borderRadius:5,marginTop:12,overflow:'hidden',position:'relative'}}>
@@ -2269,7 +2475,7 @@ function StorageList({ activeProfile, storage, setStorage, visibleStorage, vials
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
         <div style={{fontSize:12,color:'var(--text-dim)',fontWeight:600}}>{totalVials} items · {fmtMoney(totalCost)}</div>
-        <button onClick={() => handleAdd()} style={{background:'rgba(192,132,252,0.15)',border:'1px solid rgba(192,132,252,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
+        <button onClick={() => handleAdd()} style={{background:'rgba(79,214,230,0.15)',border:'1px solid rgba(79,214,230,0.3)',borderRadius:100,padding:'8px 14px',fontSize:12,fontWeight:700,color:'var(--accent-2)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Plus size={13}/> Add</button>
       </div>
       <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search storage..." className="input" style={{marginBottom:16}}/>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -2317,8 +2523,8 @@ function LabView({ storage, vials }) {
     <div style={{paddingBottom:40}}>
       <div style={{margin:'8px 0 14px'}}><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search compounds..." className="input"/></div>
       <div style={{display:'flex',gap:6,overflowX:'auto',marginBottom:16,paddingBottom:4}} className="hide-scrollbar">
-        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(192,132,252,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
-        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(192,132,252,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
+        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(79,214,230,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
+        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(79,214,230,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {filtered.map(p => {
@@ -2450,14 +2656,21 @@ function MathView() {
         <Field label="Dose (mcg of total blend)"><input type="number" value={dose} onChange={e => setDose(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
         
         {math && (
-          <div style={{background:'linear-gradient(135deg, rgba(192,132,252,0.08), rgba(192,132,252,0.05))',border:'1px solid var(--accent)',padding:22,borderRadius:18,textAlign:'center',marginTop:8}}>
-            <div style={{fontSize:11,color:'var(--accent)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.08em',marginBottom:8}}>Pull Syringe To</div>
-            <div style={{fontSize:52,fontWeight:800,fontFamily:'SF Mono, monospace',color:'var(--text)',lineHeight:1}}>{math.unitsPerDose.toFixed(1)}<span style={{fontSize:22,color:'var(--text-dim)',marginLeft:8,fontWeight:600}}>units</span></div>
-            <div style={{height:8,background:'rgba(0,0,0,0.08)',borderRadius:4,marginTop:14,overflow:'hidden'}}><div style={{height:'100%',background:'linear-gradient(90deg, var(--accent), var(--accent-2))',width:`${fillPct}%`,transition:'width 0.4s'}}/></div>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'var(--text-faint)',marginTop:4,fontFamily:'SF Mono, monospace'}}><span>0</span><span>50</span><span>100</span></div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:16}}>
-              <div style={{background:'rgba(0,0,0,0.3)',padding:10,borderRadius:10,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Concentration</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>{(math.mcgPerMl/1000).toFixed(2)} mg/mL</div></div>
-              <div style={{background:'rgba(0,0,0,0.3)',padding:10,borderRadius:10,textAlign:'left'}}><div style={{fontSize:9,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.06em'}}>Total Doses</div><div style={{fontSize:14,fontWeight:700,fontFamily:'SF Mono, monospace',marginTop:2}}>~{math.totalDoses}</div></div>
+          <div className="lg" style={{borderRadius:20, padding:'18px 18px 16px', marginTop:14}}>
+            <div style={{display:'flex', alignItems:'baseline', gap:8}}>
+              <span style={{fontFamily:'var(--mono)', fontSize:40, fontWeight:700, color:'var(--accent)', lineHeight:1}}>{math.unitsPerDose.toFixed(1)}</span>
+              <span style={{fontSize:16, fontWeight:600, color:'var(--text-dim)'}}>units</span>
+              <span style={{marginLeft:'auto', fontFamily:'var(--mono)', fontSize:13, color:'var(--text)'}}>{dose} mcg</span>
+            </div>
+            <div style={{fontSize:12, color:'var(--text-dim)', margin:'8px 0 16px'}}>on a U-100 insulin syringe</div>
+            <Syringe units={math.unitsPerDose} color="var(--accent)"/>
+            <div style={{display:'flex', justifyContent:'space-between', marginTop:12}}>
+              {[['Concentration', (math.mcgPerMl/1000).toFixed(2)+' mg/mL'],['Volume', mlPerDose.toFixed(3)+' mL'],['Doses / vial', '~'+math.totalDoses]].map(([k,v]) => (
+                <div key={k} style={{textAlign:'center'}}>
+                  <div style={{fontFamily:'var(--mono)', fontSize:15, fontWeight:700, color:'var(--text)', whiteSpace:'nowrap'}}>{v}</div>
+                  <div style={{fontSize:9.5, color:'var(--text-faint)', textTransform:'uppercase', letterSpacing:'0.05em', marginTop:3}}>{k}</div>
+                </div>
+              ))}
             </div>
           </div>
         )}
