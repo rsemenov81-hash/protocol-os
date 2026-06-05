@@ -915,9 +915,27 @@ const PEN_META = {
   purple: { label:'Purple Pen', color:'#C084FC', emoji:'🟣' },
   black:  { label:'Black Pen',  color:'#9aa0a6', emoji:'⚫' },
   blue:   { label:'Blue Pen',   color:'#4fd6e6', emoji:'🔵' },
+  green:  { label:'Green Pen',  color:'#5fdc97', emoji:'🟢' },
+  pink:   { label:'Pink Pen',   color:'#f0399c', emoji:'🩷' },
+  red:    { label:'Red Pen',    color:'#ff6b6b', emoji:'🔴' },
+  white:  { label:'White Pen',  color:'#e8e8ee', emoji:'⚪' },
 };
-const PEN_ORDER = ['blue','purple','black','golden'];
+const PEN_ORDER = ['blue','purple','black','golden','green','pink','red','white'];
 const PEN_VOL_ML = 3;
+// Label/color for a pen protocol or vial, honoring an optional custom name.
+function penLabelOf(o) { const m = PEN_META[o && o.penColor] || PEN_META.blue; return (o && o.penName) ? o.penName : m.label; }
+function penColorOf(o) { return (PEN_META[o && o.penColor] || PEN_META.blue).color; }
+// Expand pen components, splitting any known blend (KLOW/GLOW/etc) into its individual peptides; merges duplicates.
+function expandPenComponents(comps) {
+  const out = {};
+  (comps || []).forEach(c => {
+    const pep = findPep(c.peptideId);
+    const add = (pid, mcg) => { const sp = findPep(pid); const key = pid || (c.name||''); if (out[key]) out[key].mcg += mcg; else out[key] = { peptideId: pid, name: sp ? sp.name : (c.name || pid), icon: sp ? sp.icon : (c.icon || '💊'), mcg }; };
+    if (pep && pep.ingredients && Object.keys(pep.ingredients).length) Object.entries(pep.ingredients).forEach(([sid, frac]) => add(sid, (c.mcg||0) * frac));
+    else add(c.peptideId, c.mcg || 0);
+  });
+  return Object.values(out);
+}
 // Preferred reconstitution solvent per compound (default: bacteriostatic water).
 const SOLVENT_OVERRIDE = { 'ara-290':'PBS (phosphate-buffered saline)', 'igf1-lr3':'acetic acid', 'aod9604':'acetic acid' };
 function solventFor(peptideId, components) {
@@ -1950,7 +1968,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       // "In this shot" — for blend vials, how much of EACH component the current draw delivers.
       const vialPep = targetVial ? findPep(targetVial.peptideId) : null;
       const drawMl = parseFloat(f.doseMl) || 0;
-      const penComps = targetVial && targetVial.penComponents && targetVial.penComponents.length ? targetVial.penComponents : null;
+      const penComps = (targetVial && targetVial.penComponents && targetVial.penComponents.length) ? expandPenComponents(targetVial.penComponents) : null;
       const penTotal = penComps ? (penComps.reduce((s,c)=>s+(c.mcg||0),0) || 1) : 1;
       const shotBreakdown = (penComps && targetVial.diluentMl > 0)
         ? penComps.map(c => { const sub = findPep(c.peptideId); const compMcgPerMl = (c.mcg||0) / targetVial.diluentMl;
@@ -2064,12 +2082,12 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   const managePen = (existing = null) => {
     const exVial = existing ? vials.find(v => v.id === existing.penVialId) : null;
     const f0 = existing ? {
-      color: existing.penColor || 'blue',
+      color: existing.penColor || 'blue', name: existing.penName || '',
       comps: (exVial && exVial.penComponents && exVial.penComponents.length) ? exVial.penComponents.map(c => ({ peptideId: c.peptideId || '', mcg: String(c.mcg) })) : [{ peptideId:'', mcg:'' }],
       units: String((exVial && exVial.unitsPerDose) || 30),
       days: (existing.schedule && existing.schedule.days) || [0,1,2,3,4,5,6],
       timeOfDay: (existing.schedule && existing.schedule.timeOfDay) || 'morning',
-    } : { color: 'blue', comps: [{ peptideId:'', mcg:'' }], units: '30', days: [0,1,2,3,4,5,6], timeOfDay: 'morning' };
+    } : { color: 'blue', name: '', comps: [{ peptideId:'', mcg:'' }], units: '30', days: [0,1,2,3,4,5,6], timeOfDay: 'morning' };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const setComp = (i, patch) => setF(p => ({ ...p, comps: p.comps.map((c,j) => j===i ? {...c, ...patch} : c) }));
@@ -2085,11 +2103,13 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         if (!comps.length) return showToast('Add at least one compound', 'error');
         const tMcg = comps.reduce((s,c)=>s+c.mcg,0); const mm = tMcg/PEN_VOL_ML; const s = parseFloat(f.units)||0; const dMcg = (mm/100)*s;
         const vialId = (exVial && exVial.id) || ('pen_'+uid());
-        const penVial = { id: vialId, isPen:true, pen:f.color, penComponents:comps, peptideId:'__pen__', peptideName: pm.label, diluentMl:PEN_VOL_ML, mgPerVial:tMcg/1000, totalMcg:tMcg, remainingMcg: (exVial && exVial.remainingMcg != null && exVial.totalMcg === tMcg) ? exVial.remainingMcg : tMcg, mcgPerMl:mm, mcgPerUnit:mm/100, unitsPerDose:s, doseMcg:dMcg, reconstitutedAt: (exVial && exVial.reconstitutedAt) || new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays:30, active:true, formType:'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
+        const penName = (f.name || '').trim() || null;
+        const label = penName || pm.label;
+        const penVial = { id: vialId, isPen:true, pen:f.color, penColor:f.color, penName, penComponents:comps, peptideId:'__pen__', peptideName: label, diluentMl:PEN_VOL_ML, mgPerVial:tMcg/1000, totalMcg:tMcg, remainingMcg: (exVial && exVial.remainingMcg != null && exVial.totalMcg === tMcg) ? exVial.remainingMcg : tMcg, mcgPerMl:mm, mcgPerUnit:mm/100, unitsPerDose:s, doseMcg:dMcg, reconstitutedAt: (exVial && exVial.reconstitutedAt) || new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays:30, active:true, formType:'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
         setVials(exVial ? vials.map(v => v.id===vialId ? penVial : v) : [penVial, ...vials]);
-        const protoName = pm.label + ' — ' + comps.map(c => (c.name||'').split(' ')[0]).join(' + ');
-        if (existing) setProtocols(protocols.map(p => p.id===existing.id ? {...p, peptideName:protoName, route:'pen', penColor:f.color, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}} : p));
-        else setProtocols([{ id:uid(), profile:activeProfile, peptideId:'__pen__', peptideName:protoName, route:'pen', penColor:f.color, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}, cycleDays:30, startDate:todayLocal(), active:true, createdAt:new Date().toISOString() }, ...protocols]);
+        const protoName = label + ' — ' + expandPenComponents(comps).map(c => (c.name||'').split(' ')[0]).join(' + ');
+        if (existing) setProtocols(protocols.map(p => p.id===existing.id ? {...p, peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}} : p));
+        else setProtocols([{ id:uid(), profile:activeProfile, peptideId:'__pen__', peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}, cycleDays:30, startDate:todayLocal(), active:true, createdAt:new Date().toISOString() }, ...protocols]);
         showToast(existing ? 'Pen updated' : 'Pen created'); closeModal();
       };
       const onRemove = () => confirmModal('Delete pen?', `Remove ${pm.label} and its blend?`, () => { setProtocols(protocols.filter(p => p.id !== existing.id)); setVials(vials.filter(v => v.id !== existing.penVialId)); showToast('Pen deleted'); }, 'Delete');
@@ -2098,10 +2118,11 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>{existing ? 'Edit Pen' : 'Create Pen'}</h3>
           <p style={{margin:'0 0 16px',fontSize:13,color:'var(--text-dim)'}}>Up to 3 compounds in a {PEN_VOL_ML} mL pen · dosed in syringe units</p>
-          <Field label="Pen">
-            <div style={{display:'flex',gap:7}}>
-              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'rgba(255,255,255,.04)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:10,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
+          <Field label="Pen colour">
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:7}}>
+              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'rgba(255,255,255,.04)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:10,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
             </div>
+            <input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={`Custom pen name (optional, e.g. "${PEN_META[f.color].label.split(' ')[0]} #2")`} className="input" style={{marginTop:8,fontSize:13}}/>
           </Field>
           <Field label="Compounds (total mcg in pen)">
             {f.comps.map((c,i) => (
@@ -2118,7 +2139,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           {total > 0 && std > 0 && (
             <div className="lg" style={{borderRadius:14,padding:'11px 12px',marginBottom:12}}>
               <div style={{fontSize:10,fontWeight:800,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>At {std} units</div>
-              {f.comps.filter(c=>c.peptideId && parseFloat(c.mcg)>0).map((c,i)=>{ const p=findPep(c.peptideId); const mcgInShot = drawMl * ((parseFloat(c.mcg)||0)/PEN_VOL_ML); return <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}><span style={{fontSize:14}}>{p?p.icon:'💊'}</span><span style={{flex:1,fontSize:12,color:'var(--text-2)'}}>{p?p.name:c.peptideId}</span><span style={{fontSize:13,fontWeight:800,fontFamily:'var(--mono)',color:pm.color}}>{fmtMcg(mcgInShot)}</span></div>; })}
+              {expandPenComponents(f.comps.filter(c=>c.peptideId && parseFloat(c.mcg)>0).map(c=>({peptideId:c.peptideId, mcg:parseFloat(c.mcg)||0}))).map((c,i)=>{ const mcgInShot = drawMl * ((c.mcg||0)/PEN_VOL_ML); return <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}><span style={{fontSize:14}}>{c.icon}</span><span style={{flex:1,fontSize:12,color:'var(--text-2)'}}>{c.name}</span><span style={{fontSize:13,fontWeight:800,fontFamily:'var(--mono)',color:pm.color}}>{fmtMcg(mcgInShot)}</span></div>; })}
             </div>
           )}
           <Field label="Schedule">
@@ -2317,7 +2338,7 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
           <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
             <span style={{width:14, height:14, borderRadius:'50%', background:pm.color, boxShadow:'0 0 8px '+pm.color+'88', flexShrink:0}}/>
-            <span style={{fontSize:10, fontWeight:800, letterSpacing:'0.05em', color:pm.color, textTransform:'uppercase'}}>{pm.label}</span>
+            <span style={{fontSize:10, fontWeight:800, letterSpacing:'0.05em', color:pm.color, textTransform:'uppercase'}}>{penLabelOf(proto)}</span>
           </div>
           <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0, background:isLoggedP?LG.green:'rgba(79,214,230,.12)', border:isLoggedP?'none':'1.6px solid '+LG.accent}}>
             {isLoggedP ? <Check size={14} strokeWidth={3} color="#06231a"/> : <Plus size={13} strokeWidth={3} color={LG.accent}/>}
