@@ -35,8 +35,19 @@ Set these env vars on your host:
 | `PORT` | — | default 8080 |
 | `DEEP_MODEL` / `QUICK_MODEL` | — | default `gemini-3.1-pro` / `gemini-3.5-flash` |
 
-Example (Cloud Run): containerize with a `node:20-slim` base running
-`node server.js`, set the env vars as secrets, deploy, note the HTTPS URL.
+Turnkey deploy — **Google Cloud Run**, one command (uses the included
+`Dockerfile`/`package.json`, no local Docker build needed):
+```bash
+gcloud run deploy gemini-remote \
+  --source .claude/mcp/gemini-remote \
+  --region us-central1 --allow-unauthenticated \
+  --set-env-vars GEMINI_API_KEY=YOUR_STUDIO_KEY,MCP_AUTH_TOKEN=$(openssl rand -hex 16)
+```
+`--allow-unauthenticated` lets Claude reach it; `MCP_AUTH_TOKEN` is what actually
+guards your key (note the token it prints — you give it to Claude). The command
+prints the HTTPS URL to paste into Claude's connector settings.
+
+The same `Dockerfile` works on Fly.io, Render, Railway, or any container host.
 
 ## Connect it to Claude
 
