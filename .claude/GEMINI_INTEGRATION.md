@@ -77,7 +77,7 @@ There are two different "Claudes," and they integrate Gemini in different ways:
 |---|---|---|
 | **Claude Code** — terminal CLI + desktop coding sessions | ✅ Yes | The `/gemini` skill (this repo). Free under Ultra OAuth. |
 | **Claude.ai (web)** | ❌ No — can't run local CLIs | Remote **MCP connector** backed by a Gemini **API key** |
-| **Claude desktop chat app** (the consumer Claude, not Claude Code) | ❌ No | Same remote MCP connector |
+| **Claude desktop chat app** (the consumer Claude, not Claude Code) | ✅ via a **local** MCP server | `mcp/gemini-mcp/` — wraps `agy`, **free** under Ultra. See its README. |
 | **Claude iPhone app** | ❌ No | Custom connectors are configured on web/desktop and have **limited mobile support**; availability depends on plan |
 
 **Why:** the skill works by shelling out to `agy` on your machine. The consumer
