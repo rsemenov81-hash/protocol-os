@@ -13,6 +13,11 @@
 const { execFile } = require("node:child_process");
 const readline = require("node:readline");
 
+// The Claude desktop app launches this server without your shell PATH, so `agy`
+// may not be findable by name. Allow an absolute path via AGY_BIN (set in the
+// desktop config); fall back to "agy" on PATH (Claude Code inherits the shell).
+const AGY_BIN = process.env.AGY_BIN || "agy";
+
 // Task → model mapping. `deep` is the accuracy-first default.
 const MODES = {
   deep: { model: "Gemini 3.1 Pro (High)", extra: [] },
@@ -24,7 +29,7 @@ function askGemini({ prompt, mode }) {
   const args = ["--model", cfg.model, ...cfg.extra, "-p", String(prompt || "")];
   return new Promise((resolve) => {
     execFile(
-      "agy",
+      AGY_BIN,
       args,
       { timeout: 120000, maxBuffer: 10 * 1024 * 1024 },
       (err, stdout, stderr) => {
