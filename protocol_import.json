@@ -565,17 +565,17 @@
       "id": "p4_inv_flrg242",
       "profile": "Roman",
       "peptideId": "flrg242",
-      "peptideName": "FLGR242 (0.5mg / 20u \u2014 Sun/Wed, 10-wk myostatin trial; 0.2mg test dose first)",
+      "peptideName": "FLGR242 (0.5mg / 20u \u2014 Wed/Sat, 10-wk myostatin trial)",
       "doseMcg": 500,
       "schedule": {
         "days": [
-          0,
-          3
+          3,
+          6
         ],
         "timeOfDay": "morning"
       },
       "cycleDays": 70,
-      "startDate": "2026-06-07",
+      "startDate": "2026-06-06",
       "active": true,
       "createdAt": "2026-06-06T12:00:00.000Z"
     },

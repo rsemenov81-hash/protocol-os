@@ -62,7 +62,7 @@
 | Compound | Decision | Detail |
 |---|---|---|
 | ACE-031 | **CONDITIONAL HOLD** | Run FLRG242 first. Revisit only after HCT drop resolved + clean CBC/coag baseline. If ever: low-dose SubQ, canary-monitor (epistaxis/gum bleed/telangiectasia = STOP), 4-6wk. Documented BMP9/10 vascular tox |
-| FLGR242 | **RUN (REVISED 6/6)** | **0.5mg ×2/wk Sun+Wed (=1mg/wk), 10-wk run**, after a one-time 0.2mg observed test dose. Recon 5mg+**2mL**→2.5mg/mL (0.5mg=20u; test=8u). **Supersedes old 5mg q2wk** — see dedicated `FLGR242 TRIAL` block below for full rationale/labs/gates. Safer myostatin route (follistatin, no BMP9/10). GDF-8 Wk4 = titrate gate. Watch FSH + HCT. Never w/ ACE-031 |
+| FLGR242 | **RUN (REVISED 6/6)** | **0.5mg ×2/wk Wed+Sat (=1mg/wk), 10-wk run** (started 6/6 Sat). Recon 5mg+**2mL**→2.5mg/mL (0.5mg=20u; test=8u). **Supersedes old 5mg q2wk** — see dedicated `FLGR242 TRIAL` block below for full rationale/labs/gates. Safer myostatin route (follistatin, no BMP9/10). GDF-8 Wk4 = titrate gate. Watch FSH + HCT. Never w/ ACE-031 |
 | LGD-4033 | **SHORT CYCLE** | 5mg/day = 0.5mL SL (10mg/mL), start now, 6-8wk. Baseline = 5/21 labs (AST32/ALT24/HDL52). Recheck ALT/AST+lipids @4wk (watch HDL crush vs Lp(a) 120) |
 | Kisspeptin | **RUN (trial)** | 100mcg/day SubQ AM (10mg+5mL → 5u). 2-4wk central/libido trial. Isolate from other libido tools |
 | Oxytocin | **QUEUED** | Intranasal PRN ~30-45min pre-intimacy, AFTER kisspeptin window. Best-characterized libido/bonding tool |
@@ -114,8 +114,9 @@ Settled after multi-source review (PubMed comparator trials + ClinicalTrials.gov
 **Dosing (locked):**
 - Recon one 5mg vial + **2.0 mL BAC water → 2.5 mg/mL.** Solvent against glass wall, no shaking. Store 2–8°C. Second vial stays lyophilized/frozen until needed.
 - **Test dose: 0.2 mg (8u) ONCE**, daytime, observed, ≥12 h hypersensitivity watch — gate before full dosing.
-- **Maintenance: 0.5 mg (20u) SubQ twice weekly — Sun + Wed AM** (=1 mg/wk).
+- **Maintenance: 0.5 mg (20u) SubQ twice weekly — Wed + Sat** (=1 mg/wk).
 - **Run: 10 weeks** (10mg supply = exactly 10 wk). Fixed days for adherence + side-effect attribution.
+- **6/6 start note:** user elected to begin at full 0.5mg Sat post-workout (0.2mg test dose waived). ⚠️ Confirm baseline GDF-8/FSH/CBC were banked pre-injection — if not, Wk4 gate loses its denominators (see calibration rule "measure before modeling").
 - Timing is **pharmacologically irrelevant** (long t½): AM/PM, fed/fasted, peri-workout all moot. Daytime chosen for safety observation only.
 - **Why split 0.5 ×2 not 1mg ×1:** keeps trough above the myostatin-neutralization threshold continuously (myostatin is produced non-stop; a trap only works while drug stays above threshold), halves per-injection peak + antigenic load. **Why not 2.5mg/wk:** trap = threshold + ceiling; past neutralization, more drug adds off-target/immunogenic load, not muscle — and 2.5/wk burns supply in 4 wk (below steady-state at long t½, can't reach the duration that drives hypertrophy).
 
