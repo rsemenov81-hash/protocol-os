@@ -113,7 +113,7 @@ Settled after multi-source review (PubMed comparator trials + ClinicalTrials.gov
 
 **Dosing (locked):**
 - Recon one 5mg vial + **2.0 mL BAC water → 2.5 mg/mL.** Solvent against glass wall, no shaking. Store 2–8°C. Second vial stays lyophilized/frozen until needed.
-- **Test dose: 0.2 mg (8u) ONCE**, daytime, observed, ≥12 h hypersensitivity watch — gate before full dosing.
+- **Test dose: WAIVED by user (6/6).** (Recommended option was 0.2 mg / 8u once, observed — declined; first exposure is the full 0.5 mg. → first-dose observation safeguards apply: not alone, antihistamine on hand, ~2–4 h watch.)
 - **Maintenance: 0.5 mg (20u) SubQ twice weekly — Wed + Sat** (=1 mg/wk).
 - **Run: 10 weeks** (10mg supply = exactly 10 wk). Fixed days for adherence + side-effect attribution.
 - **6/6 start note:** user elected to begin at full 0.5mg Sat post-workout (0.2mg test dose waived). ⚠️ Confirm baseline GDF-8/FSH/CBC were banked pre-injection — if not, Wk4 gate loses its denominators (see calibration rule "measure before modeling").
