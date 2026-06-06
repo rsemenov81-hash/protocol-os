@@ -15,13 +15,13 @@ const readline = require("node:readline");
 
 // Task → model mapping. `deep` is the accuracy-first default.
 const MODES = {
-  deep: { model: "gemini-3.1-pro", extra: ["--thinking", "high"] },
-  quick: { model: "gemini-3.5-flash", extra: [] },
+  deep: { model: "Gemini 3.1 Pro (High)", extra: [] },
+  quick: { model: "Gemini 3.5 Flash (Low)", extra: [] },
 };
 
 function askGemini({ prompt, mode }) {
   const cfg = MODES[mode] || MODES.deep;
-  const args = ["-m", cfg.model, ...cfg.extra, "-p", String(prompt || "")];
+  const args = ["--model", cfg.model, ...cfg.extra, "-p", String(prompt || "")];
   return new Promise((resolve) => {
     execFile(
       "agy",
@@ -33,8 +33,8 @@ function askGemini({ prompt, mode }) {
             isError: true,
             text:
               `agy call failed: ${err.message}\nstderr: ${stderr || "(none)"}\n\n` +
-              "If a flag is wrong (the CLI is new), run `agy --help` and update " +
-              "the model/thinking flags in index.js.",
+              "If a flag is wrong, run `agy models` to see exact model names and " +
+              "update MODES in index.js.",
           });
         } else {
           resolve({ isError: false, text: (stdout || "").trim() || "(empty response from Gemini)" });

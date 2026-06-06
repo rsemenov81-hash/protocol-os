@@ -25,10 +25,10 @@ decisions (those belong in `/gemini-verify`).
 
 2. **Call Gemini Flash** via Bash:
    ```
-   agy -m gemini-3.5-flash -p "<the question, with any needed numbers>"
+   agy --model "Gemini 3.5 Flash (Low)" -p "<the question, with any needed numbers>"
    ```
-   If that errors, run `agy --help` once, adapt the model/prompt flags, and retry.
-   Do **not** use the deprecated `gemini` command.
+   If it errors, run `agy models` to see the exact names on this account, adapt,
+   and retry. Do **not** use the deprecated `gemini` command.
 
 3. **Report briefly:** Gemini's answer, plus a one-line ✅/⚠️ on whether it matches
    your own quick check. If the question turns out to be high-stakes (an

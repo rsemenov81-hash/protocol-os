@@ -21,18 +21,18 @@ chk() { # desc, haystack, needle
 TMP="$(mktemp -d)"
 cat > "$TMP/agy" <<'EOF'
 #!/usr/bin/env bash
-model=""; thinking="no"; prompt=""
+model=""; prompt=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --version) echo "agy mock 0.0.1"; exit 0;;
-    --help) echo "usage: agy -m MODEL [--thinking high] -p PROMPT"; exit 0;;
-    -m) model="$2"; shift 2;;
-    --thinking) thinking="$2"; shift 2;;
+    --help) echo "usage: agy --model MODEL -p PROMPT"; exit 0;;
+    models) echo "Gemini 3.1 Pro (High)"; echo "Gemini 3.5 Flash (Low)"; exit 0;;
+    --model) model="$2"; shift 2;;
     -p) prompt="$2"; shift 2;;
     *) shift;;
   esac
 done
-echo "[MOCK model=$model thinking=$thinking] reply: $prompt"
+echo "[MOCK model=$model] reply: $prompt"
 EOF
 chmod +x "$TMP/agy"
 export PATH="$TMP:$PATH"
@@ -47,11 +47,9 @@ OUT="$(printf '%s\n' \
   | node "$ROOT/gemini-mcp/index.js")"
 chk "initialize returns serverInfo"      "$OUT" '"name":"gemini"'
 chk "tools/list exposes ask_gemini"      "$OUT" '"ask_gemini"'
-chk "deep -> Gemini 3.1 Pro"             "$OUT" 'model=gemini-3.1-pro'
-chk "deep -> thinking high"              "$OUT" 'thinking=high'
+chk "deep -> Gemini 3.1 Pro (High)"      "$OUT" 'model=Gemini 3.1 Pro (High)'
 chk "deep -> prompt passed through"      "$OUT" 'verify dose math'
-chk "quick -> Gemini 3.5 Flash"          "$OUT" 'model=gemini-3.5-flash'
-chk "quick -> no thinking flag"          "$OUT" 'thinking=no'
+chk "quick -> Gemini 3.5 Flash (Low)"    "$OUT" 'model=Gemini 3.5 Flash (Low)'
 
 echo "== Remote HTTP server (gemini-remote) =="
 PORT=8791

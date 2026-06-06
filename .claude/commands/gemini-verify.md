@@ -36,11 +36,12 @@ agreement / disagreement clearly. Roman makes the final call.
 
 3. **Call Gemini** via Bash. Preferred form:
    ```
-   agy -m gemini-3.1-pro --thinking high -p "<your verification prompt>"
+   agy --model "Gemini 3.1 Pro (High)" -p "<your verification prompt>"
    ```
-   If that errors, run `agy --help` once, adapt the flags (model-select and
-   one-shot/prompt flags), and retry. Do **not** fall back to the deprecated
-   `gemini` command — it stops serving Ultra on 2026-06-18.
+   The `(High)` in the model name is the deep-thinking level (no separate
+   `--thinking` flag). If it errors, run `agy models` to see the exact names on
+   this account, adapt, and retry. Do **not** fall back to the deprecated `gemini`
+   command — it stopped serving Ultra on 2026-06-18.
 
 4. **Reconcile and report** in this exact shape:
    - ✅ **Agreed** — points where Gemini and this protocol's math/logic match.

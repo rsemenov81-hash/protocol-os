@@ -93,10 +93,9 @@ API-key route, which is a separate (paid) build.
 
 ## Notes / things that may need a tweak
 
-- **Model IDs** (`gemini-3.1-pro`, `gemini-3.5-flash`) and the **deep-thinking
-  flag** (`--thinking high`) are best-effort for Antigravity CLI at launch. If a
-  call errors, the commands instruct Claude to run `agy --help` and adapt the
-  flags — update the two command files in `.claude/commands/` once you confirm the
-  exact syntax on your install.
+- **Model names** are `Gemini 3.1 Pro (High)` and `Gemini 3.5 Flash (Low)`, passed
+  via `--model "..."`. The `(High)`/`(Low)` suffix sets the thinking level — there
+  is no separate `--thinking` flag. Run `agy models` to list the exact names
+  available on your account if they ever change.
 - Antigravity CLI did not ship at full feature parity with Gemini CLI at launch;
   if a flag is missing, the model still answers in its default thinking mode.

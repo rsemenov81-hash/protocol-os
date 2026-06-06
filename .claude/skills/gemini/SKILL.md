@@ -17,10 +17,10 @@ use `agy`, never `gemini`).
 
 | Task | Model | Flag |
 |---|---|---|
-| Hard / high-stakes / "verify this" / math / interactions / anything irreversible | **Gemini 3.1 Pro, deep thinking** | `-m gemini-3.1-pro --thinking high` |
-| Quick / throwaway / unit conversions / "does this look right" | **Gemini 3.5 Flash** | `-m gemini-3.5-flash` |
+| Hard / high-stakes / "verify this" / math / interactions / anything irreversible | **Gemini 3.1 Pro (High)** | `--model "Gemini 3.1 Pro (High)"` |
+| Quick / throwaway / unit conversions / "does this look right" | **Gemini 3.5 Flash (Low)** | `--model "Gemini 3.5 Flash (Low)"` |
 
-Default to **3.1 Pro deep-thinking** when in doubt — accuracy over speed. Drop to
+Default to **Gemini 3.1 Pro (High)** when in doubt — accuracy over speed. Drop to
 Flash only when the user signals it's a quick check.
 
 ## Steps
@@ -37,12 +37,13 @@ Flash only when the user signals it's a quick check.
 
 2. **Call Gemini** via Bash:
    ```
-   agy -m gemini-3.1-pro --thinking high -p "<your prompt>"     # high-stakes
-   agy -m gemini-3.5-flash -p "<your prompt>"                   # quick
+   agy --model "Gemini 3.1 Pro (High)" -p "<your prompt>"     # high-stakes
+   agy --model "Gemini 3.5 Flash (Low)" -p "<your prompt>"    # quick
    ```
-   If a flag errors (the CLI is new), run `agy --help` once, adapt the
-   model-select / one-shot / thinking flags, and retry. Never fall back to the
-   deprecated `gemini` command.
+   The model name carries the thinking level — `(High)` = deep thinking, `(Low)` =
+   fast; there is no separate `--thinking` flag. Run `agy models` to see the exact
+   names on this account if a call errors. Never fall back to the deprecated
+   `gemini` command.
 
 3. **Reconcile and report:**
    - ✅ **Agreed** — where Gemini and your own reasoning match.
