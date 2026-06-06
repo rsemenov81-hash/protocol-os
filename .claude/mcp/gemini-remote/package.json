@@ -1,0 +1,14 @@
+{
+  "name": "gemini-remote",
+  "version": "1.0.0",
+  "description": "Hosted MCP server exposing Google Gemini to the Claude.ai web app and Claude iPhone app",
+  "private": true,
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
