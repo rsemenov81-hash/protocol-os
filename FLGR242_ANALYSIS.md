@@ -99,4 +99,22 @@ Across every rigorously studied agent that blocks this pathway, the consistent f
 7. **Expected effect size** — is "modest lean mass, unreliable strength" the right prior, or is there a reason a gray-market construct would outperform the failed clinical agents?
 
 ---
+
+## 11. Second-opinion reconciliation (Gemini adversarial review, 6/6)
+
+**ACCEPTED — protocol changed:**
+- **FSH is invalid as the activin-sparing readout (strong catch).** On TRT+HCG, gonadotropins are already suppressed (HCG gives an LH-like signal but does not rescue FSH), so FSH cannot fall further to flag off-target activin binding. Replaced with **bidirectional Hgb/HCT trend** + optional serum activin A.
+- **GDF-8 must be drawn at trough, pre-injection (Wed/Sat AM)** — directly tests whether the albumin-linker survived proteolysis (real half-life). Adopted.
+- **Dose may be sub-threshold by a large margin.** Comparator TGF-β trap biologics are weight-dosed in the tens of mg (per PubMed: luspatercept ~1–1.25 mg/kg SC q3wk [DOI: 10.1002/jcph.1696](https://doi.org/10.1002/jcph.1696); bimagrumab 10 mg/kg; ACE-031 1–3 mg/kg). 1 mg/wk ≈ 0.013 mg/kg → the **entire 10 mg supply may be sub-therapeutic**, and titration to engagement could exceed supply. (Partly offset by follistatin's high myostatin affinity + small circulating pool, and by the fact those comparators are *receptor* traps with a larger sink to saturate.) GDF-8 trough is the arbiter; accept the run may be underpowered.
+- **ADA monitoring** (test dose waived): watch GDF-8 rebound Wk4→Wk8, injection-site induration, arthralgia.
+- **Hematology workup precedes the protocol** (retic/haptoglobin/LDH/FOBT); HCT <36.5% or any mucosal bleed = hard stop. Sound clinical prioritization.
+- **GDF-11 promiscuity / graded off-target toxicity** — valid refinement; reinforces lowest-effective-dose.
+- **TRT synergy** — plausible working-hypothesis upside vs the (non-TRT) clinical cohorts.
+
+**CORRECTED — Gemini errors (per PubMed):**
+- **Erythropoiesis direction is backwards.** Gemini claimed off-target activin binding would *suppress* RBC maturation and worsen the anemia. The established pharmacology is the **opposite**: activin/GDF-11 ligand traps are erythroid-maturation / erythropoiesis-stimulating agents that **raise** hemoglobin — luspatercept is "a first-in-class erythroid maturation agent" approved for anemia [DOI: 10.1002/jcph.1696](https://doi.org/10.1002/jcph.1696), and sotatercept (ACE-011, ActRIIA-Fc) "stimulates erythropoiesis" [DOI: 10.1002/dta.2093](https://doi.org/10.1002/dta.2093). So if FLGR242 is *not* activin-sparing, expect **HCT to rise** (which becomes our replacement activin readout), not fall. A continued fall implicates a separate cause (bleed/marrow).
+- **BMP9/10 attribution overstated.** The ACE-031 vascular-bleeding liability comes from ActRIIB-Fc trapping BMP9/10; follistatin does **not** meaningfully bind BMP9/10 — which is the entire reason it was chosen as the safer route. Importing that liability wholesale onto FLGR242 double-counts ACE-031's specific risk. (Monitor capillary integrity anyway; mechanistic basis is weaker than stated.)
+- **Loose specifics:** the "~38 mg/wk taldefgrobep-scaled dose" is an unverified cross-mechanism mg/kg extrapolation (direction stands, the number does not); GS linkers are chosen for *relative* protease resistance (not "highly susceptible"); ADA is a humoral (B-cell) response, not "Type IV hypersensitivity" (and serum sickness is Type III). Substance retained, labels corrected.
+
+---
 *Compiled from a multi-source review (PubMed + ClinicalTrials.gov) for n=1 protocol design. All PK and activin-sparing claims about FLGR242 remain unverified pending the Wk4 labs.*
