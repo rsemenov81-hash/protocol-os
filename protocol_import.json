@@ -565,18 +565,19 @@
       "id": "p4_inv_flrg242",
       "profile": "Roman",
       "peptideId": "flrg242",
-      "peptideName": "FLRG242 (5mg q2wk \u2014 myostatin trial)",
-      "doseMcg": 5000,
+      "peptideName": "FLGR242 (0.5mg / 20u \u2014 Sun/Wed, 10-wk myostatin trial; 0.2mg test dose first)",
+      "doseMcg": 500,
       "schedule": {
         "days": [
-          6
+          0,
+          3
         ],
         "timeOfDay": "morning"
       },
-      "cycleDays": 42,
-      "startDate": "2026-05-29",
+      "cycleDays": 70,
+      "startDate": "2026-06-07",
       "active": true,
-      "createdAt": "2026-05-29T12:00:00.000Z"
+      "createdAt": "2026-06-06T12:00:00.000Z"
     },
     {
       "id": "p4_inv_atx304",
@@ -972,13 +973,13 @@
     {
       "id": "v_22",
       "peptideId": "flrg242",
-      "peptideName": "FLRG242",
+      "peptideName": "FLGR242 (Follistatin-albumin construct)",
       "mgPerVial": 5.0,
       "vialCount": 2,
       "vendor": "Biolongevity Labs",
       "reconstituted": false,
-      "suggestedDiluentMl": 1,
-      "suggestedDoseMcg": 5000
+      "suggestedDiluentMl": 2,
+      "suggestedDoseMcg": 500
     },
     {
       "id": "v_23",
