@@ -762,7 +762,7 @@
       "id": "p4_cereb_im",
       "profile": "Roman",
       "peptideId": "cerebrolysin",
-      "peptideName": "Cerebrolysin / Cerebroprotein Hydrolysate (IM cycle — 10 mg N/mL; Day0 test 0.1mL → start 5mg N/0.5mL → titrate 10mg N/1.0mL; deep IM + rotate, NOT SubQ; pause TrkB cluster)",
+      "peptideName": "[HELD pending Quest labs] Cerebrolysin / Cerebroprotein Hydrolysate (IM cycle V2 — 10 mg N/mL stock; Day0 test 0.1mL; buffered draw 5mg N = 0.5mL stock + 0.5mL bac saline -> 1.0mL, escalate 10mg N = 1.0mL stock + 0.5mL saline -> 1.5mL; deep IM Z-track + rotate, NOT SubQ; pause TrkB cluster)",
       "doseMcg": 5000,
       "schedule": {
         "days": [
@@ -776,7 +776,7 @@
       },
       "cycleDays": 28,
       "startDate": "2026-06-08",
-      "active": true,
+      "active": false,
       "createdAt": "2026-06-07T12:00:00.000Z"
     }
   ],
@@ -919,7 +919,7 @@
       "reconstituted": true,
       "suggestedDiluentMl": 6,
       "suggestedDoseMcg": 5000,
-      "notes": "60mg total-N + 6.0 mL bacteriostatic water = 10 mg N/mL (~6.5x commercial liquid). Deep IM ONLY (1-1.5in 22-25g needle), NOT SubQ. Day-0 test dose 0.1 mL. Refrigerate 2-8C."
+      "notes": "60mg total-N + 6.0 mL bacteriostatic water = 10 mg N/mL stock (~6.5x commercial). Buffered draw: 5mg N = 0.5mL stock + 0.5mL bac saline -> 1.0mL; 10mg N = 1.0mL stock + 0.5mL saline -> 1.5mL (lowers osmolar shear, not isotonic). Deep IM ONLY (1-1.5in 22-25g needle), NOT SubQ. Day-0 test 0.1mL. Refrigerate 2-8C. HOLD until Quest panel (haptoglobin/LDH/retic/CRP) drawn."
     },
     {
       "id": "v_15",
