@@ -757,6 +757,27 @@
       "startDate": "2026-05-29",
       "active": true,
       "createdAt": "2026-05-29T12:00:00.000Z"
+    },
+    {
+      "id": "p4_cereb_im",
+      "profile": "Roman",
+      "peptideId": "cerebrolysin",
+      "peptideName": "Cerebrolysin / Cerebroprotein Hydrolysate (IM cycle — 10 mg N/mL; Day0 test 0.1mL → start 5mg N/0.5mL → titrate 10mg N/1.0mL; deep IM + rotate, NOT SubQ; pause TrkB cluster)",
+      "doseMcg": 5000,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "timeOfDay": "morning"
+      },
+      "cycleDays": 28,
+      "startDate": "2026-06-08",
+      "active": true,
+      "createdAt": "2026-06-07T12:00:00.000Z"
     }
   ],
   "vials": [
@@ -891,11 +912,14 @@
     {
       "id": "v_14",
       "peptideId": "cerebrolysin",
-      "peptideName": "Cerebrolysin",
+      "peptideName": "Cerebrolysin (60mg total-N)",
       "mgPerVial": 60.0,
       "vialCount": 1,
       "vendor": "China",
-      "reconstituted": true
+      "reconstituted": true,
+      "suggestedDiluentMl": 6,
+      "suggestedDoseMcg": 5000,
+      "notes": "60mg total-N + 6.0 mL bacteriostatic water = 10 mg N/mL (~6.5x commercial liquid). Deep IM ONLY (1-1.5in 22-25g needle), NOT SubQ. Day-0 test dose 0.1 mL. Refrigerate 2-8C."
     },
     {
       "id": "v_15",

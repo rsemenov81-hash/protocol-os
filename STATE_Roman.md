@@ -1,7 +1,7 @@
 # LIVING STATE — Roman Semenov
 
 **Living-state doc created:** May 28, 2026
-**Clinical data current as of:** May 29, 2026 (labs from 05/21 draw added; **Enclomiphene DISCONTINUED — now Testosterone monotherapy, daily SubQ**)
+**Clinical data current as of:** Jun 07, 2026 (**Cerebroprotein Hydrolysate / Cerebrolysin IM cycle AUTHORIZED — Roman override of prior IV-only vault; hard-stop #4 reclassified**. Prior: May 29 labs from 05/21 draw; Enclomiphene DISCONTINUED — Testosterone monotherapy, daily SubQ)
 **Role:** Single source of truth for current protocol. Loads every turn. Update at end of each session.
 **Archive:** Full reasoning log, error database, compound matrix, and mechanistic reference → `Clinical_Case_Summary` (attach only when deep history is needed).
 
@@ -83,7 +83,7 @@
 | **— COGNITIVE / NEURO CLUSTER —** | | |
 | Dihexa | **HOLD (vault while IGF-1 on)** | Hard-stop #2: oncogenic synergy w/ IGF-1 (HGF/c-Met + IGF-1). Reconsiderable only when IGF-1 off |
 | 9-Me-BC | **HOLD (vault)** | Hard-stop #3: serotonin-syndrome risk w/ sertraline 150mg. Firm |
-| Cerebrolysin (×6) | **HOLD (route)** | Hard-stop #4: IV-only; his vials are injection (SubQ/IM = immunogenic depot). Vault until IV route available |
+| Cerebrolysin / Cerebroprotein Hydrolysate (×6, 60mg total-N ea) | **RUN — IM cycle (6/07 override)** | Reclassified from vault (#4). **Recon: 60mg N + 6.0 mL bacteriostatic water → 10 mg N/mL; refrigerate 2-8°C.** Route: **DEEP IM ONLY** (NOT SubQ — depot reaction stands), Z-track, vastus lateralis/ventrogluteal, rotate site daily, ≤1 mL/site. **Use 1–1.5″ 22–25g IM needle — insulin syringe is too short.** **Day 0 TEST DOSE 0.1 mL (1mg N), observe 60 min, antihistamine+epi on hand, not alone.** Start **5 mg N (0.5 mL, optionally diluted to 1 mL w/ bac saline)**; titrate to **10 mg N (1.0 mL)** only if days 1–5 locally clean. Schedule **5-on/2-off (M–F), 4-wk cap, then 8–12 wk washout**. 🔒 **PAUSE Neurolux + cognitive/TrkB cluster during cycle** (clean n=1 + avoid additive TrkB). Do **NOT** add NMN/extra NAD (already covered; methyl tension). Ideally draw pending Quest panel (haptoglobin/LDH/retic/CRP) **before** Day 1 (anemia workup confound). Cognitive benefit in healthy adults = unproven (stroke/TBI/dementia data only) — run as defined experiment |
 | Calm Mix | **FINISH then RETIRE** | Use up current supply, then replace with Neurolux (Calm Mix is a subset of it) |
 | Neurolux (Semax+Selank+Pinealon+PE22-28, 48mg) | **RUN CYCLED (after Calm Mix)** | Primary cognitive blend. 48mg+4.8mL → ~12u/day. **4wk on / 2-4wk off** (TrkB-tolerance hedge). Un-vaults TrkB group via cycling |
 | Semax NA, Selank NA, Adamax, Adalank, Noopept | **STORED** | Redundant w/ Neurolux (which contains Semax+Selank). Backups/alternates |
@@ -103,7 +103,7 @@
 
 **Supplements:** Creatine 10-15 g, Selenium 200 mcg, TMG 1-2 g, methyl B-complex, choline 500 mg (optional), Mg glycinate 400 mg PM, dietary K+ 3500-4500 mg from food. **Moderate** dietary sodium.
 
-**Reconstitution refs:** HCG 5000 IU + 2 mL = 2500 IU/mL → 250 IU = 10u. TRT 200mg/mL → 20mg = 10u. Reta 10mg+1mL → 1mg=10u. Cagri 5mg+1mL → 1mg=20u. SS-31 30mg+2mL → 1mg=6.7u. MOTS-c 10mg+1mL → 1mg=10u.
+**Reconstitution refs:** HCG 5000 IU + 2 mL = 2500 IU/mL → 250 IU = 10u. TRT 200mg/mL → 20mg = 10u. Reta 10mg+1mL → 1mg=10u. Cagri 5mg+1mL → 1mg=20u. SS-31 30mg+2mL → 1mg=6.7u. MOTS-c 10mg+1mL → 1mg=10u. **Cerebrolysin 60mg N + 6.0 mL bac water → 10 mg N/mL: 5 mg N = 0.5 mL, 10 mg N = 1.0 mL, test 1 mg N = 0.1 mL (IM needle, not insulin syringe). Note: 10 mg N/mL is ~6.5× the commercial liquid conc (1.52 mg N/mL) — dilute the draw w/ bac saline if local tolerance is poor.**
 
 ---
 
@@ -112,7 +112,7 @@
 1. **No liberal sodium** (contradicted by normal BP; moderate only).
 2. **No Dihexa + IGF-1 LR3 together** (oncogenic synergy concern).
 3. **No 9-Me-BC, MAOIs, or unclear serotonergics** — serotonin syndrome risk with sertraline 150 mg.
-4. **No Cerebroprotein Hydrolysate via SubQ/IM** — it is an IV-only product (dilute 250 mL NS over 60-120 min). SubQ created immunogenic depot. Vault for IV or discard.
+4. **Cerebroprotein Hydrolysate (Cerebrolysin) — IM cycle AUTHORIZED w/ conditions (Roman override 6/07/2026).** Prior blanket "IV-only / no SubQ-IM" vault was never ratified by Roman → reclassified from hard-stop to **monitored protocol**. IM *is* a labeled route for this compound; the residual risk is concentration/technique + first-exposure hypersensitivity, all managed. **SubQ remains prohibited** (his prior SubQ depot reaction stands). Conditions are mandatory: **test dose 0.1 mL first → 5 mg N start → titrate to 10 → deep IM + site rotation → 4-wk cap + 8–12 wk washout → pause TrkB/cognitive cluster during cycle.** Full protocol in cognitive-cluster entry + recon refs. (IV Protocol A — self-infused at home — is NOT adopted: supervised-setting procedure only.)
 5. **No ACE-031** — BMP9/10 off-target endothelial toxicity. **Class issue** (all non-selective ActRIIB binders).
 6. **CJC-1295 is NO DAC only.** Never recommend WITH DAC.
 7. **No high-dose oral L-carnitine** (TMAO via gut FMO3). ALCAR substitute in use.
@@ -171,6 +171,7 @@
 - **HRV device discrepancy:** Oura 13 ms vs Apple avg 26 ms same night — methodology difference, reconcile both, don't alarm on Oura alone.
 - **Adderall withdrawal** completion (~3-4 wk total expected).
 - RHR trend: pre-TRT ~58-60 → post ~67-69 (+8-10). 5/17 spike to 83 = ACE-031 reaction (resolved). 5/24: 74, improving.
+- **Cerebrolysin IM cycle (NEW 6/07):** (1) **Hypersensitivity** — first porcine-xenoprotein exposure: watch test dose + first 3 days for urticaria/wheeze/throat tightness/lightheadedness → STOP + emergency. (2) **Local depot** — expanding erythema / knot >48h / fluctuance at site → stop cycle (hyperosmolar 10 mg N/mL driver). (3) **Autonomic** — RHR >10% over baseline ×3 consecutive days + crushed HRV (use Apple, not Oura-absolute) → EOD or halve = subclinical immunogenic stress. (4) **Sleep** — SWS/REM shifts are *observations, not* "TrkB confirmed," and confound the active Tesa+Ipa/DSIP/finasteride sleep n=1. (5) **Inflammation** — could nudge hs-CRP (already 2.6) / muddy HCT-drop workup → draw haptoglobin/LDH/retic/CRP before Day 1 if feasible.
 
 ---
 
