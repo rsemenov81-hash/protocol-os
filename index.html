@@ -2017,12 +2017,15 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             <Field label="💉 Draw on syringe">
               {/* LG syringe panel — big computed units + U-100 syringe + conc/mL footer */}
               <div className="lg" style={{borderRadius:16, padding:'14px 16px'}}>
-                <div style={{display:'flex', alignItems:'baseline', gap:8, marginBottom:12}}>
+                <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
                   <input type="number" step="1" inputMode="decimal" value={units} onChange={e => setUnits(e.target.value)}
                     style={{width:'2.6em', fontFamily:'var(--mono)', fontSize:30, fontWeight:700, color:'var(--accent)', background:'transparent', border:'none', outline:'none', padding:0}}/>
                   <span style={{fontSize:14, fontWeight:600, color:'var(--text-dim)'}}>units</span>
-                  <span style={{marginLeft:'auto', fontFamily:'var(--mono)', fontSize:13, color:'var(--text)'}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</span>
+                  <span style={{marginLeft:'auto', fontFamily:'var(--mono)', fontSize:13, color:'var(--text)', marginRight:4}}>{f.doseMcg ? fmtDoseUnit(f.doseMcg, targetVial) : '—'}</span>
+                  <button onClick={() => setUnits(Math.max(0, Math.round(((parseFloat(units)||0) - 1)*10)/10))} title="−1 unit (this dose)" className="lg" style={{width:36, height:36, borderRadius:10, display:'grid', placeItems:'center', padding:0, cursor:'pointer', fontSize:20, color:'var(--text-dim)', flexShrink:0}}>−</button>
+                  <button onClick={() => setUnits(Math.round(((parseFloat(units)||0) + 1)*10)/10)} title="+1 unit (this dose)" className="lg" style={{width:36, height:36, borderRadius:10, display:'grid', placeItems:'center', padding:0, cursor:'pointer', fontSize:18, color:'var(--accent)', flexShrink:0}}>+</button>
                 </div>
+                <div style={{fontSize:10.5, color:'var(--text-faint)', marginBottom:10}}>Adjust just this dose · standard stays {(() => { const su = (targetVial && targetVial.mcgPerMl) ? (proto.doseMcg/(targetVial.mcgPerMl/100)) : null; return su!=null ? (Math.round(su*10)/10)+'u' : fmtDoseUnit(proto.doseMcg, targetVial); })()}</div>
                 <Syringe units={parseFloat(units)||0} color="var(--accent)"/>
                 <div style={{display:'flex', justifyContent:'space-between', marginTop:10, fontFamily:'var(--mono)', fontSize:10.5, color:'var(--text-faint)'}}>
                   <span>Conc {isIU ? `${Math.round(mcgPerMl).toLocaleString()} IU/mL` : `${(mcgPerMl/1000).toFixed(2)} mg/mL`}</span>
