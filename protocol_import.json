@@ -757,6 +757,27 @@
       "startDate": "2026-05-29",
       "active": true,
       "createdAt": "2026-05-29T12:00:00.000Z"
+    },
+    {
+      "id": "p4_cereb_im",
+      "profile": "Roman",
+      "peptideId": "cerebrolysin",
+      "peptideName": "[HELD pending Quest labs] Cerebrolysin / Cerebroprotein Hydrolysate (IM cycle V2.1 — 3mL recon = 20 mg N/mL stock, DILUTE DO NOT INJECT NEAT; Day0 test 1mg N via 0.1mL stock+0.9mL saline draw 0.5mL; 5mg N = 0.25mL stock + 0.75mL saline -> 1.0mL; escalate 10mg N = 0.5mL stock + 0.5mL saline -> 1.0mL; deep IM Z-track + rotate, NOT SubQ; pause TrkB cluster)",
+      "doseMcg": 5000,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "timeOfDay": "morning"
+      },
+      "cycleDays": 28,
+      "startDate": "2026-06-08",
+      "active": false,
+      "createdAt": "2026-06-07T12:00:00.000Z"
     }
   ],
   "vials": [
@@ -891,11 +912,14 @@
     {
       "id": "v_14",
       "peptideId": "cerebrolysin",
-      "peptideName": "Cerebrolysin",
+      "peptideName": "Cerebrolysin (60mg total-N)",
       "mgPerVial": 60.0,
       "vialCount": 1,
       "vendor": "China",
-      "reconstituted": true
+      "reconstituted": true,
+      "suggestedDiluentMl": 3,
+      "suggestedDoseMcg": 5000,
+      "notes": "60mg total-N + 3.0 mL bacteriostatic water = 20 mg N/mL stock (~13x commercial) -- DILUTE, DO NOT INJECT NEAT. Buffered draw: 5mg N = 0.25mL stock + 0.75mL bac saline -> 1.0mL; 10mg N = 0.5mL stock + 0.5mL saline -> 1.0mL (or +1.0mL saline -> 1.5mL gentler). Test 1mg N = 0.1mL stock + 0.9mL saline, inject 0.5mL. Deep IM ONLY (1-1.5in 22-25g needle), NOT SubQ. Refrigerate 2-8C. HOLD until Quest panel (haptoglobin/LDH/retic/CRP) drawn."
     },
     {
       "id": "v_15",
