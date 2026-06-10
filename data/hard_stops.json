@@ -1,0 +1,62 @@
+{
+  "version": "2026-05-29",
+  "source": "STATE_Roman.md — HARD STOPS (never override without explicit re-discussion)",
+  "note": "Machine-checkable copy of the hard stops. STATE_Roman.md remains authoritative; regenerate/curate this when the hard-stop list changes. 'requiresInStack' rules only fire as a hard stop when the named counterpart is in data/stack.json; otherwise they surface as a forward-looking note.",
+  "rules": [
+    { "id": 1, "severity": "hard-stop", "summary": "No liberal sodium — moderate only",
+      "match": { "any": ["sodium", "salt loading", "liberal salt"] },
+      "note": "Contradicted by normal resting BP (~107/65)." },
+
+    { "id": 2, "severity": "hard-stop", "summary": "No Dihexa + IGF-1 LR3 together (oncogenic synergy: HGF/c-Met + IGF-1)",
+      "match": { "any": ["dihexa"] },
+      "requiresInStack": ["igf-1 lr3", "igf-1", "igf1"],
+      "note": "Vault Dihexa while IGF-1 is active. IGF-1 cycle ends ~Jun 12." },
+
+    { "id": 3, "severity": "hard-stop", "summary": "No 9-Me-BC, MAOIs, or unclear serotonergics (serotonin-syndrome risk with sertraline 150mg)",
+      "match": { "any": ["9-me-bc", "9mebc", "maoi", "serotonergic", "serotonin"] },
+      "requiresInStack": ["sertraline"],
+      "note": "Sertraline 150mg is a standing Rx." },
+
+    { "id": 4, "severity": "hard-stop", "summary": "No Cerebrolysin / Cerebroprotein Hydrolysate via SubQ/IM (IV-only product)",
+      "match": { "any": ["cerebrolysin", "cerebroprotein", "cerebro"] },
+      "note": "SubQ/IM creates an immunogenic depot. Vault for IV (dilute 250mL NS over 60-120 min) or discard." },
+
+    { "id": 5, "severity": "hard-stop", "summary": "No ACE-031 / non-selective ActRIIB binders (BMP9/10 endothelial toxicity — class issue)",
+      "match": { "any": ["ace-031", "ace031", "actriib", "activin receptor"] },
+      "note": "Conditional hold; if ever run, low-dose SubQ with canary monitoring (epistaxis/gum bleed/telangiectasia = STOP). Never with FLRG242." },
+
+    { "id": 6, "severity": "hard-stop", "summary": "CJC-1295 is NO-DAC only — never with DAC",
+      "match": { "any": ["cjc-1295 with dac", "cjc1295 dac", "cjc-1295 dac", "cjc1295-dac", "with dac"] },
+      "note": "No-DAC preserves the pulsatile pattern; DAC produces sustained IGF-1 elevation (avoided)." },
+
+    { "id": 7, "severity": "hard-stop", "summary": "No high-dose oral L-carnitine (TMAO via gut FMO3)",
+      "match": { "any": ["l-carnitine oral", "oral carnitine", "carnitine oral"] },
+      "note": "ALCAR / injectable substitute if a carnitine effect is wanted." },
+
+    { "id": 8, "severity": "hard-stop", "summary": "No Nefiracetam (testicular toxicity — conflicts with HCG/Leydig preservation)",
+      "match": { "any": ["nefiracetam"] },
+      "requiresInStack": ["hcg"],
+      "note": "HCG is part of the standing protocol." },
+
+    { "id": 9, "severity": "hard-stop", "summary": "No Metatrutide (glucagon AMPK activation vs anabolic mTOR — incoherent)",
+      "match": { "any": ["metatrutide", "mazdutide-glucagon"] },
+      "note": "Distinct from retatrutide; do not confuse." },
+
+    { "id": 10, "severity": "hard-stop", "status": "user-overridden", "summary": "Injectable glutathione IM/SubQ is low-yield (γ-GT degrades plasma GSH); IV is the effective route",
+      "match": { "any": ["glutathione subq", "glutathione im", "injectable glutathione"] },
+      "note": "Efficacy-based stop. User accepts the low yield and RUNS SubQ/IM 1200mg 2-3x/wk as an antioxidant-gap closer; IV is the upgrade. Flag, don't block." },
+
+    { "id": 11, "severity": "hard-stop", "status": "revised", "summary": "TrkB-downregulation vault (Dihexa, Semax NA, Selank NA, Adalank, Adamax, Noopept) + VIP/Orexin-A paused",
+      "match": { "any": ["semax na", "selank na", "adalank", "adamax", "noopept", "vip intranasal", "orexin"] },
+      "note": "Policy REVISED: blanket vault -> cycled use (4wk on / 2-4wk off) via Neurolux, which consolidates the TrkB group. Dihexa remains vaulted under rule #2 while IGF-1 is active." },
+
+    { "id": 12, "severity": "hard-stop", "summary": "Always keep HCG with TRT — never extended TRT without it",
+      "match": { "any": ["stop hcg", "drop hcg", "remove hcg", "trt without hcg", "testosterone monotherapy without hcg"] },
+      "requiresTogether": ["testosterone", "hcg"],
+      "note": "Testicular maintenance / fertility preservation." },
+
+    { "id": 13, "severity": "advisory", "summary": "Confirm injection route matches manufacturer instructions for any unfamiliar peptide",
+      "match": { "any": ["unfamiliar route", "new peptide route"] },
+      "note": "Route mismatch (e.g. IV-only product given SubQ) is a recurring failure mode — see rule #4." }
+  ]
+}
