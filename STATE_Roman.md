@@ -62,7 +62,7 @@
 | Compound | Decision | Detail |
 |---|---|---|
 | ACE-031 | **CONDITIONAL HOLD** | Run FLRG242 first. Revisit only after HCT drop resolved + clean CBC/coag baseline. If ever: low-dose SubQ, canary-monitor (epistaxis/gum bleed/telangiectasia = STOP), 4-6wk. Documented BMP9/10 vascular tox |
-| FLRG242 | **RUN** | 5mg q2wk SubQ (5mg+1mL, inject full/split). Safer myostatin route (follistatin, no BMP9/10). Short 2-3 dose trial → reassess. Note FSH suppression. Never w/ ACE-031 |
+| FLGR242 | **RUN (REVISED 6/6)** | **0.5mg ×2/wk Wed+Sat (=1mg/wk), 10-wk run** (started 6/6 Sat). Recon 5mg+**2mL**→2.5mg/mL (0.5mg=20u; test=8u). **Supersedes old 5mg q2wk** — see dedicated `FLGR242 TRIAL` block below for full rationale/labs/gates. Safer myostatin route (follistatin, no BMP9/10). GDF-8 Wk4 = titrate gate. Watch FSH + HCT. Never w/ ACE-031 |
 | LGD-4033 | **SHORT CYCLE** | 5mg/day = 0.5mL SL (10mg/mL), start now, 6-8wk. Baseline = 5/21 labs (AST32/ALT24/HDL52). Recheck ALT/AST+lipids @4wk (watch HDL crush vs Lp(a) 120) |
 | Kisspeptin | **RUN (trial)** | 100mcg/day SubQ AM (10mg+5mL → 5u). 2-4wk central/libido trial. Isolate from other libido tools |
 | Oxytocin | **QUEUED** | Intranasal PRN ~30-45min pre-intimacy, AFTER kisspeptin window. Best-characterized libido/bonding tool |
@@ -101,9 +101,49 @@
 
 **Rx (unchanged):** Sertraline 150 mg, Finasteride 1 mg, oral Minoxidil 2.5 mg, Descovy 200/25 mg — all PO daily.
 
+---
+
+## FLGR242 TRIAL — LOCKED PROTOCOL (2026-06-06)
+
+Settled after multi-source review (PubMed comparator trials + ClinicalTrials.gov + a podcast anecdote, weighed by tier). **Supersedes the prior "5mg q2wk" inventory note.**
+
+**Compound reality check:** Biolongevity Labs RUO "Follistatin (FLGR242)" — recombinant truncated FST344 + albumin-binding linker, ~40 kDa; *claimed* activin-sparing and ~10–19 d half-life (FcRn recycling). All PK + activin-sparing claims are **vendor marketing, unverified.** CoA name mismatch (reads "FLGR232") = real identity caveat, not "clerical." Treat half-life + activin-sparing as **working hypotheses to be tested by the labs below.**
+
+**Evidence frame (established):** Every controlled myostatin/activin-pathway agent (taldefgrobep, bimagrumab, ACE-031, domagrozumab) gave *modest* DXA lean-mass gains that did **not** reliably convert to strength; taldefgrobep terminated for futility. Realistic expectation = small measurable lean-mass bump ± fat loss — **not** the "16 lb/12 wk" podcast claim (unmeasured scale weight, commercial source, used ~30mg over 12 wk → not reproducible on a 10mg supply).
+
+**Dosing (locked):**
+- Recon one 5mg vial + **2.0 mL BAC water → 2.5 mg/mL.** Solvent against glass wall, no shaking. Store 2–8°C. Second vial stays lyophilized/frozen until needed.
+- **Test dose: WAIVED by user (6/6).** (Recommended option was 0.2 mg / 8u once, observed — declined; first exposure is the full 0.5 mg. → first-dose observation safeguards apply: not alone, antihistamine on hand, ~2–4 h watch.)
+- **Maintenance: 0.5 mg (20u) SubQ twice weekly — Wed + Sat** (=1 mg/wk).
+- **Run: 10 weeks** (10mg supply = exactly 10 wk). Fixed days for adherence + side-effect attribution.
+- **6/6 start note:** user elected to begin at full 0.5mg Sat post-workout (0.2mg test dose waived). ⚠️ Confirm baseline GDF-8/FSH/CBC were banked pre-injection — if not, Wk4 gate loses its denominators (see calibration rule "measure before modeling").
+- Timing is **pharmacologically irrelevant** (long t½): AM/PM, fed/fasted, peri-workout all moot. Daytime chosen for safety observation only.
+- **Why split 0.5 ×2 not 1mg ×1:** keeps trough above the myostatin-neutralization threshold continuously (myostatin is produced non-stop; a trap only works while drug stays above threshold), halves per-injection peak + antigenic load. **Why not 2.5mg/wk:** trap = threshold + ceiling; past neutralization, more drug adds off-target/immunogenic load, not muscle — and 2.5/wk burns supply in 4 wk (below steady-state at long t½, can't reach the duration that drives hypertrophy).
+
+**Lab panel — baseline → Wk4 → Wk8 → Wk14 (clearance):**
+- **Tier 1 (efficacy/engagement):** Serum **myostatin/GDF-8 — drawn at TROUGH, pre-injection, Wed or Sat AM** (the arbiter; trough also tests whether the GS-linker survived serum proteolysis = real half-life). Baseline lost (dosed 6/6 pre-draw) → judge Wk4 by absolute suppression vs assay LLoQ/reference, not delta · **DXA** (baseline + ~Wk10–12) · strength (3–5RM + grip dynamometer). InBody = hydration/glycogen trend only, not FFM.
+- **Tier 2 (off-target safety):** ⚠️ **FSH is INVALID as the activin-sparing readout in this subject** — TRT+HCG already floors gonadotropins (HCG gives LH-like signal, not FSH), so FSH can't drop further to flag activin binding (Gemini catch 6/6). **Replacement activin-axis readout: Hgb/HCT trend, bidirectional** — a *rise* = likely off-target activin/GDF-11 trapping (luspatercept/sotatercept-type erythroid-maturation effect → this is the activin-sparing falsifier here); continued *fall* points to a separate cause (bleed/marrow), NOT FLGR242 RBC suppression. Optional **serum activin A** if assay available · **CBC w/ diff** · CMP (ALT/AST, eGFR, glucose) · CK · hs-CRP · fasting insulin + HbA1c.
+- **Tier 2b (ADA watch — test dose waived):** GDF-8 *rebound* Wk4→Wk8, escalating injection-site induration, or new arthralgia = possible anti-drug-antibody seroconversion (humoral, ~2–3 wk) silently neutralizing the peptide.
+- **Tier 3 (clinical watch):** epistaxis/gum bleed/telangiectasia · injection-site/flush/wheeze · libido/erectile · edema · tendon/joint pain · BP + RHR weekly · Oura HRV/RHR trend (no arbitrary cutoffs).
+
+**Decision gate (Wk4 GDF-8 trough):** suppressed → stay course, let 10 wk + training work. Flat + clean labs → evidence of under-potency/sub-threshold; titrate cautiously — **but** ⚠️ comparator biologics are weight-dosed in the tens of mg (luspatercept ~1mg/kg, bimagrumab 10mg/kg, ACE-031 1–3mg/kg); 1mg/wk = ~0.013mg/kg, so the **entire 10mg supply may be sub-therapeutic** and meaningful titration could exceed supply (offset somewhat by follistatin's high myostatin affinity + small circulating pool). Accept the experiment may be underpowered; GDF-8 trough is the only arbiter.
+
+**⚠️ HEMATOLOGY-FIRST GATE (highest priority, 6/6):** The unexplained HCT drop (41.7→37.8 *against* TRT, which should cause erythrocytosis) is an active medical question that outranks this trial. Bank **retic + RPI, haptoglobin, LDH, gFOBT + CBC NOW** (this week). High retic → bleeding/hemolysis; low retic → marrow. **Hard stop if HCT <36.5% or any epistaxis/gingival bleeding.** (Mechanism note: a continued fall is NOT expected from FLGR242 itself — activin/GDF-11 trapping *raises* Hgb (luspatercept/sotatercept precedent), so a fall implicates a separate cause we don't want to confound.)
+
+**TRT synergy (working hypothesis):** unlike the failed clinical cohorts, concurrent TRT supplies the androgen-driven transcriptive/satellite-cell drive — myostatin-brake removal + AR agonism may be genuinely synergistic. Expect early sarcoplasmic/glycogen water gain, then possibly modest true fibrillar accretion. Plausible, not established.
+
+**Trial hard-stops (additive to global list):**
+- Acute hypersensitivity post-dose → STOP.
+- Spontaneous mucosal bleeding (epistaxis/gums) or new telangiectasia → STOP (BMP9/10-type signal).
+- Unexplained tachycardia / exertional dyspnea / peripheral edema → STOP.
+- FSH below ref range, or ALT/AST/CK >3× baseline, or significant HCT shift → HOLD + reassess.
+- **NEVER concurrent with ACE-031** (global hard-stop #5). Follistatin chosen *because* it avoids BMP9/10 — that's the whole rationale over the inventory ACE-031.
+
+**⚠️ HCT interaction:** Current CBC HGB 12.6 L / HCT 37.8 L (dropped, cause unresolved — retic/haptoglobin/LDH pending). **Baseline CBC for this trial doubles as the anemia workup; do not start full dosing until that draw is banked.** If HCT drops further on-trial, FLGR242 becomes a prime suspect and halts.
+
 **Supplements:** Creatine 10-15 g, Selenium 200 mcg, TMG 1-2 g, methyl B-complex, choline 500 mg (optional), Mg glycinate 400 mg PM, dietary K+ 3500-4500 mg from food. **Moderate** dietary sodium.
 
-**Reconstitution refs:** HCG 5000 IU + 2 mL = 2500 IU/mL → 250 IU = 10u. TRT 200mg/mL → 20mg = 10u. Reta 10mg+1mL → 1mg=10u. Cagri 5mg+1mL → 1mg=20u. SS-31 30mg+2mL → 1mg=6.7u. MOTS-c 10mg+1mL → 1mg=10u.
+**Reconstitution refs:** HCG 5000 IU + 2 mL = 2500 IU/mL → 250 IU = 10u. TRT 200mg/mL → 20mg = 10u. Reta 10mg+1mL → 1mg=10u. Cagri 5mg+1mL → 1mg=20u. SS-31 30mg+2mL → 1mg=6.7u. MOTS-c 10mg+1mL → 1mg=10u. FLGR242 5mg+2mL → 2.5mg/mL: 0.5mg=20u, test 0.2mg=8u.
 
 ---
 
