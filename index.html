@@ -850,6 +850,15 @@ const fmtIU = (n) => { if (n == null || isNaN(n)) return '—'; return Math.roun
 const isIUVial = (v) => !!(v && v.unitLabel === 'IU');
 const fmtDoseUnit = (n, v) => isIUVial(v) ? fmtIU(n) : fmtMcg(n);
 const doseUnitLabel = (v) => isIUVial(v) ? 'IU' : 'mcg';
+// Build the {doseUnit, doseValue} display/sync tag for a protocol from its chosen unit + canonical mcg.
+// Returns nulls for the mcg default so the worker keeps its nice magnitude fallback (e.g. 100000 -> "100mg").
+const doseUnitTag = (unit, doseMcg) => {
+  if (!unit || unit === 'mcg' || doseMcg == null || isNaN(doseMcg)) return { doseUnit: null, doseValue: null };
+  if (unit === 'IU') return { doseUnit: 'IU', doseValue: doseMcg };       // IU proxy: stored mcg-number IS the IU value
+  if (unit === 'g')  return { doseUnit: 'g',  doseValue: doseMcg / 1e6 };
+  if (unit === 'mg') return { doseUnit: 'mg', doseValue: doseMcg / 1000 };
+  return { doseUnit: null, doseValue: null };
+};
 const fmtMoney = (n) => n == null ? '—' : '$' + Number(n).toFixed(2);
 const findPep = (id) => PEPTIDE_DB.find(p => p.id === id);
 
@@ -994,6 +1003,11 @@ function Syringe({ units, max, color }) {
 function RouteFields({ f, setF }) {
   const route = f.route || 'inj';
   const oralUnit = f.oralUnitLabel || 'mcg';
+  // Main dose unit (display + entry only). Canonical store is always f.doseMcg in mcg.
+  // mcg & IU use factor 1 (IU = the mcg-number-IS-the-IU-value proxy); mg ×1000; g ×1e6.
+  const doseUnit = f.doseUnit || 'mcg';
+  const duFactor = doseUnit === 'g' ? 1e6 : doseUnit === 'mg' ? 1000 : 1;
+  const doseDisp = (f.doseMcg === '' || f.doseMcg == null || isNaN(parseFloat(f.doseMcg))) ? '' : (duFactor === 1 ? f.doseMcg : (parseFloat(f.doseMcg) / duFactor));
   const lbl = { fontSize:12, color:'var(--text-dim)', fontWeight:600, display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em' };
   const preview = deliveryFor({ ...f, doseMcg: parseFloat(f.doseMcg)||0, route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||0, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||0, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||0 }, null);
   return (
@@ -1014,7 +1028,12 @@ function RouteFields({ f, setF }) {
           <Field label="mL per spray"><input type="number" step="0.01" value={f.sprayMlPerSpray||''} onChange={e=>setF({...f,sprayMlPerSpray:e.target.value})} className="input"/></Field>
         </div>
       ) : null}
-      <Field label="Standard dose (mcg)"><input type="number" value={f.doseMcg} onChange={e=>setF({...f,doseMcg:e.target.value})} className="input"/></Field>
+      <Field label={`Standard dose (${doseUnit})`}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
+          <input type="number" value={doseDisp} onChange={e=>setF({...f, doseMcg: duFactor===1 ? e.target.value : Math.round((parseFloat(e.target.value)||0)*duFactor)})} className="input"/>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg','g','IU'].map(u=><button key={u} type="button" onClick={()=>setF({...f,doseUnit:u})} style={{padding:'0 9px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(doseUnit===u?'rgba(79,214,230,.5)':'var(--border)'),background:doseUnit===u?'rgba(79,214,230,.16)':'rgba(255,255,255,.04)',color:doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+        </div>
+      </Field>
       {(route==='oral'||route==='nasal') && (parseFloat(f.doseMcg)||0)>0 && preview.n!=null && (
         <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'-2px 2px 12px'}}>→ {route==='oral'?'Take':'Use'} <b style={{color: route==='oral'?'var(--rt-oral)':'#c78bf0'}}>{preview.chip}</b> per dose {route==='inj'?'':''}</div>
       )}
@@ -1608,9 +1627,11 @@ function App() {
     const rows = [['Profile','Compound','Date','Time','Dose','Unit','Units (syringe)','mL','Site','Notes']];
     mine.forEach(l => {
       const dt = new Date(l.datetime);
-      const isMg = l.doseUnit !== 'IU' && l.doseMcg != null && l.doseMcg >= 1000;
-      const dose = l.doseUnit === 'IU' ? (l.doseValue != null ? l.doseValue : l.doseMcg) : (isMg ? l.doseMcg/1000 : l.doseMcg);
-      const unit = l.doseUnit === 'IU' ? 'IU' : (isMg ? 'mg' : 'mcg');
+      const isIUx = l.doseUnit === 'IU';
+      const isG = !isIUx && l.doseUnit === 'g';
+      const isMg = !isIUx && !isG && (l.doseUnit === 'mg' || (l.doseMcg != null && l.doseMcg >= 1000));
+      const dose = isIUx ? (l.doseValue != null ? l.doseValue : l.doseMcg) : isG ? l.doseMcg/1e6 : isMg ? l.doseMcg/1000 : l.doseMcg;
+      const unit = isIUx ? 'IU' : isG ? 'g' : isMg ? 'mg' : 'mcg';
       const u = l.doseMl != null ? (l.doseMl * 100).toFixed(1) : '';
       rows.push([activeProfile, l.peptide || l.peptideName || l.peptideId || '', dt.toLocaleDateString('en-CA'),
         dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', l.site || '', l.notes || '']);
@@ -1884,6 +1905,15 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || adminRoute === 'pen' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution prompt" routes
       const adminDelivery = deliveryFor(proto, targetVial);
       const isIU = isIUVial(targetVial);
+      // Editable-dose-field unit: explicit protocol unit, else IU vial, else mcg. Display/entry only —
+      // the value is always converted back to canonical mcg before setMcg() so syringe math is untouched.
+      // If the vial has a real mcg concentration, the syringe draw is mcg-based — force mcg labeling so the
+      // unit can't disagree with the math. IU vials -> IU. No concentration (oral / un-reconstituted) -> protocol unit.
+      const admUnit = isIU ? 'IU' : (hasConc ? 'mcg' : ((proto && proto.doseUnit) || 'mcg'));
+      const admFactor = admUnit === 'g' ? 1e6 : admUnit === 'mg' ? 1000 : 1;
+      const admDisp = (f.doseMcg === '' || f.doseMcg == null || isNaN(parseFloat(f.doseMcg))) ? '' : (admFactor === 1 ? f.doseMcg : (parseFloat(f.doseMcg) / admFactor));
+      // Display a canonical-mcg value in the protocol's chosen unit (matches the dose-field label). Display only.
+      const fmtAdmDose = (mcg) => admUnit === 'IU' ? fmtIU(mcg) : admUnit === 'mcg' ? fmtDoseUnit(mcg, targetVial) : ((mcg||0)/admFactor).toFixed(2).replace(/\.?0+$/,'') + ' ' + admUnit;
       // Reconstitution: ask whenever a non-oral compound has no usable concentration; always editable later.
       const [reconMl, setReconMl] = useState(targetVial && targetVial.diluentMl ? String(targetVial.diluentMl) : '');
       const [reconMg, setReconMg] = useState(targetVial && targetVial.mgPerVial ? String(targetVial.mgPerVial) : '');
@@ -1926,7 +1956,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         const tv = vials.find(v => v.id === f.vialId);
         const prevLogs = logs, prevVials = vials;
         // IU vials: store doseValue+doseUnit alongside doseMcg (kept populated for sync-compat).
-        const unitTag = (isIUVial(tv) || isIU) ? { doseValue: d, doseUnit: 'IU' } : {};
+        const unitTag = (isIUVial(tv) || isIU) ? { doseValue: d, doseUnit: 'IU' } : (proto.doseUnit ? { doseUnit: proto.doseUnit, doseValue: proto.doseUnit === 'g' ? d/1e6 : proto.doseUnit === 'mg' ? d/1000 : d } : {});
         if (existingLog) {
           // Edit mode: adjust delta
           const oldDose = existingLog.doseMcg || 0;
@@ -2056,11 +2086,11 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
                   <div style={{width:44,height:44,borderRadius:13,background:ROUTE_META[adminRoute].color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+ROUTE_META[adminRoute].color+'40',flexShrink:0}}><RouteIcon route={adminRoute} color={ROUTE_META[adminRoute].color} s={22}/></div>
                   <div>
                     <div style={{fontSize:18,fontWeight:700,color:'var(--text)'}}>{adminRoute==='oral'?'Take':'Use'} {live.chip}</div>
-                    <div style={{fontSize:12,color:'var(--text-dim)',marginTop:2}}>{fmtDoseUnit(parseFloat(f.doseMcg)||proto.doseMcg, targetVial)}{adminRoute==='oral'?' · with water':' · 1 spray per nostril'}</div>
+                    <div style={{fontSize:12,color:'var(--text-dim)',marginTop:2}}>{fmtAdmDose(parseFloat(f.doseMcg)||proto.doseMcg)}{adminRoute==='oral'?' · with water':' · 1 spray per nostril'}</div>
                   </div>
                 </div>
               ); return null; })()}
-              <Field label={`Dose (${isIU ? 'IU' : 'mcg'})`}><input type="number" value={f.doseMcg} onChange={e => setMcg(e.target.value)} className="input"/></Field>
+              <Field label={`Dose (${admUnit})`}><input type="number" value={admDisp} onChange={e => setMcg(admFactor===1 ? e.target.value : Math.round((parseFloat(e.target.value)||0)*admFactor))} className="input"/></Field>
             </>
           ) : null}
           
@@ -2111,8 +2141,8 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         const penVial = { id: vialId, isPen:true, pen:f.color, penColor:f.color, penName, penComponents:comps, peptideId:'__pen__', peptideName: label, diluentMl:PEN_VOL_ML, mgPerVial:tMcg/1000, totalMcg:tMcg, remainingMcg: (exVial && exVial.remainingMcg != null && exVial.totalMcg === tMcg) ? exVial.remainingMcg : tMcg, mcgPerMl:mm, mcgPerUnit:mm/100, unitsPerDose:s, doseMcg:dMcg, reconstitutedAt: (exVial && exVial.reconstitutedAt) || new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays:30, active:true, formType:'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
         setVials(exVial ? vials.map(v => v.id===vialId ? penVial : v) : [penVial, ...vials]);
         const protoName = label + ' — ' + expandPenComponents(comps).map(c => (c.name||'').split(' ')[0]).join(' + ');
-        if (existing) setProtocols(protocols.map(p => p.id===existing.id ? {...p, peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}} : p));
-        else setProtocols([{ id:uid(), profile:activeProfile, peptideId:'__pen__', peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, schedule:{days:f.days, timeOfDay:f.timeOfDay}, cycleDays:30, startDate:todayLocal(), active:true, createdAt:new Date().toISOString() }, ...protocols]);
+        if (existing) setProtocols(protocols.map(p => p.id===existing.id ? {...p, peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, doseUnit:null, doseValue:null, schedule:{days:f.days, timeOfDay:f.timeOfDay}} : p));
+        else setProtocols([{ id:uid(), profile:activeProfile, peptideId:'__pen__', peptideName:protoName, route:'pen', penColor:f.color, penName, penVialId:vialId, doseMcg:dMcg, doseUnit:null, doseValue:null, schedule:{days:f.days, timeOfDay:f.timeOfDay}, cycleDays:30, startDate:todayLocal(), active:true, createdAt:new Date().toISOString() }, ...protocols]);
         showToast(existing ? 'Pen updated' : 'Pen created'); closeModal();
       };
       const onRemove = () => confirmModal('Delete pen?', `Remove ${pm.label} and its blend?`, () => { setProtocols(protocols.filter(p => p.id !== existing.id)); setVials(vials.filter(v => v.id !== existing.penVialId)); showToast('Pen deleted'); }, 'Delete');
@@ -2163,13 +2193,14 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const editProtocol = (proto) => {
+    // Pens are intentionally mcg/units-only: dose shows as syringe units (DoseCard), doseMcg is computed canonically in managePen; no mass-unit (g/mg/IU) tag applies.
     if (proto.route === 'pen') return managePen(proto);
-    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning', route: proto.route || routeOf(proto, null), oralUnitLabel: proto.oralUnitLabel || 'mcg' };
+    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning', route: proto.route || routeOf(proto, null), oralUnitLabel: proto.oralUnitLabel || 'mcg', doseUnit: proto.doseUnit || 'mcg' };
     const Modal = () => {
       const [f, setF] = useState(init);
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
       const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
-      const onSave = () => { setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: parseFloat(f.doseMcg), route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate} : p)); showToast('Updated'); closeModal(); };
+      const onSave = () => { const _dm = parseFloat(f.doseMcg); if (!_dm || isNaN(_dm)) return showToast('Set dose','error'); const _tag = doseUnitTag(f.doseUnit, _dm); setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate} : p)); showToast('Updated'); closeModal(); };
       const onRemove = () => confirmModal('Remove protocol?', `Remove ${proto.peptideName}?`, () => { setProtocols(protocols.filter(p => p.id !== proto.id)); showToast('Removed'); }, 'Remove');
       const dl = ['S','M','T','W','T','F','S'];
       return (
@@ -2201,7 +2232,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const addProtocol = () => {
-    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal(), route: 'inj', oralUnitLabel: 'mcg' };
+    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal(), route: 'inj', oralUnitLabel: 'mcg', doseUnit: 'mcg' };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
@@ -2211,7 +2242,8 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const onSave = () => {
         if (!f.peptideId) return showToast('Pick compound', 'error');
         if (!f.doseMcg) return showToast('Set dose', 'error');
-        const proto = { id: uid(), profile: activeProfile, peptideId: f.peptideId, peptideName: pep.name, doseMcg: parseFloat(f.doseMcg), route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, active: true, createdAt: new Date().toISOString() };
+        const _dm = parseFloat(f.doseMcg); const _tag = doseUnitTag(f.doseUnit, _dm);
+        const proto = { id: uid(), profile: activeProfile, peptideId: f.peptideId, peptideName: pep.name, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, active: true, createdAt: new Date().toISOString() };
         setProtocols([proto, ...protocols]);
         showToast(`Added ${pep.name}`); closeModal();
       };
@@ -2382,10 +2414,12 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit })
   const dMcg = (log && log.doseMcg != null) ? log.doseMcg : proto.doseMcg;
   const units = mcgPerUnit ? (dMcg / mcgPerUnit) : null;
 
-  const isIU = isIUVial(activeVial) || (log && log.doseUnit === 'IU');
+  const du0 = (log && log.doseUnit) || proto.doseUnit; // explicit unit tag wins over magnitude
+  const isIU = du0 === 'IU' || isIUVial(activeVial) || (log && log.doseUnit === 'IU');
   let dv, du;
   if (isIU) { dv = String(Math.round(log && log.doseValue != null ? log.doseValue : dMcg)); du = 'IU'; }
-  else if (dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
+  else if (du0 === 'g') { dv = (dMcg/1e6).toFixed(2).replace(/\.?0+$/,''); du = 'g'; }
+  else if (du0 === 'mg' || dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
   else { dv = String(Math.round(dMcg)); du = 'mcg'; }
 
   const deliver = deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip;
