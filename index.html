@@ -859,6 +859,29 @@ const doseUnitTag = (unit, doseMcg) => {
   if (unit === 'mg') return { doseUnit: 'mg', doseValue: doseMcg / 1000 };
   return { doseUnit: null, doseValue: null };
 };
+// ── dose canonicalization (KEEP BYTE-IDENTICAL with worker.js + test_dose_canon.js) ──────────
+// doseMcg is the single source of truth all syringe/reconstitution math reads. The display tags
+// doseUnit/doseValue are DERIVED from it here so a synced/imported payload can never make Claude
+// show one number while the app draws another. Inconsistent/unsupported tags are dropped.
+function canonicalizeDose(o) {
+  if (!o || typeof o !== 'object') return o;
+  const m = Number(o.doseMcg);
+  const tagged = (o.doseUnit != null || o.doseValue != null);
+  if (!Number.isFinite(m) || m <= 0) return tagged ? { ...o, doseUnit: null, doseValue: null } : o;
+  let dv;
+  if (o.doseUnit === 'mg') dv = m / 1000;
+  else if (o.doseUnit === 'g') dv = m / 1e6;
+  else if (o.doseUnit === 'IU') dv = m;            // IU proxy: the stored mcg-number IS the IU value
+  else return tagged ? { ...o, doseUnit: null, doseValue: null } : o; // mcg default / unknown unit → no tag
+  return (o.doseValue === dv) ? o : { ...o, doseValue: dv };          // derive display value FROM doseMcg
+}
+function canonicalizeState(state) {
+  if (!state || typeof state !== 'object') return state;
+  const out = { ...state };
+  if (Array.isArray(state.protocols)) out.protocols = state.protocols.map(canonicalizeDose);
+  if (Array.isArray(state.logs)) out.logs = state.logs.map(canonicalizeDose);
+  return out;
+}
 const fmtMoney = (n) => n == null ? '—' : '$' + Number(n).toFixed(2);
 const findPep = (id) => PEPTIDE_DB.find(p => p.id === id);
 
@@ -1132,9 +1155,9 @@ function App() {
   useEffect(() => {
     try {
 
-      let storedLogs = JSON.parse(localStorage.getItem('protocol_os_logs') || '[]');
+      let storedLogs = (JSON.parse(localStorage.getItem('protocol_os_logs') || '[]')).map(canonicalizeDose);
       let storedVials = JSON.parse(localStorage.getItem('protocol_os_vials') || '[]');
-      let storedProtocols = JSON.parse(localStorage.getItem('protocol_os_protocols') || '[]');
+      let storedProtocols = (JSON.parse(localStorage.getItem('protocol_os_protocols') || '[]')).map(canonicalizeDose);
       let storedStorage = JSON.parse(localStorage.getItem('protocol_os_storage') || '[]');
       const v2Loaded = localStorage.getItem('protocol_os_loaded_purchases_2');
       if (!v2Loaded) {
@@ -1557,11 +1580,11 @@ function App() {
       const d = await r.json();
       pulledOnce.current = true; // a successful pull (even if cloud is empty) unlocks pushing
       if (!d._empty) {
-        if (Array.isArray(d.protocols)) setProtocols(d.protocols);
+        if (Array.isArray(d.protocols)) setProtocols(d.protocols.map(canonicalizeDose));
         if (Array.isArray(d.vials)) setVials(d.vials);
         if (Array.isArray(d.storage)) setStorage(d.storage);
         if (Array.isArray(d.logs)) setLogs(prev => {
-          const byId = {}; [...prev, ...d.logs].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
+          const byId = {}; [...prev, ...d.logs.map(canonicalizeDose)].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
           return Object.values(byId);
         });
       }
@@ -1654,12 +1677,13 @@ function App() {
       try {
         const d = JSON.parse(reader.result);
         // Replace skill-managed protocols; merge logs by id so adherence history is preserved.
-        if (Array.isArray(d.protocols)) setProtocols(d.protocols);
+        // Canonicalize dose tags on the way in so an imported file can't diverge display from doseMcg.
+        if (Array.isArray(d.protocols)) setProtocols(d.protocols.map(canonicalizeDose));
         if (Array.isArray(d.vials)) setVials(d.vials);
         if (Array.isArray(d.storage)) setStorage(d.storage);
         if (Array.isArray(d.logs)) {
           setLogs(prev => {
-            const byId = {}; [...prev, ...d.logs].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
+            const byId = {}; [...prev, ...d.logs.map(canonicalizeDose)].forEach(l => { byId[l.id || JSON.stringify(l)] = l; });
             return Object.values(byId);
           });
         }
@@ -1956,7 +1980,9 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         const tv = vials.find(v => v.id === f.vialId);
         const prevLogs = logs, prevVials = vials;
         // IU vials: store doseValue+doseUnit alongside doseMcg (kept populated for sync-compat).
-        const unitTag = (isIUVial(tv) || isIU) ? { doseValue: d, doseUnit: 'IU' } : (proto.doseUnit ? { doseUnit: proto.doseUnit, doseValue: proto.doseUnit === 'g' ? d/1e6 : proto.doseUnit === 'mg' ? d/1000 : d } : {});
+        // Tag the log with the EFFECTIVE administered unit (admUnit already accounts for IU vials and
+        // forces mcg when a real concentration vial is present) so the log can't diverge from the display.
+        const unitTag = (admUnit && admUnit !== 'mcg') ? { doseUnit: admUnit, doseValue: admFactor === 1 ? d : d / admFactor } : {};
         if (existingLog) {
           // Edit mode: adjust delta
           const oldDose = existingLog.doseMcg || 0;
