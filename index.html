@@ -1929,6 +1929,11 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || adminRoute === 'pen' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution prompt" routes
       const adminDelivery = deliveryFor(proto, targetVial);
       const isIU = isIUVial(targetVial);
+      // Reconstitution IU-awareness: an IU-denominated protocol (proto.doseUnit==='IU') drives an IU vial
+      // even before it's flagged, so re-reconstituting HCG etc. captures IU instead of mg. (Kept SEPARATE
+      // from the draw-path isIU above, which stays vial-based so a real mcg-concentration vial can't be
+      // mislabeled IU.) The saved vial below carries unitLabel:'IU', which then makes isIU true thereafter.
+      const reconIsIU = isIU || !!(proto && proto.doseUnit === 'IU');
       // Editable-dose-field unit: explicit protocol unit, else IU vial, else mcg. Display/entry only —
       // the value is always converted back to canonical mcg before setMcg() so syringe math is untouched.
       // If the vial has a real mcg concentration, the syringe draw is mcg-based — force mcg labeling so the
@@ -1954,12 +1959,12 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         const unitsPerDose = npm ? refDose / (npm / 100) : 0;
         if (targetVial && targetVial.id) {
           const keepRemaining = (targetVial.remainingMcg != null && targetVial.remainingMcg > 0) ? targetVial.remainingMcg : totalMcg;
-          const patch = { id: targetVial.id, mgPerVial: mg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, totalMcg, remainingMcg: keepRemaining, active: true, reconstitutedAt: targetVial.reconstitutedAt || new Date().toISOString() };
+          const patch = { id: targetVial.id, mgPerVial: mg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, totalMcg, remainingMcg: keepRemaining, unitLabel: reconIsIU ? 'IU' : ((targetVial && targetVial.unitLabel) || null), iuPerVial: reconIsIU ? Math.round(mg * 1000) : ((targetVial && targetVial.iuPerVial) || null), active: true, reconstitutedAt: targetVial.reconstitutedAt || new Date().toISOString() };
           setReconPatch(patch);
           setVials(vials.map(x => x.id === targetVial.id ? { ...x, ...patch } : x));
         } else {
           // No vial existed for this compound — create a reconstituted one on the fly.
-          const nv = { id: 'adm_' + uid(), peptideId: proto.peptideId, peptideName: proto.peptideName, mgPerVial: mg, doseMcg: refDose, totalMcg, remainingMcg: totalMcg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: (protoPep && protoPep.protocol.cycleDays) || 30, active: true, formType: 'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
+          const nv = { id: 'adm_' + uid(), peptideId: proto.peptideId, peptideName: proto.peptideName, mgPerVial: mg, doseMcg: refDose, totalMcg, remainingMcg: totalMcg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, unitLabel: reconIsIU ? 'IU' : null, iuPerVial: reconIsIU ? Math.round(mg * 1000) : null, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: (protoPep && protoPep.protocol.cycleDays) || 30, active: true, formType: 'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
           setVials([nv, ...vials]);
           setReconPatch({ ...nv });
           setF(p => ({ ...p, vialId: nv.id }));
@@ -2060,7 +2065,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>Enter vial size and BAC water to dose this {isIU ? 'in IU' : 'by syringe units'}. {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose below)</span>}</div>
               {SOLVENT_OVERRIDE[proto.peptideId] && <div style={{fontSize:11.5,color:'var(--rt-oral, #f4b94a)',background:'rgba(244,185,74,0.10)',border:'1px solid rgba(244,185,74,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId]}</b> (not plain BAC)</div>}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
-                <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={isIU ? '1' : '0.1'} value={isIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(isIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
+                <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
                 <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>BAC water (mL)</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
               </div>
               <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
