@@ -1,0 +1,2664 @@
+[
+  {
+    "id": "ipamorelin",
+    "name": "Ipamorelin",
+    "category": "GH Secretagogue",
+    "icon": "💤",
+    "purpose": "Selective ghrelin mimetic that triggers pulsatile growth hormone release without significantly raising cortisol or prolactin.",
+    "benefits": [
+      "Improved sleep depth",
+      "Lean recomposition",
+      "Recovery and joint comfort",
+      "Mild fat loss"
+    ],
+    "protocol": {
+      "doseRange": "100–300 mcg",
+      "defaultDoseMcg": 200,
+      "timing": "Nighttime, fasted",
+      "cycle": "5 on / 2 off · 8–12w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "CJC-1295 (no DAC)",
+      "Tesamorelin",
+      "BPC-157"
+    ],
+    "avoid": [
+      "Other GHRPs same dose",
+      "Eating within ~2h of dose"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy",
+      "Severe diabetic retinopathy"
+    ]
+  },
+  {
+    "id": "cjc1295-no-dac",
+    "name": "CJC-1295 (no DAC)",
+    "category": "GHRH Analog",
+    "icon": "⚡",
+    "purpose": "Short-acting GHRH analog that amplifies endogenous GH pulses; pairs synergistically with GHRPs.",
+    "benefits": [
+      "Amplifies natural GH pulse",
+      "Sleep, recovery, body composition",
+      "Preserves pulsatile pattern"
+    ],
+    "protocol": {
+      "doseRange": "100–200 mcg",
+      "defaultDoseMcg": 100,
+      "timing": "With paired GHRP, fasted",
+      "cycle": "5 on / 2 off · 8–12w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Ipamorelin (gold-standard combo)",
+      "Tesamorelin"
+    ],
+    "avoid": [
+      "CJC-1295 with DAC simultaneously",
+      "Long-term continuous use"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "cjc1295-dac",
+    "name": "CJC-1295 with DAC",
+    "category": "GHRH Analog",
+    "icon": "⚡",
+    "purpose": "Long-acting GHRH analog (~7 day half-life) producing sustained elevation of GH/IGF-1.",
+    "benefits": [
+      "Steady IGF-1 elevation",
+      "Convenient weekly dosing",
+      "Strong recomp signal"
+    ],
+    "protocol": {
+      "doseRange": "1–2 mg weekly",
+      "defaultDoseMcg": 1000,
+      "timing": "Any time, weekly",
+      "cycle": "8–12w · break 4w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Standalone",
+      "Optional Ipamorelin pulse"
+    ],
+    "avoid": [
+      "Short-acting GHRH same protocol",
+      "Continuous year-round use"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Severe insulin resistance",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ipa-cjc",
+    "ingredients": {
+      "cjc1295-no-dac": 0.5,
+      "ipamorelin": 0.5
+    },
+    "name": "Ipamorelin + CJC-1295",
+    "category": "GH Secretagogue",
+    "icon": "✨",
+    "purpose": "Gold-standard pairing: GHRH analog amplifies the natural pulse, GHRP triggers release.",
+    "benefits": [
+      "Strong but physiological GH pulse",
+      "Improved deep sleep",
+      "Lean recomp, recovery",
+      "Lower cortisol/prolactin"
+    ],
+    "protocol": {
+      "doseRange": "100–200 mcg of EACH",
+      "defaultDoseMcg": 200,
+      "timing": "Nighttime, strict fasted",
+      "cycle": "5 on / 2 off · 8–12w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Tesamorelin (advanced)",
+      "Epitalon"
+    ],
+    "avoid": [
+      "Eating within ~2h",
+      "Other GHRPs simultaneously"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy",
+      "Severe retinopathy"
+    ]
+  },
+  {
+    "id": "tesamorelin",
+    "name": "Tesamorelin",
+    "category": "GHRH Analog",
+    "icon": "🔥",
+    "purpose": "Stabilized GHRH (FDA-approved) with strong visceral fat reduction profile.",
+    "benefits": [
+      "Visceral adipose reduction",
+      "IGF-1 elevation",
+      "Lipid panel improvements",
+      "Cognitive support"
+    ],
+    "protocol": {
+      "doseRange": "1–2 mg AM fasted",
+      "defaultDoseMcg": 1000,
+      "timing": "AM, strict fasted",
+      "cycle": "5 on / 2 off · 8–12w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Ipamorelin",
+      "Fasted cardio"
+    ],
+    "avoid": [
+      "Other GHRH analogs simultaneously",
+      "Carb-heavy meals near dose"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy",
+      "Diabetic retinopathy"
+    ]
+  },
+  {
+    "id": "sermorelin",
+    "name": "Sermorelin",
+    "category": "GHRH Analog",
+    "icon": "🌙",
+    "purpose": "First-generation GHRH(1-29) producing gentler GH pulse amplification.",
+    "benefits": [
+      "Mild sleep and recovery support",
+      "Anti-aging (gentle)",
+      "Well tolerated entry-level"
+    ],
+    "protocol": {
+      "doseRange": "200–500 mcg nightly",
+      "defaultDoseMcg": 300,
+      "timing": "Nighttime, fasted",
+      "cycle": "3–6 months on / break",
+      "cycleDays": 90,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "GHRPs (Ipamorelin)"
+    ],
+    "avoid": [
+      "Other GHRH analogs same dose"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "hexarelin",
+    "name": "Hexarelin",
+    "category": "GHRP",
+    "icon": "💥",
+    "purpose": "Potent GHRP with strong GH-release action; rapid receptor desensitization with continuous use.",
+    "benefits": [
+      "Strong GH pulse (short-term)",
+      "Cardio-protective at low doses"
+    ],
+    "protocol": {
+      "doseRange": "100 mcg 1–2× daily",
+      "defaultDoseMcg": 100,
+      "timing": "Fasted",
+      "cycle": "Max 4–6 weeks · long break",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Short cycles with GHRH"
+    ],
+    "avoid": [
+      "Long-term use",
+      "Other GHRPs same day"
+    ],
+    "contraindications": [
+      "Cortisol/prolactin imbalance",
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "mk677",
+    "name": "MK-677 (Ibutamoren)",
+    "category": "GH Secretagogue",
+    "icon": "💊",
+    "purpose": "Non-peptide ghrelin receptor agonist with long half-life; orally bioavailable.",
+    "benefits": [
+      "Sleep depth",
+      "Appetite increase",
+      "IGF-1 elevation",
+      "Convenience (oral)"
+    ],
+    "protocol": {
+      "doseRange": "10–25 mg oral",
+      "defaultDoseMcg": 12500,
+      "timing": "Evening (causes drowsiness)",
+      "cycle": "8–12w on / break",
+      "cycleDays": 60,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Standalone",
+      "Light Ipamorelin pulse"
+    ],
+    "avoid": [
+      "Insulin-resistance prone phases"
+    ],
+    "contraindications": [
+      "Diabetes",
+      "CHF",
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "ghk-cu",
+    "name": "GHK-Cu",
+    "category": "Tissue / Cosmetic",
+    "icon": "💎",
+    "purpose": "Copper tripeptide with skin remodeling, hair growth, and broad regenerative effects.",
+    "benefits": [
+      "Hair growth",
+      "Skin elasticity / collagen",
+      "Wound healing",
+      "Anti-inflammatory"
+    ],
+    "protocol": {
+      "doseRange": "1–2 mg SubQ nightly",
+      "defaultDoseMcg": 1500,
+      "timing": "Nighttime",
+      "cycle": "30 on / 30 off",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 50,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Microneedling (topical)",
+      "TB-500 / BPC-157"
+    ],
+    "avoid": [
+      "Wilson's disease",
+      "Excessive oral copper"
+    ],
+    "contraindications": [
+      "Wilson's disease",
+      "Hemochromatosis"
+    ]
+  },
+  {
+    "id": "bpc157",
+    "name": "BPC-157",
+    "category": "Healing",
+    "icon": "🩹",
+    "purpose": "Body Protective Compound — broad cytoprotective, angiogenic, tendon-healing peptide.",
+    "benefits": [
+      "Tendon / joint healing",
+      "Gut lining repair",
+      "Neuroprotection",
+      "Vascular healing"
+    ],
+    "protocol": {
+      "doseRange": "250–500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM/PM, any food state",
+      "cycle": "4–6 weeks on, break",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "TB-500",
+      "GHK-Cu",
+      "Thymosin Alpha-1"
+    ],
+    "avoid": [
+      "Continuous year-round use"
+    ],
+    "contraindications": [
+      "Active malignancy (caution)"
+    ]
+  },
+  {
+    "id": "tb500",
+    "name": "TB-500 (Thymosin Beta-4)",
+    "category": "Healing",
+    "icon": "🧬",
+    "purpose": "Actin-binding peptide promoting cellular migration, tissue repair, inflammation modulation.",
+    "benefits": [
+      "Systemic soft-tissue healing",
+      "Wound repair",
+      "Hair regrowth",
+      "Cardiac repair"
+    ],
+    "protocol": {
+      "doseRange": "2–2.5 mg twice weekly",
+      "defaultDoseMcg": 2500,
+      "timing": "Any time",
+      "cycle": "4–8 week loading",
+      "cycleDays": 42,
+      "route": "SubQ or IM"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2.5
+    },
+    "synergy": [
+      "BPC-157 (synergistic)"
+    ],
+    "avoid": [
+      "Indefinite continuous loading"
+    ],
+    "contraindications": [
+      "Active malignancy (caution)"
+    ]
+  },
+  {
+    "id": "bpc-tb",
+    "ingredients": {
+      "bpc157": 0.5,
+      "tb500": 0.5
+    },
+    "name": "BPC-157 + TB-500",
+    "category": "Healing",
+    "icon": "🛡️",
+    "purpose": "Synergistic systemic healing: BPC-157 daily + TB-500 twice weekly.",
+    "benefits": [
+      "Faster soft-tissue recovery",
+      "Comprehensive systemic repair",
+      "Reduced injury downtime"
+    ],
+    "protocol": {
+      "doseRange": "BPC: 250–500 mcg · TB: 2–2.5 mg 2×/wk",
+      "defaultDoseMcg": 500,
+      "timing": "BPC: AM/PM · TB: any time",
+      "cycle": "4–6 weeks · break",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "GHK-Cu",
+      "Ipamorelin"
+    ],
+    "avoid": [
+      "Active malignancy"
+    ],
+    "contraindications": [
+      "Active malignancy (caution)"
+    ]
+  },
+  {
+    "id": "thymosin-a1",
+    "name": "Thymosin Alpha-1",
+    "category": "Immune",
+    "icon": "🛡️",
+    "purpose": "Endogenous immunomodulator promoting T-cell maturation and Th1 immune balance.",
+    "benefits": [
+      "Immune resilience",
+      "Post-illness recovery",
+      "Immunosenescence support"
+    ],
+    "protocol": {
+      "doseRange": "1.6 mg 2× weekly",
+      "defaultDoseMcg": 1600,
+      "timing": "Any time",
+      "cycle": "4–8 weeks",
+      "cycleDays": 42,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2.5
+    },
+    "synergy": [
+      "BPC-157",
+      "Post-viral recovery"
+    ],
+    "avoid": [
+      "Active autoimmune flare"
+    ],
+    "contraindications": [
+      "Active autoimmune disease"
+    ]
+  },
+  {
+    "id": "epitalon",
+    "name": "Epitalon",
+    "category": "Longevity",
+    "icon": "⏳",
+    "purpose": "Synthetic pineal tetrapeptide; may upregulate telomerase and restore circadian melatonin rhythm.",
+    "benefits": [
+      "Sleep regulation",
+      "Melatonin pulse restoration",
+      "Longevity / telomere markers"
+    ],
+    "protocol": {
+      "doseRange": "100 mcg – 1 mg nightly",
+      "defaultDoseMcg": 200,
+      "timing": "Nighttime, 2+ hr fasted",
+      "cycle": "10–20 days · 4–6 mo break",
+      "cycleDays": 14,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "GH secretagogues (separate)",
+      "NAD+"
+    ],
+    "avoid": [
+      "Continuous daily use beyond 20 days"
+    ],
+    "contraindications": [
+      "Pregnancy",
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "mots-c",
+    "name": "MOTS-c",
+    "category": "Mitochondrial",
+    "icon": "⚙️",
+    "purpose": "Mitochondrial-derived peptide that activates AMPK and modulates metabolic homeostasis.",
+    "benefits": [
+      "Insulin sensitivity",
+      "Exercise performance / VO2",
+      "Fat oxidation",
+      "Metabolic flexibility"
+    ],
+    "protocol": {
+      "doseRange": "5–10 mg, 2–3× weekly",
+      "defaultDoseMcg": 10000,
+      "timing": "Pre-workout",
+      "cycle": "4–6 weeks · break",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "NAD+",
+      "SS-31"
+    ],
+    "avoid": [
+      "Concurrent hypoglycemia-prone fasting"
+    ],
+    "contraindications": [
+      "Hypoglycemia susceptibility",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ss31",
+    "name": "SS-31 (Elamipretide)",
+    "category": "Mitochondrial",
+    "icon": "⚛️",
+    "purpose": "Cardiolipin-stabilizing peptide protecting inner mitochondrial membrane integrity.",
+    "benefits": [
+      "Mitochondrial membrane stabilization",
+      "Cardiac/skeletal muscle protection",
+      "Energy improvement"
+    ],
+    "protocol": {
+      "doseRange": "4 mg daily (split AM/PM)",
+      "defaultDoseMcg": 4000,
+      "timing": "AM and evening",
+      "cycle": "4–6 weeks",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 50,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Run BEFORE MOTS-c"
+    ],
+    "avoid": [
+      "No major interactions documented"
+    ],
+    "contraindications": [
+      "Pregnancy",
+      "Severe cardiac arrhythmia"
+    ]
+  },
+  {
+    "id": "nad",
+    "name": "NAD+ (injectable)",
+    "category": "Mitochondrial",
+    "icon": "⚡",
+    "purpose": "Coenzyme essential for sirtuin activation, redox balance, mitochondrial energy.",
+    "benefits": [
+      "Cellular energy",
+      "Sirtuin / longevity signaling",
+      "Cognitive clarity",
+      "Recovery"
+    ],
+    "protocol": {
+      "doseRange": "50–100 mg, 2–3× weekly",
+      "defaultDoseMcg": 100000,
+      "timing": "Daytime — inject SLOWLY",
+      "cycle": "Indefinite cyclic",
+      "cycleDays": 30,
+      "route": "SubQ (slow)"
+    },
+    "reconstitution": {
+      "typicalVialMg": 500,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "MOTS-c",
+      "Oral NMN/NR"
+    ],
+    "avoid": [
+      "Fast injection",
+      "Pre-bed"
+    ],
+    "contraindications": [
+      "Pregnancy",
+      "Active anxiety disorder"
+    ]
+  },
+  {
+    "id": "semax",
+    "name": "Semax",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "ACTH(4-10) analog with neuroprotective and BDNF-modulating effects.",
+    "benefits": [
+      "Focus, attention, mental energy",
+      "BDNF expression",
+      "Neuroprotection"
+    ],
+    "protocol": {
+      "doseRange": "200–1000 mcg intranasal",
+      "defaultDoseMcg": 600,
+      "timing": "AM / early afternoon",
+      "cycle": "10–14 days · break",
+      "cycleDays": 12,
+      "route": "Intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 30,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Selank (AM/PM)",
+      "Cerebrolysin"
+    ],
+    "avoid": [
+      "Late-evening dosing"
+    ],
+    "contraindications": [
+      "Severe anxiety disorder",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "selank",
+    "name": "Selank",
+    "category": "Cognitive",
+    "icon": "🌊",
+    "purpose": "Tuftsin analog with anxiolytic, immunomodulatory, gentle cognitive effects.",
+    "benefits": [
+      "Anxiety reduction",
+      "Calm focus",
+      "Mood support"
+    ],
+    "protocol": {
+      "doseRange": "250–500 mcg intranasal",
+      "defaultDoseMcg": 400,
+      "timing": "Any time",
+      "cycle": "10–14 days · break",
+      "cycleDays": 12,
+      "route": "Intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Semax (AM/PM)"
+    ],
+    "avoid": [
+      "No significant negatives"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "tirzepatide",
+    "name": "Tirzepatide",
+    "category": "GLP-1 / Metabolic",
+    "icon": "📉",
+    "purpose": "Dual GIP/GLP-1 receptor agonist for glucose control and significant weight reduction.",
+    "benefits": [
+      "Strong weight loss",
+      "A1c reduction",
+      "Appetite / satiety modulation"
+    ],
+    "protocol": {
+      "doseRange": "2.5 mg → 5–15 mg weekly",
+      "defaultDoseMcg": 2500,
+      "timing": "Same day weekly",
+      "cycle": "Long-term, slow titration",
+      "cycleDays": 84,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Cagrilintide",
+      "Resistance training"
+    ],
+    "avoid": [
+      "Other GLP-1s simultaneously",
+      "Rapid up-titration"
+    ],
+    "contraindications": [
+      "Personal/family MTC",
+      "MEN2",
+      "Severe gastroparesis",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "semaglutide",
+    "name": "Semaglutide",
+    "category": "GLP-1 / Metabolic",
+    "icon": "📉",
+    "purpose": "Long-acting GLP-1 receptor agonist for type-2 diabetes and obesity.",
+    "benefits": [
+      "Weight loss",
+      "A1c reduction",
+      "Cardiovascular benefit"
+    ],
+    "protocol": {
+      "doseRange": "0.25 mg → 2.4 mg weekly",
+      "defaultDoseMcg": 250,
+      "timing": "Same day weekly",
+      "cycle": "Long-term, slow titration",
+      "cycleDays": 84,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Cagrilintide"
+    ],
+    "avoid": [
+      "Other GLP-1s simultaneously"
+    ],
+    "contraindications": [
+      "Personal/family MTC",
+      "MEN2",
+      "Severe gastroparesis"
+    ]
+  },
+  {
+    "id": "retatrutide",
+    "name": "Retatrutide (3RT)",
+    "category": "GLP-1 / Metabolic",
+    "icon": "📉",
+    "purpose": "Triple agonist (GLP-1 / GIP / glucagon) with the strongest weight-loss data.",
+    "benefits": [
+      "Aggressive weight reduction",
+      "A1c improvement",
+      "Hepatic fat reduction"
+    ],
+    "protocol": {
+      "doseRange": "1 mg → 12 mg weekly",
+      "defaultDoseMcg": 1000,
+      "timing": "Same day weekly",
+      "cycle": "Long-term, slow titration",
+      "cycleDays": 84,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Cagrilintide",
+      "Resistance training"
+    ],
+    "avoid": [
+      "Other GLP-1s simultaneously"
+    ],
+    "contraindications": [
+      "Personal/family MTC",
+      "MEN2",
+      "Severe gastroparesis"
+    ]
+  },
+  {
+    "id": "cagrilintide",
+    "name": "Cagrilintide",
+    "category": "GLP-1 / Metabolic",
+    "icon": "📉",
+    "purpose": "Long-acting amylin analog enhancing satiety; pairs with GLP-1 agonists.",
+    "benefits": [
+      "Satiety amplification",
+      "Slower gastric emptying",
+      "Smoother glucose"
+    ],
+    "protocol": {
+      "doseRange": "0.16–2.4 mg weekly",
+      "defaultDoseMcg": 600,
+      "timing": "Same day weekly",
+      "cycle": "Long-term titration",
+      "cycleDays": 84,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Semaglutide",
+      "Tirzepatide",
+      "Retatrutide"
+    ],
+    "avoid": [
+      "Solo amylin without GLP-1"
+    ],
+    "contraindications": [
+      "Severe gastroparesis",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "melanotan2",
+    "name": "Melanotan II",
+    "category": "Tissue / Cosmetic",
+    "icon": "☀️",
+    "purpose": "Melanocortin receptor agonist increasing eumelanin (tan) with libido side effects.",
+    "benefits": [
+      "Tanning with reduced UV",
+      "Libido (MC4R)"
+    ],
+    "protocol": {
+      "doseRange": "0.25–1 mg, 2–3× weekly",
+      "defaultDoseMcg": 500,
+      "timing": "Evening (reduces nausea)",
+      "cycle": "Loading → maintenance",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "UV exposure"
+    ],
+    "avoid": [
+      "PT-141 same day",
+      "Atypical moles"
+    ],
+    "contraindications": [
+      "Melanoma history",
+      "Atypical moles",
+      "Uncontrolled HTN"
+    ]
+  },
+  {
+    "id": "pt141",
+    "name": "PT-141 (Bremelanotide)",
+    "category": "Tissue / Cosmetic",
+    "icon": "❤️",
+    "purpose": "Melanocortin agonist for libido and sexual function (FDA-approved as Vyleesi).",
+    "benefits": [
+      "Libido enhancement",
+      "Erectile function",
+      "Centrally-acting"
+    ],
+    "protocol": {
+      "doseRange": "0.5–2 mg as needed",
+      "defaultDoseMcg": 1000,
+      "timing": "45 min before activity",
+      "cycle": "As-needed",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Standalone"
+    ],
+    "avoid": [
+      "Melanotan II same day",
+      "Hypertension"
+    ],
+    "contraindications": [
+      "Cardiovascular disease",
+      "Uncontrolled HTN"
+    ]
+  },
+  {
+    "id": "kpv",
+    "name": "KPV",
+    "category": "Healing",
+    "icon": "🌿",
+    "purpose": "Tripeptide derived from α-MSH with anti-inflammatory effects.",
+    "benefits": [
+      "Gut inflammation reduction",
+      "Anti-inflammatory",
+      "Wound healing"
+    ],
+    "protocol": {
+      "doseRange": "200–500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM, fasted",
+      "cycle": "4–6 weeks",
+      "cycleDays": 35,
+      "route": "SubQ or oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "BPC-157 (gut healing)"
+    ],
+    "avoid": [
+      "No major issues documented"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "dsip",
+    "name": "DSIP",
+    "category": "Cognitive",
+    "icon": "😴",
+    "purpose": "Delta Sleep-Inducing Peptide; may improve sleep architecture and pain modulation.",
+    "benefits": [
+      "Improved sleep onset",
+      "Slow-wave sleep",
+      "Pain modulation"
+    ],
+    "protocol": {
+      "doseRange": "100–500 mcg pre-bed",
+      "defaultDoseMcg": 200,
+      "timing": "30 min before sleep",
+      "cycle": "5–10 nights · break",
+      "cycleDays": 10,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Epitalon",
+      "Magnesium"
+    ],
+    "avoid": [
+      "Other sedatives"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "humanin",
+    "name": "Humanin",
+    "category": "Mitochondrial",
+    "icon": "⚛️",
+    "purpose": "Mitochondrial-derived peptide with broad metabolic, neuroprotective, and cardiovascular effects.",
+    "benefits": [
+      "Mitochondrial protection",
+      "Insulin sensitivity",
+      "Cognitive support",
+      "Cardiovascular health"
+    ],
+    "protocol": {
+      "doseRange": "1 mg 3× weekly (M/W/F)",
+      "defaultDoseMcg": 1000,
+      "timing": "AM pre-cardio",
+      "cycle": "4-6 weeks",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "MOTS-c",
+      "SS-31"
+    ],
+    "avoid": [
+      "Concurrent strong glucose lowering"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "frag-176-191",
+    "name": "HGH Frag 176-191",
+    "category": "GH Secretagogue",
+    "icon": "🔥",
+    "purpose": "GH C-terminal fragment promoting fat oxidation without raising IGF-1 or affecting glucose.",
+    "benefits": [
+      "Targeted fat loss",
+      "No IGF-1 elevation",
+      "Pre-workout fat oxidation"
+    ],
+    "protocol": {
+      "doseRange": "200-500 mcg pre-workout",
+      "defaultDoseMcg": 200,
+      "timing": "AM fasted, pre-workout",
+      "cycle": "4-12 weeks",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Fasted cardio",
+      "CJC-1295"
+    ],
+    "avoid": [
+      "Eating immediately before/after"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ace-031",
+    "name": "ACE-031",
+    "category": "GH Secretagogue",
+    "icon": "💪",
+    "purpose": "Soluble activin receptor type IIB that inhibits myostatin pathway for muscle growth.",
+    "benefits": [
+      "Myostatin inhibition",
+      "Muscle hypertrophy",
+      "Bone density"
+    ],
+    "protocol": {
+      "doseRange": "1 mg over 2 weeks",
+      "defaultDoseMcg": 500,
+      "timing": "Any time",
+      "cycle": "2-4 weeks",
+      "cycleDays": 14,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 1,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Resistance training",
+      "Follistatin"
+    ],
+    "avoid": [
+      "Long-term use without monitoring"
+    ],
+    "contraindications": [
+      "Pregnancy",
+      "Cardiovascular disease"
+    ]
+  },
+  {
+    "id": "follistatin",
+    "name": "Follistatin",
+    "category": "GH Secretagogue",
+    "icon": "💪",
+    "purpose": "Glycoprotein that binds and inhibits myostatin, promoting strong muscle growth.",
+    "benefits": [
+      "Strong muscle hypertrophy",
+      "Myostatin neutralization",
+      "Recovery"
+    ],
+    "protocol": {
+      "doseRange": "100 mcg - 1 mg",
+      "defaultDoseMcg": 1000,
+      "timing": "Any time",
+      "cycle": "Single shot or short cycle",
+      "cycleDays": 10,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 1,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Resistance training",
+      "ACE-031"
+    ],
+    "avoid": [
+      "Excessive dosing"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "cerebrolysin",
+    "name": "Cerebrolysin",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Porcine brain-derived neurotrophic factors mixture; massively boosts BDNF.",
+    "benefits": [
+      "Massive BDNF boost",
+      "Neuroprotection",
+      "Cognitive enhancement",
+      "Stroke recovery research"
+    ],
+    "protocol": {
+      "doseRange": "5-10 mL (split L/R shoulder)",
+      "defaultDoseMcg": 10000,
+      "timing": "Evening, every 2-3 days",
+      "cycle": "2 weeks",
+      "cycleDays": 14,
+      "route": "IM"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Semax",
+      "Selank"
+    ],
+    "avoid": [
+      "Concurrent SSRIs (caution)"
+    ],
+    "contraindications": [
+      "Severe kidney disease",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "pe-22-28",
+    "name": "PE-22-28",
+    "category": "Cognitive",
+    "icon": "🌊",
+    "purpose": "Spadin analog with antidepressant and neuroprotective effects via TREK-1 inhibition.",
+    "benefits": [
+      "Mental workflow / focus",
+      "Calmness",
+      "Mood elevation",
+      "Anti-anxiety"
+    ],
+    "protocol": {
+      "doseRange": "500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM, M-F",
+      "cycle": "4 weeks",
+      "cycleDays": 28,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Selank",
+      "Semax"
+    ],
+    "avoid": [
+      "Late-evening dosing"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "foxo4-dri",
+    "name": "FOXO4-DRI",
+    "category": "Longevity",
+    "icon": "⏳",
+    "purpose": "Senolytic peptide that selectively triggers apoptosis in senescent cells.",
+    "benefits": [
+      "Clears senescent cells",
+      "Anti-aging signaling",
+      "Tissue rejuvenation"
+    ],
+    "protocol": {
+      "doseRange": "5-10 mg total over weekend",
+      "defaultDoseMcg": 5000,
+      "timing": "Sat AM + Sun AM",
+      "cycle": "2-day burst, 2-3× year",
+      "cycleDays": 2,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Cycle every 3-6 months"
+    ],
+    "avoid": [
+      "Continuous use",
+      "Active infection"
+    ],
+    "contraindications": [
+      "Pregnancy",
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "thymalin",
+    "name": "Thymalin",
+    "category": "Immune",
+    "icon": "🛡️",
+    "purpose": "Thymus extract bioregulator; regenerates the thymus gland and boosts immune cells.",
+    "benefits": [
+      "Thymus regeneration",
+      "NK cell boost",
+      "Immunosenescence reversal"
+    ],
+    "protocol": {
+      "doseRange": "10 mg daily",
+      "defaultDoseMcg": 10000,
+      "timing": "Any time",
+      "cycle": "10 days · cycle every 6 months",
+      "cycleDays": 10,
+      "route": "IM"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Thymosin Alpha-1"
+    ],
+    "avoid": [
+      "Active autoimmune flare"
+    ],
+    "contraindications": [
+      "Active autoimmune",
+      "Organ transplant"
+    ]
+  },
+  {
+    "id": "vip",
+    "name": "VIP",
+    "category": "Immune",
+    "icon": "🌬️",
+    "purpose": "Vasoactive Intestinal Peptide; lowers BP, modulates inflammation, supports cognition.",
+    "benefits": [
+      "Blood pressure reduction",
+      "Cognitive multitasking",
+      "Anti-inflammatory",
+      "Mast cell stability"
+    ],
+    "protocol": {
+      "doseRange": "100 mcg daily",
+      "defaultDoseMcg": 100,
+      "timing": "AM pre-workout",
+      "cycle": "5 days/wk or 16 days straight",
+      "cycleDays": 16,
+      "route": "SubQ or intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 1,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Anti-inflammatory stacks"
+    ],
+    "avoid": [
+      "Hypotension"
+    ],
+    "contraindications": [
+      "Severe hypotension",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ll-37",
+    "name": "LL-37",
+    "category": "Immune",
+    "icon": "🦠",
+    "purpose": "Cathelicidin antimicrobial peptide with broad antibacterial/antifungal activity.",
+    "benefits": [
+      "Antimicrobial",
+      "Antifungal",
+      "Wound healing",
+      "Immune modulation"
+    ],
+    "protocol": {
+      "doseRange": "100-500 mcg local",
+      "defaultDoseMcg": 300,
+      "timing": "Local injection at site",
+      "cycle": "As needed",
+      "cycleDays": 14,
+      "route": "SubQ (local)"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Topical antifungals"
+    ],
+    "avoid": [
+      "Systemic high-dose without monitoring"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "kisspeptin-10",
+    "name": "Kisspeptin-10",
+    "category": "GLP-1 / Metabolic",
+    "icon": "❤️",
+    "purpose": "Neuropeptide that triggers GnRH release; supports HPG axis function.",
+    "benefits": [
+      "LH/FSH/Test elevation",
+      "Libido",
+      "Fertility support"
+    ],
+    "protocol": {
+      "doseRange": "250 mcg 3× weekly",
+      "defaultDoseMcg": 250,
+      "timing": "AM",
+      "cycle": "6-8 weeks",
+      "cycleDays": 45,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Standalone or with HCG"
+    ],
+    "avoid": [
+      "Concurrent strong HPG suppressants"
+    ],
+    "contraindications": [
+      "Hormone-sensitive cancers",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "oxytocin",
+    "name": "Oxytocin",
+    "category": "Tissue / Cosmetic",
+    "icon": "💗",
+    "purpose": "Bonding hormone with effects on social cognition, mood, and sexual response.",
+    "benefits": [
+      "Mood elevation",
+      "Bonding / social",
+      "Anti-anxiety",
+      "Libido"
+    ],
+    "protocol": {
+      "doseRange": "100-150 mcg daily",
+      "defaultDoseMcg": 150,
+      "timing": "Early evening (~6 PM)",
+      "cycle": "Up to 10 weeks",
+      "cycleDays": 70,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Standalone"
+    ],
+    "avoid": [
+      "Hyponatremia risk"
+    ],
+    "contraindications": [
+      "Severe heart disease",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "cartalax",
+    "name": "Cartalax",
+    "category": "Healing",
+    "icon": "🦴",
+    "purpose": "Cartilage tissue bioregulator; supports joint and connective tissue repair.",
+    "benefits": [
+      "Cartilage repair",
+      "Joint support",
+      "Connective tissue regeneration"
+    ],
+    "protocol": {
+      "doseRange": "2 caps 2×/day OR 2 mg/day inj",
+      "defaultDoseMcg": 2000,
+      "timing": "AM/PM",
+      "cycle": "10-15 days",
+      "cycleDays": 15,
+      "route": "Oral or SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "BPC-157",
+      "TB-500"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "pielotax",
+    "name": "Pielotax",
+    "category": "Healing",
+    "icon": "🧫",
+    "purpose": "Kidney tissue bioregulator (oral capsules); supports renal function.",
+    "benefits": [
+      "Kidney function support",
+      "Tissue bioregulation"
+    ],
+    "protocol": {
+      "doseRange": "2 caps AM × 15 days",
+      "defaultDoseMcg": 0,
+      "timing": "AM, before breakfast",
+      "cycle": "15 days",
+      "cycleDays": 15,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Reini Salman"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "svetinorm",
+    "name": "Svetinorm",
+    "category": "Healing",
+    "icon": "🫁",
+    "purpose": "Liver tissue bioregulator (oral); supports hepatic function and detox.",
+    "benefits": [
+      "Liver support",
+      "Detox support"
+    ],
+    "protocol": {
+      "doseRange": "2 caps daily (AM/PM)",
+      "defaultDoseMcg": 0,
+      "timing": "Empty stomach AM/PM",
+      "cycle": "30 days",
+      "cycleDays": 30,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Hepatamin"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ventfort",
+    "name": "Ventfort",
+    "category": "Healing",
+    "icon": "🩸",
+    "purpose": "Vascular tissue bioregulator (oral); supports blood vessel and endothelial health.",
+    "benefits": [
+      "Vascular support",
+      "Endothelial function"
+    ],
+    "protocol": {
+      "doseRange": "2 caps daily",
+      "defaultDoseMcg": 0,
+      "timing": "AM/PM before meals",
+      "cycle": "15 days",
+      "cycleDays": 15,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "NAD+",
+      "SS-31"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "vilon",
+    "name": "Vilon",
+    "category": "Immune",
+    "icon": "🛡️",
+    "purpose": "Immune tissue bioregulator (short peptide); supports immunity.",
+    "benefits": [
+      "Immune support",
+      "Bioregulation"
+    ],
+    "protocol": {
+      "doseRange": "2 mg daily",
+      "defaultDoseMcg": 2000,
+      "timing": "Any time",
+      "cycle": "10 days",
+      "cycleDays": 10,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 2,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Thymalin",
+      "TA-1"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "hepatamin",
+    "name": "Hepatamin",
+    "category": "Healing",
+    "icon": "🫁",
+    "purpose": "Liver organ-derived bioregulator (oral capsules).",
+    "benefits": [
+      "Liver function support",
+      "Detox"
+    ],
+    "protocol": {
+      "doseRange": "Per package directions",
+      "defaultDoseMcg": 0,
+      "timing": "AM",
+      "cycle": "20 days",
+      "cycleDays": 20,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Svetinorm"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "reini-salman",
+    "name": "Reini Salman",
+    "category": "Healing",
+    "icon": "🧫",
+    "purpose": "Kidney bioregulator (alternative oral formulation).",
+    "benefits": [
+      "Kidney support"
+    ],
+    "protocol": {
+      "doseRange": "4 pills daily",
+      "defaultDoseMcg": 0,
+      "timing": "AM/PM before eating",
+      "cycle": "10 days",
+      "cycleDays": 10,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Pielotax"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "5-amino-1mq",
+    "name": "5-Amino-1MQ",
+    "category": "GLP-1 / Metabolic",
+    "icon": "📉",
+    "purpose": "NNMT inhibitor (small molecule) that boosts SAM and NAD+ for fat loss and metabolism.",
+    "benefits": [
+      "Fat loss",
+      "Metabolic flexibility",
+      "NAD+ boost",
+      "Insulin sensitivity"
+    ],
+    "protocol": {
+      "doseRange": "50 mg rest, 100 mg cardio days",
+      "defaultDoseMcg": 50000,
+      "timing": "AM",
+      "cycle": "30-42 days",
+      "cycleDays": 35,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "MOTS-c",
+      "Cardio"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "slu-pp-332",
+    "name": "SLU-PP-332",
+    "category": "GLP-1 / Metabolic",
+    "icon": "⚡",
+    "purpose": "ERR (estrogen-related receptor) agonist (small molecule); exercise mimetic.",
+    "benefits": [
+      "Endurance enhancement",
+      "Fat oxidation",
+      "Mitochondrial biogenesis"
+    ],
+    "protocol": {
+      "doseRange": "500-1000 mcg",
+      "defaultDoseMcg": 1000,
+      "timing": "Pre-workout AM",
+      "cycle": "4-6 weeks",
+      "cycleDays": 35,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "MOTS-c",
+      "Cardio"
+    ],
+    "avoid": [
+      "Excessive dosing"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "hcg",
+    "name": "HCG",
+    "category": "GLP-1 / Metabolic",
+    "icon": "💉",
+    "purpose": "Human Chorionic Gonadotropin; mimics LH to maintain testicular function during TRT or restart natural production.",
+    "benefits": [
+      "Maintains testicle size on TRT",
+      "Natural production restart",
+      "Fertility support"
+    ],
+    "protocol": {
+      "doseRange": "250-500 IU 2-3× weekly",
+      "defaultDoseMcg": 500,
+      "timing": "Same days weekly",
+      "cycle": "Cycled / TRT support",
+      "cycleDays": 84,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "TRT",
+      "Kisspeptin-10"
+    ],
+    "avoid": [
+      "Excessive doses (estrogen)"
+    ],
+    "contraindications": [
+      "Hormone-sensitive cancers",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "dihexa",
+    "name": "Dihexa",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Hepatocyte growth factor analog; nootropic with strong synaptogenic effects.",
+    "benefits": [
+      "Synapse formation",
+      "Memory enhancement",
+      "Long-term potentiation"
+    ],
+    "protocol": {
+      "doseRange": "5-25 mg oral daily",
+      "defaultDoseMcg": 5000,
+      "timing": "AM with food",
+      "cycle": "4-12 weeks",
+      "cycleDays": 60,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Cerebrolysin",
+      "Lion's Mane"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Active malignancy (caution)",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "ara-290",
+    "name": "ARA-290 (Cibinetide)",
+    "category": "Healing",
+    "icon": "🩹",
+    "purpose": "EPO-derived peptide for neuropathic pain and anti-inflammatory effects.",
+    "benefits": [
+      "Neuropathy relief",
+      "Anti-inflammatory",
+      "Tissue repair"
+    ],
+    "protocol": {
+      "doseRange": "4-16 mg daily",
+      "defaultDoseMcg": 8000,
+      "timing": "Any time",
+      "cycle": "4-12 weeks",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 16,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "BPC-157",
+      "TB-500"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "pinealon",
+    "name": "Pinealon",
+    "category": "Cognitive",
+    "icon": "🌙",
+    "purpose": "Tripeptide bioregulator targeting pineal function and circadian rhythm.",
+    "benefits": [
+      "Cognitive support",
+      "Anti-aging",
+      "Circadian rhythm support"
+    ],
+    "protocol": {
+      "doseRange": "2-10 mg daily",
+      "defaultDoseMcg": 5000,
+      "timing": "AM",
+      "cycle": "10-20 days · 3-6 mo break",
+      "cycleDays": 14,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Epitalon",
+      "Selank"
+    ],
+    "avoid": [
+      "Continuous use beyond 20 days"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "aod9604",
+    "name": "AOD9604",
+    "category": "GH Secretagogue",
+    "icon": "🔥",
+    "purpose": "Modified GH fragment (176-191) for fat oxidation without IGF-1 elevation.",
+    "benefits": [
+      "Fat oxidation",
+      "Pre-workout",
+      "No IGF-1 effect"
+    ],
+    "protocol": {
+      "doseRange": "300-500 mcg pre-workout",
+      "defaultDoseMcg": 400,
+      "timing": "AM fasted, pre-workout",
+      "cycle": "4-12 weeks",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Fasted cardio",
+      "HGH Frag"
+    ],
+    "avoid": [
+      "Eating immediately before/after"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "adamax",
+    "name": "Adamax",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Russian short peptide bioregulator (Lys-Glu-Asp-Trp); cognitive and prostate support.",
+    "benefits": [
+      "Cognitive support",
+      "Prostate health",
+      "Bioregulation"
+    ],
+    "protocol": {
+      "doseRange": "1-2 mg daily",
+      "defaultDoseMcg": 1500,
+      "timing": "AM",
+      "cycle": "10-20 days",
+      "cycleDays": 14,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Pinealon",
+      "Selank"
+    ],
+    "avoid": [
+      "No major issues"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "wolverine",
+    "ingredients": {
+      "bpc157": 0.5,
+      "tb500": 0.5
+    },
+    "name": "Wolverine (BPC + TB)",
+    "category": "Healing",
+    "icon": "🛡️",
+    "purpose": "Stack: BPC-157 + TB-500 for systemic recovery and tissue repair.",
+    "benefits": [
+      "Soft-tissue healing",
+      "Joint repair",
+      "Recovery"
+    ],
+    "protocol": {
+      "doseRange": "500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM/PM",
+      "cycle": "4-6 weeks",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 20,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "GHK-Cu"
+    ],
+    "avoid": [
+      "Continuous use"
+    ],
+    "contraindications": [
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "klow",
+    "ingredients": {
+      "bpc157": 0.125,
+      "ghk-cu": 0.625,
+      "kpv": 0.125,
+      "tb500": 0.125
+    },
+    "name": "KLOW Stack (GHK/KPV/BPC/TB)",
+    "category": "Healing",
+    "icon": "💎",
+    "purpose": "Premium stack: GHK-Cu, KPV, BPC-157, TB-500 for skin/hair/tissue.",
+    "benefits": [
+      "Skin/hair",
+      "Tissue repair",
+      "Anti-inflammatory"
+    ],
+    "protocol": {
+      "doseRange": "~1 mL daily",
+      "defaultDoseMcg": 2000,
+      "timing": "Evening",
+      "cycle": "30 days",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 80,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Microneedling"
+    ],
+    "avoid": [
+      "Wilson's disease"
+    ],
+    "contraindications": [
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "glow",
+    "ingredients": {
+      "bpc157": 0.143,
+      "ghk-cu": 0.714,
+      "tb500": 0.143
+    },
+    "name": "GLOW Stack (GHK/BPC/TB)",
+    "category": "Healing",
+    "icon": "✨",
+    "purpose": "Stack: GHK-Cu + BPC-157 + TB-500 for skin glow and tissue repair.",
+    "benefits": [
+      "Skin elasticity",
+      "Tissue repair",
+      "Hair density"
+    ],
+    "protocol": {
+      "doseRange": "~1 mL daily",
+      "defaultDoseMcg": 1500,
+      "timing": "Evening",
+      "cycle": "30 days",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 70,
+      "defaultDiluentMl": 5
+    },
+    "synergy": [
+      "Microneedling"
+    ],
+    "avoid": [
+      "Wilson's disease"
+    ],
+    "contraindications": [
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "fit",
+    "ingredients": {
+      "cjc1295-no-dac": 0.5,
+      "ipamorelin": 0.5
+    },
+    "name": "FIT Stack (CJC + Ipa)",
+    "category": "GH Secretagogue",
+    "icon": "⚡",
+    "purpose": "Stack: CJC-1295 (no DAC) + Ipamorelin for pulsatile GH.",
+    "benefits": [
+      "GH pulse",
+      "Sleep",
+      "Recovery"
+    ],
+    "protocol": {
+      "doseRange": "200 mcg of each",
+      "defaultDoseMcg": 200,
+      "timing": "Nighttime fasted",
+      "cycle": "5 on / 2 off · 8-12w",
+      "cycleDays": 60,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Tesamorelin"
+    ],
+    "avoid": [
+      "Eating within 2h"
+    ],
+    "contraindications": [
+      "Active malignancy",
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "coremend",
+    "ingredients": {
+      "bpc157": 0.333,
+      "kpv": 0.333,
+      "tb500": 0.333
+    },
+    "name": "Coremend Blend (KPV/BPC/TB)",
+    "category": "Healing",
+    "icon": "🩹",
+    "purpose": "Stack: KPV + BPC-157 + TB-500 for gut and tissue healing.",
+    "benefits": [
+      "Gut repair",
+      "Tissue healing",
+      "Anti-inflammatory"
+    ],
+    "protocol": {
+      "doseRange": "500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM",
+      "cycle": "4-6 weeks",
+      "cycleDays": 35,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 35,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "GHK-Cu"
+    ],
+    "avoid": [
+      "Continuous use"
+    ],
+    "contraindications": [
+      "Active malignancy"
+    ]
+  },
+  {
+    "id": "pe-pin-sel",
+    "ingredients": {
+      "pe-22-28": 0.333,
+      "pinealon": 0.333,
+      "selank": 0.333
+    },
+    "name": "PE-22-28 + Pinealon + Selank",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Cognitive blend: PE-22-28 (focus) + Pinealon (circadian) + Selank (calm).",
+    "benefits": [
+      "Focus",
+      "Mood",
+      "Anti-anxiety",
+      "Circadian"
+    ],
+    "protocol": {
+      "doseRange": "500 mcg daily",
+      "defaultDoseMcg": 500,
+      "timing": "AM, M-F",
+      "cycle": "4 weeks",
+      "cycleDays": 28,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 30,
+      "defaultDiluentMl": 3
+    },
+    "synergy": [
+      "Cerebrolysin"
+    ],
+    "avoid": [
+      "Late-evening dosing"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "igf1-lr3",
+    "name": "IGF-1 LR3",
+    "category": "Anabolic",
+    "icon": "💪",
+    "purpose": "Long-acting IGF-1 analogue (~20-30h); direct anabolic signaling — muscle hyperplasia/hypertrophy, nutrient partitioning.",
+    "benefits": [
+      "Muscle growth",
+      "Recovery",
+      "Nutrient partitioning"
+    ],
+    "protocol": {
+      "doseRange": "20-50 mcg/day",
+      "defaultDoseMcg": 40,
+      "timing": "AM or post-workout",
+      "cycle": "4 weeks on / 4+ off",
+      "cycleDays": 28,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 1,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [
+      "Tesamorelin",
+      "Testosterone"
+    ],
+    "avoid": [
+      "Dihexa (oncogenic synergy)",
+      "Continuous use"
+    ],
+    "contraindications": [
+      "Active/suspected malignancy",
+      "Family cancer history — surveil"
+    ]
+  },
+  {
+    "id": "lgd-4033",
+    "name": "LGD-4033 (Ligandrol)",
+    "category": "Anabolic",
+    "icon": "⚗️",
+    "purpose": "Oral SARM — selective androgen receptor agonist; muscle/strength with less androgenic effect than testosterone.",
+    "benefits": [
+      "Lean mass",
+      "Strength",
+      "Recomp"
+    ],
+    "protocol": {
+      "doseRange": "5-10 mg/day",
+      "defaultDoseMcg": 5000,
+      "timing": "AM",
+      "cycle": "6-8 weeks",
+      "cycleDays": 56,
+      "route": "Oral/Sublingual"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Testosterone"
+    ],
+    "avoid": [
+      "Stacking on already-high androgen load"
+    ],
+    "contraindications": [
+      "Hepatic concern (raises ALT/AST)",
+      "Crushes HDL — monitor lipids"
+    ]
+  },
+  {
+    "id": "j-147",
+    "name": "J-147",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Curcumin-derived neuroprotective; targets mitochondrial ATP synthase, enhances neurogenesis. Strong Alzheimer's/aging preclinical data.",
+    "benefits": [
+      "Neuroprotection",
+      "Neurogenesis",
+      "Mitochondrial support",
+      "Cognitive"
+    ],
+    "protocol": {
+      "doseRange": "10-50 mg/day",
+      "defaultDoseMcg": 10000,
+      "timing": "AM",
+      "cycle": "Ongoing",
+      "cycleDays": 90,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Mitochondrial peptides"
+    ],
+    "avoid": [],
+    "contraindications": [
+      "Limited human data"
+    ]
+  },
+  {
+    "id": "atx-304",
+    "name": "ATX-304",
+    "category": "Metabolic",
+    "icon": "🔥",
+    "purpose": "Direct pan-AMPK activator (oral); fat oxidation, insulin sensitivity, mitochondrial signaling — exercise mimetic.",
+    "benefits": [
+      "Fat oxidation",
+      "Insulin sensitivity",
+      "Metabolic"
+    ],
+    "protocol": {
+      "doseRange": "25-50 mg/day",
+      "defaultDoseMcg": 25000,
+      "timing": "AM",
+      "cycle": "Ongoing",
+      "cycleDays": 60,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "MOTS-c (AMPK overlap — redundant)"
+    ],
+    "contraindications": [
+      "Experimental"
+    ]
+  },
+  {
+    "id": "flrg242",
+    "name": "FLRG242",
+    "category": "Anabolic",
+    "icon": "💪",
+    "purpose": "Follistatin-based myostatin inhibitor; muscle growth via myostatin/activin neutralization. More selective than ActRIIB traps (skips BMP9/10 vascular toxicity).",
+    "benefits": [
+      "Muscle growth",
+      "Recomp"
+    ],
+    "protocol": {
+      "doseRange": "100 mcg/day or 5mg q2wk",
+      "defaultDoseMcg": 100,
+      "timing": "AM",
+      "cycle": "20-30 days",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 5,
+      "defaultDiluentMl": 1
+    },
+    "synergy": [
+      "Testosterone",
+      "IGF-1"
+    ],
+    "avoid": [
+      "ACE-031 (additive myostatin/activin)"
+    ],
+    "contraindications": [
+      "Experimental",
+      "Suppresses FSH"
+    ]
+  },
+  {
+    "id": "melanotan1",
+    "name": "Melanotan I",
+    "category": "Other",
+    "icon": "☀️",
+    "purpose": "MC1R-selective melanocortin — tanning + UV photoprotection via melanin. Minimal MC4R (little libido/nausea vs MT-2).",
+    "benefits": [
+      "Tanning",
+      "Photoprotection"
+    ],
+    "protocol": {
+      "doseRange": "250-500 mcg/day load",
+      "defaultDoseMcg": 250,
+      "timing": "Any",
+      "cycle": "Load then maintain",
+      "cycleDays": 30,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 10,
+      "defaultDiluentMl": 2
+    },
+    "synergy": [],
+    "avoid": [],
+    "contraindications": [
+      "Darkens moles — melanoma surveillance"
+    ]
+  },
+  {
+    "id": "orexin-a",
+    "name": "Orexin-A",
+    "category": "Cognitive",
+    "icon": "⚡",
+    "purpose": "Wakefulness/arousal neuropeptide (intranasal); daytime alertness, focus, mood.",
+    "benefits": [
+      "Wakefulness",
+      "Alertness",
+      "Focus"
+    ],
+    "protocol": {
+      "doseRange": "PRN intranasal",
+      "defaultDoseMcg": 0,
+      "timing": "AM only",
+      "cycle": "PRN",
+      "cycleDays": 30,
+      "route": "Intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "Afternoon/evening dosing (fragments sleep)"
+    ],
+    "contraindications": [
+      "Sleep disorders — time carefully"
+    ]
+  },
+  {
+    "id": "noopept",
+    "name": "Noopept",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Fast-acting nootropic (intranasal); raises BDNF/NGF, focus and memory.",
+    "benefits": [
+      "Focus",
+      "Memory",
+      "Neuroprotection"
+    ],
+    "protocol": {
+      "doseRange": "PRN intranasal",
+      "defaultDoseMcg": 0,
+      "timing": "AM",
+      "cycle": "Cycle (TrkB hedge)",
+      "cycleDays": 28,
+      "route": "Intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "Continuous use (cycle for TrkB)"
+    ],
+    "contraindications": []
+  },
+  {
+    "id": "adalank",
+    "name": "Adalank",
+    "category": "Cognitive",
+    "icon": "🌊",
+    "purpose": "Selank-type anxiolytic analogue (intranasal); calm, immune, mild cognitive.",
+    "benefits": [
+      "Anti-anxiety",
+      "Calm",
+      "Immune"
+    ],
+    "protocol": {
+      "doseRange": "PRN intranasal",
+      "defaultDoseMcg": 0,
+      "timing": "AM",
+      "cycle": "Cycle",
+      "cycleDays": 28,
+      "route": "Intranasal"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [],
+    "contraindications": []
+  },
+  {
+    "id": "neurolux",
+    "ingredients": {
+      "semax": 0.42,
+      "selank": 0.17,
+      "pinealon": 0.21,
+      "pe-22-28": 0.21
+    },
+    "name": "Neurolux (Semax+Selank+Pinealon+PE22-28)",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Comprehensive cognitive blend: N-Acetyl-Semax 20mg + N-Acetyl-Selank 8mg + Pinealon 10mg + PE22-28 10mg. Focus + calm + circadian in one.",
+    "benefits": [
+      "Focus",
+      "Mood",
+      "Anti-anxiety",
+      "Circadian",
+      "Neuroprotection"
+    ],
+    "protocol": {
+      "doseRange": "~12u/day",
+      "defaultDoseMcg": 500,
+      "timing": "AM",
+      "cycle": "4 on / 2-4 off (TrkB hedge)",
+      "cycleDays": 28,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 48,
+      "defaultDiluentMl": 4.8
+    },
+    "synergy": [],
+    "avoid": [
+      "Running continuously (cycle for TrkB)"
+    ],
+    "contraindications": [
+      "Pregnancy"
+    ]
+  },
+  {
+    "id": "tadalafil",
+    "name": "Tadalafil",
+    "category": "Other",
+    "icon": "❤️",
+    "purpose": "PDE5 inhibitor; vascular/endothelial benefit, erectile function, BPH. Low-dose daily.",
+    "benefits": [
+      "Vascular",
+      "Erectile",
+      "Endothelial",
+      "BPH"
+    ],
+    "protocol": {
+      "doseRange": "2.5-5 mg/day",
+      "defaultDoseMcg": 2500,
+      "timing": "Daily",
+      "cycle": "Ongoing",
+      "cycleDays": 365,
+      "route": "Sublingual/Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "Nitrates"
+    ],
+    "contraindications": [
+      "Nitrate use",
+      "Severe cardiovascular disease"
+    ]
+  },
+  {
+    "id": "anastrozole",
+    "name": "Anastrozole",
+    "category": "Hormone",
+    "icon": "🚫",
+    "purpose": "Aromatase inhibitor — blocks testosterone→estradiol conversion. Manages high E2 on TRT.",
+    "benefits": [
+      "E2 control"
+    ],
+    "protocol": {
+      "doseRange": "0.125-0.5 mg, 1-2x/wk",
+      "defaultDoseMcg": 250,
+      "timing": "PRN to labs",
+      "cycle": "As needed",
+      "cycleDays": 365,
+      "route": "Sublingual/Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "Testosterone"
+    ],
+    "avoid": [
+      "Prophylactic use",
+      "Over-suppression"
+    ],
+    "contraindications": [
+      "Low E2 (<20 — joint/bone/lipid harm)",
+      "Use sensitive E2 assay"
+    ]
+  },
+  {
+    "id": "testosterone",
+    "name": "Testosterone",
+    "category": "Hormone",
+    "icon": "⚡",
+    "purpose": "Primary androgen — anabolic/androgenic baseline. TRT foundation.",
+    "benefits": [
+      "Muscle",
+      "Libido",
+      "Mood",
+      "Energy",
+      "Bone"
+    ],
+    "protocol": {
+      "doseRange": "15-25 mg/day SubQ",
+      "defaultDoseMcg": 20000,
+      "timing": "Daily AM",
+      "cycle": "Ongoing",
+      "cycleDays": 365,
+      "route": "SubQ"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [
+      "HCG (always)",
+      "Anastrozole (if needed)"
+    ],
+    "avoid": [
+      "TRT without HCG"
+    ],
+    "contraindications": [
+      "Polycythemia (monitor HCT)",
+      "Prostate cancer"
+    ]
+  },
+  {
+    "id": "finasteride",
+    "name": "Finasteride",
+    "category": "Other",
+    "icon": "💊",
+    "purpose": "5α-reductase inhibitor — blocks T→DHT. Hair-loss Rx.",
+    "benefits": [
+      "Hair preservation"
+    ],
+    "protocol": {
+      "doseRange": "1 mg/day (or topical)",
+      "defaultDoseMcg": 1000,
+      "timing": "Daily",
+      "cycle": "Ongoing",
+      "cycleDays": 365,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [],
+    "contraindications": [
+      "Watch libido/mood/sleep (allopregnanolone). Topical spares systemic."
+    ]
+  },
+  {
+    "id": "9-me-bc",
+    "name": "9-Me-BC",
+    "category": "Cognitive",
+    "icon": "🧠",
+    "purpose": "Dopaminergic/neurogenic nootropic; dopamine receptor sensitization, neuroprotection.",
+    "benefits": [
+      "Dopaminergic",
+      "Neurogenesis",
+      "Mood"
+    ],
+    "protocol": {
+      "doseRange": "5-20 mg/day",
+      "defaultDoseMcg": 20000,
+      "timing": "AM",
+      "cycle": "Short cycles",
+      "cycleDays": 14,
+      "route": "Oral"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "SSRIs/MAOIs (serotonin syndrome risk)"
+    ],
+    "contraindications": [
+      "Concurrent serotonergics (e.g. sertraline)"
+    ]
+  },
+  {
+    "id": "l-carnitine",
+    "name": "L-Carnitine",
+    "category": "Metabolic",
+    "icon": "🔥",
+    "purpose": "Mitochondrial fatty-acid transport; fat oxidation, energy. (ALCAR variant crosses BBB for cognition.)",
+    "benefits": [
+      "Fat oxidation",
+      "Energy",
+      "Recovery"
+    ],
+    "protocol": {
+      "doseRange": "500-2000 mg",
+      "defaultDoseMcg": 1000000,
+      "timing": "Pre-workout/AM",
+      "cycle": "Ongoing",
+      "cycleDays": 365,
+      "route": "SubQ/IM"
+    },
+    "reconstitution": {
+      "typicalVialMg": 0,
+      "defaultDiluentMl": 0
+    },
+    "synergy": [],
+    "avoid": [
+      "High-dose oral (TMAO via gut FMO3 — injectable/ALCAR preferred)"
+    ],
+    "contraindications": [
+      "Seizure history"
+    ]
+  },
+  {
+    "id": "l-glutathione",
+    "name": "L-Glutathione",
+    "category": "Other",
+    "icon": "🛡️",
+    "purpose": "Master antioxidant; detox, immune, skin. Note: SubQ/IM largely degraded by γ-GT — IV is the effective route.",
+    "benefits": [
+      "Antioxidant",
+      "Detox",
+      "Skin",
+      "Immune"
+    ],
+    "protocol": {
+      "doseRange": "600-1200 mg",
+      "defaultDoseMcg": 1200000,
+      "timing": "2-3x/wk",
+      "cycle": "Ongoing",
+      "cycleDays": 365,
+      "route": "IV (best) / SubQ-IM (low yield)"
+    },
+    "reconstitution": {
+      "typicalVialMg": 1200,
+      "defaultDiluentMl": 3
+    },
+    "synergy": [
+      "NAC",
+      "Glycine",
+      "Vitamin C"
+    ],
+    "avoid": [
+      "SubQ/IM expecting IV-level delivery"
+    ],
+    "contraindications": []
+  }
+]
