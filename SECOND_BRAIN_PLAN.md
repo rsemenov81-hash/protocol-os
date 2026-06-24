@@ -1,6 +1,6 @@
 # Second Brain — Build Plan (v1, for Gemini + GPT review)
 
-**Author:** Claude (Opus) · **Date:** 2026-06-23 · **Status:** DRAFT — awaiting Gemini + GPT review
+**Author:** Claude (Opus) · **Date:** 2026-06-23 · **Status:** v2 — internal adversarial review folded in (§8); **still awaiting real Gemini + GPT sign-off** (can't reach their CLIs from the cloud container; see review packet)
 **Goal:** A single knowledge repository that (1) is updated from research + Claude/Codex chats + raw
 data dumps, (2) ingests → indexes → verifies → organizes that input, (3) is used by the agents to give
 better output, and (4) is **shared between Codex and Claude**. Build up from what already exists; do
@@ -105,7 +105,13 @@ created: YYYY-MM-DD
 
 ---
 
-## 4. The loop, as four skills (the actual product)
+## 4. The loop, as agent-agnostic procedures (the actual product)
+
+> **v2 correction (review BLOCKER):** these are **plain-prose procedures written in
+> `brain/CONVENTIONS.md`** that *any* agent follows by reading instructions. The Claude
+> slash-skills below are an **optional accelerator** for Claude only — Codex executes the
+> same steps as imperative checklists from `AGENTS.md`. If the loop lived only in Claude
+> skills, "shared between Codex and Claude" would silently collapse to Claude-only tooling.
 
 | Skill | Trigger | Does |
 |---|---|---|
@@ -135,6 +141,9 @@ created: YYYY-MM-DD
 
 ## 6. Risks / open questions (for reviewers to pressure-test)
 
+> **v2: all six are now resolved in §8** after the round-1 review. Kept here as the
+> original framing reviewers attacked.
+
 1. **Two agents, one repo, concurrent writes.** Mitigation = atomic files + append-only + `brain:` commits. Is that enough, or do we need a lightweight lock/branch convention for Codex?
 2. **Private vs shareable.** The brain mixes PHI (clinical) with general research. Keep one private repo? Or split `brain/context/protocol.md` clinical content behind a separate private submodule so research notes could later be shared without leaking health data?
 3. **Verify cost.** Cross-model checks on every promotion could be slow/expensive. Proposal: only high-stakes (`confidence: established` claims headed for `context/`, or anything touching Hard Stops) get the Gemini+GPT fan-out; everything else is single-pass. Right threshold?
@@ -147,3 +156,73 @@ created: YYYY-MM-DD
 
 P0 + P1: the contract files and the capture/ingest skills. That alone makes the brain real and shared,
 and everything else compounds on it — matching how you already run STATE.
+
+---
+
+## 8. Independent review — round 1 (internal) + resolutions → v2
+
+**Reviewers:** two independent adversarial agents (architecture lens; dual-agent/integration lens).
+**Note on provenance:** these are **Claude stand-ins, not Gemini/GPT.** They exist to harden the plan
+*before* the real external sign-off (which requires running the review packet on the laptop — this cloud
+container has no `agy`/`codex`/API keys). Both returned **APPROVE-WITH-CHANGES**.
+
+### Findings folded in (each maps to a concrete change)
+
+**R1 — "Verify" was hand-wavy; STATE already has live contradictions (CRITICAL).**
+Resolution: verify becomes **two-stage**. (a) **Deterministic claims index** — `brain/verify/claims.md`
+(or a small sqlite table) keyed by entity/compound; every new claim must be diffed against all prior
+claims for that key *mechanically* before any LLM judgment. (b) LLM/cross-model judgment only on the
+diffs that key-collide. **P0 acceptance criterion:** reconcile the three contradictions the review found in
+`STATE_Roman.md` — Hard Stop #7 (ALCAR "substitute in use" vs removed 5/29), #11 (says "vault" vs
+body's revised "cycled use"), #10 (injectable glutathione forbidden vs inventory "RUN — user override").
+A verify layer that can't catch conflicts already in the seed isn't a safety layer. *(Flag to Roman —
+these are real and worth fixing in STATE regardless of the brain build.)*
+
+**R2 — No retrieval/ranking; `index.md` rots past ~50 notes → write-only graveyard (CRITICAL).**
+Resolution: add a **local retrieval index** as a first-class component — sqlite + a local embedding model
+(keeps PHI on-device, no third party). `index.md` stays as a human-readable MOC but is **generated from
+the sqlite index, never hand-maintained**. New phase **P4 = retrieval** (was "polish"): ingest writes
+embeddings; agents query the index to decide what to load. If local embeddings are too heavy, the
+fallback is an explicit **size cap** + "this is a curated digest, not a knowledge base" — stated, not silent.
+
+**R3 — Concurrency: atomic files insufficient (HIGH, both reviewers, BLOCKER).**
+Resolution, written into `CONVENTIONS.md` as hard rules: **(1) single-writer assumption** — you don't run
+Claude and Codex against the brain simultaneously; **(2) pull-before-write, commit-then-push after every
+`brain:` change** so the other agent always rebases on current state; **(3) `index.md` and any rollups are
+generated, never hand-edited** (removes the guaranteed hot-file conflict); **(4)** atomic one-idea files in
+`notes/` + append-only `log/`/`sources/` (kept from v1).
+
+**R4 — Skills are Claude-only → breaks "shared" (BLOCKER).** Resolved in §4 rewrite: loop lives as
+agent-agnostic prose in `CONVENTIONS.md`; Claude skills are an optional accelerator; Codex runs the same
+steps from `AGENTS.md`.
+
+**R5 — P0 only tested that Codex can *describe* the structure, not *obey* it (MAJOR).**
+Resolution: P0 adds a **negative test** — ask Codex to do something the protocol forbids (edit `context/`
+directly) and confirm it **flags a proposal instead of writing**. Same negative test for Claude.
+
+**R6 — Adoption: no forcing function; weekly/ human-gated steps rot first (MAJOR).**
+Resolution: `/brain-capture` fires **automatically at session end via a Stop hook** in `.claude/settings.json`
+(the same mechanism enforcing this very goal). The brain must hook the same reflex that keeps STATE
+alive — loaded/required every turn, not relied on willpower.
+
+**R7 — Secrets & backup absent before P5 automation (MEDIUM).**
+Resolution: before P5, add `.gitignore` policy + a **redaction gate** (no raw tokens/API keys ever enter
+`sources/`; PHI pulled from connectors is reviewed before commit) and a **backup/recovery** note (the repo
+is the backup; document restore + consider an encrypted off-box mirror). P5 stays optional.
+
+**R8 — PHI split (was §6.2): take the hard line (HIGH).**
+Resolution: **one private repo, no sharing, no submodule split now.** Revisit only when a concrete reason
+to share non-clinical research exists. Removes premature complexity.
+
+**Accepted as-is:** verify-cost threshold (Hard-Stops + `established`→`context` get the cross-model
+fan-out); leave STATE in place; git-as-substrate; reuse of Calibration vocabulary; human-gated promotion;
+phased shippable build. Both reviewers affirmed these.
+
+### Revised phase order (v2)
+P0 contract **+ negative obey-test + reconcile STATE contradictions** → P1 capture(+Stop hook)/ingest →
+P2 verify (deterministic claims index, then cross-model) → P3 organize (generated index.md) →
+**P4 retrieval (local embedding index)** → P5 automation (after secrets/backup gate).
+
+### Still open — the headline requirement
+"**Get Gemini and GPT review and approve**" is **not yet satisfied.** Internal review is done; the real
+external sign-off needs the laptop. See `SECOND_BRAIN_REVIEW_PACKET.md`.

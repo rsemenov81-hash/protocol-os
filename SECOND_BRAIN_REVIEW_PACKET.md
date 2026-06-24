@@ -1,8 +1,12 @@
 # Review Packet — Second Brain Plan
 
-The plan in `SECOND_BRAIN_PLAN.md` needs an independent review from **Gemini** and **GPT/Codex**
-before we build. This remote Claude session can't reach `agy` or `codex` (they're on your laptop), so run
-one of these. Each returns a verdict: **APPROVE / APPROVE-WITH-CHANGES / REJECT** + the reasons.
+The plan in `SECOND_BRAIN_PLAN.md` (now **v2**) needs an independent review from **Gemini** and
+**GPT/Codex** before we build. This remote Claude session can't reach `agy` or `codex` (they're on your
+laptop), so run one of these. Each returns a verdict: **APPROVE / APPROVE-WITH-CHANGES / REJECT** + reasons.
+
+> **Status:** an internal round-1 adversarial review (two Claude stand-in agents) is already done and folded
+> into §8 of the plan — both said APPROVE-WITH-CHANGES and the changes are incorporated. This packet is
+> for the **real Gemini + GPT pass**, which is the actual headline requirement and still pending.
 
 ## Fastest path — on your laptop, in this repo
 
