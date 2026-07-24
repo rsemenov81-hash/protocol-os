@@ -28,7 +28,14 @@
   ],
   "img": "https://rob-gallery.com/wp-content/uploads/go-x/u/f012d298-7c14-46a5-be75-dbbf33dc1e35/l0,t0,w1414,h2000/image-768x1086.png",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3745,
+   "lon": 4.8973,
+   "approx": false,
+   "label": "Warmoesstraat 67",
+   "km": 0.4
+  }
  },
  {
   "name": "ICONS OF DESIRE (25 Jul - 15 Aug)",
@@ -59,7 +66,14 @@
   ],
   "img": "https://rob-gallery.com/wp-content/uploads/go-x/u/f012d298-7c14-46a5-be75-dbbf33dc1e35/l0,t0,w1414,h2000/image-768x1086.png",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3745,
+   "lon": 4.8973,
+   "approx": false,
+   "label": "Warmoesstraat 67",
+   "km": 0.4
+  }
  },
  {
   "name": "Pride March",
@@ -89,7 +103,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5949",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.358,
+   "lon": 4.8686,
+   "approx": false,
+   "label": "Vondelpark",
+   "km": 2.95
+  }
  },
  {
   "name": "Pride Park",
@@ -121,7 +142,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5951",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.358,
+   "lon": 4.8686,
+   "approx": false,
+   "label": "Vondelpark",
+   "km": 2.95
+  }
  },
  {
   "name": "Milkshake Festival",
@@ -158,7 +186,14 @@
   ],
   "img": "https://www.datocms-assets.com/180566/1766481055-milkshake_share-image.jpg?auto=format&fit=max&w=1200",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3872,
+   "lon": 4.8735,
+   "approx": false,
+   "label": "Westerpark",
+   "km": 2.74
+  }
  },
  {
   "name": "PAARDENRAVE",
@@ -187,7 +222,14 @@
   ],
   "img": "https://assets.melkweg.nl/scaled/width:1000_height:/eventpages/0f309b26-a831-48ef-b174-30e1e2a0be3e/ML2025_181836_6I4A4118-CR3_MH.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3647,
+   "lon": 4.8812,
+   "approx": false,
+   "label": "Lijnbaansgracht 234A",
+   "km": 1.54
+  }
  },
  {
   "name": "Pride Oost",
@@ -218,7 +260,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3646,
+   "lon": 4.9421,
+   "approx": false,
+   "label": "Javaplein",
+   "km": 4.18
+  }
  },
  {
   "name": "Pup Crawl Amsterdam",
@@ -246,7 +295,14 @@
   ],
   "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEQj2nJrQreRohYP95bLusiCrQ-pgd3g9cLbWE_OATeTN7Ie5pRZrdLM&s=10",
   "section": "Pre-Pride — June & July",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3735,
+   "lon": 4.8907,
+   "approx": false,
+   "label": "Spuistraat 109",
+   "km": 0.37
+  }
  },
  {
   "name": "Pride Stopera Women Party",
@@ -276,7 +332,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/675x675/5253.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3676,
+   "lon": 4.9013,
+   "approx": false,
+   "label": "Waterlooplein 22",
+   "km": 0.86
+  }
  },
  {
   "name": "Waterkant Party",
@@ -305,7 +368,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/1200x675/5268.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3718,
+   "lon": 4.8778,
+   "approx": false,
+   "label": "Marnixstraat 246",
+   "km": 1.42
+  }
  },
  {
   "name": "Main Stage — Dam Square",
@@ -335,7 +405,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Dam%20Square%20Main%20Stage.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3731,
+   "lon": 4.8932,
+   "approx": false,
+   "label": "Dam",
+   "km": 0.17
+  }
  },
  {
   "name": "Bar Prik — Spuistraat Street Party",
@@ -364,7 +441,14 @@
   ],
   "img": "https://static.wixstatic.com/media/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png/v1/fill/w_600,h_600,al_c/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3735,
+   "lon": 4.8907,
+   "approx": false,
+   "label": "Spuistraat 109",
+   "km": 0.37
+  }
  },
  {
   "name": "Sweetie Darling Blockparty",
@@ -397,7 +481,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/04/Header.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3505,
+   "lon": 4.9089,
+   "approx": false,
+   "label": "Wibautstraat 129",
+   "km": 3.25
+  }
  },
  {
   "name": "Pride at Reguliers",
@@ -424,7 +515,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/1200x675/689.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3663,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Reguliersdwarsstraat",
+   "km": 0.85
+  }
  },
  {
   "name": "Pride Zeedijk",
@@ -451,7 +549,14 @@
   ],
   "img": "",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3742,
+   "lon": 4.9002,
+   "approx": false,
+   "label": "Zeedijk",
+   "km": 0.56
+  }
  },
  {
   "name": "Homomonument / Westermarkt",
@@ -481,7 +586,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3745,
+   "lon": 4.8843,
+   "approx": false,
+   "label": "Westermarkt",
+   "km": 0.92
+  }
  },
  {
   "name": "RUSH",
@@ -508,7 +620,14 @@
   ],
   "img": "https://mds-assets.marriott.com/cdn-cgi/image/f=auto/cms-platform-for-marriott/amswh-events-calendar/eventcalendar/pride-promo-stories-rush.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3726,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Spuistraat 175",
+   "km": 0.24
+  }
  },
  {
   "name": "Rapido × FunHouse Pride Opening Party",
@@ -540,7 +659,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/1__our_world_pride_opening_-_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3647,
+   "lon": 4.8812,
+   "approx": false,
+   "label": "Lijnbaansgracht 234A",
+   "km": 1.54
+  }
  },
  {
   "name": "FunHouse World Pride",
@@ -571,7 +697,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/2__funhouse_-_the_world_pride_friday_edition_-_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "BOPS — WorldPride Edition",
@@ -603,7 +736,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Bops%20-%20July%2031.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3931,
+   "lon": 4.8786,
+   "approx": false,
+   "label": "Rigakade 10, Houthavens",
+   "km": 3.2
+  }
  },
  {
   "name": "LAUNDRETTE ...IsBurning",
@@ -630,7 +770,14 @@
   ],
   "img": "https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vM2ViMjI3YThkMzlkOTZiN2JjYTg3MGUwNWU2MjZkMmE2MGRiZmU5Yi5wbmc=",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3921,
+   "lon": 4.8383,
+   "approx": false,
+   "label": "Basisweg 63",
+   "km": 5.51
+  }
  },
  {
   "name": "World Pride Music Festival",
@@ -660,7 +807,14 @@
   ],
   "img": "https://worldpridefest.com/wp-content/uploads/2024/02/World-Pride-Washington-DC-Festival-2025-4.jpeg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3125,
+   "lon": 4.9444,
+   "approx": false,
+   "label": "ArenAPoort",
+   "km": 9.32
+  }
  },
  {
   "name": "Amsterdam Pride Canal Boat Parade",
@@ -692,7 +846,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5959",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3745,
+   "lon": 4.8838,
+   "approx": true,
+   "label": "Prinsengracht (parade route)",
+   "km": 0.96
+  }
  },
  {
   "name": "Main Stage — Dam Square",
@@ -722,7 +883,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3731,
+   "lon": 4.8932,
+   "approx": false,
+   "label": "Dam",
+   "km": 0.17
+  }
  },
  {
   "name": "Hunkering Gay Pride Festival",
@@ -753,7 +921,14 @@
   ],
   "img": "https://static.wixstatic.com/media/ff464d_05d530bafc8f41198f166dbb2c0770cf~mv2.png/v1/crop/x_0,y_279,w_1076,h_869/fill/w_1076,h_869,al_c,q_90,enc_avif,quality_auto/logo_hunk_gaypride.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3624,
+   "lon": 4.9152,
+   "approx": false,
+   "label": "Mauritskade 57",
+   "km": 2.22
+  }
  },
  {
   "name": "Pride at Reguliers",
@@ -780,7 +955,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/1200x675/689.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3663,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Reguliersdwarsstraat",
+   "km": 0.85
+  }
  },
  {
   "name": "Bar Prik — Spuistraat Street Party",
@@ -809,7 +991,14 @@
   ],
   "img": "https://static.wixstatic.com/media/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png/v1/fill/w_600,h_600,al_c/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3735,
+   "lon": 4.8907,
+   "approx": false,
+   "label": "Spuistraat 109",
+   "km": 0.37
+  }
  },
  {
   "name": "Homomonument / Westermarkt",
@@ -839,7 +1028,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3745,
+   "lon": 4.8843,
+   "approx": false,
+   "label": "Westermarkt",
+   "km": 0.92
+  }
  },
  {
   "name": "Pride Zeedijk",
@@ -866,7 +1062,14 @@
   ],
   "img": "",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3742,
+   "lon": 4.9002,
+   "approx": false,
+   "label": "Zeedijk",
+   "km": 0.56
+  }
  },
  {
   "name": "Waterkant Party",
@@ -895,7 +1098,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/1200x675/5268.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3718,
+   "lon": 4.8778,
+   "approx": false,
+   "label": "Marnixstraat 246",
+   "km": 1.42
+  }
  },
  {
   "name": "Pride Stopera Women Party",
@@ -925,7 +1135,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/675x675/5253.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3676,
+   "lon": 4.9013,
+   "approx": false,
+   "label": "Waterlooplein 22",
+   "km": 0.86
+  }
  },
  {
   "name": "Saarein Street Party",
@@ -952,7 +1169,14 @@
   ],
   "img": "",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3703,
+   "lon": 4.8787,
+   "approx": false,
+   "label": "Elandsstraat 119",
+   "km": 1.37
+  }
  },
  {
   "name": "Crash Beursplein - Fetish Party",
@@ -981,7 +1205,14 @@
   ],
   "img": "https://www.nighttours.com/images/headers/675x675/4962.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3747,
+   "lon": 4.8955,
+   "approx": false,
+   "label": "Beursplein",
+   "km": 0.36
+  }
  },
  {
   "name": "DSQUARED2",
@@ -1009,7 +1240,14 @@
   ],
   "img": "https://mds-assets.marriott.com/cdn-cgi/image/f=auto/cms-platform-for-marriott/amswh-events-calendar/eventcalendar/pride-promo-stories-extra.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3726,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Spuistraat 175",
+   "km": 0.24
+  }
  },
  {
   "name": "FunHouse XL — WorldPride Saturday",
@@ -1042,7 +1280,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/3__funhouse_-_the_saturday_edition_-_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "Club MEIJT invites Ferry: The World Pride Amsterdam Edition",
@@ -1073,7 +1318,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Meijt%20Ferry%20World%20Pride.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3757,
+   "lon": 4.893,
+   "approx": false,
+   "label": "Nieuwezijds Kolk 25",
+   "km": 0.5
+  }
  },
  {
   "name": "Bear Necessity — WorldPride Edition",
@@ -1106,7 +1358,14 @@
   ],
   "img": "https://bear-necessity.eu/wp-content/uploads/2026/01/603094055_18543402688052559_8914257163053271138_n.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3743,
+   "lon": 4.9291,
+   "approx": false,
+   "label": "Oostelijke Handelskade 4",
+   "km": 2.95
+  }
  },
  {
   "name": "Headrush x Damage",
@@ -1139,7 +1398,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/04/Headrush_x_damage_World_Pride_add-1024x1024.jpeg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3931,
+   "lon": 4.8786,
+   "approx": false,
+   "label": "Rigakade 10, Houthavens",
+   "km": 3.2
+  }
  },
  {
   "name": "Poof Doof x Chili con Carnaval x Sweetie Darling",
@@ -1172,7 +1438,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Poof%20Doof.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3395,
+   "lon": 4.8345,
+   "approx": true,
+   "label": "Anthony Fokkerweg 3",
+   "km": 6.83
+  }
  },
  {
   "name": "Tillatec Invites: Herrensauna + Knit (First event in 36-hour weekender)",
@@ -1206,7 +1479,14 @@
   ],
   "img": "https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3667,
+   "lon": 4.85,
+   "approx": false,
+   "label": "Dr. Jan van Breemenstraat 1",
+   "km": 3.85
+  }
  },
  {
   "name": "Club NYX / 3xNYX — Pride Edition",
@@ -1240,7 +1520,14 @@
   ],
   "img": "https://clubnyx.nl/wp-content/uploads/2018/05/3xNyxstart.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3663,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Reguliersdwarsstraat",
+   "km": 0.85
+  }
  },
  {
   "name": "Gay Disko - Pride Amsterdam Afterparty",
@@ -1269,7 +1556,14 @@
   ],
   "img": "https://gaydisko.com/wp-content/uploads/2026/04/cropped-gay-disko_content.jpg?w=200",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3663,
+   "lon": 4.8966,
+   "approx": false,
+   "label": "Rembrandtplein",
+   "km": 0.84
+  }
  },
  {
   "name": "Pride ...IsBurning",
@@ -1298,7 +1592,14 @@
   ],
   "img": "https://cdn.prod.website-files.com/65b12e9a417fbc42aeb48160/6710024c899020d608e180c0_Asset%201ISBURNING.webp",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3921,
+   "lon": 4.8383,
+   "approx": false,
+   "label": "Basisweg 63",
+   "km": 5.51
+  }
  },
  {
   "name": "Tillatec Invites: KNIT (Second event in 36-hour weekender)",
@@ -1332,7 +1633,14 @@
   ],
   "img": "https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3667,
+   "lon": 4.85,
+   "approx": false,
+   "label": "Dr. Jan van Breemenstraat 1",
+   "km": 3.85
+  }
  },
  {
   "name": "Bear Necessity — T-Dance",
@@ -1363,7 +1671,14 @@
   ],
   "img": "https://bear-necessity.eu/wp-content/uploads/2026/01/BNTD.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3743,
+   "lon": 4.9291,
+   "approx": false,
+   "label": "Oostelijke Handelskade 4",
+   "km": 2.95
+  }
  },
  {
   "name": "Spielraum ...IsBurning — Pride",
@@ -1392,7 +1707,14 @@
   ],
   "img": "https://cdn.prod.website-files.com/65b12e9a417fbc42aeb48160/6710024c899020d608e180c0_Asset%201ISBURNING.webp",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3921,
+   "lon": 4.8383,
+   "approx": false,
+   "label": "Basisweg 63",
+   "km": 5.51
+  }
  },
  {
   "name": "FunHouse Hub XL — Daytime Rave",
@@ -1423,7 +1745,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/4__sunday_daytime_rave_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "World Pride Drag Brunch",
@@ -1454,7 +1783,14 @@
   ],
   "img": "https://static.wixstatic.com/media/7473d3_34c6cdffaf804cbbbe2c68ef508b1a18~mv2.jpg/v1/fill/w_2676,h_1510,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/7473d3_34c6cdffaf804cbbbe2c68ef508b1a18~mv2.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3625,
+   "lon": 4.8823,
+   "approx": false,
+   "label": "Max Euweplein 57",
+   "km": 1.7
+  }
  },
  {
   "name": "Rapido — WorldPride Edition",
@@ -1486,7 +1822,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/5__rapido_world_pride_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3622,
+   "lon": 4.8839,
+   "approx": false,
+   "label": "Weteringschans 6",
+   "km": 1.66
+  }
  },
  {
   "name": "WE ARE THEM",
@@ -1517,7 +1860,14 @@
   ],
   "img": "https://assets.melkweg.nl/eventpages/b6388727-377a-4956-b2e5-70221039ce3a/WeAreThem_Banner.jpg",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3647,
+   "lon": 4.8812,
+   "approx": false,
+   "label": "Lijnbaansgracht 234A",
+   "km": 1.54
+  }
  },
  {
   "name": "Tillatec Invites: KNIT + VESELKA (Third event in 36-hour weekender)",
@@ -1551,7 +1901,14 @@
   ],
   "img": "https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3667,
+   "lon": 4.85,
+   "approx": false,
+   "label": "Dr. Jan van Breemenstraat 1",
+   "km": 3.85
+  }
  },
  {
   "name": "Rapido × FunHouse — The AFTER",
@@ -1582,7 +1939,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/6__our_world_pride_closing_-_the_after_a3.png",
   "section": "Amsterdam Pride — Fri July 31 - Sun Aug 2",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "Choir Festival: Queer Voices Unite",
@@ -1613,7 +1977,14 @@
   ],
   "img": "https://d35w1qwxagl33g.cloudfront.net/production/_2238x1076_crop_center-center_none/korenfest.png?stamp=2603012359&tag=2xl",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3564,
+   "lon": 4.879,
+   "approx": false,
+   "label": "Concertgebouwplein 10",
+   "km": 2.56
+  }
  },
  {
   "name": "World Pride Unity Concert",
@@ -1644,7 +2015,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/03/713704209_18589539814045435_2783331187144901537_n.jpg",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "HOME COMING: The Queer Keys Showcase",
@@ -1673,7 +2051,14 @@
   ],
   "img": "https://i.ibb.co/WpgLRWrZ/Screenshot-2026-07-07-at-16-57-01.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3663,
+   "lon": 4.8917,
+   "approx": false,
+   "label": "Reguliersdwarsstraat",
+   "km": 0.85
+  }
  },
  {
   "name": "WorldPride Village",
@@ -1700,7 +2085,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "WorldPride Village",
@@ -1727,7 +2119,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "World Pride Wedding Party XXL",
@@ -1759,7 +2158,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5967",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "Transpodium",
@@ -1789,7 +2195,14 @@
   ],
   "img": "https://assets.paradiso.nl/images/transforms/event/_1200x630_crop_center-center_none/transmic.jpeg",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3622,
+   "lon": 4.8839,
+   "approx": false,
+   "label": "Weteringschans 6",
+   "km": 1.66
+  }
  },
  {
   "name": "Pup Crawl Amsterdam",
@@ -1817,7 +2230,14 @@
   ],
   "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEQj2nJrQreRohYP95bLusiCrQ-pgd3g9cLbWE_OATeTN7Ie5pRZrdLM&s=10",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3735,
+   "lon": 4.8907,
+   "approx": false,
+   "label": "Spuistraat 109",
+   "km": 0.37
+  }
  },
  {
   "name": "WorldPride Village",
@@ -1844,7 +2264,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "FunHouse WorldPride Hub — Friday Wk 2",
@@ -1873,7 +2300,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/7.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "Headrush x Ben Mason",
@@ -1904,7 +2338,14 @@
   ],
   "img": "https://images.universe.com/41fd7b4f-bc0f-4dd8-8021-f5bd5ff6a9e1/-/inline/yes/",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3757,
+   "lon": 4.893,
+   "approx": false,
+   "label": "Nieuwezijds Kolk 25",
+   "km": 0.5
+  }
  },
  {
   "name": "Horse Meat Disco",
@@ -1933,7 +2374,14 @@
   ],
   "img": "https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vODc4ZTI3YTY0YzI1NDYwMGVhNWYyMTI2NzhjNTQ1NTlmMDRlZjc2MC5wbmc=",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3667,
+   "lon": 4.85,
+   "approx": false,
+   "label": "Dr. Jan van Breemenstraat 1",
+   "km": 3.85
+  }
  },
  {
   "name": "Backdoor",
@@ -1964,7 +2412,14 @@
   ],
   "img": "https://usercontent.one/wp/www.backdooramsterdam.com/wp-content/themes/backdooramsterdam-child/images/slider/home.jpg?media=1749745731",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3743,
+   "lon": 4.9291,
+   "approx": false,
+   "label": "Oostelijke Handelskade 4",
+   "km": 2.95
+  }
  },
  {
   "name": "Backdoor Afterparty",
@@ -1993,7 +2448,14 @@
   ],
   "img": "https://usercontent.one/wp/www.backdooramsterdam.com/wp-content/themes/backdooramsterdam-child/images/slider/home.jpg?media=1749745731",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3652,
+   "lon": 4.8997,
+   "approx": false,
+   "label": "Amstel 178",
+   "km": 1.07
+  }
  },
  {
   "name": "World Pride March",
@@ -2023,7 +2485,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5969",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "WorldPride Village",
@@ -2050,7 +2519,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "World Pride Closing Concert",
@@ -2082,7 +2558,14 @@
   ],
   "img": "https://pride.amsterdam/wp-json/social-image-generator/v1/image/5971",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3579,
+   "lon": 4.8816,
+   "approx": false,
+   "label": "Museumplein",
+   "km": 2.27
+  }
  },
  {
   "name": "FunHouse XL — Grand Finale",
@@ -2113,7 +2596,14 @@
   ],
   "img": "https://www.clubrapido.com/uploads/resized/lg/orig/8_funhouse_saturday.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3859,
+   "lon": 4.8772,
+   "approx": false,
+   "label": "Westergasterrein",
+   "km": 2.4
+  }
  },
  {
   "name": "Lesbique",
@@ -2145,7 +2635,14 @@
   ],
   "img": "https://www.lesbique.nl/wp-content/uploads/2026/01/shotbyrex_LesbiqueOct_-83.jpg",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3645,
+   "lon": 4.8858,
+   "approx": false,
+   "label": "Kerkstraat 52",
+   "km": 1.3
+  }
  },
  {
   "name": "Sweetie Darling",
@@ -2176,7 +2673,14 @@
   ],
   "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuQlaxZVKFoseKVOIl4IHnJ_gNkfA7FWjulQ&s",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3641,
+   "lon": 4.8828,
+   "approx": false,
+   "label": "Leidseplein 12",
+   "km": 1.5
+  }
  },
  {
   "name": "PowerHause x World Pride Edition",
@@ -2205,7 +2709,14 @@
   ],
   "img": "https://pride.amsterdam/wp-content/uploads/2026/04/Power_Hause_post_promo__zonder_locatie_-819x1024.jpg",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3757,
+   "lon": 4.893,
+   "approx": false,
+   "label": "Nieuwezijds Kolk 25",
+   "km": 0.5
+  }
  },
  {
   "name": "Gegen",
@@ -2238,7 +2749,14 @@
   ],
   "img": "https://stager-prod.s3.eu-west-1.amazonaws.com/images/46/eventpublicationitem/1400929/Portrait-2-2d76.jpg",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3527,
+   "lon": 4.8283,
+   "approx": false,
+   "label": "Louwesweg 1",
+   "km": 6.24
+  }
  },
  {
   "name": "Tropikali By Night",
@@ -2270,7 +2788,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Tropikali%20by%20night.png",
   "section": "World Pride — Mon Aug 3 - Sun Aug 9",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3622,
+   "lon": 4.8839,
+   "approx": false,
+   "label": "Weteringschans 6",
+   "km": 1.66
+  }
  },
  {
   "name": "Superflirt Festival",
@@ -2301,7 +2826,14 @@
   ],
   "img": "https://usercontent.one/wp/www.superflirtfestival.nl/wp-content/uploads/2025/09/AndyOnderstal_SUPERFLIRT_logo_0148-scaled.jpg",
   "section": "Post-Pride Summer Parties & Festivals",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3728,
+   "lon": 4.9605,
+   "approx": true,
+   "label": "Zuider IJdijk, Zeeburgereiland",
+   "km": 5.6
+  }
  },
  {
   "name": "Queer Is Not Dead Fest",
@@ -2330,7 +2862,14 @@
   ],
   "img": "https://occii.org/wp-content/uploads/2026/06/bafkreidu2pu5lsk45tmgdj5u7wndr47cklwsrcx4zrryhdotslqofa6l4u-1.webp",
   "section": "Post-Pride Summer Parties & Festivals",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3505,
+   "lon": 4.8555,
+   "approx": false,
+   "label": "Amstelveenseweg 134",
+   "km": 4.48
+  }
  },
  {
   "name": "Superflirt Afterparty",
@@ -2358,7 +2897,14 @@
   ],
   "img": "https://usercontent.one/wp/www.superflirtfestival.nl/wp-content/uploads/2026/06/SF26_banner_After.jpg",
   "section": "Post-Pride Summer Parties & Festivals",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3743,
+   "lon": 4.9291,
+   "approx": false,
+   "label": "Oostelijke Handelskade 4",
+   "km": 2.95
+  }
  },
  {
   "name": "Pax Romana — Pride Edition",
@@ -2391,7 +2937,14 @@
   ],
   "img": "",
   "section": "Post-Pride Summer Parties & Festivals",
-  "sheet": 1
+  "sheet": 1,
+  "loc": {
+   "lat": 52.3622,
+   "lon": 4.8839,
+   "approx": false,
+   "label": "Weteringschans 6",
+   "km": 1.66
+  }
  },
  {
   "name": "IsBurning - Utrecht Pride",
@@ -2419,7 +2972,14 @@
   ],
   "img": "https://stager-prod.s3.eu-west-1.amazonaws.com/images/3353/eventpublicationitem/1373923/Nar-New-Final-%281%29-2858.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.1048,
+   "lon": 5.0846,
+   "approx": false,
+   "label": "Nijverheidsweg 6, Utrecht",
+   "km": 40.54
+  }
  },
  {
   "name": "IsBurning - Utrecht Pride",
@@ -2447,7 +3007,14 @@
   ],
   "img": "https://stager-prod.s3.eu-west-1.amazonaws.com/images/3353/eventpublicationitem/1373923/Nar-New-Final-%281%29-2858.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.1048,
+   "lon": 5.0846,
+   "approx": false,
+   "label": "Nijverheidsweg 6, Utrecht",
+   "km": 40.54
+  }
  },
  {
   "name": "DIP: THE T PARTY",
@@ -2475,7 +3042,14 @@
   ],
   "img": "https://assets.paradiso.nl/images/transforms/event/_2880x1440_crop_center-center_none/2887983/Landscape-The-T-Party-Vol.-2-1-Large.webp",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.3622,
+   "lon": 4.8839,
+   "approx": false,
+   "label": "Weteringschans 6",
+   "km": 1.66
+  }
  },
  {
   "name": "Tropikali",
@@ -2509,7 +3083,14 @@
   ],
   "img": "https://www.tropikali.nl/wordpress/wp-content/uploads/2025/10/Tropi-26-LineUp-website.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.4013,
+   "lon": 4.8935,
+   "approx": false,
+   "label": "NDSM-werf (ferry from CS)",
+   "km": 4.05
+  }
  },
  {
   "name": "Tropikali Afterparty",
@@ -2542,7 +3123,14 @@
   ],
   "img": "https://www.tropikali.nl/wordpress/wp-content/uploads/2025/10/Tropi-by-Night-Lineup-819x1024.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.34,
+   "lon": 4.918,
+   "approx": true,
+   "label": "Overamstel",
+   "km": 4.9
+  }
  },
  {
   "name": "Burning Man Netherlands \"Where the Sheep Sleep\"",
@@ -2575,7 +3163,14 @@
   ],
   "img": "https://sheep.burningman.nl/wp-content/uploads/2019/08/wtss-2019_3518_photo-companynl.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.33,
+   "lon": 5.541,
+   "approx": true,
+   "label": "Zeewolde",
+   "km": 55.2
+  }
  },
  {
   "name": "F*cking Fabulous Fundraiser",
@@ -2603,7 +3198,14 @@
   ],
   "img": "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/uploads/bc/007a1345-b811-4224-a77b-facd86acba3d.png",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.3662,
+   "lon": 4.8928,
+   "approx": false,
+   "label": "Reguliersdwarsstraat 44",
+   "km": 0.85
+  }
  },
  {
   "name": "Amsterdam Gay Men's Chorus: Cabaret at the End of the World",
@@ -2629,7 +3231,14 @@
   ],
   "img": "https://static.wixstatic.com/media/05e9ad_8ca08b07618e4136ab9051d82ce2ef02~mv2.jpg/v1/fill/w_1458,h_831,al_c,q_85,enc_avif,quality_auto/NEWSLETTER-06.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.3785,
+   "lon": 4.9124,
+   "approx": false,
+   "label": "Piet Heinkade 1",
+   "km": 1.75
+  }
  },
  {
   "name": "Pax Romana",
@@ -2658,7 +3267,14 @@
   ],
   "img": "https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vYTc2Mzg5MTQxN2Q0MDI1ZGU5ODdiNDYxOGE2YjYwZDZiYjE2YzJkZS5qcGc=",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.3527,
+   "lon": 4.8283,
+   "approx": false,
+   "label": "Louwesweg 1",
+   "km": 6.24
+  }
  },
  {
   "name": "Meijt Love Ball",
@@ -2690,7 +3306,14 @@
   ],
   "img": "https://melodic-pasca-585e30.netlify.app/images/Meijt%20Love-Ball.jpg",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.3931,
+   "lon": 4.8786,
+   "approx": false,
+   "label": "Rigakade 10, Houthavens",
+   "km": 3.2
+  }
  },
  {
   "name": "Whole Festival (Germany)",
@@ -2725,7 +3348,14 @@
   ],
   "img": "https://cdn.sanity.io/images/k3fbpivh/production/b5ce809a1ed7e509f8f979d2d980ee10ef232486-800x800.png?w=800&q=60&auto=format",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 51.7726,
+   "lon": 12.4444,
+   "approx": false,
+   "label": "Ferropolis (DE)",
+   "km": 650.08
+  }
  },
  {
   "name": "Danserette — 20 Year Party",
@@ -2757,6 +3387,13 @@
   ],
   "img": "https://danserette.nl/wp-content/uploads/2024/02/26_0424_DST_20yo_Banners_DanseretteHeader_20yo_1200x850.png",
   "section": "Pre-Pride — June & July",
-  "sheet": 2
+  "sheet": 2,
+  "loc": {
+   "lat": 52.34,
+   "lon": 4.918,
+   "approx": true,
+   "label": "Overamstel",
+   "km": 4.9
+  }
  }
 ]

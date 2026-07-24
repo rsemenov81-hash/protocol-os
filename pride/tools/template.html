@@ -64,14 +64,28 @@ header.mast{
   position:sticky;top:0;z-index:40;background:var(--bg);
   border-bottom:1px solid var(--line);
   padding:calc(env(safe-area-inset-top) + 10px) 14px 0;
+  overflow:hidden;
 }
+#flagfx{
+  position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+  opacity:var(--flagAlpha,.34);
+}
+:root[data-theme="light"] #flagfx{--flagAlpha:.22}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) #flagfx{--flagAlpha:.22}}
+header.mast::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,var(--bg) 96%);
+}
+.mastrow,nav.tabs{position:relative;z-index:2}
 .mastrow{display:flex;align-items:baseline;gap:10px;max-width:980px;margin:0 auto;flex-wrap:wrap}
 h1.logo{
   font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.02em;
   margin:0;text-transform:uppercase;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  background:var(--grad);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
   white-space:nowrap;
+  animation:logoflow 9s ease-in-out infinite alternate;
 }
+@keyframes logoflow{from{background-position:0% 0}to{background-position:100% 0}}
 .logo .yr{color:var(--ink);-webkit-text-fill-color:var(--ink)}
 .count{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap}
 .count b{color:var(--amber);font-weight:700}
@@ -129,8 +143,17 @@ main{max-width:980px;margin:0 auto;padding:4px 14px 40px}
 /* ---------- event card ---------- */
 .ev{
   background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
-  transition:border-color .15s;
+  transition:border-color .15s, transform .3s ease, box-shadow .3s ease;
+  animation:cardin .38s cubic-bezier(.2,.7,.3,1) both;
+  animation-delay:calc(var(--i,0) * 26ms);
+  transform-style:preserve-3d;will-change:transform;
 }
+@keyframes cardin{
+  from{opacity:0;transform:perspective(700px) translateY(14px) rotateX(6deg)}
+  to{opacity:1;transform:perspective(700px) translateY(0) rotateX(0)}
+}
+.ev.tilting{transition:border-color .15s, box-shadow .3s ease;animation:none}
+main.noanim .ev{animation:none}
 .ev.exp{border-color:var(--faint);box-shadow:var(--shadow)}
 .ev.is-b{border-left:3px solid var(--good)}
 .ev.is-i{border-left:3px solid var(--amber)}
@@ -160,6 +183,15 @@ main{max-width:980px;margin:0 auto;padding:4px 14px 40px}
 .b.vibe .d{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
 .b.fr{background:var(--accent-soft);color:var(--accent)}
 .b.multi{color:var(--muted)}
+.b.dist{color:var(--muted)}
+.b.dist b{color:var(--ink);font-weight:700}
+.mapline{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--card2);
+  border-radius:10px;padding:9px 12px;margin:10px 0 8px;font-size:13px;color:var(--muted);
+}
+.mapline .from{font-weight:700;color:var(--ink)}
+.mapline .modes{font-variant-numeric:tabular-nums}
+.mapline a{font-weight:600;white-space:nowrap}
 .evact{display:flex;flex-direction:column;gap:6px;justify-content:center}
 .act{
   width:38px;height:30px;border-radius:9px;background:var(--chip);color:var(--faint);
@@ -271,6 +303,7 @@ footer{
 <body>
 
 <header class="mast" id="mast">
+  <canvas id="flagfx" aria-hidden="true"></canvas>
   <div class="mastrow">
     <h1 class="logo">Amsterdam Pride <span class="yr">&times; WorldPride 2026</span></h1>
     <span class="count" id="countdown"></span>
@@ -289,6 +322,7 @@ footer{
       <input class="search" id="q" type="search" placeholder="Search parties, venues, vibes…" aria-label="Search events">
       <select class="sort" id="sort" aria-label="Sort">
         <option value="date">By date</option>
+        <option value="dist">Nearest</option>
         <option value="priceAsc">Price ↑</option>
         <option value="priceDesc">Price ↓</option>
         <option value="name">A–Z</option>
@@ -308,7 +342,8 @@ footer{
   Data: <a href="__SHEET_URL__" target="_blank" rel="noopener">community party guide spreadsheet</a> by
   <a href="https://www.instagram.com/theonlylovebird" target="_blank" rel="noopener">@theonlylovebird</a>
   (last sheet update __SHEET_UPDATED__) · official guide at <a href="https://amspride.com" target="_blank" rel="noopener">amspride.com</a>.<br>
-  Prices &amp; times can change — always confirm on the ticket page. Your plan is saved on this device; share it with friends from the Friends tab.
+  Prices &amp; times can change — always confirm on the ticket page. Your plan is saved on this device; share it with friends from the Friends tab.<br>
+  Distances are from <b>Rho Hotel (Nes 5–23, next to Dam Square)</b> — walk ≈ 4.7 km/h, bike ≈ 14 km/h, car is a city estimate and skips parking time. Tap an event for door-to-door directions.
 </footer>
 
 <div id="toast" role="status"></div>
@@ -353,6 +388,26 @@ function parseTimes(t){
   const st = m[0]; let en = m.length > 1 ? m[1] : null;
   if (en !== null && en <= st) en += 1440;
   return {st,en};
+}
+const HOTEL = {name:'Rho Hotel', addr:'Nes 5–23', lat:52.3722, lon:4.8945};
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function travel(km){
+  const walk = km <= 7  ? Math.max(2, Math.round(km / 4.7 * 60)) : null;
+  const bike = km <= 25 ? Math.max(3, Math.round(km / 14 * 60) + 2) : null;
+  const drive = Math.round(km <= 8 ? 5 + km / 18 * 60 : km <= 60 ? 8 + km / 45 * 60 : 12 + km / 93 * 60);
+  return {walk, bike, drive};
+}
+function fmtMin(m){
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m/60), r = m % 60;
+  return h + 'h' + (r ? String(r).padStart(2,'0') : '');
+}
+function fmtKm(km){ return km < 1 ? Math.round(km*100)*10 + ' m' : (Math.round(km*10)/10) + ' km'; }
+function mapsUrl(e, mode){
+  return 'https://www.google.com/maps/dir/?api=1'
+    + '&origin=' + encodeURIComponent('Rho Hotel, Nes 5-23, Amsterdam')
+    + '&destination=' + e.loc.lat + ',' + e.loc.lon
+    + '&travelmode=' + mode;
 }
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -525,6 +580,15 @@ function eventCard(e, ctx){
   const vb = h('span','b vibe');
   const vd = h('span','d'); vd.style.background = `hsl(${e.vibe.hue} 75% 60%)`;
   vb.append(vd, e.vibe.label); badges.append(vb);
+  if (e.loc){
+    const t = travel(e.loc.km);
+    const db = h('span','b dist');
+    db.append('⌖ ');
+    const bb = h('b','', fmtKm(e.loc.km));
+    db.append(bb, ' · ' + (t.walk !== null ? fmtMin(t.walk) + ' walk' : fmtMin(t.drive) + ' drive'));
+    db.title = 'From ' + HOTEL.name;
+    badges.append(db);
+  }
   if (e.days > 1) badges.append(h('span','b multi', e.days + ' days'));
   if (e.soldOut) badges.append(h('span','b out','Sold out' + (/resale/i.test(e.avail) ? ' · resale' : '')));
   else if (e.almost) badges.append(h('span','b warn','Almost sold out'));
@@ -542,7 +606,7 @@ function eventCard(e, ctx){
   star.onclick = ev => { ev.stopPropagation(); toggleSel(e.id,'i'); };
   const book = h('button','act book','✓'); book.title = 'Booked'; book.setAttribute('aria-label','Mark booked');
   book.setAttribute('aria-pressed', sel?.s === 'b');
-  book.onclick = ev => { ev.stopPropagation(); toggleSel(e.id,'b'); };
+  book.onclick = ev => { ev.stopPropagation(); toggleSel(e.id,'b',ev); };
   act.append(star, book);
 
   const wrap = h('div','evtoprow'); wrap.style.cssText = 'display:flex;align-items:stretch';
@@ -569,6 +633,21 @@ function eventCard(e, ctx){
     bf.append(l1, l2, note);
     bf.onclick = ev => ev.stopPropagation();
     body.append(bf);
+  }
+  if (e.loc){
+    const t = travel(e.loc.km);
+    const ml = h('div','mapline');
+    ml.append(h('span','from','From ' + HOTEL.name + ':'),
+      h('span','modes', (e.loc.approx ? '~' : '') + fmtKm(e.loc.km)
+        + (t.walk !== null ? ' · 🚶 ' + fmtMin(t.walk) : '')
+        + (t.bike !== null ? ' · 🚲 ' + fmtMin(t.bike) : '')
+        + ' · 🚗 ' + fmtMin(t.drive)));
+    if (e.loc.label && !e.venue.toLowerCase().includes(e.loc.label.toLowerCase().split(',')[0]))
+      ml.append(h('span','', '(' + e.loc.label + ')'));
+    if (t.walk !== null) ml.append(mkLink(mapsUrl(e,'walking'),'Walk route ↗',''));
+    ml.append(mkLink(mapsUrl(e,'driving'),'Drive route ↗',''));
+    ml.onclick = ev => ev.stopPropagation();
+    body.append(ml);
   }
   if (e.desc) body.append(h('p','desc', e.desc));
   const facts = [];
@@ -598,18 +677,22 @@ function mkLink(href, label, extra){
   a.onclick = ev => ev.stopPropagation();
   return a;
 }
-function toggleSel(id, s){
+function toggleSel(id, s, ev){
   const cur = store.sel[id];
   if (cur && cur.s === s) delete store.sel[id];
   else {
     store.sel[id] = Object.assign({paid:null, on:TODAY_ISO, note:''}, cur || {}, {s});
-    if (s === 'b'){ expanded.add(id); toast('Booked ✓ — add what you paid'); }
+    if (s === 'b'){
+      expanded.add(id); toast('Booked ✓ — add what you paid');
+      confetti(ev ? ev.clientX : innerWidth/2, ev ? ev.clientY : innerHeight/3);
+    }
   }
   save(); rerender();
 }
 
 function renderEvents(){
   const root = $('#viewEvents'); root.textContent = '';
+  root.classList.toggle('noanim', !ANIM); ANIM = true;
   let list = EVENTS.filter(matches);
   renderCounts(list.length);
   if (!list.length){
@@ -622,10 +705,11 @@ function renderEvents(){
       priceAsc:(a,b) => (a.priceMin ?? 1e9) - (b.priceMin ?? 1e9),
       priceDesc:(a,b) => (b.priceMax ?? -1) - (a.priceMax ?? -1),
       name:(a,b) => a.name.localeCompare(b.name),
+      dist:(a,b) => (a.loc?.km ?? 1e9) - (b.loc?.km ?? 1e9),
     }[F.sort];
     list = [...list].sort(cmp);
     const cards = h('div','cards'); cards.style.marginTop = '14px';
-    list.forEach(e => cards.append(eventCard(e,'plan')));
+    list.forEach((e,i) => { const c = eventCard(e,'plan'); c.style.setProperty('--i', Math.min(i,14)); cards.append(c); });
     root.append(cards); return;
   }
   const groups = new Map();
@@ -646,7 +730,7 @@ function renderEvents(){
     dh.append(h('span','dsub', phases + ' · ' + evs.length));
     grp.append(dh);
     const cards = h('div','cards');
-    evs.forEach(e => cards.append(eventCard(e,'events')));
+    evs.forEach((e,i) => { const c = eventCard(e,'events'); c.style.setProperty('--i', Math.min(i,14)); cards.append(c); });
     grp.append(cards);
     root.append(grp);
   }
@@ -660,6 +744,7 @@ function overlap(a, b){
 }
 function renderPlan(){
   const root = $('#viewPlan'); root.textContent = '';
+  root.classList.toggle('noanim', !ANIM); ANIM = true;
   const mine = EVENTS.filter(e => store.sel[e.id]);
   const booked = mine.filter(e => store.sel[e.id].s === 'b');
   const interested = mine.filter(e => store.sel[e.id].s === 'i');
@@ -828,9 +913,159 @@ function renderFriends(){
   root.append(p4);
 }
 
+/* ============ effects: confetti, tilt, flag ============ */
+const PRIDE_COLORS = ['#E40303','#FF8C00','#FFED00','#008026','#24408E','#732982','#5BCEFA','#F5A9B8','#FFFFFF','#613915','#2D2D2D'];
+function confetti(x, y){
+  if (REDUCED) return;
+  const c = document.createElement('canvas');
+  c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:100';
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+  document.body.append(c);
+  const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+  const ps = [];
+  for (let i = 0; i < 130; i++){
+    const a = Math.random() * Math.PI * 2, sp = 3 + Math.random() * 8;
+    ps.push({x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 6.5,
+      w: 5 + Math.random() * 6, ht: 8 + Math.random() * 8,
+      r: Math.random() * Math.PI, vr: (Math.random() - .5) * .4,
+      r2: Math.random() * Math.PI, vr2: .12 + Math.random() * .3,
+      col: PRIDE_COLORS[i % PRIDE_COLORS.length], life: 1});
+  }
+  let prev;
+  function frame(ts){
+    const dt = prev ? Math.min((ts - prev) / 16.7, 3) : 1; prev = ts;
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    let alive = false;
+    for (const p of ps){
+      p.vy += .30 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      p.r += p.vr * dt; p.r2 += p.vr2 * dt; p.life -= .009 * dt;
+      if (p.life <= 0 || p.y > innerHeight + 30) continue;
+      alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.globalAlpha = Math.min(1, p.life * 2.5);
+      ctx.fillStyle = p.col;
+      const w = p.w * Math.cos(p.r2);          // spin around long axis → 3D flip
+      ctx.fillRect(-Math.abs(w) / 2, -p.ht / 2, Math.abs(w) || .5, p.ht);
+      ctx.restore();
+    }
+    alive ? requestAnimationFrame(frame) : c.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+let tiltCard = null;
+function untilt(){
+  if (!tiltCard) return;
+  tiltCard.style.transform = '';
+  const tc = tiltCard;
+  setTimeout(() => tc.classList.remove('tilting'), 300);
+  tiltCard = null;
+}
+if (matchMedia('(hover: hover) and (pointer: fine)').matches && !REDUCED){
+  document.addEventListener('pointermove', ev => {
+    const card = ev.target.closest ? ev.target.closest('.ev') : null;
+    if (tiltCard && tiltCard !== card) untilt();
+    if (!card) return;
+    tiltCard = card;
+    const r = card.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width - .5, py = (ev.clientY - r.top) / r.height - .5;
+    card.classList.add('tilting');
+    card.style.transform = `perspective(700px) rotateY(${(px * 4).toFixed(2)}deg) rotateX(${(-py * 3.4).toFixed(2)}deg)`;
+  }, {passive: true});
+  document.addEventListener('pointerleave', untilt);
+}
+
+(function flag(){
+  const cv = document.getElementById('flagfx');
+  let gl;
+  try { gl = cv.getContext('webgl'); } catch { gl = null; }
+  if (!gl){ cv.remove(); return; }
+  const V = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  const FRAG = `precision mediump float;
+uniform float t;uniform vec2 res;
+vec3 stripe(float v){
+  float b = clamp(v,0.,.9999)*6.;
+  if(b<1.) return vec3(.894,.012,.012);
+  if(b<2.) return vec3(1.,.549,0.);
+  if(b<3.) return vec3(1.,.929,0.);
+  if(b<4.) return vec3(0.,.502,.149);
+  if(b<5.) return vec3(.141,.251,.557);
+  return vec3(.451,.161,.510);
+}
+vec3 chev(float d){
+  float b = clamp(d,0.,.999)*5.;
+  if(b<1.) return vec3(1.);
+  if(b<2.) return vec3(.961,.663,.722);
+  if(b<3.) return vec3(.357,.808,.980);
+  if(b<4.) return vec3(.38,.224,.086);
+  return vec3(.16,.16,.16);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy/res;
+  float x = uv.x, y = uv.y;
+  float a1 = x*6.0 - t*1.5, a2 = x*11.0 - t*2.2 + 1.7;
+  float m = x*.8+.2;
+  float yy = y + sin(a1)*.05*m + sin(a2)*.02*m;
+  vec3 col = stripe(1.0-yy);
+  float d = (x*(res.x/res.y)*.55 - abs(yy-0.5)*.9) / .5;
+  if (d < 1.0) col = chev(max(d,0.));
+  float slope = cos(a1)*.30*m + cos(a2)*.22*m;
+  col *= .78 + .45*slope;
+  gl_FragColor = vec4(col,1.0);
+}`;
+  function sh(type, src){
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
+    return s;
+  }
+  let prog;
+  try {
+    prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, V));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw 'link';
+  } catch { cv.remove(); return; }
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const uT = gl.getUniformLocation(prog, 't'), uR = gl.getUniformLocation(prog, 'res');
+  function size(){
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    const w = cv.clientWidth, hh = cv.clientHeight;
+    if (!w || !hh) return;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(hh * dpr);
+    gl.viewport(0, 0, cv.width, cv.height);
+    gl.uniform2f(uR, cv.width, cv.height);
+  }
+  size();
+  new ResizeObserver(size).observe(cv);
+  const T0 = performance.now();
+  function draw(){
+    gl.uniform1f(uT, (performance.now() - T0) / 1000);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  if (REDUCED){ gl.uniform1f(uT, 2.0); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); return; }
+  let raf;
+  function loop(){ draw(); raf = requestAnimationFrame(loop); }
+  loop();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(raf);
+    else loop();
+  });
+})();
+
 /* ============ tabs / theme / boot ============ */
 let TAB = 'events';
-function rerender(){
+let ANIM = true;
+function rerender(anim){
+  ANIM = !!anim;
   renderCounts();
   if (TAB === 'events') renderEvents();
   else if (TAB === 'plan') renderPlan();
@@ -850,7 +1085,7 @@ document.querySelectorAll('nav.tabs button').forEach(b => {
     $('#viewPlan').classList.toggle('hid', TAB !== 'plan');
     $('#viewFriends').classList.toggle('hid', TAB !== 'friends');
     $('#filterWrap').classList.toggle('hid', TAB !== 'events');
-    rerender();
+    rerender(true);
     window.scrollTo({top:0});
   };
 });

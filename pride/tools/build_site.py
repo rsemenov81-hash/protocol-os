@@ -14,7 +14,7 @@ SHEET_UPDATED = '5 Jul 2026'
 
 events = json.loads((ROOT / 'data' / 'events.json').read_text())
 keep = ['name','status','genre','dateText','start','end','time','venue','priceText',
-        'priceMin','priceMax','free','avail','desc','web','insta','tickets','tags','img','section']
+        'priceMin','priceMax','free','avail','desc','web','insta','tickets','tags','img','section','loc']
 slim = [{k: e[k] for k in keep} for e in events]
 payload = json.dumps(slim, ensure_ascii=False, separators=(',',':')).replace('</', '<\\/')
 
