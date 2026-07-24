@@ -360,6 +360,7 @@ const PHASES = [
   ['Pride Weekend','Amsterdam Pride — Fri July 31 - Sun Aug 2'],
   ['WorldPride Week','World Pride — Mon Aug 3 - Sun Aug 9'],
   ['Post-Pride','Post-Pride Summer Parties & Festivals'],
+  ['Rumored','TBD / Rumored'],
 ];
 const VIBES = [
   ['official','Official & Culture',270,/march|protest|ceremon|official|art|exhibit|museum|village|memorial|human rights|conference|choir|wedding|film|talk|history/i],
@@ -550,6 +551,13 @@ function togSet(set, v, chip){
 
 const expanded = new Set();
 
+function groupKey(e){
+  if (!e.start) return 'zzz-tba';
+  // an event already running (multi-day) files under today, not its stale start date
+  if (!F.showPast && e.start < TODAY_ISO && e.end >= TODAY_ISO) return TODAY_ISO;
+  return e.start;
+}
+
 function eventCard(e, ctx){
   const sel = store.sel[e.id];
   const card = h('article','ev' + (sel ? (sel.s === 'b' ? ' is-b' : ' is-i') : '') + (expanded.has(e.id) ? ' exp' : ''));
@@ -589,7 +597,8 @@ function eventCard(e, ctx){
     db.title = 'From ' + HOTEL.name;
     badges.append(db);
   }
-  if (e.days > 1) badges.append(h('span','b multi', e.days + ' days'));
+  if (e.days > 1) badges.append(h('span','b multi',
+    (e.start && e.start < TODAY_ISO && e.end >= TODAY_ISO) ? 'until ' + dayLabel(e.end).big : e.days + ' days'));
   if (e.soldOut) badges.append(h('span','b out','Sold out' + (/resale/i.test(e.avail) ? ' · resale' : '')));
   else if (e.almost) badges.append(h('span','b warn','Almost sold out'));
   else if (/not yet|opens|no .*listing/i.test(e.avail)) badges.append(h('span','b warn','Tickets soon'));
@@ -621,7 +630,7 @@ function eventCard(e, ctx){
     const l1 = h('label','','Paid €');
     const paid = h('input','paid'); paid.type = 'number'; paid.min = '0'; paid.step = '0.5'; paid.placeholder = e.priceMin ?? '?';
     if (sel.paid != null) paid.value = sel.paid;
-    paid.onchange = () => { sel.paid = paid.value === '' ? null : +paid.value; save(); renderCounts(); };
+    paid.onchange = () => { sel.paid = paid.value === '' ? null : +paid.value; save(); rerender(); };
     l1.append(paid);
     const l2 = h('label','','on');
     const bd = h('input','bdate'); bd.type = 'date'; bd.value = sel.on || TODAY_ISO;
@@ -714,7 +723,7 @@ function renderEvents(){
   }
   const groups = new Map();
   for (const e of list){
-    const k = e.start || 'zzz-tba';
+    const k = groupKey(e);
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(e);
   }
@@ -737,10 +746,16 @@ function renderEvents(){
 }
 
 /* ============ plan view ============ */
+function absRange(e){
+  if (!e.start || !e.t) return null;
+  const d0 = Math.round(Date.parse(e.start + 'T00:00:00Z') / 864e5);
+  const st = d0 * 1440 + e.t.st;
+  return [st, d0 * 1440 + (e.t.en ?? e.t.st + 180)];
+}
 function overlap(a, b){
-  if (!a.start || !b.start || a.start !== b.start || !a.t || !b.t) return false;
-  const aEn = a.t.en ?? a.t.st + 180, bEn = b.t.en ?? b.t.st + 180;
-  return a.t.st < bEn && b.t.st < aEn;
+  if (a.days > 3 || b.days > 3) return false;   // exhibitions etc. would clash with everything
+  const ra = absRange(a), rb = absRange(b);
+  return !!(ra && rb) && ra[0] < rb[1] && rb[0] < ra[1];
 }
 function renderPlan(){
   const root = $('#viewPlan'); root.textContent = '';
@@ -765,15 +780,18 @@ function renderPlan(){
              stat(intLo === intHi ? fmtEUR(intLo) : fmtEUR(intLo) + '–' + fmtEUR(intHi), 'If you book them', 'a'));
   root.append(bar);
 
-  const order = [...mine].sort((a,b) => (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : (a.t?.st ?? 1e9) - (b.t?.st ?? 1e9));
+  const order = [...mine].sort((a,b) => {
+    const ka = groupKey(a), kb = groupKey(b);
+    return ka < kb ? -1 : ka > kb ? 1 : (a.t?.st ?? 1e9) - (b.t?.st ?? 1e9);
+  });
   const groups = new Map();
   for (const e of order){
-    const k = e.start || 'zzz';
+    const k = groupKey(e);
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(e);
   }
   for (const [k, evs] of groups){
-    const isoK = k === 'zzz' ? null : k;
+    const isoK = k === 'zzz-tba' ? null : k;
     const grp = h('section','dgroup');
     const dh = h('div','dayhead' + (isoK === TODAY_ISO ? ' today' : ''));
     dh.append(h('span','dnum', dayLabel(isoK).big));
@@ -782,7 +800,7 @@ function renderPlan(){
     const cards = h('div','cards');
     for (const e of evs){
       const card = eventCard(e,'plan');
-      const clashes = evs.filter(o => o !== e && overlap(e,o));
+      const clashes = order.filter(o => o !== e && overlap(e,o));
       if (clashes.length){
         const c = h('div','conflict','⚠ same time as ' + clashes.map(o => o.name).join(', '));
         card.querySelector('.evmain').append(c);
@@ -815,8 +833,14 @@ function stat(v, l, cls){
 /* ============ friends view ============ */
 function encodePlan(){
   const s = {};
-  for (const [id, v] of Object.entries(store.sel)) s[id] = v.s;
-  const payload = {v:1, n: store.me.name || 'Friend', s};
+  for (const [id, v] of Object.entries(store.sel)){
+    const o = {s: v.s};
+    if (v.paid != null) o.p = v.paid;
+    if (v.on) o.o = v.on;
+    if (v.note) o.t = v.note;
+    s[id] = o;
+  }
+  const payload = {v:2, n: store.me.name || 'Friend', s};
   return btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 function decodePlan(code){
@@ -824,8 +848,21 @@ function decodePlan(code){
     const b64 = code.trim().replace(/-/g,'+').replace(/_/g,'/');
     const obj = JSON.parse(decodeURIComponent(escape(atob(b64))));
     if (!obj || typeof obj.s !== 'object') return null;
-    return obj;
+    const sel = {};
+    for (const [id, v] of Object.entries(obj.s)){
+      if (!byId[id]) continue;
+      const s = typeof v === 'string' ? v : v && v.s;          // v1 codes carried bare 'i'/'b'
+      if (s !== 'i' && s !== 'b') continue;
+      sel[id] = {s, paid: (v && v.p != null) ? v.p : null, on: (v && v.o) || '', note: (v && v.t) || ''};
+    }
+    return {n: obj.n, sel};
   } catch { return null; }
+}
+function restoreOwn(obj){
+  for (const [id, v] of Object.entries(obj.sel))
+    store.sel[id] = {s: v.s, paid: v.paid, on: v.on || TODAY_ISO, note: v.note};
+  if (!store.me.name && obj.n && obj.n !== 'Friend') store.me.name = obj.n;
+  save(); toast('Your plan is restored ✓'); rerender();
 }
 function shareURL(){
   const base = location.origin.startsWith('http') ? location.href.split('#')[0] : '';
@@ -842,11 +879,18 @@ async function copy(text, msg){
 function addFriend(obj){
   const name = (obj.n || 'Friend').slice(0,24);
   const clean = {};
-  for (const [id,s] of Object.entries(obj.s)) if (byId[id] && (s === 'i' || s === 'b')) clean[id] = s;
+  for (const [id, v] of Object.entries(obj.sel)) clean[id] = v.s;
   const ex = store.friends.find(f => f.name.toLowerCase() === name.toLowerCase());
   if (ex){ ex.sel = clean; ex.added = TODAY_ISO; toast('Updated ' + name + '\'s plan'); }
   else { store.friends.push({name, sel: clean, added: TODAY_ISO}); toast('Added ' + name + '\'s plan 🎉'); }
   save(); rerender();
+}
+function importPlan(obj){
+  const mine = store.me.name && obj.n && obj.n.toLowerCase() === store.me.name.toLowerCase();
+  if (mine || (!store.me.name && obj.n && obj.n !== 'Friend'
+      && confirm('Is "' + obj.n + '" you?\n\nOK — restore it as YOUR plan.\nCancel — add it as a friend\'s plan.')))
+    restoreOwn(obj);
+  else addFriend(obj);
 }
 function renderFriends(){
   const root = $('#viewFriends'); root.textContent = '';
@@ -880,7 +924,7 @@ function renderFriends(){
     const raw = codeIn.value.includes('#p=') ? codeIn.value.split('#p=')[1] : codeIn.value;
     const obj = decodePlan(raw);
     if (!obj){ toast('That code didn\'t work — ask them to re-copy it'); return; }
-    addFriend(obj); codeIn.value = '';
+    importPlan(obj); codeIn.value = '';
   };
   row2.append(codeIn, btnA);
   p2.append(row2);
@@ -906,7 +950,7 @@ function renderFriends(){
 
   const p4 = h('div','panel');
   p4.append(h('h3','','Backup'));
-  p4.append(h('p','','Your plan lives in this browser. Copy this backup code somewhere safe (or to move phones), then paste it in the box above on the new device — use your own name to restore.'));
+  p4.append(h('p','','Your plan (picks, paid amounts, notes) lives in this browser. Copy this backup code somewhere safe. On a new device: set your name above to the same name, paste the code in the import box, and it restores as your plan.'));
   const ta = h('textarea','code'); ta.readOnly = true; ta.value = encodePlan();
   ta.onclick = () => { ta.select(); };
   p4.append(ta);
@@ -1126,15 +1170,17 @@ function checkHash(){
   history.replaceState(null,'',location.pathname + location.search);
   const obj = decodePlan(m[1]);
   if (!obj) return;
-  const n = Object.keys(obj.s).length;
+  const n = Object.keys(obj.sel).length;
+  const mine = store.me.name && obj.n && obj.n.toLowerCase() === store.me.name.toLowerCase();
   const bn = $('#importBanner');
   bn.className = 'banner';
   bn.textContent = '';
-  bn.append(h('div','t', (obj.n || 'A friend') + ' shared their Pride plan'),
-            h('div','s', n + ' events — add it to see their picks on your list?'));
+  bn.append(h('div','t', mine ? 'Restore your Pride plan?' : (obj.n || 'A friend') + ' shared their Pride plan'),
+            h('div','s', n + (mine ? ' events from your backup — restore them on this device?'
+                                   : ' events — add it to see their picks on your list?')));
   const row = h('div','prow');
-  const yes = h('button','pbtn','Add ' + (obj.n || 'friend') + '\'s plan');
-  yes.onclick = () => { addFriend(obj); bn.className = 'hid'; };
+  const yes = h('button','pbtn', mine ? 'Restore my plan' : 'Add ' + (obj.n || 'friend') + '\'s plan');
+  yes.onclick = () => { mine ? restoreOwn(obj) : importPlan(obj); bn.className = 'hid'; };
   const no = h('button','pbtn q','Not now');
   no.onclick = () => { bn.className = 'hid'; };
   row.append(yes, no);
@@ -1142,6 +1188,13 @@ function checkHash(){
 }
 
 addEventListener('hashchange', checkHash);
+addEventListener('storage', ev => {          // another tab wrote — pick up its state
+  if (ev.key !== KEY || ev.newValue === null) return;
+  try { store = JSON.parse(ev.newValue); } catch { return; }
+  store.me = store.me || {name:''}; store.sel = store.sel || {};
+  store.friends = store.friends || []; store.prefs = store.prefs || {};
+  rerender();
+});
 buildFilters();
 countdown(); setInterval(countdown, 60000);
 renderEvents(); renderCounts();

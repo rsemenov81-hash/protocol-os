@@ -76,6 +76,8 @@ def parse_price(s):
         if nums: return (0.0, max(nums), True, True)
         return (0.0, 0.0, True, True)
     if low in ('tba','tbd','—','-','?','unknown',''): return (None, None, False, False)
+    no_pass = re.sub(r'\([^)]*pass[^)]*\)', ' ', low)
+    if re.search(r'\d', no_pass): low = no_pass
     scrub = re.sub(r'\b\d+\s*[-–]?\s*(?:day|hour|hr|night)s?\b', ' ', low)
     scrub = re.sub(r'\b\d+\s*x\b', ' ', scrub)
     nums = [float(x.replace(',', '.')) for x in re.findall(r'(\d+(?:[.,]\d{1,2})?)', scrub)]
@@ -96,6 +98,9 @@ for i, r in enumerate(rows):
         continue
     if r[0].startswith('▼'):
         section = r[0].strip('▼ ').strip()
+        continue
+    if r[0].strip().upper().startswith('TBD') and not r[1]:
+        section = 'TBD / Rumored'
         continue
     if not r[1] or r[1] == ':-:':
         continue
@@ -124,12 +129,19 @@ for i, r in enumerate(rows):
 
 # dedupe on (name, dateText)
 seen, deduped = set(), []
+kept_by_key = {}
 for e in events:
     k = (e['name'].lower(), e['dateText'])
     if k in seen:
-        warnings.append(f"dup dropped: {e['name']} {e['dateText']}")
+        kept = kept_by_key[k]
+        m = re.search(r'NOTE:.*', e['desc'])
+        if m and 'not affiliated' in m.group(0).lower() and 'not affiliated' not in kept['desc'].lower():
+            kept['desc'] = kept['desc'].rstrip() + '\n\n⚠ ' + m.group(0).strip()
+            warnings.append(f"dup dropped but warning merged: {e['name']}")
+        else:
+            warnings.append(f"dup dropped: {e['name']} {e['dateText']}")
         continue
-    seen.add(k); deduped.append(e)
+    seen.add(k); deduped.append(e); kept_by_key[k] = e
 events = deduped
 
 from collections import Counter
