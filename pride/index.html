@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0B14">
+<title>Pride Planner — Amsterdam WorldPride 2026</title>
+<style>
+@font-face{
+  font-family:'Anton';
+  src:url(data:font/woff2;base64,d09GMgABAAAAACxwABEAAAAAY4AAACwPAAIdsgAAAAAAAAAAAAAAAAAAAAAAAAAAGoEIG4MqHIRWBmAAgXIIgT4JnAwRCAqBjjD8ZwE2AiQDhB4LghIABCAFg0oHIAyBYRt1WFUH4qaWvRKIolyRvjL4/0uCtoZgt0erVZOoEd0ajUUMdA8ahT0ZbUNhPGo4E3H/KzzY83YcB2u18o0/n0WHx9q2pPgp+MB5c29EOTvVZvlQtrAGpzqHa6NWE493RdXJ+ls9QmOf5Fr0bfbVs8IicSKOXcLm7tDEMYuJEXgiKl/ihlVmanfPzO6Zp7Pu6NzBRShEzwMlHV4R9FXKaFY2ipRHCkn0NfzW783+/aeuECZJfFKo4ywpqZyNxGN0yMIjHMZSOHaAn9dPjXF3T9RErXhmahibiYnpJTObs+SYiLoKGV9dJ66avu84kZfh0ko15TsUVUhwWOicOaRDUqATPtmZeiecI6CnvqhV1KhqhwWVF3WlJAcc2/oUtq5z6IE4iZfkfnPu1uIMQGN5e+7aP+fel3aYDFhuktBNMRWG3Pue1IwHIAukCF6TwgAhjDXbcAlk5pVndUX3OdT5/p0kW7aMmNiO7JBDr/igoALQhtvUvy3luev+LRWdndam0uGl1zvlb9lOmejNDkQ7LCP/v01723tnJFu2A54AVh+p6JagCnKF/cx9o6E38gpW3tFYJsnr45WXJDsbrT55rNl/BIEl6gJEhgVb+zdgB4g7wp6hA6pSUpe2TIq++GnzGJodAprZhiABtPPH/X7afzASd7s5hsiAiEipk3Lr1yv/77f3oHPx+mu0hTZ5gVWMBgE0RrMzWiQTyVaM6FkiskQsErFLpPGKpIkHE5CYqERaZCW1aZe6dEu9+sxhkMjSFcmadWRfiRwig3SYo945AqiYOLD9SFsf0p9NJzaQjgcAqa7ydD6+AQmYt8VjZzAqXTxb5sq8Mia1XLBhopFpXSp/LUG+dg3KW+Nm6p3C+i4TWh9jiteU4fWKuQwPuMfXUJKMlE8Z07UPrZXW1FgrsAsA0j/wvNbVm1NIw+GmQE2tCfaC7+dHlIhIK0++QjK7I7zB6QxFSaKVmDxJIV8SFEocWeId0SViCjl5sUtFISvylaKUGnktkqQgIkTsDkdcJ2XTnioTO+3v0xVllxmtusISQcEV4AIzGLW4Afn5i/c2NtdR8SBtehZ7nm1ZnEbts+TZNbgmIwMvkutxxOQ2qgGcrOoddhRJxNujolHEYk7cMS7wGGlIQ47ahyrgzHcocsrdNeIcb5ma7MA87FYnEsBuqUEHA5xC1HrUi6xqbq5tvV47CZ+/ioNXUL8Rm+L2c6CjiRAlbtCH2ZEuO1HRSyLzwXqUvrMqTj4hA0Zt2bG/gxxjDE+B39BqfmGDxmxLOMDBjsWTDrx2OrlAQ6uEgZmrDDdq4yZndGvCCAmEtrC/qhs9szBT/Ve52+bK6eH6+dxQpxFAODZeBlwwffbst4VUGBmHAXIdjP1GbdzfN4HHoDvyR7n83wSoT/UV+XAt4c/8EKCTRM7Wxo/lPX8/d3nm/Kl8Rhzi3iNaLOFPasmn/EadppxYahC3P1bgQ/GD96ByFaADcIbR/xjeR4MVQ6ymlFg1YVK5Rbu1mpZ0tBEH2k+QV9wmh35VNvSo02yZTgWDSqUOFVNMT2Zh1yiqRZtOXbr16jNs3JI16/Z1iMMc7ghHOoqJ0S5latU42A4an197sBOmMbpZwO3FzAIQj64PbBqiANKs0kyZAG3yvSxJQSoFTX6f+GnzRvX//y8+EPCIk+dW63ljnWVfz7YiJdvXtuUp2+J1c9RlfM4SNiC88WMF3hyA+35D/e6b54UFly9hgfTmmcTioREMvsxlw1hL+EC4JaMekFvBVUSwzYuKBGLFVqRAt02Hpwo3ZESE4DIZDl0eqrdI+GkLtJXmMowd2fVWTyrkVnDsjhfsbH7vjgY3L+DME9dHMcpMJ4TnflP7NJKVgeVRZ0JP8iykYc631KAD/7Vk6Vu/jM6t8XxMfe8tqensux/KN+m98Pn1k6n2OI8ZG49fFJn0x45LDDPlnHCwDhLwbysskL7FHggzOFYLsQRDuASXnKA60oDEaHNOeOkJjwbT2oZBYVo4PYsHfpgDT3Oghc+qXVSiq1oC+mYypTitqAFjkFnsQM7Wk6ujIVPG2tFsrqi7XSbwXOYHBy7at232QROHel77qe1s6C0nUvv/feD5UB/I0roPrYkz9aJWQXXnyTT/H21Lx6rIQZNlDyTcYMxuqhMQpIskhwXx+3DId6trAkbnu5wfsPA5qpyuykoSYXQ8mUBvDuDW2N2yCQSWN6FsW1kKXfw+MgvmpiQLOqfHoQrMFrYLKsc5pJa0R2s9Ks4yMfbTCGV7cGlnM207PaB/rbdGrN6yXOQhk8odfs33V/SxGgDX4+uFlI6jTl1i4kvuxw0C2WDOmREHLHxJsjBgQPoohxwEmTHEm08+s5+RXqFzlC0HooF1/+bja8zYVYzOHyNDOPxshKqEWBwD173liLnsvaFfRBwLSO2wshujZE9u+ob1+/2dlXGNZRsYEEWyj62VHqf0QXHHCZqfUJ4yA1xlRCThWo8R399rCYoM+fvkGarDmK46Oko9O4T9fDqAoDhROOc8AfHExJLj1sj/ysWSYnGKDElZMdMCQi4QKAQKpcCgEjSoBR0mAoepYEAjmD0jJA5TUs9vPnlBTfyoGnmp3HA1p4HfBbfN88Df861FwaPbO0Asu69EPHZihy3OUFCiYI+CAwrOUXCBgksUXKHgGiW7A5rEhX1+YJ4xlD4fhtbA09rlbvSAlOGrsTOeL0cApohqRuKyNHj/QMt4Ac6pL5nsNu5k3nQ82mUtJmN/R621z7vJPzR7AXhoQfdFFKTOXrdLdJPKzzeEdAcA+H0qy/lCTGx+vlwCGkztcAi32rdQxcuozzQVj0WixIQyVnyCTEJ6FXV1CbJqhl6lb1MVuQi/YdC3WF1/HDE5eQvzT0FImb3FmF0Z/8zZDjdpsdxMOwWadPxaxNla1GoHqauTcsGP2FKsbvw2k+OtUbl0vFSHuMOCSFLSkUloNVm2VkA99e40AWPohBpj15RuLBqyAuKNK5uKgqlZkkzishEKTkjszrTtMaC3hJiSsEJQUppFOS63S5Y2I5hJVRhRx+gc1IpXfGLCTWqJONIsR5qvJihgxgRodYpmxzUI25Xqcdm5wmtfoxFrtFcL5kUYZ0w3s+rVM4wazLJZH46apanfcf2boqB9WOFBZ9y9a6F2FCRP3pTlzBl9a2bq0WidDzEuUwvfuMOZaevfVOFb8um+BZ76yqW3wTNPrTS5tpfpWCSPOmseEO4kIM1TO0XAibQ31QX0acjoetSyrCf/LrKoDQ6u89T+t5hmM9lGePbkjSwbmzdJq+bCvR44Lb1j3jflPWmFhq3SXYEP7KT84z1UunHCD13aLcnDoUfIgN0YL5PxOGue3OHJiSAdC2pMkixeiz9FYsshpZf3DH13QKRil0DQ3UrAHoGgVwKi2CcQ9LcScECg/EHsNoAg45BIMNxGwBGRYPRmAOGYSDDeRsAJkaxJ3RgWpqiD6VYCzggEsxIQwzmBYL6VgAsC8UXzMCQssSMstxFwRSS+Sojgmkiw3kbADZG2bGIzXIHkW8wYfb3ANvqtuPNZhwFjJxAhKCSCJCaDBPusg1s57htw434BN9+fMDE4IEKccGCQ4KAgwcHr4FGLhwQ8eGjAg4cFPHh4mMARQYIjg2QeBc1ePDrgxWMCXjw24MXjwgSODxKcEKTsiZfvUD/hvvG3icWfeMaFh4zWWI0M7KY0fxtnOp9z0+Y2v63LpGwzajlOOx3ws3cHqD5AxhkAM4AQ6P8BwHAIQzTAys3bHMMHSDtpMkoLcOoxskbUEVPX1sw4A9VjJlWzrr5guA70ziF8ngnsw/dByQJTdMK0RWezyNId4VqOGfqxsTFi7timaMXMNnkdntiRy5iUhmHPGON01djZsYlZCXswGRh7KEgWUlq0L2SNw3jMuu1di/Eh6a0pODWz4QqWFbpBwFyRnWHHzoRFneVE2vc8ekqWHcaxb5qEccf2hdu9zhZObFyZEVVM6lppy50J0KBybqrJkda6EwRbqqqODc6T0f0Bx0l45LIuOiUZ0V5ShxA0FxKOYJpmiymOY9GRFiNh0FDbcEyG+Fxn5QXT/WD/aMa1wehgywlmFFVzpcro9p72uTKhCqxcNe0410WrmsSWN8bbPsklr3u2jlVZFo3KJ0HGQ+ZixodaQQbGsfOUoE4vGa3u2lVeOLS0/JCZd1TyWkq60F0JEm7XuJjHOOyyIs/47QMN7OqQ9pCM6Y/IyMiwq+gVGc1xLbsgCh1bMrr/lLrjiNuSHi9TYjGrxFVVNmaIZamBNFqRlVFWK8Nu6ju9Rk29Gpb5uOUDE2Psf0zmaWGNiKlk+leRzozQc9xpFubm1BaUkicNnmFXMcTdAWgm1N6+IRhhVhmpY6RqymGTfUN/Y6pPBYm0s+1t6lavKSMIo5W2YNhPcWr/8kD2LisTb47651rN/JibIqIxmmSzM3k6ogt6S6amk2y4cj/cIUfub+Tg25Z6FnVcO0PQtjBQkmsvBxq1Dqf9P6n3H9np6Vnvtk3HcihmeoaHwVimFwNqCrGTbT824G0VWXOVWhlfv0gXo52K4eWnkK0b6DsCzcXKf+wGTQxUpOIXz9qqn5/pSnFO0iqckSLVxqQqTUShGoirRRdM8tZmj3OIcF44i5PgvcVKzh8QTEuCY7lSkYQGLAVLZu4rHVQFVwHS9xQbwBxlEuvXti5E7JFQw7kJn13q/HHkLNBJS7O+cCBBowxRPrFNIST9us7ktOPISKY+o9tEebwJepa/g0aaku9wyaLwznVfBFuq/0gN9sIh7Ac7cH+ZGn1deB0pxWBxi1ycRYWaWG270VEiCwym0xyu0BldNZdzIR0pczI5KjxYYLpPk5K48YcIBp9QtI3LSAlMwqtq4KmJav1z3C3Xyu29DbrQ+PpC925V6KNp9D9ZjxgSNpaaFB3okNHgJHsaFCxof5V5jMRyOe84b83tSZ7RILK8AGQ+4+KLUvOkgRkxnYvZGbFNugxcaaIC7ToH6cV+wVTupkbG6nNFvB/nc2hJPQQw1jrh5W/uiF2amu7ZsDabqEsrxPGCzanO7bnKkq4CHRx5VtLosmoyrGr5Y60lk8eJodt3WkVRxdi9Aji/TAyHjSoyc3nzUS4kUEl7YUbNycDG6b7st2iR6I2ewnVabL8hFb+E0Iujw0fWs8OPolDLyZ6ndms4I2+HajSJNYQxdBuMDlGqEySiGNE5gSb+21LQWBiNbnngmotmwUGd3WtU9/bZB9lQJZhyiRYngxN8tCriGhIpti5+n6eRAFatmBrtEqZ8sUnQGErx3/Ao5FKY09I/wWMs0YbjbNAnUHzjffmkkPIpycYMpTsHEtJ1lYY051mmqS2tNL90XT034iqi5P69tevLy60Y35MzS5m01tPFEOxBUPYc0UMvhamE7RRvNYG0diuTqDZuA+49tpcerVsSWCZGllkuHwlcJTR6DJEKmg1Kp6IGDUQOCGc5wU6WzHQ/hVnyCWucaGrZDQf8iGQUdo9SsN2hTlD9RIIGjZ4zxNfiqNTk3cX6IqwxlWuMKUs9Q1W2kMb38Cj+hlkMk6yI2yOW1NvRXehpd2AM/NQx5QQPj/LSshkpUswPOwksj7pU48NHAOIkxGzbfsjyPDBVD6S9pHV7sIjze7tjQD4vk5sHX6oSzLLmQvQNx3QMcfgOxdFidWwoJM3NDB6/PBlSwGnk6mUZ06bbj3j86xs0q7ACqPaGQU6n2EGB8vimHWXTQdhwstdfuvcqMLD2dgILeQFYLrwRlXx+l120YlgWaG/uR0wNOGJpgwwgugtD1l4OEbXMbal/YOQh4edx4Hmms7sgejdngYrBcEw3yOJGBAcFV6dG2F5+90RE6wczg02sLgK5Rt/fnjx9ba+/xm1Oi6tJsL07mm7P9kdynAlyyoBf0XbH5fYQq6O6rsjnojN7M6OnG0x6TTBkNln4VsJHgeybUWlnKy7xunH+VmECSASJIGG5O/HR9SRr8ca8612Dwg1M9KbFy4kbFFgs1NXCGEicjceaXrqCPszHHoa3N57G+8uG7i+ujeIvX8zPxasigoJWey04agopKciPwOiLvx9DC9Mvx8els+Dz0WzwlEJrjioL5VRyGRg/G9l363DV4dKA970d7m/aSqv2XfqqFVonJohBGQ1j7VRyRe/Cb+eTZ59fMRdfvB4dLW/TInNKUFC3ecUIraxCR7sQTDiOeNNwVw+ESqjzsp8zRtt25OGma/dTj4jNGOreZXFNUadClvwQEJPCDmiP/YftcXwPfBx7Dz3Km3ZH+uDs/D3pprJQoa9Xa+3J3sn5odd3Pj2QU5bmIrchwCQUCsPue3DjvqTE/XD+j/P68csQpb3DDHnGsH6zzJeA6affPiBg4b+wMJqjpZWDCh37KxwSsA/+5MgPG+vmw1S0jyvjj4f1ZjV/pjYxx4FqR0DxEVSlpYjr687bAJ3rVSoPU6KEYQzVRntgIhKHy6PxIo//+mo3e8RJJ1JPoBEUjZpWvoApYPI0KlopCDNPOJ4n85nFw7vjdvjYcoDCsnTb+yU7nI6XJaehZ4KacsOoQi5PGa4+N3J5OecaK6knL1t8Gs7PFnnoYE0DrP8LMKZzOdcrT5dqd1/+80E7YViyy8sx3SqWfFUsYTc3cETCDtbmQ2V74q7FRWz+6FaTRN/5LJ0XMnziIgsdnVxGgfz+wAAuts1HGLODQkJMjA8rVzicllgZlfQ1mPmeKMGcALSaG3Ynls2oHzaczU3QL8Nw8i5Nz8hYPbKTbeDllST0CqXF63vDe+b1TbT454gGVHKZkObNXbK2eXc1/a5GhoZMFb89DSLWLIyXj/b6NGWaGfAfbeUcAm3vmtJ2Ci99/aJC9MftcX/ZW0CeN35yvx7yFOFx9a4cC54GNyaNIarc7v2idD/+XeGeRGp0cCi6bKEk1Nbbytv62vnHAvRc23WM3Y6UKDIPltCmbTJ/0qTuFM4s2mU72c/eqDCduDEdGdTdBnASw804HTJImpN1mzEyeInVOePHFtLJF8vi13Vd9ZIZgUy9JIIbPIUeSKdZd5+Hn1+VwXtX4e5MSP7qQR83k5or1xTGvcNbd4WJcfwo2O0oVRxPHLY7vGXc+5qCGpNl4JQdQ0oREXbvFhFIKYJsJ5YBMwRzBdAsCCRztUVDLbsvb8vjqt7mwmz57bvCW08f4X4Fwp+D8AcQpUMP4JYWVxgm6H7mWMZW1XZdrm/oulRb232pob77sqkq8HtE7ueTq2Hrd/NPF9yKSD2Uv5w4gjf2c+AUTuIwwThbZKDD7wRoQdLJ63yiImUIlIKShds7YZv+yut1MZhlLvmCip8gTmwGPJV5L7yhZ9pY8wxJAuJyg4iVmmdidx/LG69OzOCZMrp9+f9qtRvThHxQz9GCHp/tZCJ1cjMWuGVf3V6cUntFp/P5iAsPbBKAIgT5vYlZa+slMbehLiYSyD2WdVjn1NtbEi/rGTTYiHAQCvS0pjnHknru36pXr85VdCaAUhD9Gui4lk2fb48afj8xcvJg4h0FioqFJSzYHEMwjAndL2YfZCzcSgNE+w4/oGP8LK1xFBZ5XfPHqKFi5laPHrY1zYzSlI579WpsbmVx6lMx8QgHFW3n0rY1U3HUEKgo5R8koEXOzmgR4aDSKCqmuZMGRjq5YCJpnc1NJFhVQW+jZxgqBr6I4VIMd+4oqNhWWbwv0ELi+8gwl2PQmN97oMNZZM41M4s3FzmPEqQUBBBsaSpz8pJSSHeV5HsTf6+prJkoUHzvKYwWzMnPyRWtya/Z8oHZT+qLEeLzYkfxRTH34wrk9dzov6UeI5IBl3R6SyuIF4mOxPPEPBzOz9LKxg8H5+8TTV8vnC14oSiRk77+3sd0BpSC2C07vDS8pJ8+xX2NZipUTKcRWqE6/pXkdf2HkHtD0KR6W9WIbGtXRDCJa63KjADFBygH/QPXf1zKsSPl1EXRukwmC9rN/sacuxwTQoLl1GXlNU1Gguq+GPNgxCM04IMisvvN3t602rkQhNgcwzdvExSgLmSKbpMeyvy2/GoIyada2mMXkT3R6Gg9Z9JQtoPvIcf/bvZ7nyUcIxwKZucpOPiMz3wR3wWQLpCSjG2QwlWIq9HOdOrIeVIWUh7OTORUg42XE8olxGMJhrmOF0tjM0VJIk3WoURIQP997YzfZzX8lXFsKzw82OGvs4GgyXyrxhQ/aup/KP6ulN3PHoh1ZbVBqZA0l9JoxMym0Vr23Owpj5fZ78GiTmCT7aIWV5Tmr6Gr+iHCtLQmQfK3C4euACbS6COlRX7QBownTQlrcjs7is4RlTcSwo4ops/t0likFb64cdPqGpXZRx/Ou+vKaXNlxbIH2P1QKiSmo4/rRaULUrhFDDjFMiApOLZwazz+agFVEnogEFMDhGCcJKG2unxby0sAywoRLnqDE+mAFluWI2jZPdBXKYjBIgKxVnEwFmjK+AYkDwRnNqb1M5FYlYgAkGjj6S7YI3KlHmjNIK4eP8mG3jtw9OLjAtbPa9MXTPQE164LYAqL/MKpMg5ZL46xd3++G0xQJ5Gk3NPBbKKiELXIoeedYCmrqbE562r9fxndffr7ELdzxBlU58CSEEfUjB2Lne1293BH9iNuzZSJFv7evLbbcH/SWjNvyujKeycOf23nkyNbawoZhgh9zv6lXnvCXv9fwOAwd+zt75HR/Xd2jDs8qGWD9nSYKWexymcc0J42nyER7FaIJ8D9c/FxPEMvQ4g4b9VgRA0wNe9ZkXnu6FO1qh9/e/b+65A0Ieu4Z0zteXFnfEqV54kmFuR+0o0DdQUD+fZmp9leaYUuVef/O5ip/wLloWpBG8jRkYSgMO4JPuKK8YnVCSJEOrLrqMlDc2++evjBfKWlmtga8zurPuYTqyjg8qOlgYQH1ydv374x+SBhwPyBeFkJwwFXiOYUopuFj9sKyGGWW3LP+g8IoBSE+0O22QNwxYrM+wQmtBGQDJq03SNfTmjS1c+gMky+Y4eG1oYMNmS9sanXiW752PFiJq7L2aIFnNxm/zGrLLrTUXgansZ0PrTPy0xAss5SZeGqkv4+gNx4ePpRcfiXU8dSgOXmE4cjboNSkKoyJhblxwTlq0w6kJcteKp+tsj64OHlArE1Nlczykw7P2ABuHojO+6kYy42NFNIjznaXxXpy2/eVZrX94CedfaMUZqrjQnTJphG/zPTGRu4+/GRsQ8zdYqIW1uPZvXQXe2PFqf9EO/rliM7UjwaBW8++uUMxvtOEkrz4VU4dU3TtI3PciXe7dgE5IBqnJ/fbZt4hyxPDdVO49RxwDVN1YELTwpYv64WhfVfGd2oIb3N1foye0UEalXL2ouUirHo1fPW5wfDOjN7evX3I2/liIuFtRJJyl1d9EYqGtGDfDrVaV1SDhNlXm3rRz2yZ7JtXbYnanB28F3R1zXTGN67KoOfX4XnAwfEecV9Eg0JmUdWf/fLRBVa6CO+nCnU9VzUejn69cd9Wy75WcS4k83jsrFRpG2RapCWFLWZtrk2nIAOpzjJ1OTUP83Pv7wxVuZ7MNo8EOGfrNOTpTJtvA0L21Gwv0o2lmhFRZlJQ+DOiFC89mWnvQS+o8kOB8Qkqqq8cgdMP9hSlO5lapYZ11Ladx579/1vP86QWeW0oeLTfmwfZsHJ0CelZCTHjdM6mQa1MuwPU3mw8+LzT18/bQ5bK+8PjXbxjtuFCZsLxpFcMqRd7kHuAcKuVCTTAh9VPOXZl3i2q2Tvvsoo+10hKT3KJHaxwU0GcVhijrQ4IKdIZHM6hx/nyDX0wxOMRGHmkhb7ZnaYs6MjxbZb1navoZUBnelYJdErqNYrKcCeNl9WuxU7Qh3RSunoCCgZSsYNl/BqmdO50JtMpUUmRkXDEb1+PrEkoShBVW5547fY+p49PWhwffEoxnATbtO5KxFQH5qymBapIQU3sVjhAkuj53qiZbHR5BddrWnxBtt1YPbT+jcGP1ZUXr9ZVvlh8Prj+gcUK5sAnIRswCORDHhkCQ4XYOMKK99btXO0amvzrl1bm6tGd+6tKuvXP2z4D/U7AvEN9c/wBmvXu7ynkwrWzOEUADgekmsATGHBZu9U71+aVlQoEf0orADBp5t0XP/f6O6mLYPCJQBbyR/T2+vn+Wf7OvtG9P8W+gM8Ifzv3fS5Euhgj0N0bQBcfaKZyA6fglkhI+8ob5suDozquomhk8hCPYpwxQwzTIWvxOnOaVLBX6UuAbqmlJUssigAH7wThtg3qmMgFqYohFv4N8w4IHx5B3esJ4HbPARH6iILfceuEo5jy8XeUfVrOqCigEchX2IL1KhOaJpgc1WYy0aEYrRGKKb9EZ0GObDQ7hg5XByCxcyjGjneMYmbmahn18XB8dH35vX+TyPg7FsjN+YRTFrq62PJNCcRnmK0LTtUJWp2UaYCi31Khe6tGiXSlTuSWPE4p/mgMoSjk7oqizT2nKZO7sGAWYpwo49KO597PWTWUZfw1AsdxL0FQGE7qGunXQKajCqYBSGE9XDAptq6pa1TYCeG2prGrDvSTGAv5MLMJHWkUKDZGQZaOvH6A2BQn4ywIg2xI2BiPx3SW4YqQ+Mmc2xMgIeBedqqM6g0UvTCpGLtOlODJAbzGx+3ErtDN/dyQ8cWbkk2nHQJFJRxhntKhL8zSeQ5RrhnO32rL2Yd+ATEfh2RcfqprmFVhF3UDTNNaMvBRHmlyeXGEWv0cpu0KtIYIoiisuPtco++O13/qofXi+FzREF9I8IGzF5GIpDpVgP/3rPQ+YyKEI5NyiJLhBGOSzhW11ZTggBySJhkzI9w7QvaU+0oktEPbfcuEo5dGB00pXjSQ3su6Eg7QUdLK0W1VKROpjB5rqXgTh/CGWvsvLDObMN1Ta9joNoYydvoCPLsVc8+N4LKpraG00Umplgt0JNbp00SOoIQ6psJjOodXWgkBhNCR3+Nb+6cERg8Fbrd8u9dFLoH1fOuB/eOVGRpR7u29R1fdavmZIlPeS2OYWPgXB59z1/vVXjh/FCXRZZy061Fgca9isQesVoZ4txEo7ICJFUIE4wiFSDc2G/Wa4HvwgnsamYeP/S5XyU1JNgDEqvuHm0SwaUUEHYoEwm8knrbLucZoWpIqwlajxG2hoIQbydUpFnDihTdyBw4hJWmE9C58///ntq/4VVr6waSyj4bQJBj1/nCDoXv+rilu2joHkLl/fI9er1XOw09N9mbwiblJn3b1UpGVUm/smqJCj9T2S1PXoutzgtCDfUjsk6q15Be3Ox9MKo7PUHorp7cPr198fx+u5zLWTPJksATFe7jsRNMbEaJimEWRO0i0h6+6AyI7pinKEUOc3xD9eRJ6qzBvKqccwMX5GYQdk8+ZQrF0chDRdTGre1TauBo+LwJ1K3crYMaiJNlaBoBsl++29WUBsAbrDCq8mv4ul/5gH1cmxoDIFbmw+/mRKr3muJQGZgYxKJpW+RPwy1598zhnYQKtimsiUPXynzQXDCDWRTSPeJwIhQ4omZabQeHyJYQj+BAWiAA0AYsEpW1JXElLRHkQMt2XX+POot7UxAFrlPn6mLkqW4AGLcsxjTuAMueUwRB0N2ZhgHQnmD4tZYILzx1mP6jUZBwUjMQIUcqRi/0L4DSpb6lCG0rk5IZflsP4KrwKMRSq1TduBzjLKrlPkxuxB3axQpKoJXoVNM5LkTS+3PHupXhdcGMjPW1soWSuOBwGbdJ20jiTXXrEoyR9v6EMF2+dWb75XvwhDYVdbjNAR21NA3c5DMkIursWdJhLKG9lNgnFHr9o1wAtrCVcT1LuDiEoP5ri+HeG3UGTCa3QkAeGsmUTSGzprrSqW46ybM4HG57GGtjm79xkVDoQi3Xn9nVeozdDQhh0O5f9R34ol76X1K7d82/mg91hXB5PRzmh66p+rr3HBzE8pE0orZ4LQQm2ox6l/O/VPC6Zwll6XH8vLl9eEIV+Q+Df9B1WqrqA4R7CfTrMmy/52SyZU4ga2Xz4zWDXTJuqJbc0oK27CZYP8QHI/uykv3qhe6ijhU8MbhlUiiF8wQS4dJ6Mcy6dt1/55smT6PQd62mrpzH7a7izutdMYRP2oiQn1XWaFlndae2NVI/lv6MyI+YKGNBnAhiRPX6Hq9dIoY4kbPcwxJp9qbTRgt5BTtdwTzbjEwxJSJcbVoNHq2L/J//8SBsve1ZnJuxP/ln0jZB8Wu5B54sZSuYJ9vEmZzfEImbBFKONArXdk31gX0f/Vu1d+qI1Ux/UtmjGt0lDpd9scIQ4rkOx0mcnYc2QLO3J5vjzJ159loRwi+DNFj5WSlibXmfKNm8VLhYzM7Mf4S/o9/xqpvOR60/nd5PrfYOikZIfSyFYbiwEeR36NH7+ewWDRp5M/np4QR24j/sO4qU6GHg/zZYBwtfXpRq1+YVFqhbS0WQcoLe97OLcM0JlhgYEEOre70NTn9O1f78fjmGNOv+7E5fgzsqGxZtg3C2b8Z2rMoscbMqtz2KU3PoFwFvKoEVqC1FI6gl9TepANjWTs3jMAKphhQE13bIUC64OFo9uxsGGr7FqVnUMUfzRJl6IMuFMoX7zbQeKNE7XQwHbHvWd2iBCIHzeSICqClT/1kywufcxX/RsTnfX5OTQ52arlRH4IQcoe5GDlOtq1WpCFEhaej0gzTK/zb00Mt4FvcyMMWR8Q8lEz4FUAimIlSFx5wKjUC1+x4iGW1HQ2pzsvmPRxYOv2QOaBLnqwSM6ceL+YD7y0D1tFokdvxzsKUUGvp5XFz2u2FXFVFgixQ4hVITgSMExpG+DS8GRwpPsxq8p6bBNz2dQs101OnZdNksY6fnOhxHcIKCcqw4njWLppYMtG20xn2T+z/Mqm7rdPN/SpBtq6Qy141DLU4aoSXGk0PatrOegtPcDBVUpQXSb3YWTV5qEW9C+4k8MmBnTgYoWGHOoxwrOosiloUn63GGhXZPVJ5hBU3vDYFmN9GqSZLxihHCGNieRNB9cwkOddE25nTXOqpXd51mLwxppOryLU+u4M9QHIUAZR42UQMBBHMZGOLA+NdfEzApvq7jxJdLWygspo/zr0G6iHfqOYBz6QuFUQz44BdGH52pNsBRe65nO5r5SJX5cwdjNb3LquKwT42RXZ1Y1zvwEpdWluXHbukuxATnmBRIGab0al+87OeAIrLF7FiemVR+fdf7XddGocaASxd2Z/uz5bzddts5XWcLc9zhmfjV4NQXQVnn8i9AxVcO9eBVoz/aEtPDKJZS5VoUi9ubCNtJdjm0k1IEexiALXNruUKqMuTOqBiDwJLE8YUsS9UdUIKCNs0PeBRogwkxphXh5cyZ8nTNnDv+9GMCMGnFbZop1AWpjOeB8K2tLnlEfnxMyY8C2uo1xNP3IHJoorCOh6DT1EuS0UaKqZJQzZ526B5lJ3/louZg0ayQKe8ecfNuEW8IVPnLji+LN4t4QxWLFqZJY5O74Rwu0KhzJsoYhKCRbQa3x9BRHbLBxpvqQeC8Xmnj6euzPGzbkeSVgADZxhCd5WLrjtiu0yi6pGogs/4EjWPs/WZibnK5XtgeihhbMIa991LpReulVWZSpXGaX0c8aYOGVKTBeK2G8VrQNPil1+196xmpvuzXWWfkrT8ox4pTSlVE/oS0xv2S+z34z4a+bVcj1LkbIaknCSYUJwWZxNHg6pkZEq0D5sxeTA2lpJVQDYApiYMjzUOijNHNXgzlgco0Tvxo7/j2g5eKwaitzsjppMybHaKbXcP9zn+G9gTXWgC3bSFSjlkt3q6o01Fr7IFPVjo1bXaYjc9h7Ykm42AH6I5fxPWiVrpMFVDqQ9OhtX5Ra5+cytY07iCX/0NcjTsAsE0BIENafiefvsZ8UQmymIcj2952xSrDhRRAQefraVULLkumwoNnN4VpIcOV5KbStHyv+ecusdd+NMFlqMoe6FVwCFGKBqbZvY7UKSWMQJf+4pJZBsADToeVuifZHb7nvoac3o0x2uEMqec1x6VVy0AtiYoPJinJZKoMA/ST22miv5CHrTvjruwLj0v4zP/r0w9mb+xWXqUZ0x1kMRdRJVcl3Vee4+MIOA0A7OCn6NRFzyRA+isBCQDwTmrkFwB8fnzf2j/C/5uyRfEAIGIAgOCL6KLSOyAVWgT69I4mOzb/68iCsrylz3jIl09mkER7d54PNkkN8eRBFXnWM3DQsvmBv3GJyBmf1ea199QpVamizQsa8rj8zR2K84HinEGVGHR5nzxkRnjPmPMTRy5hml/zDQW0hay4HuTp+5T3/cx9Io+cm7FfZ833XPWDUC2pq9fEDjPkN0/uYKhvBLMGo/IrS+9PLjIO5+qDZ3IPJ3O9ra49zOOgV8vcgP1Cw8ZkMYlJ3shOZ/dsl1evLsKQMlOdwN1nqBlqxFSX1M8itcDTTdpFDPlOrH6LZduNMyuWP3DhL2r7OM6GYxIV+Yurr1ZYdyg4XGFwiDUL9ulNOwlU1Vvq6nGxwwXndENKMMzTM2Z7374f2bIBue4h9zNieaSyfhfIF5HeSphue4eMiEdpffj3H1Pvpyt7v06xco2dhIvMkv+F+g1bbpO3OUOnbiKVDZnJU5L/xJk7ATMzAhwnTODAY2ymnAw4d1cDDgEURnBoKAHcAuQconLLOUy6+87h2DxzDq/I7+cIIqX+tomKagBBm7bsL27ZoiUJOg6285ROn4PzKb+NhLmpUjpdM/mbVsybbQTBpLnUUnE7yM3K5GZumalGVtG1aBmYnzTDYhb5+qy5CalFa40v6DATk5VWnZHIbMSiqFKGpHrMg5n8lO2nxTlY2EWqVhOk5u2LlU1SNfYOYwGL0pkDJtljL4O8GrjOvuEF05If5hKQOrLd3CebsqiXR+skG5DgjB7k/y9bcOzWH3iux99OdMqNk/TPBTV6dTsUe/eOQyInC+NEFfO0vnSmIogn7lhn5SieourqtFwhjFFEp7G79ePwuqTtPZqLHBk0VBQgUjPk7AzfGZGGP8FB6KOJjrvAuc23fYgNc4I5fZ8EWoDQjeJcOWz1gHQYGvnOWRYHjd4MXzpbCGHu0z7kLh1ietUPSh1NP/mjgoWfhTkREtoH) format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+:root{
+  --bg:#0E0B14; --bg2:#141020; --card:#1C1726; --card2:#241D31; --line:#2E2640;
+  --ink:#F2EDF6; --muted:#A79BB8; --faint:#6E6380;
+  --accent:#FF3D7F; --accent-soft:#FF3D7F26; --amber:#FFB454; --amber-soft:#FFB4541F;
+  --good:#3DDC97; --good-soft:#3DDC9721; --bad:#FF6B6B; --bad-soft:#FF6B6B21;
+  --chip:#262038; --shadow:0 6px 24px rgba(0,0,0,.45);
+  --grad:linear-gradient(100deg,#FF3D7F,#FF7854 55%,#FFB454);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#FAF7F2; --bg2:#F1EDE6; --card:#FFFFFF; --card2:#F6F2EC; --line:#E5DED4;
+    --ink:#1E1526; --muted:#6E6178; --faint:#A398AE;
+    --accent:#E62E6B; --accent-soft:#E62E6B1A; --amber:#B87400; --amber-soft:#B874001A;
+    --good:#0E9F6E; --good-soft:#0E9F6E1C; --bad:#D64545; --bad-soft:#D6454519;
+    --chip:#EFE9E0; --shadow:0 4px 18px rgba(60,40,80,.10);
+    --grad:linear-gradient(100deg,#E62E6B,#F0642F 55%,#DE9000);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E0B14; --bg2:#141020; --card:#1C1726; --card2:#241D31; --line:#2E2640;
+  --ink:#F2EDF6; --muted:#A79BB8; --faint:#6E6380;
+  --accent:#FF3D7F; --accent-soft:#FF3D7F26; --amber:#FFB454; --amber-soft:#FFB4541F;
+  --good:#3DDC97; --good-soft:#3DDC9721; --bad:#FF6B6B; --bad-soft:#FF6B6B21;
+  --chip:#262038; --shadow:0 6px 24px rgba(0,0,0,.45);
+  --grad:linear-gradient(100deg,#FF3D7F,#FF7854 55%,#FFB454);
+}
+:root[data-theme="light"]{
+  --bg:#FAF7F2; --bg2:#F1EDE6; --card:#FFFFFF; --card2:#F6F2EC; --line:#E5DED4;
+  --ink:#1E1526; --muted:#6E6178; --faint:#A398AE;
+  --accent:#E62E6B; --accent-soft:#E62E6B1A; --amber:#B87400; --amber-soft:#B874001A;
+  --good:#0E9F6E; --good-soft:#0E9F6E1C; --bad:#D64545; --bad-soft:#D6454519;
+  --chip:#EFE9E0; --shadow:0 4px 18px rgba(60,40,80,.10);
+  --grad:linear-gradient(100deg,#E62E6B,#F0642F 55%,#DE9000);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding-bottom:64px;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select,textarea{font:inherit;color:var(--ink)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- masthead ---------- */
+header.mast{
+  position:sticky;top:0;z-index:40;background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 10px) 14px 0;
+}
+.mastrow{display:flex;align-items:baseline;gap:10px;max-width:980px;margin:0 auto;flex-wrap:wrap}
+h1.logo{
+  font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.02em;
+  margin:0;text-transform:uppercase;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  white-space:nowrap;
+}
+.logo .yr{color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.count{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap}
+.count b{color:var(--amber);font-weight:700}
+.tbtn{color:var(--muted);font-size:17px;padding:4px 8px;border-radius:8px}
+.tbtn:hover{color:var(--ink)}
+nav.tabs{display:flex;gap:2px;max-width:980px;margin:6px auto 0}
+nav.tabs button{
+  padding:9px 14px 11px;font-size:14px;font-weight:600;color:var(--muted);
+  border-bottom:2px solid transparent;letter-spacing:.01em;
+}
+nav.tabs button .n{
+  font-size:11px;background:var(--chip);border-radius:9px;padding:1px 6px;margin-left:5px;
+  color:var(--muted);font-variant-numeric:tabular-nums;
+}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button[aria-selected="true"] .n{background:var(--accent-soft);color:var(--accent)}
+
+/* ---------- filter bar ---------- */
+.fwrap{background:var(--bg);border-bottom:1px solid var(--line)}
+.finner{max-width:980px;margin:0 auto;padding:10px 14px}
+.srow{display:flex;gap:8px;align-items:center}
+input.search{
+  flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;min-width:0;
+}
+input.search::placeholder{color:var(--faint)}
+select.sort{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 8px;max-width:132px}
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none;-ms-overflow-style:none}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;background:var(--chip);border:1px solid transparent;border-radius:999px;
+  padding:5px 12px;font-size:13px;color:var(--muted);white-space:nowrap;font-weight:500;
+}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.chip.warn[aria-pressed="true"]{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
+.chip .d{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.fdiv{width:1px;flex:0 0 1px;background:var(--line);margin:2px 4px}
+
+/* ---------- timeline ---------- */
+main{max-width:980px;margin:0 auto;padding:4px 14px 40px}
+.dayhead{
+  position:sticky;top:var(--stick,104px);z-index:20;display:flex;align-items:baseline;gap:10px;
+  background:var(--bg);padding:14px 0 6px;border-bottom:1px solid var(--line);margin-bottom:10px;
+}
+.dayhead .dnum{
+  font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--ink);
+}
+.dayhead.today .dnum{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dayhead .dsub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.dayhead .tod{font-size:11px;font-weight:700;color:var(--bg);background:var(--grad);border-radius:6px;padding:2px 7px;letter-spacing:.08em}
+.dgroup{margin-bottom:26px}
+.cards{display:flex;flex-direction:column;gap:10px}
+
+/* ---------- event card ---------- */
+.ev{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  transition:border-color .15s;
+}
+.ev.exp{border-color:var(--faint);box-shadow:var(--shadow)}
+.ev.is-b{border-left:3px solid var(--good)}
+.ev.is-i{border-left:3px solid var(--amber)}
+.evtop{display:flex;gap:12px;padding:11px 12px;align-items:stretch;width:100%;text-align:left}
+.thumb{
+  flex:0 0 64px;width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;align-self:center;
+}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Anton',Impact,sans-serif;font-size:22px;color:rgba(255,255,255,.92);letter-spacing:.02em;
+}
+.evmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.evname{font-weight:700;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.evmeta{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.evmeta .tm{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.b{
+  font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;background:var(--chip);color:var(--muted);
+  letter-spacing:.02em;white-space:nowrap;
+}
+.b.price{color:var(--ink);font-variant-numeric:tabular-nums}
+.b.free{background:var(--good-soft);color:var(--good)}
+.b.warn{background:var(--amber-soft);color:var(--amber)}
+.b.out{background:var(--bad-soft);color:var(--bad)}
+.b.vibe .d{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.b.fr{background:var(--accent-soft);color:var(--accent)}
+.b.multi{color:var(--muted)}
+.evact{display:flex;flex-direction:column;gap:6px;justify-content:center}
+.act{
+  width:38px;height:30px;border-radius:9px;background:var(--chip);color:var(--faint);
+  display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid transparent;
+}
+.act:hover{color:var(--ink)}
+.act[aria-pressed="true"].star{background:var(--amber-soft);color:var(--amber);border-color:var(--amber)}
+.act[aria-pressed="true"].book{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.evbody{display:none;padding:2px 14px 14px;border-top:1px dashed var(--line)}
+.ev.exp .evbody{display:block}
+.desc{font-size:13.5px;color:var(--muted);margin:10px 0;max-width:64ch;white-space:pre-line}
+.tagline{font-size:12px;color:var(--faint);margin-bottom:10px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.lbtn{
+  display:inline-flex;align-items:center;gap:6px;background:var(--chip);border-radius:9px;
+  padding:7px 12px;font-size:13px;font-weight:600;color:var(--ink)!important;text-decoration:none!important;
+}
+.lbtn.main{background:var(--grad);color:#fff!important}
+.frline{font-size:12.5px;color:var(--muted);margin:8px 0 2px}
+.frline b{color:var(--accent)}
+
+/* booked form */
+.bform{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--good-soft);
+  border:1px solid var(--good);border-radius:10px;padding:9px 10px;margin:10px 0 4px;font-size:13px;
+}
+.bform label{display:flex;align-items:center;gap:5px;color:var(--muted)}
+.bform input{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:4px 7px}
+.bform input.paid{width:76px;font-variant-numeric:tabular-nums}
+.bform input.bdate{width:140px}
+.bform input.bnote{flex:1;min-width:130px}
+
+/* ---------- plan ---------- */
+.planbar{
+  display:flex;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:12px 16px;margin:14px 0;
+}
+.stat{min-width:96px}
+.stat .v{font-family:'Anton',Impact,sans-serif;font-size:22px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.stat .v.g{color:var(--good)}.stat .v.a{color:var(--amber)}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.conflict{
+  font-size:12px;color:var(--bad);background:var(--bad-soft);border-radius:7px;padding:3px 8px;
+  display:inline-block;margin-top:4px;
+}
+.empty{
+  text-align:center;color:var(--muted);padding:56px 20px;font-size:14px;max-width:46ch;margin:0 auto;
+}
+.empty .big{font-family:'Anton',Impact,sans-serif;font-size:22px;color:var(--ink);letter-spacing:.03em;margin-bottom:8px;text-transform:uppercase}
+.subh{
+  font-family:'Anton',Impact,sans-serif;font-size:17px;letter-spacing:.04em;text-transform:uppercase;
+  margin:26px 0 10px;color:var(--ink);
+}
+.subh small{font-family:inherit;font-size:12px;color:var(--muted);letter-spacing:.02em;text-transform:none;font-weight:400}
+
+/* ---------- friends ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.panel h3{margin:0 0 4px;font-size:15px}
+.panel p{margin:6px 0;font-size:13.5px;color:var(--muted);max-width:60ch}
+.prow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pin{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;flex:1;min-width:150px}
+.pbtn{
+  background:var(--grad);color:#fff;font-weight:700;border-radius:10px;padding:9px 16px;font-size:13.5px;
+  white-space:nowrap;
+}
+.pbtn.q{background:var(--chip);color:var(--ink);font-weight:600}
+.frcard{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.frcard:first-of-type{border-top:0}
+.avatar{
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#fff;font-size:15px;flex:0 0 36px;
+}
+.frcard .who{flex:1}.frcard .who b{font-size:14.5px}
+.frcard .who .s{font-size:12px;color:var(--muted)}
+.x{color:var(--faint);font-size:16px;padding:6px}
+.x:hover{color:var(--bad)}
+textarea.code{
+  width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;
+  padding:8px;font-size:11px;font-family:ui-monospace,Menlo,monospace;color:var(--muted);height:64px;resize:none;
+}
+
+/* import banner + toast */
+.banner{
+  position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);z-index:60;
+  background:var(--card);border:1px solid var(--accent);border-radius:14px;box-shadow:var(--shadow);
+  padding:14px;max-width:560px;margin:0 auto;
+}
+.banner .t{font-weight:700;margin-bottom:4px}
+.banner .s{font-size:13px;color:var(--muted);margin-bottom:10px}
+#toast{
+  position:fixed;bottom:calc(env(safe-area-inset-bottom) + 18px);left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:var(--bg);border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:600;
+  z-index:70;opacity:0;transition:all .25s;white-space:nowrap;box-shadow:var(--shadow);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{
+  max-width:980px;margin:30px auto 0;padding:18px 14px calc(env(safe-area-inset-bottom) + 18px);
+  border-top:1px solid var(--line);font-size:12px;color:var(--faint);line-height:1.7;
+}
+.hid{display:none!important}
+@media (max-width:560px){
+  h1.logo{font-size:22px}
+  .thumb{flex-basis:56px;width:56px;height:56px}
+  .stat .v{font-size:19px}
+}
+</style>
+</head>
+<body>
+
+<header class="mast" id="mast">
+  <div class="mastrow">
+    <h1 class="logo">Amsterdam Pride <span class="yr">&times; WorldPride 2026</span></h1>
+    <span class="count" id="countdown"></span>
+    <button class="tbtn" id="themeBtn" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="events">Events <span class="n" id="nEvents"></span></button>
+    <button role="tab" aria-selected="false" data-tab="plan">My Plan <span class="n" id="nPlan"></span></button>
+    <button role="tab" aria-selected="false" data-tab="friends">Friends <span class="n" id="nFriends"></span></button>
+  </nav>
+</header>
+
+<div class="fwrap" id="filterWrap">
+  <div class="finner">
+    <div class="srow">
+      <input class="search" id="q" type="search" placeholder="Search parties, venues, vibes…" aria-label="Search events">
+      <select class="sort" id="sort" aria-label="Sort">
+        <option value="date">By date</option>
+        <option value="priceAsc">Price ↑</option>
+        <option value="priceDesc">Price ↓</option>
+        <option value="name">A–Z</option>
+      </select>
+    </div>
+    <div class="chiprow" id="phaseChips"></div>
+    <div class="chiprow" id="vibeChips"></div>
+    <div class="chiprow" id="priceChips"></div>
+  </div>
+</div>
+
+<main id="viewEvents"></main>
+<main id="viewPlan" class="hid"></main>
+<main id="viewFriends" class="hid"></main>
+
+<footer>
+  Data: <a href="https://docs.google.com/spreadsheets/d/1jR8WFLPGAxa01kddB1rK95OXJ04hO9-avqHNU33F0Yc/edit" target="_blank" rel="noopener">community party guide spreadsheet</a> by
+  <a href="https://www.instagram.com/theonlylovebird" target="_blank" rel="noopener">@theonlylovebird</a>
+  (last sheet update 5 Jul 2026) · official guide at <a href="https://amspride.com" target="_blank" rel="noopener">amspride.com</a>.<br>
+  Prices &amp; times can change — always confirm on the ticket page. Your plan is saved on this device; share it with friends from the Friends tab.
+</footer>
+
+<div id="toast" role="status"></div>
+<div id="importBanner" class="hid"></div>
+
+<script>
+'use strict';
+/* ============ data ============ */
+const EVENTS = [{"name":"ICONS OF DESIRE (Official Opening)","status":"Confirmed","genre":"Art exhibit","dateText":"Fri 24 Jul 2026","start":"2026-07-24","end":"2026-07-24","time":"18:00-22:00","venue":"BONNE & Galerie de Schans (Warmoesstraat 67)","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"With Icons of Desire these worlds return to Amsterdam together once again. The exhibition features original drawings by Tom of Finland from the RoB Amsterdam collection alongside works by artists such as Nigel Kent and Bastille, combined with archival material and contemporary works by a new generation of artists. The exhibition tells not only a story of Queer desire, fetish culture, and sexual freedom, but also one of cultural emancipation. Through the decades-long efforts of Robert Meijer, erotic art became visible within galleries, collections, and the international art world as “fine art”, rather than being confined to the underground or dismissed as forbidden material. Beyond celebrating Queer history, Icons of Desire also aims to introduce a new generation of visitors to this artistic legacy. Many of the works presented in the exhibition have not been shown in Amsterdam or elsewhere in the Netherlands since the closure of RoB Gallery in the 1990s. The exhibition invites both the fetish community and the broader audience of Pride Amsterdam and WorldPride to engage with the artistic, historical, and social significance of erotic art. The exhibition is curated by Richard Villani (Tom of Finland Foundation) and Izaäk Joziasse (RoB Amsterdam), in collaboration with Galerie de Schans. Works from both the archives of RoB Amsterdam and the Tom of Finland Foundation are included in the exhibition.","web":"https://rob-gallery.com/icons-of-desire/","insta":"https://www.instagram.com/rob.gallery.official","tickets":"https://rob-gallery.com/icons-of-desire/","tags":["art","queer","gay","fetish","leather","kink"],"img":"https://rob-gallery.com/wp-content/uploads/go-x/u/f012d298-7c14-46a5-be75-dbbf33dc1e35/l0,t0,w1414,h2000/image-768x1086.png","section":"Pre-Pride — June & July"},{"name":"ICONS OF DESIRE (25 Jul - 15 Aug)","status":"Confirmed","genre":"Art exhibit","dateText":"Sat 25 Jul - Sat Aug 15 2026","start":"2026-07-25","end":"2026-08-15","time":"12:00 - 19:00","venue":"BONNE & Galerie de Schans (Warmoesstraat 67)","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"With Icons of Desire these worlds return to Amsterdam together once again. The exhibition features original drawings by Tom of Finland from the RoB Amsterdam collection alongside works by artists such as Nigel Kent and Bastille, combined with archival material and contemporary works by a new generation of artists. The exhibition tells not only a story of Queer desire, fetish culture, and sexual freedom, but also one of cultural emancipation. Through the decades-long efforts of Robert Meijer, erotic art became visible within galleries, collections, and the international art world as “fine art”, rather than being confined to the underground or dismissed as forbidden material. Beyond celebrating Queer history, Icons of Desire also aims to introduce a new generation of visitors to this artistic legacy. Many of the works presented in the exhibition have not been shown in Amsterdam or elsewhere in the Netherlands since the closure of RoB Gallery in the 1990s. The exhibition invites both the fetish community and the broader audience of Pride Amsterdam and WorldPride to engage with the artistic, historical, and social significance of erotic art. The exhibition is curated by Richard Villani (Tom of Finland Foundation) and Izaäk Joziasse (RoB Amsterdam), in collaboration with Galerie de Schans. Works from both the archives of RoB Amsterdam and the Tom of Finland Foundation are included in the exhibition.","web":"https://rob-gallery.com/icons-of-desire/","insta":"https://www.instagram.com/rob.gallery.official","tickets":"https://rob-gallery.com/icons-of-desire/","tags":["art","queer","gay","fetish","leather","kink"],"img":"https://rob-gallery.com/wp-content/uploads/go-x/u/f012d298-7c14-46a5-be75-dbbf33dc1e35/l0,t0,w1414,h2000/image-768x1086.png","section":"Pre-Pride — June & July"},{"name":"Pride March","status":"Confirmed","genre":"March/Protest","dateText":"Sat 25 Jul 2026","start":"2026-07-25","end":"2026-07-25","time":"11:00 – 13:00","venue":"TBA; ends at Vondelpark","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The annual Pride March walks through the heart of Amsterdam, full of colour, sound, and love. Around 15,000 people march from Amstelveld to Vondelpark, where Pride Park takes place. A demonstration of visibility and solidarity for the global LGBTQIA+ community.","web":"https://pride.amsterdam/en/event/pride-march/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/pride-march/","tags":["march","protest","free","community","activism"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5949","section":"Pre-Pride — June & July"},{"name":"Pride Park","status":"Confirmed","genre":"Performances","dateText":"Sat 25 Jul 2026","start":"2026-07-25","end":"2026-07-25","time":"12:00-22:00","venue":"Vondelpark","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Experience the vibrant atmosphere of Pride Park at Vondelpark on Saturday 25 July. Two stages feature a 10-hour programme with emerging talent and celebrated stars from the global LGBTQIA+ community. Includes the Rainbow Market, Sport Pride, Youth Pride, and more, with the Open Air Theatre as the beating heart of the festivities.","web":"https://pride.amsterdam/en/event/pride-park/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/pride-park/","tags":["free","performances","concerts","community","outdoor","daytime","family-friendly"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5951","section":"Pre-Pride — June & July"},{"name":"Milkshake Festival","status":"Confirmed","genre":"Two-day LGBTQ+ festival","dateText":"Sat 25 Jul - Sun 26 Jul 2026","start":"2026-07-25","end":"2026-07-26","time":"12:00-23:00","venue":"Westerpark","priceText":"€86.50 per day (weekender sold out)","priceMin":86.5,"priceMax":86.5,"free":false,"avail":"⚠️ Almost sold out","desc":"Milkshake Festival is Amsterdam's beloved open-minded electronic dance festival, running since 2012. A collaboration between Air and Paradiso, it offers 11 stages per day showcasing international event organisations, artists, and performers. A celebration where respect, freedom, love, tolerance, and fun are paramount. 18+.","web":"https://www.milkshakefestival.com/","insta":"https://www.instagram.com/milkshakefestival/","tickets":"https://www.milkshakefestival.com/events/milkshake2026","tags":["queer","festival","house","disco","pop","techno","R&B","dancehall","multi-stage","outdoor","daytime","18+"],"img":"https://www.datocms-assets.com/180566/1766481055-milkshake_share-image.jpg?auto=format&fit=max&w=1200","section":"Pre-Pride — June & July"},{"name":"PAARDENRAVE","status":"Confirmed","genre":"Queer / House / Rave","dateText":"Sat 25 Jul 2026","start":"2026-07-25","end":"2026-07-25","time":"23:59-5:00","venue":"Melkweg","priceText":"15-30","priceMin":15.0,"priceMax":30.0,"free":false,"avail":"On sale","desc":"PAARDENRAVE is a Rotterdam multidisciplinary club concept where My Little Pony meets Pride and someone accidentally opened a bottle of poppers in the stable. We are a queer, sweaty, and shamelessly flamboyant rodeo full of high-energy, genre-fluid DJs, ecstatic performers, and enough horse energy to make your mane curl. Expect cowboys kissing cowboys, glitter horses, strippers in chaps, hay in your underwear, carrots flying through the air, and a dance floor that goes on at full gallop until sunrise. Whether you are a horse girl, leather daddy, disco pony, rodeo queen, or just a curious school kid: everyone is welcome in our stable. From clubs to vast festival grounds: PAARDENRAVE has already left its hoofprints at festivals and venues such as Mysteryland, Blijdorp Festival, Perron, and 160K, where every location effortlessly transforms into a temporary pony club. Come as a cowboy, come as a horse, come as your ex's biggest nightmare. Hop in the saddle for the hottest rodeo in town. Yeehaw!","web":"https://www.melkweg.nl/nl/agenda/paardenrave-25-07-2026","insta":"https://www.instagram.com/paardenrave","tickets":"https://www.ticketmaster.nl/event/1841611004","tags":["queer","techno","house","rave"],"img":"https://assets.melkweg.nl/scaled/width:1000_height:/eventpages/0f309b26-a831-48ef-b174-30e1e2a0be3e/ML2025_181836_6I4A4118-CR3_MH.jpg","section":"Pre-Pride — June & July"},{"name":"Pride Oost","status":"Confirmed","genre":"Public pride street party","dateText":"Wed 29 Jul 2026","start":"2026-07-29","end":"2026-07-29","time":"15:00-23:00","venue":"Javaplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Pride Oost is a neighbourhood street party at Javaplein in Amsterdam East. A free, community-driven celebration bringing Pride to one of Amsterdam's most diverse neighbourhoods with music, performances, and local vendors.","web":"https://pride.amsterdam/en/events/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/events/","tags":["free","street party","community","outdoor","daytime","neighbourhood"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957","section":"Pre-Pride — June & July"},{"name":"Pup Crawl Amsterdam","status":"Confirmed","genre":"Fetish / pup","dateText":"Thu 30 Jul 2026","start":"2026-07-30","end":"2026-07-30","time":"19:30-22:30","venue":"Prik; Bears Amsterdam","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Your pup social in Amsterdam: drink, bark, and vibe together with your fellow pups while strolling from Prik (19:30 - 21:00 to Bears Amsterdam (21:00-22:30)","web":"https://www.instagram.com/tekhnicolour","insta":"https://www.instagram.com/tekhnicolour","tickets":"https://www.instagram.com/tekhnicolour","tags":["pup","fetish","bar"],"img":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEQj2nJrQreRohYP95bLusiCrQ-pgd3g9cLbWE_OATeTN7Ie5pRZrdLM&s=10","section":"Pre-Pride — June & July"},{"name":"Pride Stopera Women Party","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"15:00-00:00","venue":"Stopera","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Who Run the World is Amsterdam Pride’s vibrant street party by and for women, taking place in front of the Stopera (City Hall and Opera House). This empowering event brings together women from across the LGBTQIA+ spectrum for an open-air celebration full of music, joy, and community. Set in one of the most scenic spots in central Amsterdam, right along the Amstel River, this party creates a welcoming and inclusive space where women can dance, connect, and fully express themselves. Whether you identify as lesbian, queer, bi, trans, or simply a proud ally, you’ll feel right at home in this uplifting crowd. Expect an energetic mix of female DJs, live performances, and a diverse lineup that reflects the strength, beauty, and power of women. The atmosphere is electric yet laid-back, with a strong sense of togetherness and Pride.","web":"https://www.instagram.com/stoperaplein_festival/","insta":"https://www.instagram.com/stoperaplein_festival/","tickets":"https://www.instagram.com/stoperaplein_festival/","tags":["free","concerts","outdoor","street party","lesbian"],"img":"https://www.nighttours.com/images/headers/675x675/5253.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Waterkant Party","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"15:00-00:00","venue":"Waterkant","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Looking for sunshine, rhythm, and good vibes? The Waterkant Pride Street Party brings the heat with its unmistakable tropical flair. Set along the water’s edge, right beneath the world’s largest Progress Pride flag, this event is a vibrant celebration of diversity, culture, and queer joy. With a capacity of around 1,000 people, the Waterkant party offers a more intimate experience while still packing plenty of energy. The location, tucked under a highway overpass next to the Singelgracht, gives the party an urban-cool edge, while palm trees, bright colors, and Afro-Caribbean beats turn the space into a tropical playground. Expect a mixed and open-minded crowd dancing to upbeat rhythms ranging from Latin pop and Afrobeat to soulful house and reggae. DJs and MCs set the mood with feel-good sets that keep everyone moving, while the food and drinks bring even more flavor to the day. Waterkant is a space where everyone is welcome, queer, straight, local, international, united by the love of music and freedom. If you're after a more relaxed yet undeniably festive Pride vibe, with stunning views and a colorful crowd, this is the party for you.","web":"https://www.instagram.com/waterkantamsterdam/","insta":"https://www.instagram.com/waterkantamsterdam/","tickets":"https://www.instagram.com/waterkantamsterdam/","tags":["free","street party","mixed","Caribbean"],"img":"https://www.nighttours.com/images/headers/1200x675/5268.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Main Stage — Dam Square","status":"Confirmed","genre":"Concerts & Performances","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"Dam Square","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The MainStage on Dam Square is the beating heart of Amsterdam Pride's street parties. Free live concerts and performances from 16:00 to midnight on Friday and Saturday. Organised by Valy Pintiuc of Bar BLEND.","web":"https://pride.amsterdam/en/event/street-parties/","insta":"https://www.instagram.com/mainstageprideamsterdam/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","concerts","performances","outdoor","street party"],"img":"https://melodic-pasca-585e30.netlify.app/images/Dam%20Square%20Main%20Stage.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Bar Prik — Spuistraat Street Party","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"Bar Prik / Spuistraat","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Street party outside Bar Prik on Spuistraat, one of Amsterdam's most popular gay bars. Friendly atmosphere with surprising drinks, music, and dancing spilling out onto the street during Pride.","web":"https://www.prikamsterdam.nl/","insta":"https://www.instagram.com/prik_amsterdam/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","street party","gay bar","outdoor"],"img":"https://static.wixstatic.com/media/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png/v1/fill/w_600,h_600,al_c/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Sweetie Darling Blockparty","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"The Social Hub Amsterdam City (Wibautstraat 129)","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Sweetie Darling's Pride block party at The Social Hub: hot BBQ, cold drinks, dancing, and nothing but good energy. A queer safe space where \"you should have absolutely no desire to fit in\" — celebrating that we come in all shapes, colours, and genders. Party by DJ Darling Peter.","web":"https://www.instagram.com/sweetiedarlingparty/","insta":"https://www.instagram.com/sweetiedarlingparty/","tickets":"https://www.instagram.com/sweetiedarlingparty/","tags":["free","street party","queer","camp","pop","drag","BBQ","outdoor"],"img":"https://pride.amsterdam/wp-content/uploads/2026/04/Header.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride at Reguliers","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"Reguliersdwarsstraat","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The Reguliers Street Party is the largest of all the Amsterdam Pride street events, with a maximum capacity of 4,500 people. Entry is only possible via the Vijzelstraat side. Reguliersdwarsstraat is Amsterdam’s main gay street and widely known for its vibrant scene, making it a popular destination after the Canal Parade. By late afternoon, the party is often at full capacity, so be prepared for long queues. This party has a long line up with Dj's and performers.","web":"https://regulierscelebrates.com","insta":"https://www.instagram.com/regulierscelebrates/","tickets":"https://regulierscelebrates.com","tags":["free","street party"],"img":"https://www.nighttours.com/images/headers/1200x675/689.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride Zeedijk","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"Zeedijk","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The Zeedijk Street Party is a beloved highlight during Amsterdam Pride, hosted by the iconic Café The Queen’s Head. Set in one of Amsterdam’s most charming and historic streets, this street party brings a cozy, festive vibe with a touch of camp and community spirit. With a capacity of around 1,500 people, the Zeedijk event offers a more intimate alternative to the larger parties elsewhere in the city. But don’t let its size fool you—this party is full of energy, laughter, and flamboyant fun. Expect classic pop anthems, drag performances, and a colorful crowd dancing and celebrating into the night. The Queen’s Head, known for its welcoming atmosphere and legendary drag bingo nights, transforms the street into an open-air celebration of pride and diversity. Locals and visitors alike return here year after year for its friendly feel and festive flair. As space is limited, it’s wise to arrive early—this little corner of Pride fills up quickly! Whether you're here to party, meet new friends, or just soak up the atmosphere, the Zeedijk Street Party is a must-visit for anyone looking for a feel-good, unforgettable Pride experience.","web":"","insta":"https://www.instagram.com/cafethequeenshead/","tickets":"","tags":["free","street party"],"img":"","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Homomonument / Westermarkt","status":"Confirmed","genre":"Street party","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"16:00-00:00","venue":"Homomonument","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Street party at the Homomonument on Westermarkt — the world's first monument (1987) commemorating persecuted LGBTQIA+ people. A living memorial that serves as a gathering point for remembrance, protest, and celebration during Pride.","web":"https://pride.amsterdam/en/event/street-parties/","insta":"https://www.instagram.com/homomonument/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","street party","memorial","community","outdoor"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"RUSH","status":"Confirmed","genre":"House / DJ set","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"20:00-01:00","venue":"W Amsterdam","priceText":"€17-50","priceMin":17.0,"priceMax":50.0,"free":false,"avail":"On sale","desc":"Join us for RUSH on Friday, July 31 | 8PM–1AM for a Pride celebration at W Lounge featuring Leland, Josh Harrison and a special appearance by MNEK.","web":"https://www.tixr.com/groups/worldpride/events/worldpride-amsterdam-rush-dsquared-193642","insta":"","tickets":"https://www.tixr.com/groups/worldpride/events/worldpride-amsterdam-rush-dsquared-193642?fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnp4OUS7vgLZNNBg2sWntPtWyJRsEN0-MkeB8LHLX1fr6i22XziEN8BDoOc24_aem_K3kcLWWAoXXuyU3n6WX1Fg&sort=RECOMMENDED&COL=20200&A=L","tags":["house","DJ"],"img":"https://mds-assets.marriott.com/cdn-cgi/image/f=auto/cms-platform-for-marriott/amswh-events-calendar/eventcalendar/pride-promo-stories-rush.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Rapido × FunHouse Pride Opening Party","status":"Confirmed","genre":"Big-room gay circuit; house/tribal; drag-heavy opening-night energy","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"22:00–05:00","venue":"Melkweg","priceText":"€36","priceMin":36.0,"priceMax":36.0,"free":false,"avail":"On sale","desc":"The official WorldPride Amsterdam opening-night party presented by Rapido & FunHouse at Melkweg. Big-room gay circuit energy with international DJs, drag-heavy performances, and stunning production. Rapido is Amsterdam's most famous gay dance party, known for world-class DJs and gorgeous dancers.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-our-pride-opening-event-31-07-2026/","insta":"https://www.instagram.com/rapidoevents/","tickets":"https://www.melkweg.nl/en/agenda/rapido-funhouse-present-world-pride-opening-event-31-07-2026/","tags":["circuit","house","tribal","drag","gay","opening party","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/1__our_world_pride_opening_-_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"FunHouse World Pride","status":"Confirmed","genre":"Circuit / house, immersive shows; 2 indoor rooms + terrace","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"22:00–05:00","venue":"WestWeelde (Westerunie + Westerliefde + Terrace)","priceText":"€41-51","priceMin":41.0,"priceMax":51.0,"free":false,"avail":"On sale","desc":"FunHouse Hub opening night at WestWeelde (Westerunie + Westerliefde + Terrace). Two indoor rooms plus a terrace with circuit and house music, immersive shows, and high-energy production. Part of the massive Rapido/FunHouse WorldPride programming.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-l-friday-31-07-2026/","insta":"https://www.instagram.com/funhousepartyamsterdam/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-l-friday-31-07-2026/#tickets","tags":["circuit","house","immersive","terrace","gay","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/2__funhouse_-_the_world_pride_friday_edition_-_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"BOPS — WorldPride Edition","status":"Confirmed","genre":"Queer pop / disco / house twists; femme-friendly; camp","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"23:00–05:00","venue":"The Other Side","priceText":"~€20","priceMin":20.0,"priceMax":20.0,"free":false,"avail":"On sale","desc":"BOPS is a celebration of pop music across genres and decades, created for and by Amsterdam's queer community. Pop music with house and disco twists in a femme-friendly, campy atmosphere at The Other Side. A beloved fixture of Amsterdam's queer nightlife scene.","web":"https://www.instagram.com/bops.ams/","insta":"https://www.instagram.com/bops.ams/","tickets":"https://shop.weeztix.com/8e451077-cf74-11eb-9194-9e36bf7d673e/tickets","tags":["queer","pop","disco","house","femme-friendly","camp","nightlife"],"img":"https://melodic-pasca-585e30.netlify.app/images/Bops%20-%20July%2031.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"LAUNDRETTE ...IsBurning","status":"Confirmed","genre":"Queer / techno","dateText":"Fri 31 Jul 2026","start":"2026-07-31","end":"2026-07-31","time":"23:00–06:00","venue":"Lofi","priceText":"€32.50-36","priceMin":32.5,"priceMax":36.0,"free":false,"avail":"On sale","desc":"On Friday 31st of July, we are kicking off the IsBurning Pride Weekend with LAUNDRETTE ...IsBurning. You better get ready for this debut collaboration with the Berlin based queer collective. We start this first night at our beloved Lofi and sweat together till the early morning.","web":"","insta":"https://www.instagram.com/isburningamsterdam/","tickets":"https://shop.weeztix.com/35bfa7da-ee27-41d5-ade5-e356fbf3de8a/tickets?shop_code=4kj34cta&original_referer=https%3A%2F%2Fbfwp2.r.ag.d.sendibm3.com%2F","tags":["queer","techno"],"img":"https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vM2ViMjI3YThkMzlkOTZiN2JjYTg3MGUwNWU2MjZkMmE2MGRiZmU5Yi5wbmc=","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"World Pride Music Festival","status":"Confirmed","genre":"Circuit / multi-genre; 3 stages; 18+; international DJs","dateText":"Fri 31 Jul – Sat 1 Aug 2026","start":"2026-07-31","end":"2026-08-01","time":"TBC (2-day)","venue":"AFAS Live","priceText":"€499","priceMin":499.0,"priceMax":499.0,"free":false,"avail":"⚠️ Almost sold out","desc":"Jake Resnicow production (creator of NYC Dreamland and MEAT) at AFAS Live with up to 6,000 capacity across 3 stages. A two-day circuit experience for WorldPride 2026.","web":"https://worldpridefest.com/","insta":"https://www.instagram.com/worldpridemusicfestival/","tickets":"https://www.tixr.com/groups/worldpride/events/world-pride-music-festival-2026-147225","tags":["circuit","multi-genre","international DJs","18+","mega-event"],"img":"https://worldpridefest.com/wp-content/uploads/2024/02/World-Pride-Washington-DC-Festival-2025-4.jpeg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Amsterdam Pride Canal Boat Parade","status":"Confirmed","genre":"The world-famous Amsterdam Canal Parade","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"12:00-18:00","venue":"Prinsengracht","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The world-famous Amsterdam Canal Parade: over 80 decorated boats representing LGBTQ+ organisations, political parties, cultural groups, and companies cruise through Amsterdam's historic UNESCO canals from 12:00 to 18:00. Hundreds of thousands line the canals to watch. The absolute highlight of Pride Amsterdam.","web":"https://pride.amsterdam/en/event/canal-parade/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/event/canal-parade/","tags":["free","canal parade","boats","iconic","outdoor","daytime","family-friendly"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5959","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Main Stage — Dam Square","status":"Confirmed","genre":"Concerts & Performances","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Dam Square","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The MainStage on Dam Square continues on Saturday during Pride — free live concerts and performances from 15:00 to midnight. The central hub of Amsterdam Pride's street party programming.","web":"https://pride.amsterdam/en/event/street-parties/","insta":"https://www.instagram.com/mainstageprideamsterdam/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","concerts","performances","outdoor","street party"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Hunkering Gay Pride Festival","status":"Confirmed","genre":"Festival / DJs / multiple stages","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-04:30","venue":"Generator Amsterdam (Mauritskade 57)","priceText":"24-29","priceMin":24.0,"priceMax":29.0,"free":false,"avail":"On sale","desc":"4 stages - 20 DJ's - Open air & Inside - Oosterpark - Boutique mini-festival - max 600 ppl * Terrace - 1920's-2020's vinyl crate diggers, cocktails & surprises. Brought to you by Facts On Wax. Open from 15.00 - 22.00​​ * Nescio Canteen - Melodic, organic, deep house, house, starting low tempo and ending on a high / 120 -132 BPM. DJ's (A-Z): Dead Donkeys / Ka$hlee / Kuko / Mia la Fontaine / Sam Ace / Stefan Meser. Open from 15.00 till 0.30.​​ * Library - Deephouse, House, longer vibes and dreamy transitions / 120-126 BPM. DJ's (A-Z): Eni Siswaiti / Imaïsha / J&NE (live) / Mario Arend / Mr. Jay / Zoran. Open from 16.00 - 01.00 * Basement Club - House, techno and hard house / 124-136 BPM. DJ's (A-Z): Andy Jennings / Arte-mas / Demba / Lin Reva / Steve Kennedy / Tom van Zuuren / Usatov. Open from 18.00 - 04.30","web":"https://www.hunkering.nl/","insta":"","tickets":"https://sales.ticketing.cm.com/gayprideafter/en-gb/48e1cdbc-9076-4d61-bbc4-8890ececd55f","tags":["melodic","deep house","house","techno","18+","festival"],"img":"https://static.wixstatic.com/media/ff464d_05d530bafc8f41198f166dbb2c0770cf~mv2.png/v1/crop/x_0,y_279,w_1076,h_869/fill/w_1076,h_869,al_c,q_90,enc_avif,quality_auto/logo_hunk_gaypride.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride at Reguliers","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Reguliersdwarsstraat","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The Reguliers Street Party is the largest of all the Amsterdam Pride street events, with a maximum capacity of 4,500 people. Entry is only possible via the Vijzelstraat side. Reguliersdwarsstraat is Amsterdam’s main gay street and widely known for its vibrant scene, making it a popular destination after the Canal Parade. By late afternoon, the party is often at full capacity, so be prepared for long queues. This party has a long line up with Dj's and performers.","web":"https://regulierscelebrates.com","insta":"https://www.instagram.com/regulierscelebrates/","tickets":"https://regulierscelebrates.com","tags":["free","street party"],"img":"https://www.nighttours.com/images/headers/1200x675/689.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Bar Prik — Spuistraat Street Party","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Bar Prik / Spuistraat","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Saturday edition of the street party outside Bar Prik on Spuistraat. One of Amsterdam's most popular gay bars comes alive during Canal Parade weekend with drinks, DJs, and outdoor revelry.","web":"https://www.prikamsterdam.nl/","insta":"https://www.instagram.com/prik_amsterdam/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","street party","gay bar","outdoor"],"img":"https://static.wixstatic.com/media/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png/v1/fill/w_600,h_600,al_c/36fea0_42dd37e2a4ae48f89215a9cbf448e764~mv2_d_1686_1686_s_2.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Homomonument / Westermarkt","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Homomonument","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Saturday street party at the Homomonument on Westermarkt during Canal Parade weekend. The world's first LGBTQIA+ monument transforms into one of Pride's liveliest street party locations.","web":"https://pride.amsterdam/en/event/street-parties/","insta":"https://www.instagram.com/homomonument/","tickets":"https://pride.amsterdam/en/event/street-parties/","tags":["free","street party","memorial","community","outdoor"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5957","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride Zeedijk","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Zeedijk","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The Zeedijk Street Party is a beloved highlight during Amsterdam Pride, hosted by the iconic Café The Queen’s Head. Set in one of Amsterdam’s most charming and historic streets, this street party brings a cozy, festive vibe with a touch of camp and community spirit. With a capacity of around 1,500 people, the Zeedijk event offers a more intimate alternative to the larger parties elsewhere in the city. But don’t let its size fool you—this party is full of energy, laughter, and flamboyant fun. Expect classic pop anthems, drag performances, and a colorful crowd dancing and celebrating into the night. The Queen’s Head, known for its welcoming atmosphere and legendary drag bingo nights, transforms the street into an open-air celebration of pride and diversity. Locals and visitors alike return here year after year for its friendly feel and festive flair. As space is limited, it’s wise to arrive early—this little corner of Pride fills up quickly! Whether you're here to party, meet new friends, or just soak up the atmosphere, the Zeedijk Street Party is a must-visit for anyone looking for a feel-good, unforgettable Pride experience.","web":"","insta":"https://www.instagram.com/cafethequeenshead/","tickets":"","tags":["free","street party"],"img":"","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Waterkant Party","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"15:00-00:00","venue":"Waterkant","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Looking for sunshine, rhythm, and good vibes? The Waterkant Pride Street Party brings the heat with its unmistakable tropical flair. Set along the water’s edge, right beneath the world’s largest Progress Pride flag, this event is a vibrant celebration of diversity, culture, and queer joy. With a capacity of around 1,000 people, the Waterkant party offers a more intimate experience while still packing plenty of energy. The location, tucked under a highway overpass next to the Singelgracht, gives the party an urban-cool edge, while palm trees, bright colors, and Afro-Caribbean beats turn the space into a tropical playground. Expect a mixed and open-minded crowd dancing to upbeat rhythms ranging from Latin pop and Afrobeat to soulful house and reggae. DJs and MCs set the mood with feel-good sets that keep everyone moving, while the food and drinks bring even more flavor to the day. Waterkant is a space where everyone is welcome, queer, straight, local, international, united by the love of music and freedom. If you're after a more relaxed yet undeniably festive Pride vibe, with stunning views and a colorful crowd, this is the party for you.","web":"https://www.instagram.com/waterkantamsterdam/","insta":"https://www.instagram.com/waterkantamsterdam/","tickets":"https://www.instagram.com/waterkantamsterdam/","tags":["free","street party","mixed","Caribbean"],"img":"https://www.nighttours.com/images/headers/1200x675/5268.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride Stopera Women Party","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"16:00-00:00","venue":"Stopera","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Who Run the World is Amsterdam Pride’s vibrant street party by and for women, taking place in front of the Stopera (City Hall and Opera House). This empowering event brings together women from across the LGBTQIA+ spectrum for an open-air celebration full of music, joy, and community. Set in one of the most scenic spots in central Amsterdam, right along the Amstel River, this party creates a welcoming and inclusive space where women can dance, connect, and fully express themselves. Whether you identify as lesbian, queer, bi, trans, or simply a proud ally, you’ll feel right at home in this uplifting crowd. Expect an energetic mix of female DJs, live performances, and a diverse lineup that reflects the strength, beauty, and power of women. The atmosphere is electric yet laid-back, with a strong sense of togetherness and Pride.","web":"https://www.instagram.com/stoperaplein_festival/","insta":"https://www.instagram.com/stoperaplein_festival/","tickets":"https://www.instagram.com/stoperaplein_festival/","tags":["free","concerts","outdoor","street party","lesbian"],"img":"https://www.nighttours.com/images/headers/675x675/5253.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Saarein Street Party","status":"Confirmed","genre":"Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"16:00-00:00","venue":"Saarein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Tucked away in the charming Jordaan neighborhood, the Saarein Pride Street Party is a true hidden gem. While it may not be as widely known as some of the larger events, that’s exactly what makes it so special, its smaller scale and relaxed vibe create a uniquely welcoming and intimate atmosphere. Hosted by the legendary Café Saarein, one of Amsterdam’s most beloved queer-friendly bars with a rich 'herstory' rooted in the city’s lesbian scene, this street party offers a refreshing alternative to the high-energy chaos of the city center. The crowd here is diverse and down-to-earth, with locals and in-the-know visitors coming together to dance, mingle, and celebrate Pride in a cozy, inclusive setting. Expect a warm, laid-back street festival feel with good tunes, flowing drinks, and friendly faces. The music ranges from funky disco and classic pop to soulful beats that get the street dancing without overwhelming the space.","web":"","insta":"https://www.instagram.com/cafesaarein/","tickets":"","tags":["free","street party"],"img":"","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Crash Beursplein - Fetish Party","status":"Confirmed","genre":"Fetish, Street party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"16:00-00:00","venue":"Beursplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Crash is Amsterdam Pride’s boldest street party. Taking place at Beursplein, right in the city center next to the iconic Bijenkorf department store, Crash transforms this public square into a raw, high-energy celebration. This street party stands out with its edgy kinky vibe, welcoming leather, rubber, harnesses, sports gear, and any outfit (or lack thereof) that shows off your pride and identity. Whether you're a fetish regular or simply curious, Crash offers a safe and inclusive space to express yourself and enjoy the company of like-minded individuals. The music is hard-hitting and relentless, with top-notch Dj's spinning everything from techno to dark house, creating an underground club atmosphere in the open air. Expect sexy performances, go-go dancers, and an all-around adult vibe—not suitable for the faint of heart, but absolutely unforgettable for those who love the night a little darker. Crash is organized by some of the city’s leading fetish and queer nightlife promoters, and it draws an international crowd. Arrive ready to dance, sweat, and celebrate your kinks—because at Crash, pride comes with attitude.","web":"https://www.crashamsterdam.com","insta":"https://www.instagram.com/crash_amsterdam/","tickets":"https://www.crashamsterdam.com","tags":["free","street party","festish","bears"],"img":"https://www.nighttours.com/images/headers/675x675/4962.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"DSQUARED2","status":"Confirmed","genre":"House / DJ set / drag","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"20:00-01:00","venue":"W Amsterdam","priceText":"€17-50","priceMin":17.0,"priceMax":50.0,"free":false,"avail":"On sale","desc":"Join us and Dsquared2 on Saturday, August 1 | 8PM–1AM for a Pride celebration at W Lounge featuring Gottmik, DJ Michael Navarro, hosted by Dean & Dan. At W Amsterdam we stand for love in all its forms. Come as you are. Leave unforgettable.","web":"https://www.tixr.com/groups/worldpride/events/worldpride-amsterdam-rush-dsquared-193642","insta":"","tickets":"https://www.tixr.com/groups/worldpride/events/worldpride-amsterdam-rush-dsquared-193642?sort=RECOMMENDED&COL=20201&A=L","tags":["house","DJ","drag"],"img":"https://mds-assets.marriott.com/cdn-cgi/image/f=auto/cms-platform-for-marriott/amswh-events-calendar/eventcalendar/pride-promo-stories-extra.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"FunHouse XL — WorldPride Saturday","status":"Confirmed","genre":"Uplifting/progressive house; circuit; huge production; sexy crowd","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00–07:00","venue":"WestWeelde (Westerunie + Westerliefde + Transformatorhuis + Terrace)","priceText":"—","priceMin":null,"priceMax":null,"free":false,"avail":"⚠️ SOLD OUT — resale (Ticketswap) only","desc":"The major Saturday circuit flagship of WorldPride weekend. Uplifting/progressive house with huge production, sexy crowd, and 4 spaces at WestWeelde (Westerunie + Westerliefde + Transformatorhuis + Terrace). Sold out — resale on Ticketswap only.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-xl-01-08-2026/","insta":"https://www.instagram.com/funhousepartyamsterdam/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-xl-01-08-2026/","tags":["circuit","house","progressive","sexy","production","gay","sold out","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/3__funhouse_-_the_saturday_edition_-_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Club MEIJT invites Ferry: The World Pride Amsterdam Edition","status":"Confirmed","genre":"House, disco, pop and everything in between","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00–05:00","venue":"Akhnaton","priceText":"€16.50-€22.50","priceMin":16.5,"priceMax":22.5,"free":false,"avail":"On sale","desc":"The official afterparty of Pride Amsterdam — a night full of beats, glitter, and good vibes with the whole queer fam at Akhnaton. MEIJT teams up with Ferry (Rotterdam's beloved queer venue on Westblaak) for a WorldPride collaboration. House, disco, pop and everything in between.","web":"https://www.universe.com/events/club-meijt-the-world-pride-amsterdam-edition-tickets-7Z9DF0","insta":"https://www.instagram.com/meijt/","tickets":"https://www.universe.com/events/club-meijt-the-world-pride-amsterdam-edition-tickets-7Z9DF0","tags":["queer","house","disco","pop","afterparty","Pride Amsterdam official"],"img":"https://melodic-pasca-585e30.netlify.app/images/Meijt%20Ferry%20World%20Pride.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Bear Necessity — WorldPride Edition","status":"Confirmed","genre":"Tech-house / sexy grooves; bears, chasers & admirers; friendly but masc-leaning","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00–05:00","venue":"Panama","priceText":"€36-62","priceMin":36.0,"priceMax":62.0,"free":false,"avail":"On sale","desc":"Main WorldPride bear party at Club Panama. Bear Necessity is one of Europe's largest bear parties, launched in 2008 by Sjag Kozak. A mix of fetish, dance, and cruise with a chill-out lounge and play area. Tech-house and sexy grooves for bears, chasers, and admirers. Body-positive and inclusive.","web":"https://bear-necessity.eu/project/bear-necessity-world-pride/","insta":"https://www.instagram.com/bear_necessity_ams/","tickets":"https://bear-necessity.eu/project/bear-necessity-world-pride/","tags":["bears","tech-house","sexy","fetish","cruise","body-positive","gay","nightlife"],"img":"https://bear-necessity.eu/wp-content/uploads/2026/01/603094055_18543402688052559_8914257163053271138_n.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Headrush x Damage","status":"Confirmed","genre":"Techno + cruising","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00 - 06:00","venue":"The Other Side","priceText":"€36.75-€54.25","priceMin":36.75,"priceMax":54.25,"free":false,"avail":"⚠️ Almost sold out","desc":"Headrush x Damage: Amsterdam's biggest gay fetish party meets queer techno rave for the WorldPride Edition. Progressive house DJs, kink performances, and a 14.1 L-Acoustics L-ISA spatial audio system at The Other Side. ~1,200 attendees. Powered by MisterB. Every fetish welcome.","web":"https://www.universe.com/events/headrush-x-damage-amsterdam-world-pride-edition-tickets-3MHLX2","insta":"https://www.instagram.com/headrush_techno/","tickets":"https://www.universe.com/events/headrush-x-damage-amsterdam-world-pride-edition-tickets-3MHLX2","tags":["techno","fetish","cruising","queer","dark","rave","18+","nightlife"],"img":"https://pride.amsterdam/wp-content/uploads/2026/04/Headrush_x_damage_World_Pride_add-1024x1024.jpeg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Poof Doof x Chili con Carnaval x Sweetie Darling","status":"Confirmed","genre":"Pop / house / circuit; Australia's biggest gay party","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00 - 06:00","venue":"Sissi's (Anthony Fokkerweg 3)","priceText":"€29","priceMin":29.0,"priceMax":29.0,"free":false,"avail":"On sale","desc":"Australia’s iconic queer party POOF DOOF Red Rave is teaming up with Dutch party power houses Sweetie Darling and Chili Con Carneval to produce three spaces of techno, house, queer dance and pop til dawn at our World Pride Parade After Party on Saturday August 1 at Sissi's. Lineup: DJ HYPERDRIVE TAYCE from RUPAUL’S DRAG RACE UK MATT SUAVE (USA) ALDONNA BOUDI & POP TESS THOM BOLD GLBRT ABSOLUTE. (UK) JIMI THE KWEEN (AU) ARGONAUT (AU) BAIIN TWINS (AU) M’RK (AU) MRCL (AU) JAMIE CD (USA) D-JAYE DARLING PETER ALAIA POPPY AARON DELUCOIRE STACHE","web":"https://poofdoof.com/","insta":"https://www.instagram.com/poofdoof/","tickets":"https://poofdoof.com/location/international/","tags":["gay","pop","house","circuit","drag","Australian","international","nightlife"],"img":"https://melodic-pasca-585e30.netlify.app/images/Poof%20Doof.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Tillatec Invites: Herrensauna + Knit (First event in 36-hour weekender)","status":"Confirmed","genre":"Berlin techno / house / tech house with a big playroom","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"22:00 - 12:00","venue":"Tillatec","priceText":"€42","priceMin":42.0,"priceMax":42.0,"free":false,"avail":"⚠️ Almost sold out","desc":"TILLATEC invites Herrensauna (the legendary Berlin collective known for its synthesis of hard techno and fetish aesthetics, est. 2015) and KNIT (Amsterdam's invite-only sex-positive queer club night).","web":"https://www.tillatec.com/events","insta":"https://www.instagram.com/tillatec/","tickets":"https://shop.weeztix.com/a51a5bce-e84f-4de7-b6ab-f5c23912bfe0/tickets","tags":["techno","house","Berlin","sex-positive","dark","cruising","queer","sold out","nightlife"],"img":"https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Club NYX / 3xNYX — Pride Edition","status":"Expected (not yet posted)","genre":"Pop, house, hip-hop/R&B; younger mixed queer crowd; 3 floors; drag shows","dateText":"Likely Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"Late / TBD","venue":"Club NYX, Reguliersdwarsstraat","priceText":"Unknown","priceMin":null,"priceMax":null,"free":false,"avail":"Not yet","desc":"Amsterdam's most popular queer party every Saturday at Club NYX on Reguliersdwarsstraat — the heart of the gaybourhood. Three floors with several dancefloors, bars, and a lounge. Pop, house, hip-hop/R&B with a younger mixed queer crowd and drag shows. A very plausible Pride-weekend edition based on history.","web":"https://clubnyx.nl/agenda/3x-nyx/","insta":"https://www.instagram.com/3xnyx/","tickets":"https://3xnyx.nl/","tags":["queer","pop","house","hip-hop","R&B","drag","young","mixed","nightlife"],"img":"https://clubnyx.nl/wp-content/uploads/2018/05/3xNyxstart.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Gay Disko - Pride Amsterdam Afterparty","status":"Confirmed","genre":"Disco","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"23:00 - 05:00","venue":"Rembrandtplein, Club Oliva","priceText":"€16.50-22.50","priceMin":16.5,"priceMax":22.5,"free":false,"avail":"On sale","desc":"Gay Disko presents the Pride Amsterdam Afterparty at Club Oliva on Rembrandtplein. A disco-fuelled night to keep the party going after the main events. Club Oliva is a 21+ nightclub open until 05:00.","web":"https://gaydisko.com","insta":"https://www.instagram.com/gaydisko/","tickets":"https://gaydisko.com","tags":["disco","gay","afterparty","nightlife"],"img":"https://gaydisko.com/wp-content/uploads/2026/04/cropped-gay-disko_content.jpg?w=200","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Pride ...IsBurning","status":"Confirmed","genre":"Queer underground house/techno","dateText":"Sat 1 Aug 2026","start":"2026-08-01","end":"2026-08-01","time":"23:00-08:00","venue":"Lofi","priceText":"€26-41","priceMin":26.0,"priceMax":41.0,"free":false,"avail":"⚠️ SOLD OUT — resale (Ticketswap) only","desc":"IsBurning is one of Amsterdam's most essential queer parties, co-founded by Carlos Valdes and Sandrien in 2014 at the legendary Trouw. Known for its underground house and electro energy, IsBurning has helped shape Amsterdam's queer party scene and recently launched HEATWAVE, a talent development programme for emerging creatives in club culture.","web":"https://www.isburning.com/events","insta":"https://www.instagram.com/isburningamsterdam/","tickets":"https://shop.weeztix.com/5c214641-c9a8-4d8c-a622-a7f656b312db/tickets?shop_code=5d5t456j","tags":["queer","house","techno","underground"],"img":"https://cdn.prod.website-files.com/65b12e9a417fbc42aeb48160/6710024c899020d608e180c0_Asset%201ISBURNING.webp","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Tillatec Invites: KNIT (Second event in 36-hour weekender)","status":"Confirmed","genre":"Berlin techno / house / tech house with a big playroom","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"12:00 - 22:00","venue":"Tillatec","priceText":"€42","priceMin":42.0,"priceMax":42.0,"free":false,"avail":"On sale","desc":"The second part of TILLATEC's 36-hour weekender continues the party with KNIT (Amsterdam's invite-only sex-positive queer club night).","web":"https://www.tillatec.com/events","insta":"https://www.instagram.com/tillatec/","tickets":"https://shop.weeztix.com/a51a5bce-e84f-4de7-b6ab-f5c23912bfe0/tickets","tags":["techno","house","Berlin","sex-positive","dark","cruising","queer","sold out","nightlife"],"img":"https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Bear Necessity — T-Dance","status":"Confirmed","genre":"Bear T-dance / daytime social vibe","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"15:00 - 22:00","venue":"Panama","priceText":"€36-62","priceMin":36.0,"priceMax":62.0,"free":false,"avail":"On sale","desc":"Daytime social bear event at Club Panama. The T-Dance offers a more relaxed, social vibe compared to the Saturday night party — a chance to connect with the international bear community in the afternoon sun during WorldPride.","web":"https://bear-necessity.eu/project/t-dance/","insta":"https://www.instagram.com/bear_necessity_ams/","tickets":"https://bear-necessity.eu/project/t-dance/","tags":["bears","t-dance","daytime","social","body-positive","gay"],"img":"https://bear-necessity.eu/wp-content/uploads/2026/01/BNTD.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Spielraum ...IsBurning — Pride","status":"Confirmed","genre":"Queer underground house/techno","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"12:00-23:00","venue":"Lofi","priceText":"€17.50-40","priceMin":17.5,"priceMax":40.0,"free":false,"avail":"On sale","desc":"IsBurning is one of Amsterdam's most essential queer parties, co-founded by Carlos Valdes and Sandrien in 2014 at the legendary Trouw. Known for its underground house and electro energy, IsBurning has helped shape Amsterdam's queer party scene and recently launched HEATWAVE, a talent development programme for emerging creatives in club culture.","web":"https://www.isburning.com/events","insta":"https://www.instagram.com/isburningamsterdam/","tickets":"https://shop.weeztix.com/5c214641-c9a8-4d8c-a622-a7f656b312db/tickets?shop_code=5d5t456j","tags":["queer","house","techno","underground"],"img":"https://cdn.prod.website-files.com/65b12e9a417fbc42aeb48160/6710024c899020d608e180c0_Asset%201ISBURNING.webp","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"FunHouse Hub XL — Daytime Rave","status":"Confirmed","genre":"Circuit / outdoor / daytime","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"13:00–23:00","venue":"WestWeelde (4 spaces)","priceText":"€46-51","priceMin":46.0,"priceMax":51.0,"free":false,"avail":"On sale","desc":"Sunday daytime rave at WestWeelde with 4 spaces before the closing events. A high-energy outdoor circuit party running 13:00-23:00 — the perfect way to spend Sunday during WorldPride before the after-hours begin.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-xl-sunday-02-08-2026/","insta":"https://www.instagram.com/funhousepartyamsterdam/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-xl-sunday-02-08-2026/#tickets","tags":["circuit","house","outdoor","daytime","rave","gay"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/4__sunday_daytime_rave_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"World Pride Drag Brunch","status":"Confirmed","genre":"Drag show","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"12:00-17:30","venue":"Hard Rock Cafe","priceText":"€46","priceMin":46.0,"priceMax":46.0,"free":false,"avail":"On sale","desc":"Get ready to sip, savor, and celebrate at the most fabulous in-person event of the year at Hard Rock Cafe Amsterdam, presented by Innova Talent Agency. World Pride Drag Brunch 2026 is packed with dazzling performances including special guest from Rupaul's Drag Race, tasty food, and an unbeatable vibe. Whether you’re here for the glitter, the laughs, or just to enjoy an epic brunch with amazing people, this is the place to be! Don’t miss out on the fun & let’s make memories, sparkle together, and honor pride in the most colorful way! Two times: 12:00; 15:00","web":"https://www.dragbrunchworldpride.com/","insta":"","tickets":"https://shops.link2ticket.nl/13hJau","tags":["drag","performances","Drag Race","queer","international","show"],"img":"https://static.wixstatic.com/media/7473d3_34c6cdffaf804cbbbe2c68ef508b1a18~mv2.jpg/v1/fill/w_2676,h_1510,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/7473d3_34c6cdffaf804cbbbe2c68ef508b1a18~mv2.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Rapido — WorldPride Edition","status":"Confirmed","genre":"Classic Amsterdam gay circuit; daytime-into-night house/progressive","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"15:00–02:00","venue":"Paradiso","priceText":"—","priceMin":null,"priceMax":null,"free":false,"avail":"⚠️ SOLD OUT — resale (Ticketswap) only","desc":"The Sunday flagship Rapido event at Paradiso — Amsterdam's signature Pride party and one of Europe's most iconic gay circuit events. Sold out — resale on Ticketswap only.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-rapido-02-08-2026/","insta":"https://www.instagram.com/rapidoevents/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-rapido-02-08-2026/","tags":["circuit","house","progressive","gay","iconic","sold out","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/5__rapido_world_pride_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"WE ARE THEM","status":"Confirmed","genre":"Drag show","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"18:30","venue":"Melkweg","priceText":"€210","priceMin":210.0,"priceMax":210.0,"free":false,"avail":"⚠️ Almost sold out","desc":"WE ARE THEM — A Global Drag Race Extravaganza presented by Warner Talent Agency and Drags of Anarchy. The biggest drag show of WorldPride brings together international superstars from across the globe on one stage: Alaska Thunderfuck, Brooke Lynn Hytes, Envy Peru, Janey Jacké, Keta Minaj, Miz Cracker, My Little Puny, Myki Meeks, Nicky Doll, Pangina Heals, Symone, and Trinity the Tuck.","web":"https://www.melkweg.nl/nl/agenda/we-are-them-02-08-2026/","insta":"https://www.instagram.com/melkwegamsterdam/","tickets":"https://www.melkweg.nl/nl/agenda/we-are-them-02-08-2026/","tags":["drag","performances","Drag Race","queer","international","show"],"img":"https://assets.melkweg.nl/eventpages/b6388727-377a-4956-b2e5-70221039ce3a/WeAreThem_Banner.jpg","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Tillatec Invites: KNIT + VESELKA (Third event in 36-hour weekender)","status":"Confirmed","genre":"Berlin techno / house / tech house with a big playroom","dateText":"Sun 2 Aug 2026","start":"2026-08-02","end":"2026-08-02","time":"22:00 - 08:00","venue":"Tillatec","priceText":"€42","priceMin":42.0,"priceMax":42.0,"free":false,"avail":"On sale","desc":"The third part of TILLATEC's 36-hour weekender invites VESELKA, a collective from Kyiv, Ukraine.","web":"https://www.tillatec.com/events","insta":"https://www.instagram.com/tillatec/","tickets":"https://shop.weeztix.com/a51a5bce-e84f-4de7-b6ab-f5c23912bfe0/tickets","tags":["techno","house","Berlin","sex-positive","dark","cruising","queer","sold out","nightlife"],"img":"https://i.ibb.co/GfL1ZN45/Screenshot-2026-05-14-at-13-02-15.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Rapido × FunHouse — The AFTER","status":"Confirmed","genre":"After-hours / deep / after-beats; for people refusing to go home","dateText":"Sun 2 Aug / Mon 3 Aug 2026","start":"2026-08-02","end":"2026-08-03","time":"23:59–dawn","venue":"Westerunie (WestWeelde)","priceText":"€31","priceMin":31.0,"priceMax":31.0,"free":false,"avail":"On sale","desc":"Official closing afterparty for Amsterdam Pride weekend 1. After-hours deep beats from 23:59 to dawn at Westerunie.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-our-closing-event-after-02-08-2026/","insta":"https://www.instagram.com/rapidoevents/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-our-closing-event-after-02-08-2026/#tickets","tags":["after-hours","deep house","circuit","closing party","gay","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/6__our_world_pride_closing_-_the_after_a3.png","section":"Amsterdam Pride — Fri July 31 - Sun Aug 2"},{"name":"Choir Festival: Queer Voices Unite","status":"Confirmed","genre":"Concert","dateText":"Mon 3 Aug 2026","start":"2026-08-03","end":"2026-08-03","time":"19:00-23:00","venue":"Concertgebouw","priceText":"€35","priceMin":35.0,"priceMax":35.0,"free":false,"avail":"On sale","desc":"Eight queer choirs from all over the world — from Los Angeles and Taiwan to Amsterdam — perform at the prestigious Concertgebouw. Presented by Carolien Borgers and Jeangu Macrooy, this is a unique evening celebrating queer voices in one of the world's finest concert halls.","web":"https://www.concertgebouw.nl/en/concerts/42276321-choir-festival-queer-voices-unite","insta":"https://www.instagram.com/queerchoir_amsterdam/","tickets":"https://www.concertgebouw.nl/en/concerts/42276321-choir-festival-queer-voices-unite","tags":["concert","choir","queer","international","classical venue","performances"],"img":"https://d35w1qwxagl33g.cloudfront.net/production/_2238x1076_crop_center-center_none/korenfest.png?stamp=2603012359&tag=2xl","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"World Pride Unity Concert","status":"Confirmed","genre":"Concert","dateText":"Tue 4 Aug 2026","start":"2026-08-04","end":"2026-08-04","time":"18:00 – 23:00","venue":"Museumplein","priceText":"€22.50 regular / €27.50 late & door (€45 for 3-day pass)","priceMin":22.5,"priceMax":45.0,"free":false,"avail":"On sale","desc":"WorldPride UNITY Concert at Museumplein with 25,000 visitors. Headliners are Beth Ditto and Billy Porter; hosted by Conchita Wurst and Envy Peru. World-class artists, local heroes, and queer performers share their stories through music, words, images, and light. Part of the 3-concert Museumplein series (passe-partout €45).","web":"https://pride.amsterdam/en/event/unity-concert/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/unity-concert/","tags":["concert","outdoor","Museumplein","performances","queer","mega-event"],"img":"https://pride.amsterdam/wp-content/uploads/2026/03/713704209_18589539814045435_2783331187144901537_n.jpg","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"HOME COMING: The Queer Keys Showcase","status":"Confirmed","genre":"Concert / Choir","dateText":"Wed 5 Aug 2026","start":"2026-08-05","end":"2026-08-05","time":"19:00-21:00","venue":"RITA Community Center (Reguliersdwarsstraat 54)","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The Queer Keys — Amsterdam's LGBTQ+ choir collective — is excited to invite you to their very first showcase! Join for an evening of music, community & queer joy as we celebrate everything we’ve built together over the past months. Everyone is welcome. Bring your friends, your chosen family, and your fabulous self. ðð¶ To apply to join the choir, please DM @thequeerkeys or @steminmusic on Instagram.","web":"https://www.instagram.com/thequeerkeys/","insta":"https://www.instagram.com/thequeerkeys/","tickets":"https://www.instagram.com/thequeerkeys/","tags":["concert","choir","queer","performances"],"img":"https://i.ibb.co/WpgLRWrZ/Screenshot-2026-07-07-at-16-57-01.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"WorldPride Village","status":"Confirmed","genre":"Outdoor","dateText":"Wed 5 Aug 2026","start":"2026-08-05","end":"2026-08-05","time":"12:00 – 23:00","venue":"Museumplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The WorldPride Village is the meeting place for everyone during the second week of WorldPride, where LGBTI+ organizations and culture take center stage. WorldPride Village is located in the heart of Amsterdam's historic art hotspot: Museumplein, surrounded by the Rijksmuseum, the Van Gogh Museum, and the Concertgebouw.","web":"https://pride.amsterdam/event/worldpride-village/","insta":"","tickets":"https://pride.amsterdam/event/worldpride-village/","tags":["outdoor","family-friendly"],"img":"https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"WorldPride Village","status":"Confirmed","genre":"Outdoor","dateText":"Thu 6 Aug 2026","start":"2026-08-06","end":"2026-08-06","time":"12:00 – 23:00","venue":"Museumplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The WorldPride Village is the meeting place for everyone during the second week of WorldPride, where LGBTI+ organizations and culture take center stage. WorldPride Village is located in the heart of Amsterdam's historic art hotspot: Museumplein, surrounded by the Rijksmuseum, the Van Gogh Museum, and the Concertgebouw.","web":"https://pride.amsterdam/event/worldpride-village/","insta":"","tickets":"https://pride.amsterdam/event/worldpride-village/","tags":["outdoor","family-friendly"],"img":"https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"World Pride Wedding Party XXL","status":"Confirmed","genre":"Wedding-themed party?","dateText":"Thu 6 Aug 2026","start":"2026-08-06","end":"2026-08-06","time":"18:00 – 23:00","venue":"Museumplein","priceText":"€22.50 regular / €27.50 late & door (€45 for 3-day pass)","priceMin":22.5,"priceMax":45.0,"free":false,"avail":"On sale","desc":"Museumplein transforms into one big, colourful wedding celebration for all forms of love, with 25,000 visitors and famous artists. Celebrating 25 years of marriage equality — the Netherlands was the first country where same-sex couples could marry (1 April 2001). Includes a wedding chapel for symbolic ceremonies.","web":"https://pride.amsterdam/en/event/wedding-party-xxl/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/wedding-party-xxl/","tags":["party","outdoor","Museumplein","wedding","marriage equality","celebration","concerts"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5967","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Transpodium","status":"Confirmed","genre":"Trans-focused performances","dateText":"Thu 6 Aug 2026","start":"2026-08-06","end":"2026-08-06","time":"19:30","venue":"Paradiso","priceText":"€9","priceMin":9.0,"priceMax":9.0,"free":false,"avail":"On sale","desc":"Transpodium provides transgender people a platform to share their voices through singing, spoken word, instrumental music, and other performance forms at Paradiso. Especially significant this year as WorldPride comes to Amsterdam, marking 25 years since the first same-sex marriage.","web":"https://www.paradiso.nl/en/program/transpodium/2855600","insta":"https://www.instagram.com/transpodium/","tickets":"https://tickets.paradiso.nl/1d11572a096e4e8a8f7cdb20208ae23d/","tags":["trans","performances","singing","spoken word","community"],"img":"https://assets.paradiso.nl/images/transforms/event/_1200x630_crop_center-center_none/transmic.jpeg","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Pup Crawl Amsterdam","status":"Confirmed","genre":"Fetish / pup","dateText":"Thu 6 Aug 2026","start":"2026-08-06","end":"2026-08-06","time":"19:30-22:30","venue":"Prik; Bears Amsterdam","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"Your pup social in Amsterdam: drink, bark, and vibe together with your fellow pups while strolling from Prik (19:30 - 21:00 to Bears Amsterdam (21:00-22:30)","web":"https://www.instagram.com/tekhnicolour","insta":"https://www.instagram.com/tekhnicolour","tickets":"https://www.instagram.com/tekhnicolour","tags":["pup","fetish","bar"],"img":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEQj2nJrQreRohYP95bLusiCrQ-pgd3g9cLbWE_OATeTN7Ie5pRZrdLM&s=10","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"WorldPride Village","status":"Confirmed","genre":"Outdoor","dateText":"Fri 7 Aug 2026","start":"2026-08-07","end":"2026-08-07","time":"12:00 – 23:00","venue":"Museumplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The WorldPride Village is the meeting place for everyone during the second week of WorldPride, where LGBTI+ organizations and culture take center stage. WorldPride Village is located in the heart of Amsterdam's historic art hotspot: Museumplein, surrounded by the Rijksmuseum, the Van Gogh Museum, and the Concertgebouw.","web":"https://pride.amsterdam/event/worldpride-village/","insta":"","tickets":"https://pride.amsterdam/event/worldpride-village/","tags":["outdoor","family-friendly"],"img":"https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"FunHouse WorldPride Hub — Friday Wk 2","status":"Confirmed","genre":"Circuit / house","dateText":"Fri 7 Aug 2026","start":"2026-08-07","end":"2026-08-07","time":"22:00–05:00","venue":"WestWeelde (Westerunie + Westerliefde + Terrace)","priceText":"€31-36","priceMin":31.0,"priceMax":36.0,"free":false,"avail":"On sale","desc":"FunHouse Hub reopens for WorldPride weekend 2 at WestWeelde (Westerunie + Westerliefde + Terrace). Circuit and house music continuing the two-week celebration of WorldPride Amsterdam.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-friday-07-08-2026/","insta":"https://www.instagram.com/funhousepartyamsterdam/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-friday-07-08-2026/#tickets","tags":["circuit","house","gay","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/7.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Headrush x Ben Mason","status":"Confirmed","genre":"Queer / techno / rave","dateText":"Fri 7 Aug 2026","start":"2026-08-07","end":"2026-08-07","time":"23:00–05:00","venue":"Akhnaton","priceText":"€24-29","priceMin":24.0,"priceMax":29.0,"free":false,"avail":"On sale","desc":"Headrush invites Ben Manson for the Amsterdam WorldPride Edition at Akhnaton. Queer techno rave energy with an XXL playroom hosted by MisterB. A safe space for the queer community to dance and explore.","web":"https://www.universe.com/events/headrush-x-ben-manson-amsterdam-world-pride-edition-tickets-0T39RX","insta":"https://www.instagram.com/headrush_techno/","tickets":"https://www.universe.com/events/headrush-x-ben-manson-amsterdam-world-pride-edition-tickets-0T39RX","tags":["queer","techno","rave","fetish","cruising","nightlife"],"img":"https://images.universe.com/41fd7b4f-bc0f-4dd8-8021-f5bd5ff6a9e1/-/inline/yes/","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Horse Meat Disco","status":"Confirmed","genre":"Disco / House / Gay","dateText":"Fri 7 Aug 2026","start":"2026-08-07","end":"2026-08-07","time":"23:00–07:00","venue":"TILLATEC","priceText":"€30.50","priceMin":30.5,"priceMax":30.5,"free":false,"avail":"On sale","desc":"We’re celebrating WorldPride the only way we know how: on the dancefloor. Flying in from London and landing at TILLATEC for one very special night, we proudly welcome the legendary Horse Meat Disco. For over twenty years, HMD has been bringing together disco heads, queers, music lovers and dancefloor romantics around the globe. Now it’s Amsterdam’s turn. Expect a night of disco, house, soul, sweat, connection and pure dancefloor joy. Calling all disco queens, dolls, divas, lovers, movers and shakers: this one’s for you. Full line-up and performer announcements coming soon.","web":"https://ra.co/events/2479631","insta":"https://www.instagram.com/horse_meat_disco/?hl=en","tickets":"https://shop.weeztix.com/0e536f93-e4fd-11ee-a9cb-7e126431635e/tickets?shop_code=7mv39gsy&original_referer=https%3A%2F%2Fdashboard.weeztix.com%2F&event=b89de7e7-4485-4dbe-91f0-a6d95ff0213e","tags":["queer","gay","house","disco"],"img":"https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vODc4ZTI3YTY0YzI1NDYwMGVhNWYyMTI2NzhjNTQ1NTlmMDRlZjc2MC5wbmc=","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Backdoor","status":"Confirmed","genre":"Mainstream gay circuit/house; commercial sexy-club energy","dateText":"Fri 7 Aug 2026","start":"2026-08-07","end":"2026-08-07","time":"22:00–05:00","venue":"Panama","priceText":"€31.00","priceMin":31.0,"priceMax":31.0,"free":false,"avail":"On sale","desc":"Backdoor's 11-year Anniversary WorldPride Edition at Club Panama. One of Amsterdam's best LGBT+ dance events featuring international DJs — confirmed: DJ Bravat from Brazil. Mainstream gay circuit/house energy with commercial sexy-club vibes.","web":"https://www.backdooramsterdam.com/","insta":"https://www.instagram.com/backdoor.amsterdam/","tickets":"https://shops.link2ticket.nl/134JaG","tags":["circuit","house","gay","sexy","commercial","nightlife"],"img":"https://usercontent.one/wp/www.backdooramsterdam.com/wp-content/themes/backdooramsterdam-child/images/slider/home.jpg?media=1749745731","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Backdoor Afterparty","status":"Confirmed","genre":"","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"05:00-11:00","venue":"Free Willie","priceText":"€16.00","priceMin":16.0,"priceMax":16.0,"free":false,"avail":"On sale","desc":"The official Backdoor afterparty at Free Willie, running from 05:00 to 11:00 for those who want to keep the energy going into Saturday morning after the WorldPride Backdoor main event.","web":"https://www.backdooramsterdam.com/","insta":"https://www.instagram.com/backdoor.amsterdam/","tickets":"https://shops.link2ticket.nl/134JaH","tags":["afterparty","gay","circuit","nightlife"],"img":"https://usercontent.one/wp/www.backdooramsterdam.com/wp-content/themes/backdooramsterdam-child/images/slider/home.jpg?media=1749745731","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"World Pride March","status":"Confirmed","genre":"March/Protest","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"15:00 – 18:00","venue":"Martin Luther King Park to Museumplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The WorldPride March gathers at Martin Luther King Park at 15:00 and marches to Museumplein. Both a celebration of the beautiful, diverse LGBTQIA+ community and a protest — marching for those who cannot join and carrying flags of countries where homosexuality is still criminalised.","web":"https://pride.amsterdam/en/event/pride-march-2/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/pride-march-2/","tags":["free","march","protest","activism","community"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5969","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"WorldPride Village","status":"Confirmed","genre":"Outdoor","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"12:00 – 23:00","venue":"Museumplein","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"The WorldPride Village is the meeting place for everyone during the second week of WorldPride, where LGBTI+ organizations and culture take center stage. WorldPride Village is located in the heart of Amsterdam's historic art hotspot: Museumplein, surrounded by the Rijksmuseum, the Van Gogh Museum, and the Concertgebouw.","web":"https://pride.amsterdam/event/worldpride-village/","insta":"","tickets":"https://pride.amsterdam/event/worldpride-village/","tags":["outdoor","family-friendly"],"img":"https://pride.amsterdam/wp-content/uploads/2026/03/WorldPride-Village-Museumplein-Amsterdam-1024x683.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"World Pride Closing Concert","status":"Confirmed","genre":"Concert","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"18:00 – 23:00","venue":"Museumplein","priceText":"€22.50 regular / €27.50 late & door (€45 for 3-day pass)","priceMin":22.5,"priceMax":45.0,"free":false,"avail":"On sale","desc":"WorldPride Closing Concert at Museumplein with 25,000 visitors. The grand finale of the two-week WorldPride Amsterdam celebration. Part of the 3-concert Museumplein series (passe-partout €45).","web":"https://pride.amsterdam/en/event/closing-concert/","insta":"https://www.instagram.com/prideamsterdam/","tickets":"https://pride.amsterdam/en/event/closing-concert/","tags":["concert","outdoor","Museumplein","closing","performances","queer","mega-event"],"img":"https://pride.amsterdam/wp-json/social-image-generator/v1/image/5971","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"FunHouse XL — Grand Finale","status":"Confirmed","genre":"Circuit / house; closing marathon","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"22:00–07:00","venue":"WestWeelde (4 spaces)","priceText":"€38.50-41","priceMin":38.5,"priceMax":41.0,"free":false,"avail":"On sale","desc":"WorldPride Grand Finale — the final FunHouse event of the two-week celebration at WestWeelde with 4 spaces. A closing marathon of circuit and house music running 22:00-07:00. The last dance of WorldPride Amsterdam.","web":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-saturday-08-08-2026/","insta":"https://www.instagram.com/funhousepartyamsterdam/","tickets":"https://www.clubrapido.com/events-tickets/world-pride-2026-funhouse-world-pride-hub-saturday-08-08-2026/#tickets","tags":["circuit","house","closing party","marathon","gay","nightlife"],"img":"https://www.clubrapido.com/uploads/resized/lg/orig/8_funhouse_saturday.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Lesbique","status":"Confirmed","genre":"Lesbian / femme / queer","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"22:00–05:00","venue":"Club Church","priceText":"Unknown","priceMin":null,"priceMax":null,"free":false,"avail":"Not yet","desc":"Lesbique is a community-based queer party at Club Church, creating a platform where people come together to party, meet up, and enjoy Amsterdam's queer and underground artists. The crowd is a mix of lesbians, bi, pan, trans, non-binary, and queer folks — a late-night party with DJs and performance artists. Tickets at the door only.","web":"https://www.lesbique.nl/","insta":"https://www.instagram.com/lesbiqueofficial/","tickets":"https://www.lesbique.nl/","tags":["lesbian","queer","femme","trans","non-binary","underground","nightlife"],"img":"https://www.lesbique.nl/wp-content/uploads/2026/01/shotbyrex_LesbiqueOct_-83.jpg","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Sweetie Darling","status":"Confirmed","genre":"Camp/pop/queer glam; drag-heavy; playful and less circuit-bro","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"23:00–05:00","venue":"Chicago Social Club","priceText":"€15.00","priceMin":15.0,"priceMax":15.0,"free":false,"avail":"Not yet","desc":"Queer party based in Amsterdam and Barcelona by DJ Darling Peter. Camp/pop/queer glam with drag-heavy programming. Past Pride events at W Amsterdam rooftop and Paradiso. High-probability return but not yet confirmed for Pride 2026.","web":"https://www.instagram.com/sweetiedarlingparty/","insta":"https://www.instagram.com/sweetiedarlingparty/","tickets":"https://chicagosocialclub.nl/tickets","tags":["queer","camp","pop","drag","glam","nightlife"],"img":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuQlaxZVKFoseKVOIl4IHnJ_gNkfA7FWjulQ&s","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"PowerHause x World Pride Edition","status":"Confirmed","genre":"Queer circuit house","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"23:00–05:00","venue":"Akhnaton","priceText":"€24-29","priceMin":24.0,"priceMax":29.0,"free":false,"avail":"On sale","desc":"PowerHause x World Pride Edition at Akhnaton. Queer circuit house party bringing high-energy beats and community vibes to the closing weekend of WorldPride Amsterdam.","web":"https://www.universe.com/events/powerhause-x-world-pride-edition-tickets-DTZ3WB","insta":"https://www.instagram.com/power_houseamsterdam/","tickets":"https://www.universe.com/events/powerhause-x-world-pride-edition-tickets-DTZ3WB","tags":["queer","circuit","house","nightlife"],"img":"https://pride.amsterdam/wp-content/uploads/2026/04/Power_Hause_post_promo__zonder_locatie_-819x1024.jpg","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Gegen","status":"Confirmed","genre":"Queer / techno / dark / sex-focused","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"23:00–08:00","venue":"RADION","priceText":"€25.00","priceMin":25.0,"priceMax":25.0,"free":false,"avail":"On sale","desc":"\"Faggots, sluts, switchy queers, power bottoms, leather freaks, genderfucked angels, this night is for you!\" Gegen is the legendary Berlin collective known for its synthesis of hard techno and fetish aesthetics — 15 years defining the sound and look of Berlin's sex-positive underbelly. Note: Meta permanently deleted Gegen's Instagram (90K+ followers).","web":"https://gegenberlin.com/","insta":"","tickets":"https://radionamsterdam.stager.co/shop/default/","tags":["queer","techno","dark","sex-positive","fetish","Berlin","underground","nightlife"],"img":"https://stager-prod.s3.eu-west-1.amazonaws.com/images/46/eventpublicationitem/1400929/Portrait-2-2d76.jpg","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Tropikali By Night","status":"Confirmed","genre":"Tropical / Arabic house","dateText":"Sat 8 Aug 2026","start":"2026-08-08","end":"2026-08-08","time":"23:30–05:00","venue":"Paradiso","priceText":"€34.30","priceMin":34.3,"priceMax":34.3,"free":false,"avail":"On sale","desc":"Tropikali By Night celebrates WorldPride at Paradiso. Two worlds: ROSARIO in the main hall with latin-spiced house and electronic sounds, KALINICHTA in the basement with Balkan and SWANA pop mixed with Arab electronic.","web":"https://www.paradiso.nl/en/program/tropikali-by-night/2836676","insta":"https://www.instagram.com/tropikalifestival/","tickets":"https://tickets.paradiso.nl/ab5c723b857a42b0ae3d31ad8ce0ff3d/","tags":["queer","house","tropical","Arabic","Latin","Balkan","nightlife"],"img":"https://melodic-pasca-585e30.netlify.app/images/Tropikali%20by%20night.png","section":"World Pride — Mon Aug 3 - Sun Aug 9"},{"name":"Superflirt Festival","status":"Confirmed","genre":"Multiple stages / variety","dateText":"Sat 29 Aug 2026","start":"2026-08-29","end":"2026-08-29","time":"13:00 - 23:00","venue":"Kaap Amsterdam","priceText":"€66.00","priceMin":66.0,"priceMax":66.0,"free":false,"avail":"⚠️ Almost sold out","desc":"The second edition of Superflirt Festival — a queer and open-minded festival at Kaap Amsterdam. Multiple stages featuring Pax Romana, Can You Feel iT, Flirtation, Club Church, and BOPS. Flirt, rave, and dance until the sun sets.","web":"https://www.superflirtfestival.nl/","insta":"https://www.instagram.com/superflirtfestival/","tickets":"https://www.superflirtfestival.nl/","tags":["queer","festival","multi-stage","outdoor","daytime","open-minded"],"img":"https://usercontent.one/wp/www.superflirtfestival.nl/wp-content/uploads/2025/09/AndyOnderstal_SUPERFLIRT_logo_0148-scaled.jpg","section":"Post-Pride Summer Parties & Festivals"},{"name":"Queer Is Not Dead Fest","status":"Confirmed","genre":"Queer / Punk / Counterculture","dateText":"Sat 29 Aug 2026 - Sun 30 Aug 2026","start":"2026-08-29","end":"2026-08-30","time":"0:00 - ???","venue":"Occii (Amstelveenseweg 134)","priceText":"","priceMin":null,"priceMax":null,"free":false,"avail":"","desc":"Queer Is Not Dead Fest is an antifascist, queer-centered festival in Amsterdam. The event aims to unify and strengthen the bond between the antifascist and queer communities through a program of workshops, skill-sharing sessions, and parties. Grounded in political activism, the festival embraces values such as anti-racism, anti-capitalism, and veganism. It provides a platform for spontaneous contributions and action-planning, welcoming both the queer community and allies to connect different political movements.","web":"https://occii.org/events/queer-is-not-dead-fest/","insta":"","tickets":"https://occii.org/events/queer-is-not-dead-fest/","tags":["queer","activist","protest","festival"],"img":"https://occii.org/wp-content/uploads/2026/06/bafkreidu2pu5lsk45tmgdj5u7wndr47cklwsrcx4zrryhdotslqofa6l4u-1.webp","section":"Post-Pride Summer Parties & Festivals"},{"name":"Superflirt Afterparty","status":"Confirmed","genre":"Queer / drag / afterparty","dateText":"Sat 29 Aug 2026","start":"2026-08-29","end":"2026-08-29","time":"23:00 - 06:00","venue":"Panama","priceText":"€26.00","priceMin":26.0,"priceMax":26.0,"free":false,"avail":"On sale","desc":"Official afterparty for the Superflirt Festival","web":"https://www.superflirtfestival.nl/","insta":"https://www.instagram.com/superflirtfestival/","tickets":"https://www.superflirtfestival.nl/","tags":["queer","festival","afterparty"],"img":"https://usercontent.one/wp/www.superflirtfestival.nl/wp-content/uploads/2026/06/SF26_banner_After.jpg","section":"Post-Pride Summer Parties & Festivals"},{"name":"Pax Romana — Pride Edition","status":"Expected (not yet posted)","genre":"Queer hedonist underground; techno/house; protest ethos; darker & cerebral","dateText":"Possible Pride-adjacent (Jul–Aug)","start":null,"end":null,"time":"TBD","venue":"Historically Radion / Lofi / Paradiso-type spaces","priceText":"Unknown","priceMin":null,"priceMax":null,"free":false,"avail":"No Pride 2026 listing found yet","desc":"Underground collective dedicated to creating spaces for queer and hedonistic souls in Amsterdam. Darker, cerebral techno/house with a protest ethos. Events at RADION, Paradiso, and other spaces. Plausible but unconfirmed for Pride 2026.","web":"https://ra.co/promoters/102759","insta":"https://www.instagram.com/paxromana.xxi/","tickets":"https://www.instagram.com/paxromana.xxi/","tags":["queer","techno","house","underground","hedonist","dark","cerebral","nightlife"],"img":"","section":"Post-Pride Summer Parties & Festivals"},{"name":"IsBurning - Utrecht Pride","status":"Confirmed","genre":"Techno / queer","dateText":"Sat 6 Jun 2026","start":"2026-06-06","end":"2026-06-06","time":"15:00-23:59","venue":"NAR, Utrecht","priceText":"€16-36","priceMin":16.0,"priceMax":36.0,"free":false,"avail":"On sale","desc":"NAR …IsBurning during this 30-hour Utrecht Pride extravaganza. Get ready for our first extended event where we uplink with the Amsterdam collective. Start in the sunny afternoon, join the steamy club night, or step in at dawn. Come As You Are","web":"https://www.isburning.com/events","insta":"https://www.instagram.com/isburningamsterdam/","tickets":"https://nar.stager.co/shop/default/events/111630376","tags":["queer","techno","underground"],"img":"https://stager-prod.s3.eu-west-1.amazonaws.com/images/3353/eventpublicationitem/1373923/Nar-New-Final-%281%29-2858.jpg","section":"Pre-Pride — June & July"},{"name":"IsBurning - Utrecht Pride","status":"Confirmed","genre":"Techno / queer","dateText":"Sun 7 Jun 2026","start":"2026-06-07","end":"2026-06-07","time":"00:00-23:00","venue":"NAR, Utrecht","priceText":"€16-36","priceMin":16.0,"priceMax":36.0,"free":false,"avail":"On sale","desc":"NAR …IsBurning during this 30-hour Utrecht Pride extravaganza. Get ready for our first extended event where we uplink with the Amsterdam collective. Start in the sunny afternoon, join the steamy club night, or step in at dawn. Come As You Are","web":"https://www.isburning.com/events","insta":"https://www.instagram.com/isburningamsterdam/","tickets":"https://nar.stager.co/shop/default/events/111630376","tags":["queer","techno","underground"],"img":"https://stager-prod.s3.eu-west-1.amazonaws.com/images/3353/eventpublicationitem/1373923/Nar-New-Final-%281%29-2858.jpg","section":"Pre-Pride — June & July"},{"name":"DIP: THE T PARTY","status":"Confirmed","genre":"Performances / trans / queer","dateText":"Tue 9 Jun 2026","start":"2026-06-09","end":"2026-06-09","time":"20:00-23:00","venue":"Paradiso","priceText":"€11","priceMin":11.0,"priceMax":11.0,"free":false,"avail":"On sale","desc":"THE T PARTY is back. For the second time, this evening brings together music and dance, entirely created and performed by trans and non-binary artists. Expect an evening full of fire and tenderness, with powerful performances and intimate moments that reflect the beauty and complexity of trans lives. This edition captures a mix of voice, silence, and queer resistance. Just like last time, during the sold-out evening in Paradiso's Bovenzaal, T PARTY offers a stage to trans makers and performers to share their story on their own terms.","web":"https://www.paradiso.nl/nl/programma/dip-the-t-party/2887294","insta":"https://www.instagram.com/_the_t_party_","tickets":"https://tickets.paradiso.nl/f61d68c4bc124dd9ba23087673f4d861/","tags":["performances","trans","queer"],"img":"https://assets.paradiso.nl/images/transforms/event/_2880x1440_crop_center-center_none/2887983/Landscape-The-T-Party-Vol.-2-1-Large.webp","section":"Pre-Pride — June & July"},{"name":"Tropikali","status":"Confirmed","genre":"Tropical / Arabic house","dateText":"Sat 13 Jun 2026","start":"2026-06-13","end":"2026-06-13","time":"12:00-23:00","venue":"NDSM","priceText":"€67","priceMin":67.0,"priceMax":67.0,"free":false,"avail":"⚠️ Almost sold out","desc":"Tropikali is a queer-born electronic music festival fusing Latin American, Balkan, and Middle Eastern sounds. Originally a fusion between Rosario (Latin) and Kalinichta (SWANA), it has grown into one of Amsterdam's most colourful daytime festivals. The 2026 edition features 4 stages, 40+ artists, and a sun-drenched dancefloor at NDSM Wharf. Queer and independent since 2018.","web":"https://www.tropikali.nl/","insta":"https://www.instagram.com/tropikalifestival/","tickets":"https://sales.ticketing.cm.com/tropi26/en-gb/e151b332-0b04-4150-bf27-03c998585871","tags":["queer","house","tropical","Arabic","Latin","Balkan","festival","outdoor","daytime"],"img":"https://www.tropikali.nl/wordpress/wp-content/uploads/2025/10/Tropi-26-LineUp-website.jpg","section":"Pre-Pride — June & July"},{"name":"Tropikali Afterparty","status":"Confirmed","genre":"Tropical / Arabic house","dateText":"Sat 13 Jun 2026","start":"2026-06-13","end":"2026-06-13","time":"23:30 – 05:00","venue":"Parallel","priceText":"€23","priceMin":23.0,"priceMax":23.0,"free":false,"avail":"On sale","desc":"The official afterparty for Tropikali Festival, continuing the vibes late into the night at Parallel. Expect the same genre-blending mix of Latin, Balkan, and Arab electronic music in a more intimate club setting.","web":"https://www.tropikali.nl/","insta":"https://www.instagram.com/tropikalifestival/","tickets":"https://sales.ticketing.cm.com/tropi26/en-gb/e151b332-0b04-4150-bf27-03c998585871","tags":["queer","house","tropical","Arabic","Latin","Balkan","afterparty","nightlife"],"img":"https://www.tropikali.nl/wordpress/wp-content/uploads/2025/10/Tropi-by-Night-Lineup-819x1024.jpg","section":"Pre-Pride — June & July"},{"name":"Burning Man Netherlands \"Where the Sheep Sleep\"","status":"Confirmed","genre":"Art & Music Festival","dateText":"Thu 18 Jun - Mon 22 Jun 2026","start":"2026-06-18","end":"2026-06-22","time":"","venue":"Campsite in Zeewolde, Netherlands","priceText":"€192","priceMin":192.0,"priceMax":192.0,"free":false,"avail":"Wave 3 opens May 23","desc":"Official Burning Man regional event in the Netherlands. A volunteer-run, multi-day participatory camping event focused on art, self-expression, and radical community at a campsite in Zeewolde. The 2026 theme is \"Below the Surface.\" No spectators — only co-creators. Note: not specifically LGBTQIA+ but attracts a diverse, open-minded crowd.","web":"https://sheep.burningman.nl/","insta":"https://www.instagram.com/burningmannl/","tickets":"https://sheep.burningman.nl/event/","tags":["art","music","festival","camping","multi-day","self-expression","community","participatory"],"img":"https://sheep.burningman.nl/wp-content/uploads/2019/08/wtss-2019_3518_photo-companynl.jpg","section":"Pre-Pride — June & July"},{"name":"F*cking Fabulous Fundraiser","status":"Confirmed","genre":"Fundraiser","dateText":"Fri 19 Jun 2026","start":"2026-06-19","end":"2026-06-19","time":"17:00 - 22:00","venue":"Blend XL","priceText":"Free","priceMin":0.0,"priceMax":0.0,"free":true,"avail":"","desc":"An unforgettable evening filled with performances, an auction with incredible prizes (like diner at Vuurtoreneiland, Anna+Nina & Carré), and the warmth of a community that comes together for a good cause. ​All proceeds go to the T-Huis. Together, we'll make sure this place stays there for everyone who needs it.","web":"https://luma.com/k9zekyaf","insta":"","tickets":"https://luma.com/k9zekyaf","tags":["Fundraiser","trans","queer"],"img":"https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/uploads/bc/007a1345-b811-4224-a77b-facd86acba3d.png","section":"Pre-Pride — June & July"},{"name":"Amsterdam Gay Men's Chorus: Cabaret at the End of the World","status":"Confirmed","genre":"Concert","dateText":"Sat 4 Jul 2026","start":"2026-07-04","end":"2026-07-04","time":"15:30 & 20:30","venue":"Muziekgebouw aan 't IJ","priceText":"€32-40","priceMin":32.0,"priceMax":40.0,"free":false,"avail":"On sale","desc":"When the world is on the precipice, it’s time to party through the pandemonium with power and pride. Join 100+ singers and dancers for a radical celebration of queer resistance. Featuring hits by Queen, Stromae, Troye Sivan and even Bertolt Brecht, from sublime camp to defiance, the Amsterdam Gay Men's Chorus will take you on a journey in a show that holds up a mirror to the world in all of its gore and glory.","web":"https://www.amsgmc.nl","insta":"http://instagram.com/amsgmc","tickets":"https://www.muziekgebouw.nl/en/agenda?end=2026-07-04&start=2026-07-04","tags":["Concert"],"img":"https://static.wixstatic.com/media/05e9ad_8ca08b07618e4136ab9051d82ce2ef02~mv2.jpg/v1/fill/w_1458,h_831,al_c,q_85,enc_avif,quality_auto/NEWSLETTER-06.jpg","section":"Pre-Pride — June & July"},{"name":"Pax Romana","status":"Confirmed","genre":"Queer, techno, dark, cruising","dateText":"Sat 4 Jul 2026","start":"2026-07-04","end":"2026-07-04","time":"23:00 - 11:00","venue":"Radion","priceText":"€34","priceMin":34.0,"priceMax":34.0,"free":false,"avail":"⚠️ Almost sold out","desc":"This anniversary, we join forces with New York’s cultural cornerstone of queer rejuvenation through techno; MERGE - who operate as a true DIY, underground parties series, unfolding across a range of physical spaces throughout Brooklyn. Across oceans, we share the same belief: that electronic music can transform the body, dissolve division and open portals into something personal, interconnected and ethereal. A exchange of two worlds connected through sound, queer resistance and collective immersion. It’s an understatement to say how honoured we are to welcome them into our homebase to celebrate this milestone together","web":"https://ra.co/promoters/102759","insta":"https://www.instagram.com/paxromana.xxi/","tickets":"https://radionamsterdam.stager.co/shop/default/events/111657345","tags":["Queer","techno","dark","cruising"],"img":"https://imgproxy.ra.co/_/quality:66/w:1442/rt:fill/aHR0cHM6Ly9pbWFnZXMucmEuY28vYTc2Mzg5MTQxN2Q0MDI1ZGU5ODdiNDYxOGE2YjYwZDZiYjE2YzJkZS5qcGc=","section":"Pre-Pride — June & July"},{"name":"Meijt Love Ball","status":"Confirmed","genre":"Pop, house, queer, drag","dateText":"Sat 11 Jul 2026","start":"2026-07-11","end":"2026-07-11","time":"22:00-05:00","venue":"The Other Side","priceText":"€29-66.50","priceMin":29.0,"priceMax":66.5,"free":false,"avail":"On sale","desc":"Loveball is the official opening event of Pride Amsterdam 2026. Rooted in the legacy of Amsterdam's legendary club culture from the 80s and 90s — when venues like Roxy defined a generation — Loveball brings together house, pop, drag, and ballroom energy. Powered by Diva Mayday, the creative force behind the event, at The Other Side Amsterdam.","web":"https://www.universe.com/events/loveball-tickets-C16WL9","insta":"https://www.instagram.com/meijt/","tickets":"https://www.universe.com/events/loveball-tickets-C16WL9","tags":["queer","pop","house","drag","opening party","Pride Amsterdam","ballroom"],"img":"https://melodic-pasca-585e30.netlify.app/images/Meijt%20Love-Ball.jpg","section":"Pre-Pride — June & July"},{"name":"Whole Festival (Germany)","status":"Confirmed","genre":"Techno / queer / festival","dateText":"Fri Jul 17 - Mon Jul 20 2026","start":"2026-07-17","end":"2026-07-20","time":"Multi-day","venue":"Ferropolis, Germany","priceText":"€279","priceMin":279.0,"priceMax":279.0,"free":false,"avail":"⚠️ SOLD OUT","desc":"TICKET RESALE is via https://tixel.com/de/music-tickets/2026/07/17/whole-festival-2026 (DO NOT USE TICKETSWAP!) WHOLE is a major three-day queer underground electronic music and arts festival at Ferropolis, the \"City of Iron\" outside Berlin. Now in its 8th edition, it transforms a former mining site into an immersive convergence of nightlife culture, music, performance, and community. Six stages, artistic performances, dark rooms, cruising areas, and workshops. 18+.","web":"https://www.wholefestival.com/","insta":"https://www.instagram.com/whole.festival/","tickets":"https://www.wholefestival.shop/","tags":["queer","techno","house","festival","camping","multi-day","underground","art","performances","18+"],"img":"https://cdn.sanity.io/images/k3fbpivh/production/b5ce809a1ed7e509f8f979d2d980ee10ef232486-800x800.png?w=800&q=60&auto=format","section":"Pre-Pride — June & July"},{"name":"Danserette — 20 Year Party","status":"Confirmed","genre":"Happy gay classics / pop","dateText":"Sat 18 Jul 2026","start":"2026-07-18","end":"2026-07-18","time":"22:00-5:00","venue":"Parallel","priceText":"€22","priceMin":22.0,"priceMax":22.0,"free":false,"avail":"On sale","desc":"A week before WorldPride kicks off, the party is already in full swing in Amsterdam. Danserette is celebrating its 20th anniversary with a Big Celebration Party at Parallel. On Saturday, July 18, you can dance your heart out to the greatest pink hits that have filled Danserette dance floors over the past 20 years. From the ’80s to today. Think Kylie, Lady Gaga, Whitney, Sabrina Carpenter, Loreen, George Michael, Rihanna, Madonna, Loreen, Jennifer Lopez, CeCe Peniston, and so much more. As long as it has a pink touch. That’s Danserette… for 20 years.","web":"https://danserette.nl/","insta":"https://www.instagram.com/danserette/","tickets":"https://shop.fullhouse.tech/event/danserette-20-jaar-iy1zqd","tags":["gay","pop","disco","classics","singalong","fun","nightlife"],"img":"https://danserette.nl/wp-content/uploads/2024/02/26_0424_DST_20yo_Banners_DanseretteHeader_20yo_1200x850.png","section":"Pre-Pride — June & July"}];
+const SHEET_UPDATED = '5 Jul 2026';
+
+const PHASES = [
+  ['Pre-Pride','Pre-Pride — June & July'],
+  ['Pride Weekend','Amsterdam Pride — Fri July 31 - Sun Aug 2'],
+  ['WorldPride Week','World Pride — Mon Aug 3 - Sun Aug 9'],
+  ['Post-Pride','Post-Pride Summer Parties & Festivals'],
+];
+const VIBES = [
+  ['official','Official & Culture',270,/march|protest|ceremon|official|art|exhibit|museum|village|memorial|human rights|conference|choir|wedding|film|talk|history/i],
+  ['show','Concerts & Shows',330,/concert|performan|drag|cabaret|show|stage|comedy|bingo|karaoke|voices/i],
+  ['street','Street Parties',35,/street|block ?part|blockpart|square|pier|market|open.?air|plein/i],
+  ['boat','Boats & Canal',210,/boat|canal|cruise(?!y)|parade|water/i],
+  ['festival','Festivals',150,/festival|weekender|milkshake|tropikali|superflirt|burning man/i],
+  ['techno','Techno & Rave',190,/techno|rave|industrial|underground|hard|acid|warehouse/i],
+  ['fetish','Fetish & Kink',0,/fetish|leather|kink|harness|rubber|cruis|darkroom|crash|pup /i],
+  ['women','Women & Sapphic',300,/women|lesb|sapphic|girl|femme|lush/i],
+  ['trans','Trans & NB+',175,/trans|non.?binary|nonbinary|t part|enby/i],
+  ['bears','Bears',25,/bear|woof|grizzl/i],
+  ['club','Club Nights',345,/club|circuit|pop|house|disco|party|dance|dj|night|afterparty|funhouse|rapido/i],
+];
+const VIBE_FALLBACK = ['club','Club Nights',345];
+
+function vibeOf(e){
+  const hay = (e.genre + ' ' + e.tags.join(' ') + ' ' + e.name).toLowerCase();
+  for (const [id,label,hue,rx] of VIBES) if (rx.test(hay)) return {id,label,hue};
+  return {id:VIBE_FALLBACK[0],label:VIBE_FALLBACK[1],hue:VIBE_FALLBACK[2]};
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,42)}
+function parseTimes(t){
+  const m = [...(t||'').matchAll(/(\d{1,2})[:.](\d{2})/g)].map(x => +x[1]*60 + +x[2]);
+  if (!m.length) return null;
+  const st = m[0]; let en = m.length > 1 ? m[1] : null;
+  if (en !== null && en <= st) en += 1440;
+  return {st,en};
+}
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const TODAY_ISO = iso(TODAY);
+
+EVENTS.forEach(e => {
+  e.id = slug(e.name) + '@' + (e.start || 'tba');
+  e.vibe = vibeOf(e);
+  e.t = parseTimes(e.time);
+  e.past = !!(e.end && e.end < TODAY_ISO);
+  e.soldOut = /sold out/i.test(e.avail) && !/almost/i.test(e.avail);
+  e.almost = /almost/i.test(e.avail);
+  e.days = (e.start && e.end && e.end > e.start)
+    ? Math.round((new Date(e.end) - new Date(e.start)) / 864e5) + 1 : 1;
+});
+const byId = Object.fromEntries(EVENTS.map(e => [e.id, e]));
+
+/* ============ store ============ */
+const KEY = 'pride26_v1';
+let store;
+try { store = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { store = {}; }
+store.me      = store.me      || {name:''};
+store.sel     = store.sel     || {};   // id -> {s:'i'|'b', paid, on, note}
+store.friends = store.friends || [];   // {name, sel:{id:'i'|'b'}, added}
+store.prefs   = store.prefs   || {};
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {} }
+
+/* ============ filter state ============ */
+const F = { q:'', phases:new Set(), vibes:new Set(), prices:new Set(), hideSold:false, showPast:false, friendsGoing:false, sort:'date' };
+const PRICE_BUCKETS = [
+  ['free','Free', e => e.free],
+  ['p25','≤ €25', e => !e.free && e.priceMin !== null && e.priceMin <= 25],
+  ['p50','€25–50', e => !e.free && e.priceMin !== null && e.priceMin > 25 && e.priceMin <= 50],
+  ['p100','€50–100', e => !e.free && e.priceMin !== null && e.priceMin > 50 && e.priceMin <= 100],
+  ['p999','€100+', e => e.priceMin !== null && e.priceMin > 100],
+  ['tba','Price TBA', e => e.priceMin === null],
+];
+
+function friendsFor(id){
+  const out = [];
+  for (const f of store.friends){ const s = f.sel[id]; if (s) out.push({name:f.name, s}); }
+  return out;
+}
+function matches(e){
+  if (!F.showPast && e.past) return false;
+  if (F.hideSold && e.soldOut) return false;
+  if (F.phases.size && !F.phases.has(e.section)) return false;
+  if (F.vibes.size && !F.vibes.has(e.vibe.id)) return false;
+  if (F.prices.size){
+    let ok = false;
+    for (const [id,,fn] of PRICE_BUCKETS) if (F.prices.has(id) && fn(e)) { ok = true; break; }
+    if (!ok) return false;
+  }
+  if (F.friendsGoing && !friendsFor(e.id).length) return false;
+  if (F.q){
+    const hay = (e.name+' '+e.venue+' '+e.genre+' '+e.tags.join(' ')+' '+e.desc+' '+e.vibe.label).toLowerCase();
+    for (const w of F.q.toLowerCase().split(/\s+/)) if (w && !hay.includes(w)) return false;
+  }
+  return true;
+}
+
+/* ============ dom helpers ============ */
+const $ = s => document.querySelector(s);
+function h(tag, cls, text){
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+const fmtEUR = n => '€' + (Math.round(n*100)/100).toLocaleString('en-NL',{minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits:2});
+function priceLabel(e){
+  if (e.free) return e.priceMax > 0 ? 'Free–' + fmtEUR(e.priceMax) : 'Free';
+  if (e.priceMin === null) return '€ TBA';
+  return e.priceMin === e.priceMax ? fmtEUR(e.priceMin) : fmtEUR(e.priceMin) + '–' + fmtEUR(e.priceMax);
+}
+const DOWS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dayLabel(isoD){
+  if (!isoD) return {big:'Date TBA', sub:'keep an eye on socials'};
+  const d = new Date(isoD + 'T12:00:00');
+  return {big: DOWS[d.getDay()] + ' ' + d.getDate() + ' ' + MONS[d.getMonth()], sub:''};
+}
+function avatarColor(name){
+  let hs = 0; for (const c of name) hs = (hs*31 + c.charCodeAt(0)) % 360;
+  return `hsl(${hs} 60% 45%)`;
+}
+
+/* ============ events view ============ */
+function phaseShort(section){ const p = PHASES.find(p => p[1] === section); return p ? p[0] : section; }
+
+function buildFilters(){
+  const pc = $('#phaseChips');
+  pc.append(...PHASES.map(([short, full]) => {
+    const c = h('button','chip', short + ' ');
+    const n = EVENTS.filter(e => e.section === full && !e.past).length;
+    c.append(Object.assign(h('span','',String(n)),{style:'opacity:.6;font-size:11px'}));
+    c.setAttribute('aria-pressed','false');
+    c.onclick = () => { togSet(F.phases, full, c); renderEvents(); };
+    return c;
+  }));
+  const misc1 = h('button','chip warn','Hide sold out');
+  misc1.setAttribute('aria-pressed','false');
+  misc1.onclick = () => { F.hideSold = !F.hideSold; misc1.setAttribute('aria-pressed', F.hideSold); renderEvents(); };
+  const misc2 = h('button','chip','Show past');
+  misc2.setAttribute('aria-pressed','false');
+  misc2.onclick = () => { F.showPast = !F.showPast; misc2.setAttribute('aria-pressed', F.showPast); renderEvents(); };
+  const misc3 = h('button','chip','Friends going');
+  misc3.setAttribute('aria-pressed','false');
+  misc3.onclick = () => { F.friendsGoing = !F.friendsGoing; misc3.setAttribute('aria-pressed', F.friendsGoing); renderEvents(); };
+  pc.append(h('span','fdiv'), misc1, misc2, misc3);
+
+  const vibesPresent = new Map();
+  EVENTS.forEach(e => vibesPresent.set(e.vibe.id, e.vibe));
+  const vc = $('#vibeChips');
+  for (const [id,label,hue] of VIBES){
+    if (!vibesPresent.has(id)) continue;
+    const c = h('button','chip');
+    const d = h('span','d'); d.style.background = `hsl(${hue} 75% 60%)`;
+    c.append(d, label);
+    c.setAttribute('aria-pressed','false');
+    c.onclick = () => { togSet(F.vibes, id, c); renderEvents(); };
+    vc.append(c);
+  }
+  const prc = $('#priceChips');
+  for (const [id,label] of PRICE_BUCKETS){
+    const c = h('button','chip', label);
+    c.setAttribute('aria-pressed','false');
+    c.onclick = () => { togSet(F.prices, id, c); renderEvents(); };
+    prc.append(c);
+  }
+}
+function togSet(set, v, chip){
+  set.has(v) ? set.delete(v) : set.add(v);
+  chip.setAttribute('aria-pressed', set.has(v));
+}
+
+const expanded = new Set();
+
+function eventCard(e, ctx){
+  const sel = store.sel[e.id];
+  const card = h('article','ev' + (sel ? (sel.s === 'b' ? ' is-b' : ' is-i') : '') + (expanded.has(e.id) ? ' exp' : ''));
+  card.dataset.id = e.id;
+
+  const top = h('button','evtop');
+  top.setAttribute('aria-expanded', expanded.has(e.id));
+  const th = h('div','thumb');
+  const ph = h('div','ph', e.name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]).join('').toUpperCase() || '✦');
+  ph.style.background = `linear-gradient(135deg, hsl(${e.vibe.hue} 55% 38%), hsl(${(e.vibe.hue+40)%360} 65% 26%))`;
+  th.append(ph);
+  if (e.img){
+    const img = h('img'); img.loading = 'lazy'; img.alt = ''; img.referrerPolicy = 'no-referrer';
+    img.src = e.img; img.onerror = () => img.remove();
+    th.append(img);
+  }
+
+  const main = h('div','evmain');
+  main.append(h('div','evname', e.name));
+  const meta = h('div','evmeta');
+  const tm = h('span','tm', ctx === 'plan' ? (dayLabel(e.start).big + (e.time ? ' · ' + e.time : '')) : (e.time || 'time TBA'));
+  meta.append(tm, document.createTextNode('  ·  ' + e.venue));
+  main.append(meta);
+
+  const badges = h('div','badges');
+  const pb = h('span','b price' + (e.free ? ' free' : ''), priceLabel(e));
+  badges.append(pb);
+  const vb = h('span','b vibe');
+  const vd = h('span','d'); vd.style.background = `hsl(${e.vibe.hue} 75% 60%)`;
+  vb.append(vd, e.vibe.label); badges.append(vb);
+  if (e.days > 1) badges.append(h('span','b multi', e.days + ' days'));
+  if (e.soldOut) badges.append(h('span','b out','Sold out' + (/resale/i.test(e.avail) ? ' · resale' : '')));
+  else if (e.almost) badges.append(h('span','b warn','Almost sold out'));
+  else if (/not yet|opens|no .*listing/i.test(e.avail)) badges.append(h('span','b warn','Tickets soon'));
+  if (e.status && !/^confirmed$/i.test(e.status)) badges.append(h('span','b warn','Unconfirmed'));
+  const frs = friendsFor(e.id);
+  if (frs.length) badges.append(h('span','b fr', frs.map(f => f.name.split(' ')[0] + (f.s === 'b' ? ' ✓' : ' ★')).join(' · ')));
+  main.append(badges);
+  top.append(th, main);
+  top.onclick = () => { expanded.has(e.id) ? expanded.delete(e.id) : expanded.add(e.id); rerender(); };
+
+  const act = h('div','evact');
+  const star = h('button','act star','★'); star.title = 'Interested'; star.setAttribute('aria-label','Mark interested');
+  star.setAttribute('aria-pressed', sel?.s === 'i');
+  star.onclick = ev => { ev.stopPropagation(); toggleSel(e.id,'i'); };
+  const book = h('button','act book','✓'); book.title = 'Booked'; book.setAttribute('aria-label','Mark booked');
+  book.setAttribute('aria-pressed', sel?.s === 'b');
+  book.onclick = ev => { ev.stopPropagation(); toggleSel(e.id,'b'); };
+  act.append(star, book);
+
+  const wrap = h('div','evtoprow'); wrap.style.cssText = 'display:flex;align-items:stretch';
+  top.style.flex = '1'; top.style.minWidth = '0';
+  wrap.append(top, Object.assign(act,{style:'padding:0 10px 0 0;display:flex;flex-direction:column;gap:6px;justify-content:center'}));
+  card.append(wrap);
+
+  const body = h('div','evbody');
+  if (sel?.s === 'b'){
+    const bf = h('div','bform');
+    bf.append(h('span','', '✓ Booked'));
+    const l1 = h('label','','Paid €');
+    const paid = h('input','paid'); paid.type = 'number'; paid.min = '0'; paid.step = '0.5'; paid.placeholder = e.priceMin ?? '?';
+    if (sel.paid != null) paid.value = sel.paid;
+    paid.onchange = () => { sel.paid = paid.value === '' ? null : +paid.value; save(); renderCounts(); };
+    l1.append(paid);
+    const l2 = h('label','','on');
+    const bd = h('input','bdate'); bd.type = 'date'; bd.value = sel.on || TODAY_ISO;
+    bd.onchange = () => { sel.on = bd.value; save(); };
+    l2.append(bd);
+    const note = h('input','bnote'); note.placeholder = 'note — who has the tickets, seat, code…';
+    note.value = sel.note || '';
+    note.onchange = () => { sel.note = note.value; save(); };
+    bf.append(l1, l2, note);
+    bf.onclick = ev => ev.stopPropagation();
+    body.append(bf);
+  }
+  if (e.desc) body.append(h('p','desc', e.desc));
+  const facts = [];
+  if (e.dateText && e.days > 1) facts.push(e.dateText);
+  if (e.priceText && !/^(free|—|)$/i.test(e.priceText) && e.priceText !== priceLabel(e)) facts.push('Price: ' + e.priceText);
+  if (e.avail && !/^(on sale|—|)$/i.test(e.avail)) facts.push('Tickets: ' + e.avail.replace(/⚠️\s*/,''));
+  if (facts.length) body.append(h('div','tagline', facts.join('  ·  ')));
+  if (e.tags.length) body.append(h('div','tagline', '# ' + e.tags.join(' · ')));
+  const links = h('div','linkrow');
+  if (e.tickets && !e.soldOut) links.append(mkLink(e.tickets,'Tickets ↗','main'));
+  else if (e.tickets) links.append(mkLink(e.tickets, /resale/i.test(e.avail) ? 'Resale info ↗' : 'Tickets ↗',''));
+  if (e.web && e.web !== e.tickets) links.append(mkLink(e.web,'Website ↗',''));
+  if (e.insta) links.append(mkLink(e.insta,'Instagram ↗',''));
+  if (links.children.length) body.append(links);
+  if (frs.length) {
+    const fl = h('div','frline');
+    fl.append('Going: ');
+    frs.forEach((f,i) => { if (i) fl.append(' · '); fl.append(Object.assign(h('b','',f.name),{})); fl.append(f.s === 'b' ? ' (booked)' : ' (interested)'); });
+    body.append(fl);
+  }
+  card.append(body);
+  return card;
+}
+function mkLink(href, label, extra){
+  const a = h('a','lbtn' + (extra ? ' ' + extra : ''), label);
+  a.href = href; a.target = '_blank'; a.rel = 'noopener';
+  a.onclick = ev => ev.stopPropagation();
+  return a;
+}
+function toggleSel(id, s){
+  const cur = store.sel[id];
+  if (cur && cur.s === s) delete store.sel[id];
+  else {
+    store.sel[id] = Object.assign({paid:null, on:TODAY_ISO, note:''}, cur || {}, {s});
+    if (s === 'b'){ expanded.add(id); toast('Booked ✓ — add what you paid'); }
+  }
+  save(); rerender();
+}
+
+function renderEvents(){
+  const root = $('#viewEvents'); root.textContent = '';
+  let list = EVENTS.filter(matches);
+  renderCounts(list.length);
+  if (!list.length){
+    const em = h('div','empty');
+    em.append(h('div','big','Nothing matches'), h('div','', 'Loosen a filter or clear the search — there are ' + EVENTS.length + ' parties in the guide.'));
+    root.append(em); return;
+  }
+  if (F.sort !== 'date'){
+    const cmp = {
+      priceAsc:(a,b) => (a.priceMin ?? 1e9) - (b.priceMin ?? 1e9),
+      priceDesc:(a,b) => (b.priceMax ?? -1) - (a.priceMax ?? -1),
+      name:(a,b) => a.name.localeCompare(b.name),
+    }[F.sort];
+    list = [...list].sort(cmp);
+    const cards = h('div','cards'); cards.style.marginTop = '14px';
+    list.forEach(e => cards.append(eventCard(e,'plan')));
+    root.append(cards); return;
+  }
+  const groups = new Map();
+  for (const e of list){
+    const k = e.start || 'zzz-tba';
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(e);
+  }
+  for (const k of [...groups.keys()].sort()){
+    const evs = groups.get(k).sort((a,b) => (a.t?.st ?? 1e9) - (b.t?.st ?? 1e9));
+    const isoK = k === 'zzz-tba' ? null : k;
+    const grp = h('section','dgroup');
+    const dh = h('div','dayhead' + (isoK === TODAY_ISO ? ' today' : ''));
+    const lbl = dayLabel(isoK);
+    dh.append(h('span','dnum', lbl.big));
+    if (isoK === TODAY_ISO) dh.append(h('span','tod','TODAY'));
+    const phases = [...new Set(evs.map(e => phaseShort(e.section)))].join(' · ');
+    dh.append(h('span','dsub', phases + ' · ' + evs.length));
+    grp.append(dh);
+    const cards = h('div','cards');
+    evs.forEach(e => cards.append(eventCard(e,'events')));
+    grp.append(cards);
+    root.append(grp);
+  }
+}
+
+/* ============ plan view ============ */
+function overlap(a, b){
+  if (!a.start || !b.start || a.start !== b.start || !a.t || !b.t) return false;
+  const aEn = a.t.en ?? a.t.st + 180, bEn = b.t.en ?? b.t.st + 180;
+  return a.t.st < bEn && b.t.st < aEn;
+}
+function renderPlan(){
+  const root = $('#viewPlan'); root.textContent = '';
+  const mine = EVENTS.filter(e => store.sel[e.id]);
+  const booked = mine.filter(e => store.sel[e.id].s === 'b');
+  const interested = mine.filter(e => store.sel[e.id].s === 'i');
+  if (!mine.length){
+    const em = h('div','empty');
+    em.append(h('div','big','No plans yet'),
+      h('div','', 'Browse Events and tap ★ for maybes and ✓ once you\'ve booked. Everything lands here as your personal itinerary.'));
+    root.append(em); return;
+  }
+  const paid = booked.reduce((s,e) => s + (store.sel[e.id].paid || 0), 0);
+  const unpaidEst = booked.filter(e => store.sel[e.id].paid == null).reduce((s,e) => s + (e.priceMin || 0), 0);
+  const intLo = interested.reduce((s,e) => s + (e.priceMin || 0), 0);
+  const intHi = interested.reduce((s,e) => s + (e.priceMax || e.priceMin || 0), 0);
+  const bar = h('div','planbar');
+  bar.append(stat(String(booked.length), 'Booked', 'g'),
+             stat(fmtEUR(paid) + (unpaidEst ? ' +' + fmtEUR(unpaidEst) + '?' : ''), 'Spent', 'g'),
+             stat(String(interested.length), 'Interested', 'a'),
+             stat(intLo === intHi ? fmtEUR(intLo) : fmtEUR(intLo) + '–' + fmtEUR(intHi), 'If you book them', 'a'));
+  root.append(bar);
+
+  const order = [...mine].sort((a,b) => (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : (a.t?.st ?? 1e9) - (b.t?.st ?? 1e9));
+  const groups = new Map();
+  for (const e of order){
+    const k = e.start || 'zzz';
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(e);
+  }
+  for (const [k, evs] of groups){
+    const isoK = k === 'zzz' ? null : k;
+    const grp = h('section','dgroup');
+    const dh = h('div','dayhead' + (isoK === TODAY_ISO ? ' today' : ''));
+    dh.append(h('span','dnum', dayLabel(isoK).big));
+    if (isoK === TODAY_ISO) dh.append(h('span','tod','TODAY'));
+    grp.append(dh);
+    const cards = h('div','cards');
+    for (const e of evs){
+      const card = eventCard(e,'plan');
+      const clashes = evs.filter(o => o !== e && overlap(e,o));
+      if (clashes.length){
+        const c = h('div','conflict','⚠ same time as ' + clashes.map(o => o.name).join(', '));
+        card.querySelector('.evmain').append(c);
+      }
+      cards.append(card);
+    }
+    grp.append(cards);
+    root.append(grp);
+  }
+
+  const others = [];
+  for (const f of store.friends)
+    for (const id of Object.keys(f.sel))
+      if (byId[id] && !store.sel[id] && !others.includes(byId[id])) others.push(byId[id]);
+  if (others.length){
+    const sh = h('h2','subh','Friends are going, you\'re not (yet) ');
+    sh.append(h('small','', ' — tap ★ to join'));
+    root.append(sh);
+    const cards = h('div','cards');
+    others.sort((a,b) => (a.start||'9').localeCompare(b.start||'9')).forEach(e => cards.append(eventCard(e,'plan')));
+    root.append(cards);
+  }
+}
+function stat(v, l, cls){
+  const s = h('div','stat');
+  s.append(h('div','v ' + (cls||''), v), h('div','l', l));
+  return s;
+}
+
+/* ============ friends view ============ */
+function encodePlan(){
+  const s = {};
+  for (const [id, v] of Object.entries(store.sel)) s[id] = v.s;
+  const payload = {v:1, n: store.me.name || 'Friend', s};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodePlan(code){
+  try {
+    const b64 = code.trim().replace(/-/g,'+').replace(/_/g,'/');
+    const obj = JSON.parse(decodeURIComponent(escape(atob(b64))));
+    if (!obj || typeof obj.s !== 'object') return null;
+    return obj;
+  } catch { return null; }
+}
+function shareURL(){
+  const base = location.origin.startsWith('http') ? location.href.split('#')[0] : '';
+  return base + '#p=' + encodePlan();
+}
+async function copy(text, msg){
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch {
+    const ta = h('textarea'); ta.value = text; document.body.append(ta); ta.select();
+    try { document.execCommand('copy'); toast(msg); } catch { toast('Copy failed — select manually'); }
+    ta.remove();
+  }
+}
+function addFriend(obj){
+  const name = (obj.n || 'Friend').slice(0,24);
+  const clean = {};
+  for (const [id,s] of Object.entries(obj.s)) if (byId[id] && (s === 'i' || s === 'b')) clean[id] = s;
+  const ex = store.friends.find(f => f.name.toLowerCase() === name.toLowerCase());
+  if (ex){ ex.sel = clean; ex.added = TODAY_ISO; toast('Updated ' + name + '\'s plan'); }
+  else { store.friends.push({name, sel: clean, added: TODAY_ISO}); toast('Added ' + name + '\'s plan 🎉'); }
+  save(); rerender();
+}
+function renderFriends(){
+  const root = $('#viewFriends'); root.textContent = '';
+
+  const p1 = h('div','panel');
+  p1.append(h('h3','','Share your plan'));
+  p1.append(h('p','','Set your name, then send friends your link. When they open it (or paste the code) your ★ and ✓ picks show up on their events.'));
+  const row = h('div','prow');
+  const nameIn = h('input','pin'); nameIn.placeholder = 'Your name'; nameIn.value = store.me.name;
+  nameIn.maxLength = 24;
+  nameIn.onchange = () => { store.me.name = nameIn.value.trim(); save(); };
+  const btnL = h('button','pbtn','Copy my link');
+  btnL.onclick = () => { store.me.name = nameIn.value.trim(); save();
+    if (!store.me.name){ toast('Add your name first'); nameIn.focus(); return; }
+    copy(shareURL(), 'Link copied — send it to the group chat'); };
+  const btnC = h('button','pbtn q','Copy code only');
+  btnC.onclick = () => { store.me.name = nameIn.value.trim(); save();
+    if (!store.me.name){ toast('Add your name first'); nameIn.focus(); return; }
+    copy(encodePlan(), 'Code copied'); };
+  row.append(nameIn, btnL, btnC);
+  p1.append(row);
+  root.append(p1);
+
+  const p2 = h('div','panel');
+  p2.append(h('h3','','Add a friend\'s plan'));
+  p2.append(h('p','','Paste the code from their link (everything after #p=) or the whole link.'));
+  const row2 = h('div','prow');
+  const codeIn = h('input','pin'); codeIn.placeholder = 'Paste link or code…';
+  const btnA = h('button','pbtn','Add plan');
+  btnA.onclick = () => {
+    const raw = codeIn.value.includes('#p=') ? codeIn.value.split('#p=')[1] : codeIn.value;
+    const obj = decodePlan(raw);
+    if (!obj){ toast('That code didn\'t work — ask them to re-copy it'); return; }
+    addFriend(obj); codeIn.value = '';
+  };
+  row2.append(codeIn, btnA);
+  p2.append(row2);
+  root.append(p2);
+
+  const p3 = h('div','panel');
+  p3.append(h('h3','','The crew'));
+  if (!store.friends.length) p3.append(h('p','','Nobody yet — send your link and get theirs back.'));
+  for (const f of store.friends){
+    const fc = h('div','frcard');
+    const av = h('div','avatar', (f.name[0] || '?').toUpperCase());
+    av.style.background = avatarColor(f.name);
+    const who = h('div','who');
+    const nb = Object.values(f.sel).filter(s => s === 'b').length;
+    const ni = Object.values(f.sel).filter(s => s === 'i').length;
+    who.append(h('b','', f.name), h('div','s', nb + ' booked · ' + ni + ' interested · updated ' + f.added));
+    const del = h('button','x','✕'); del.title = 'Remove'; del.setAttribute('aria-label','Remove ' + f.name);
+    del.onclick = () => { if (confirm('Remove ' + f.name + '\'s plan?')){ store.friends = store.friends.filter(x => x !== f); save(); rerender(); } };
+    fc.append(av, who, del);
+    p3.append(fc);
+  }
+  root.append(p3);
+
+  const p4 = h('div','panel');
+  p4.append(h('h3','','Backup'));
+  p4.append(h('p','','Your plan lives in this browser. Copy this backup code somewhere safe (or to move phones), then paste it in the box above on the new device — use your own name to restore.'));
+  const ta = h('textarea','code'); ta.readOnly = true; ta.value = encodePlan();
+  ta.onclick = () => { ta.select(); };
+  p4.append(ta);
+  root.append(p4);
+}
+
+/* ============ tabs / theme / boot ============ */
+let TAB = 'events';
+function rerender(){
+  renderCounts();
+  if (TAB === 'events') renderEvents();
+  else if (TAB === 'plan') renderPlan();
+  else renderFriends();
+}
+function renderCounts(shown){
+  const upcoming = EVENTS.filter(e => !e.past).length;
+  $('#nEvents').textContent = shown !== undefined ? shown : EVENTS.filter(matches).length;
+  $('#nPlan').textContent = Object.keys(store.sel).length;
+  $('#nFriends').textContent = store.friends.length;
+}
+document.querySelectorAll('nav.tabs button').forEach(b => {
+  b.onclick = () => {
+    TAB = b.dataset.tab;
+    document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    $('#viewEvents').classList.toggle('hid', TAB !== 'events');
+    $('#viewPlan').classList.toggle('hid', TAB !== 'plan');
+    $('#viewFriends').classList.toggle('hid', TAB !== 'friends');
+    $('#filterWrap').classList.toggle('hid', TAB !== 'events');
+    rerender();
+    window.scrollTo({top:0});
+  };
+});
+$('#q').oninput = () => { F.q = $('#q').value; renderEvents(); };
+$('#sort').onchange = () => { F.sort = $('#sort').value; renderEvents(); };
+
+$('#themeBtn').onclick = () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  store.prefs.theme = next; save();
+};
+if (store.prefs.theme) document.documentElement.dataset.theme = store.prefs.theme;
+
+function countdown(){
+  const el = $('#countdown');
+  const start = new Date('2026-07-31T00:00:00'), end = new Date('2026-08-09T23:59:59');
+  const now = new Date();
+  if (now < start){
+    const d = Math.ceil((start - now) / 864e5);
+    el.innerHTML = '';
+    el.append('Pride weekend in ', Object.assign(h('b','', d + (d === 1 ? ' day' : ' days'))), '');
+  } else if (now <= end){
+    el.innerHTML = ''; el.append(Object.assign(h('b','','HAPPENING NOW')), ' — go dance');
+  } else el.textContent = 'That\'s a wrap — see you in 2027';
+}
+
+function measureSticky(){
+  document.documentElement.style.setProperty('--stick', ($('#mast').offsetHeight - 1) + 'px');
+}
+addEventListener('resize', measureSticky);
+
+/* import from URL hash */
+function checkHash(){
+  const m = location.hash.match(/#p=(.+)/);
+  if (!m) return;
+  history.replaceState(null,'',location.pathname + location.search);
+  const obj = decodePlan(m[1]);
+  if (!obj) return;
+  const n = Object.keys(obj.s).length;
+  const bn = $('#importBanner');
+  bn.className = 'banner';
+  bn.textContent = '';
+  bn.append(h('div','t', (obj.n || 'A friend') + ' shared their Pride plan'),
+            h('div','s', n + ' events — add it to see their picks on your list?'));
+  const row = h('div','prow');
+  const yes = h('button','pbtn','Add ' + (obj.n || 'friend') + '\'s plan');
+  yes.onclick = () => { addFriend(obj); bn.className = 'hid'; };
+  const no = h('button','pbtn q','Not now');
+  no.onclick = () => { bn.className = 'hid'; };
+  row.append(yes, no);
+  bn.append(row);
+}
+
+addEventListener('hashchange', checkHash);
+buildFilters();
+countdown(); setInterval(countdown, 60000);
+renderEvents(); renderCounts();
+measureSticky(); setTimeout(measureSticky, 300);
+checkHash();
+</script>
+</body>
+</html>
