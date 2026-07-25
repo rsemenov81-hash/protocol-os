@@ -59,6 +59,8 @@
 
 ## ADDITIONAL INVENTORY REVIEW (5/29 — going through full xlsx inventory)
 
+> Settled **STORED** items (not running) live in `STATE_archive.md` to keep this doc lean. Roster preserved below at INVENTORY REVIEW COMPLETE.
+
 | Compound | Decision | Detail |
 |---|---|---|
 | ACE-031 | **CONDITIONAL HOLD** | Run FLRG242 first. Revisit only after HCT drop resolved + clean CBC/coag baseline. If ever: low-dose SubQ, canary-monitor (epistaxis/gum bleed/telangiectasia = STOP), 4-6wk. Documented BMP9/10 vascular tox |
@@ -66,19 +68,12 @@
 | LGD-4033 | **SHORT CYCLE** | 5mg/day = 0.5mL SL (10mg/mL), start now, 6-8wk. Baseline = 5/21 labs (AST32/ALT24/HDL52). Recheck ALT/AST+lipids @4wk (watch HDL crush vs Lp(a) 120) |
 | Kisspeptin | **RUN (trial)** | 100mcg/day SubQ AM (10mg+5mL → 5u). 2-4wk central/libido trial. Isolate from other libido tools |
 | Oxytocin | **QUEUED** | Intranasal PRN ~30-45min pre-intimacy, AFTER kisspeptin window. Best-characterized libido/bonding tool |
-| Melanotan-2 | **STORED** | (Strongest libido option — MC4R, bypasses SSRI — but user declined. If revisited: skin check + mole photos for melanoma surveillance) |
-| Melanotan-1 | **STORED** | Tanning/photoprotection only; orthogonal to goals |
 | Humanin (HNG) | **RUN** | 500mcg SubQ M/W/F AM (10mg+2mL → 10u), co-dose w/ MOTS-c. Longevity + neuroprotective; complements MOTS-c (cytoprotective vs metabolic). Confirm HNG vs native form |
 | Fox04-DRI | **RUN (quarterly pulse)** | 5mg/day SubQ ×2 days (10mg+1mL → 50u), every ~3mo. First pulse ~Aug (post-taper). Senolytic; expect transient SASP malaise |
 | ATX-304 | **RUN TO DEPLETION** | ~10 days left at current oral dose, then discontinue — don't repurchase (redundant w/ MOTS-c AMPK) |
 | LL-37 | **SHORT COURSE** | 100mcg/day SubQ ×10-14d (5mg+2.5mL → 5u). Targeted (infection/biofilm/gut). Watch inflammatory flare vs hs-CRP 2.6. Not daily/ongoing |
 | Vilon | **RUN (Khavinson course)** | 2mg SubQ AM (20mg+2mL → 20u), pulsed 10-20d w/ Epitalon+Pinealon. Geroprotective immune layer |
 | Humanin/Fox04/Vilon/Epitalon/Pinealon | NOTE | Khavinson + mito-peptide longevity cluster — pulse the bioregulators together in courses |
-| TB-500 standalone | **STORED** | KLOW covers maintenance (500mcg/d); break out 20mg vial only for acute injury loading (2-2.5mg 2x/wk 4-6wk) |
-| Sermorelin (×5) | **STORED** | Redundant GHRH — Tesa is better |
-| GHK-Cu standalone | **STORED** | Already 2.5mg/d in KLOW |
-| Wolverine Stack | **STORED** | Overlaps KLOW healing blend |
-| L-Carnitine (×20) | **STORED** | Hard-stop #7 (TMAO); not running carnitine |
 | L-Glutathione | **RUN (user override of #10)** | SubQ/IM 1200mg 2-3x/wk. #10 was efficacy-based (γ-GT degrades SubQ/IM — low yield); user accepts. IV = effective upgrade. Safe, low-yield. Closes antioxidant gap |
 | **— COGNITIVE / NEURO CLUSTER —** | | |
 | Dihexa | **HOLD (vault while IGF-1 on)** | Hard-stop #2: oncogenic synergy w/ IGF-1 (HGF/c-Met + IGF-1). Reconsiderable only when IGF-1 off |
@@ -86,7 +81,6 @@
 | Cerebrolysin (×6) | **HOLD (route)** | Hard-stop #4: IV-only; his vials are injection (SubQ/IM = immunogenic depot). Vault until IV route available |
 | Calm Mix | **FINISH then RETIRE** | Use up current supply, then replace with Neurolux (Calm Mix is a subset of it) |
 | Neurolux (Semax+Selank+Pinealon+PE22-28, 48mg) | **RUN CYCLED (after Calm Mix)** | Primary cognitive blend. 48mg+4.8mL → ~12u/day. **4wk on / 2-4wk off** (TrkB-tolerance hedge). Un-vaults TrkB group via cycling |
-| Semax NA, Selank NA, Adamax, Adalank, Noopept | **STORED** | Redundant w/ Neurolux (which contains Semax+Selank). Backups/alternates |
 
 **TrkB-vault policy update (was hard-stop #11):** Revised from blanket vault → **cycled use** (the downregulation concern is a cautious hypothesis, not established; cycling hedges it while pursuing the cognitive goal). Neurolux is the consolidated vehicle.
 
@@ -97,7 +91,7 @@
 | 5-Amino-1MQ | **RUN** | 50mg/day oral. NNMT inhibitor → endogenous NAD+ + fat loss/recomp. Methyl-sparing |
 | JBSNF-0008 (6-methoxynicotinamide) | **RUN (overlap accepted)** | 5mg/day oral. NAD/methylation axis — overlaps 5-Amino-1MQ + NAD+ injections (possible methyl-donor tension). User accepts. **Keep TMG + methyl-B on** to cover methylation demand. Monitor |
 
-**INVENTORY REVIEW COMPLETE (5/29):** All xlsx compounds + 3 capsule orals (J-147, 5-Amino-1MQ, JBSNF-0008) reviewed. Stored: MT-1, MT-2, Sermorelin, GHK-standalone, Wolverine, L-Carnitine, TB-500-standalone, Semax NA, Selank NA, Adamax, Adalank, Noopept. Held/vaulted: ACE-031 (conditional), Dihexa (while IGF-1), 9-Me-BC, Cerebrolysin (route).
+**INVENTORY REVIEW COMPLETE (5/29):** All xlsx compounds + 3 capsule orals (J-147, 5-Amino-1MQ, JBSNF-0008) reviewed. Stored: MT-1, MT-2, Sermorelin, GHK-standalone, Wolverine, L-Carnitine, TB-500-standalone, Semax NA, Selank NA, Adamax, Adalank, Noopept (**full rationale → `STATE_archive.md`; not running — do not re-recommend**). Held/vaulted: ACE-031 (conditional), Dihexa (while IGF-1), 9-Me-BC, Cerebrolysin (route).
 
 **Rx (unchanged):** Sertraline 150 mg, Finasteride 1 mg, oral Minoxidil 2.5 mg, Descovy 200/25 mg — all PO daily.
 
