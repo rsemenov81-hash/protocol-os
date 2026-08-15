@@ -1938,11 +1938,14 @@ function App() {
     const t = setTimeout(() => cloudPush(false), 1500);
     return () => clearTimeout(t);
   }, [protocols, vials, storage, logs, syncUrl, syncToken]);
-  // Reconnect: retry a queued push as soon as the network returns
+  // Reconnect: retry a queued push when the network returns OR the app is foregrounded
+  // (iOS PWAs suspend in the background; 'online' alone can miss the recovery moment).
   useEffect(() => {
     const retry = () => { if (syncQueued) cloudPush(false); };
+    const onVis = () => { if (document.visibilityState === 'visible' && syncQueued) cloudPush(false); };
     window.addEventListener('online', retry);
-    return () => window.removeEventListener('online', retry);
+    document.addEventListener('visibilitychange', onVis);
+    return () => { window.removeEventListener('online', retry); document.removeEventListener('visibilitychange', onVis); };
   });
 
   const saveSyncConfig = (u, tok) => {
@@ -2135,7 +2138,12 @@ function App() {
         activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols}
         logged={headerLogged} scheduled={headerScheduled} weekDays={weekDays}
         syncReady={syncReady} syncStatus={syncStatus} syncQueued={syncQueued}
-        onSyncTap={() => { if (syncReady) cloudPull(true); else openSyncConfigModal(true); }}
+        onSyncTap={() => {
+          if (!syncReady) return openSyncConfigModal(true);
+          // queued/error: a tap must clear the backlog, not just pull — push (it merges on 409),
+          // otherwise the '● queued' label can outlive a recovered connection.
+          if (syncQueued || syncStatus === 'error') { cloudPush(true); } else { cloudPull(true); }
+        }}
         onOpenDataSync={openDataSyncModal}/>
       <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
