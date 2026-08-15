@@ -1,0 +1,4 @@
+.DS_Store
+*.zip
+_stale-quarantine-*/
+design_handoff_protocol_os/
