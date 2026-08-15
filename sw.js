@@ -1,6 +1,6 @@
 // Protocol OS Service Worker — network-first so updates always pick up
-const CACHE = 'protocol-os-v9';
-const ASSETS = ['./', './Protocol-OS.html'];
+const CACHE = 'protocol-os-v10';
+const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -26,6 +26,6 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(cache => cache.put(e.request, clone));
       }
       return resp;
-    }).catch(() => caches.match(e.request).then(r => r || caches.match('./Protocol-OS.html')))
+    }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
   );
 });
