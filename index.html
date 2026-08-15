@@ -1858,7 +1858,9 @@ function App() {
   const lastPushRef = React.useRef('');
   const pulledOnce = React.useRef(false); // never push until we've pulled at least once (prevents stale local data overwriting fresher cloud)
 
-  const cloudRev = React.useRef(null);       // last seen ETag rev — sent back as If-Match on every write
+  const cloudRev = React.useRef(null);       // last seen rev (from response BODIES) — sent back as If-Match on every write
+  const pushFails = React.useRef(0);         // consecutive push failures (drives backoff)
+  const pushBlockedUntil = React.useRef(0);  // epoch ms before which auto-pushes are skipped
   const [syncQueued, setSyncQueued] = useState(false); // a push failed and is waiting for retry/reconnect
 
   // Token travels in the Authorization header (worker prefers Bearer); never in the URL.
@@ -1878,8 +1880,11 @@ function App() {
     try {
       const r = await fetch(cloudEndpoint(), { method: 'GET', headers: authHeaders() });
       if (!r.ok) throw new Error('GET ' + r.status);
-      const etag = r.headers.get('ETag'); if (etag) cloudRev.current = etag.replace(/"/g, '');
       const d = await r.json();
+      // Rev comes from the BODY (_rev): Cloudflare rewrites ETags to weak (W/"n") when it
+      // compresses responses, which poisoned If-Match and 409'd every push from Safari.
+      if (d && d._rev != null) cloudRev.current = String(d._rev);
+      else { const etag = r.headers.get('ETag'); if (etag) cloudRev.current = etag.replace(/^W\//, '').replace(/"/g, ''); }
       pulledOnce.current = true; // a successful pull (even if cloud is empty) unlocks pushing
       if (!d._empty) {
         if (Array.isArray(d.protocols)) setProtocols(d.protocols.map(canonicalizeDose));
@@ -1896,7 +1901,8 @@ function App() {
     if (!syncReady) return;
     if (!pulledOnce.current) return; // safety: don't push local state before the first successful pull (prevents seed/stale overwrite)
     const payload = JSON.stringify({ protocols, vials, storage, logs });
-    if (payload === lastPushRef.current && !announce && !syncQueued) return; // no change
+    if (payload === lastPushRef.current && !announce) return; // no change
+    if (!announce && Date.now() < pushBlockedUntil.current) return; // failure backoff (manual taps bypass)
     lastPushRef.current = payload;
     setSyncStatus('pushing');
     const doPost = (body, rev) => fetch(cloudEndpoint(), {
@@ -1907,24 +1913,33 @@ function App() {
     try {
       let r = await doPost(payload, cloudRev.current);
       if (r.status === 409) {
-        // Stale rev: another writer got there first. Re-pull, merge logs by id
-        // (local wins on protocols/vials/storage — single-writer rule D90), retry once.
+        // Stale rev: another writer got there first. Read the server's current rev from the
+        // 409 BODY (never headers — Cloudflare weakens ETags under compression), merge logs
+        // by id (local wins on protocols/vials/storage — single-writer rule D90), retry once.
+        let conflict = null; try { conflict = await r.json(); } catch {}
         const g = await fetch(cloudEndpoint(), { method: 'GET', headers: authHeaders() });
         if (!g.ok) throw new Error('GET-on-409 ' + g.status);
-        const getag = g.headers.get('ETag'); if (getag) cloudRev.current = getag.replace(/"/g, '');
         const server = await g.json();
+        cloudRev.current = String((server && server._rev != null) ? server._rev
+          : (conflict && conflict.currentRev != null) ? conflict.currentRev : '');
         const mergedLogs = server && Array.isArray(server.logs) ? mergeLogsById(logs, server.logs) : logs;
         setLogs(mergedLogs);
         const mergedPayload = JSON.stringify({ protocols, vials, storage, logs: mergedLogs });
         lastPushRef.current = mergedPayload;
-        r = await doPost(mergedPayload, cloudRev.current);
+        r = await doPost(mergedPayload, cloudRev.current || null);
       }
       if (!r.ok) throw new Error('POST ' + r.status);
-      const petag = r.headers.get('ETag'); if (petag) cloudRev.current = petag.replace(/"/g, '');
+      let ok = null; try { ok = await r.json(); } catch {}
+      if (ok && ok.rev != null) cloudRev.current = String(ok.rev);
+      pushFails.current = 0;
       setSyncQueued(false);
       setSyncStatus('ok');
       if (announce) showToast('Synced to cloud');
     } catch (e) {
+      // Backoff: consecutive failures stop auto-retrying (30s, 1m, 2m, 4m, cap 5m) so a
+      // persistent rejection can never become a request storm. Manual taps bypass it.
+      pushFails.current += 1;
+      pushBlockedUntil.current = Date.now() + Math.min(300000, 30000 * Math.pow(2, pushFails.current - 1));
       console.error(e); setSyncStatus('error'); setSyncQueued(true);
       if (announce) showToast('Cloud sync failed — will retry when online', 'error');
     }
