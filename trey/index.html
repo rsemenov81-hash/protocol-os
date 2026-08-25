@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Protocol</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Protocol">
+<meta name="theme-color" content="#07080b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2307080b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%234fd6e6'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2307080b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%234fd6e6'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<style>
+/* ═══ Trey Protocol — Liquid Glass (approved design, cyan) ═══ */
+:root{
+  color-scheme:dark;
+  --bg:#07080b; --plate:#101318;
+  --accent:#4fd6e6; --on-accent:#04211b; --ok:#5fdc97; --warn:#f4b94a; --err:#ff6b6b;
+  --ink:#f4f7f9; --ink2:rgba(255,255,255,.82); --ink3:rgba(255,255,255,.62); --ink4:rgba(255,255,255,.51); --ghost:rgba(255,255,255,.34);
+  --hair:rgba(255,255,255,.10); --hair2:rgba(255,255,255,.14);
+  --film:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035) 42%,rgba(255,255,255,.02));
+  --sheen:linear-gradient(165deg,rgba(120,160,255,.05),rgba(79,214,230,.02) 40%,rgba(0,0,0,0) 70%);
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --me-out:cubic-bezier(.16,1,.3,1); --me-sheet:cubic-bezier(.32,.72,0,1); --me-exit:cubic-bezier(.4,0,.7,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;overflow-x:hidden}
+body{padding-top:env(safe-area-inset-top);padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0;touch-action:manipulation}
+input,textarea,select{font-size:16px !important;-webkit-appearance:none;font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);letter-spacing:0}
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(420px 420px at -40px 140px,rgba(86,120,255,.16),transparent 68%),
+  radial-gradient(380px 380px at calc(100% + 60px) 380px,rgba(60,214,210,.13),transparent 68%),
+  radial-gradient(360px 360px at 50% calc(100% + 120px),rgba(196,110,220,.11),transparent 68%)}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto}
+.card{position:relative;isolation:isolate;border-radius:20px;background:var(--film),var(--sheen),var(--plate);
+  border:1px solid var(--hair);box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 -1px 0 rgba(0,0,0,.40),0 1px 0 rgba(0,0,0,.45),0 10px 24px -12px rgba(0,0,0,.55);
+  transition:transform 120ms var(--me-out)}
+.press:active{transform:scale(.98)}
+.well{background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.09);border-radius:14px;color:var(--ink);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.05);padding:12px 14px;width:100%}
+.well:focus{outline:none;border-color:rgba(79,214,230,.5);box-shadow:inset 0 1px 2px rgba(0,0,0,.45),0 0 0 3px rgba(79,214,230,.18)}
+.well::placeholder{color:rgba(255,255,255,.40)}
+.btn-primary{height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:linear-gradient(180deg,#4fd6e6,#34b9c9);color:var(--on-accent);font-size:16px;font-weight:600;
+  box-shadow:0 8px 22px -6px rgba(79,214,230,.5),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{background:rgba(255,255,255,.08);color:var(--ink4);box-shadow:none;cursor:not-allowed}
+.btn-ghost{height:48px;padding:0 18px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.07);border:1px solid var(--hair);color:var(--ink);font-size:15px;font-weight:600}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:2px 2px 6px;display:block}
+.hdr{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;height:calc(48px + env(safe-area-inset-top));
+  padding:env(safe-area-inset-top) 12px 0;background:rgba(13,15,20,.62);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.32)}
+.hdr .mark{flex:1;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink3)}
+.cap{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:13px;background:rgba(255,255,255,.06);
+  border:1px solid var(--hair);font-family:var(--mono);font-size:11px;color:var(--ink3);position:relative}
+.cap::after{content:'';position:absolute;inset:-9px}
+.cap.err{color:var(--err);border-color:rgba(255,107,107,.3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.avatar{width:32px;height:32px;border-radius:50%;background:rgba(79,214,230,.18);box-shadow:inset 0 0 0 1px rgba(79,214,230,.4);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink3)}
+.big-title{font-size:34px;line-height:40px;font-weight:700;letter-spacing:-.02em}
+.sub{font-size:13px;color:var(--ink3)}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin:8px 0 2px}
+.day{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.day .n{font-family:var(--mono);font-size:13px;font-weight:600;color:rgba(255,255,255,.78);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.day.sel .n{background:var(--accent);color:var(--on-accent);font-weight:700}
+.day.today:not(.sel) .n{color:var(--accent)}
+.day .w{font-size:10px;text-transform:uppercase;color:var(--ghost)}
+.day .d{width:4px;height:4px;border-radius:50%;background:var(--ghost)}
+.day .d.done{background:var(--ok)}
+.day .d.none{background:transparent}
+.sect{display:flex;align-items:center;gap:8px;margin:20px 4px 8px}
+.sect .t{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.sect .r{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.08),transparent)}
+.sect .c{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink3)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dose{padding:12px;min-height:132px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.dose .r1{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.rt{width:25px;height:25px;border-radius:8px;background:rgba(79,214,230,.14);box-shadow:inset 0 0 0 1px rgba(79,214,230,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rtl{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.ring{width:28px;height:28px;border-radius:50%;border:1.6px solid var(--accent);background:rgba(79,214,230,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.ring::after{content:'';position:absolute;inset:-8px}
+.dose .nm{font-size:13.5px;line-height:17px;font-weight:600;min-height:34px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dose .hero{display:flex;align-items:baseline;gap:4px}
+.dose .hv{font-family:var(--mono);font-size:22px;line-height:26px;font-weight:700;color:var(--accent)}
+.dose .hu{font-family:var(--mono);font-size:13px;color:var(--ink3)}
+.dose .by{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink2)}
+.dose .ft{margin-top:auto;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dose .mt{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card.glow{background:linear-gradient(180deg,rgba(79,214,230,.08),rgba(79,214,230,.015) 55%),var(--sheen),var(--plate);
+  border-color:rgba(79,214,230,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 -1px 0 rgba(0,0,0,.40),0 0 0 1px rgba(79,214,230,.18),0 10px 28px -10px rgba(79,214,230,.28)}
+.card.logged{background:linear-gradient(180deg,rgba(95,220,151,.10),rgba(95,220,151,.02) 55%),var(--sheen),var(--plate);border-color:rgba(95,220,151,.30)}
+.card.logged .ring{border:none;background:var(--ok)}
+.card.logged .hv{color:rgba(255,255,255,.78)}
+.card.logged .mt{color:var(--ok);font-family:var(--mono);font-size:10.5px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));z-index:100;
+  width:min(calc(100% - 40px),356px);height:58px;border-radius:29px;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 55%),rgba(13,15,20,.62);
+  -webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);
+  border:1px solid var(--hair2);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.35),0 12px 32px -8px rgba(0,0,0,.55)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgba(255,255,255,.62);font-size:10px;font-weight:600;border-radius:24px}
+.tab.on{background:rgba(79,214,230,.14);box-shadow:inset 0 0 0 1px rgba(79,214,230,.32);color:var(--accent)}
+.tab svg{stroke:currentColor}
+.scrim{position:fixed;inset:0;z-index:200;background:rgba(4,5,8,.62);opacity:0;pointer-events:none;transition:opacity 240ms linear}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:210;left:50%;transform:translate(-50%,103%);bottom:0;width:100%;max-width:480px;max-height:90svh;
+  display:flex;flex-direction:column;border-radius:28px 28px 0 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 50%,rgba(255,255,255,.015)),rgba(13,15,20,.90);
+  border:1px solid var(--hair2);border-bottom:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 -24px 60px -20px rgba(0,0,0,.7);
+  transition:transform 420ms var(--me-sheet)}
+.sheet.open{transform:translate(-50%,0)}
+.sheet.closing{transition:transform 280ms var(--me-exit)}
+.sheet.settled{-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 50%,rgba(255,255,255,.015)),rgba(13,15,20,.72)}
+.grab{padding:8px 0 2px;display:grid;place-items:center;min-height:24px;width:100%}
+.grab i{width:36px;height:5px;border-radius:3px;background:rgba(255,255,255,.28);display:block}
+.sheet-body{overflow-y:auto;padding:4px 18px 8px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.sheet-foot{display:flex;gap:10px;padding:12px 18px calc(12px + max(12px, env(safe-area-inset-bottom)));border-top:1px solid rgba(255,255,255,.08)}
+.readout{font-family:var(--mono);font-size:40px;line-height:1;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;background:transparent;border:none;width:3.4em;padding:0}
+.readout:focus{outline:none}
+.readout.warned{color:var(--warn)}
+.readout.blocked{color:var(--err)}
+.step{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02)),var(--plate);border:1px solid var(--hair);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20)}
+.step:active{transform:scale(.94)}
+.advice{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;border-radius:12px;padding:6px 8px 6px 12px;
+  background:rgba(244,185,74,.10);border:1px solid rgba(244,185,74,.3)}
+.advice.err{background:rgba(255,107,107,.10);border-color:rgba(255,107,107,.35)}
+.advice .t{font-size:12px;font-weight:600;color:var(--warn)}
+.advice.err .t{color:var(--err)}
+.chiprow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;min-height:44px;padding:6px 14px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);border:1px solid var(--hair);color:var(--ink2);font-size:13px;font-weight:600}
+.chip.sel{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.toast{position:fixed;z-index:300;left:50%;transform:translate(-50%,16px);opacity:0;bottom:calc(86px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:100px;max-width:calc(100% - 32px);
+  background:var(--film),var(--sheen),rgba(16,19,24,.97);border:1px solid var(--hair2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 32px rgba(0,0,0,.5);
+  transition:transform 320ms var(--me-sheet),opacity 320ms var(--me-sheet);pointer-events:none}
+.toast.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.toast .m{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.toast .u{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:rgba(79,214,230,.15);
+  border:1px solid rgba(79,214,230,.3);border-radius:100px;padding:8px 12px;flex-shrink:0}
+.bench{border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.pill{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:7px;padding:3px 8px}
+.pill.cyan{color:var(--accent);background:rgba(79,214,230,.14);border:1px solid rgba(79,214,230,.3)}
+.pill.amber{color:var(--warn);background:rgba(244,185,74,.14);border:1px solid rgba(244,185,74,.3)}
+.rangetrack{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.08)}
+.rangetrack .zone{position:absolute;top:0;bottom:0;border-radius:3px;background:rgba(95,220,151,.22)}
+.rangetrack .pt{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px var(--plate)}
+.delta{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;font-weight:700;border-radius:8px;padding:3px 7px}
+.delta.good{color:var(--ok);background:rgba(95,220,151,.12);border:1px solid rgba(95,220,151,.3)}
+.delta.warn{color:var(--warn);background:rgba(244,185,74,.12);border:1px solid rgba(244,185,74,.3)}
+.fine{text-align:center;font-size:11px;color:var(--ink4)}
+.days7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dtoggle{height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--hair);color:var(--ink3);font-size:12px;font-weight:700}
+.dtoggle.on{background:rgba(79,214,230,.16);border-color:rgba(79,214,230,.4);color:var(--accent)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade{animation:fadeIn 200ms var(--me-out)}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:1ms !important;animation-duration:1ms !important}
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<div id="app"></div>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" tabindex="-1"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ════════ config + state ════════ */
+const API = 'https://trey-protocol.rsemenov81.workers.dev';
+const S = {
+  token: localStorage.getItem('trey_token') || '',
+  role: null,
+  data: { compounds: [], logs: [], labs: [], scans: [], _rev: 0 },
+  tab: 'protocol',
+  viewDate: new Date(),
+  sync: 'idle', // idle | syncing | ok | error
+  loaded: false,
+};
+
+/* ════════ built-in library (autofill for Roman's add-compound form; he can edit all of it) ════════ */
+const LIB = {
+  'Ipamorelin + CJC-1295': { category:'GH Support', doseMcg:200, mcgPerUnit:10, timing:'Nightly',
+    purpose:'A gold-standard pairing that nudges your body to release its own growth hormone in natural pulses, instead of replacing it. Taken at night on an empty stomach.',
+    benefits:['Deeper sleep','Recovery and joint comfort','Lean body composition'] },
+  'BPC-157': { category:'Healing', doseMcg:500, mcgPerUnit:40, timing:'Morning',
+    purpose:'A repair peptide that supports healing in tendons, joints, and the gut lining. Runs in cycles of a few weeks — not year-round.',
+    benefits:['Tendon and joint healing','Gut lining repair','Faster recovery from training'] },
+  'TB-500': { category:'Healing', doseMcg:2500, mcgPerUnit:100, timing:'Morning',
+    purpose:'A whole-body repair peptide often paired with BPC-157. Supports soft-tissue healing and recovery.',
+    benefits:['Soft-tissue repair','Flexibility','Recovery'] },
+  'GHK-Cu': { category:'Skin & Hair', doseMcg:1500, mcgPerUnit:100, timing:'Evening',
+    purpose:'A copper peptide your skin already makes, in smaller amounts as you age. Supports collagen, skin elasticity, and hair growth. Cycled month-on, month-off.',
+    benefits:['Skin elasticity and collagen','Hair growth','Wound healing'] },
+  'Semax': { category:'Focus', doseMcg:600, mcgPerUnit:0, timing:'Morning',
+    purpose:'A nasal-spray peptide for focus and mental energy. Used in the morning on demanding days.',
+    benefits:['Focus and attention','Mental energy','Stress resilience'] },
+  'Selank': { category:'Calm', doseMcg:400, mcgPerUnit:0, timing:'As needed',
+    purpose:'A nasal-spray peptide for calm, steady focus without sedation.',
+    benefits:['Less anxiety','Calm focus','Better mood'] },
+  'MOTS-c': { category:'Metabolic', doseMcg:10000, mcgPerUnit:500, timing:'Morning',
+    purpose:'A mitochondrial peptide that supports energy metabolism and exercise performance. Taken before workouts.',
+    benefits:['Exercise performance','Fat metabolism','Energy'] },
+  'NAD+': { category:'Energy', doseMcg:100000, mcgPerUnit:5000, timing:'Morning',
+    purpose:'A coenzyme your cells use to make energy. Injected slowly, a couple of times a week.',
+    benefits:['Cellular energy','Recovery','Mental clarity'] },
+  'Epitalon': { category:'Longevity', doseMcg:200, mcgPerUnit:50, timing:'Nightly',
+    purpose:'A short-course peptide taken in 2–3 week pulses a few times a year. Supports sleep rhythm and healthy aging.',
+    benefits:['Sleep regulation','Healthy aging','Recovery'] },
+  'Tesamorelin': { category:'GH Support', doseMcg:1000, mcgPerUnit:50, timing:'Morning',
+    purpose:'A growth-hormone support peptide with strong evidence for reducing deep belly fat. Taken fasted.',
+    benefits:['Visceral fat reduction','Body composition','Recovery'] },
+};
+
+/* ════════ helpers ════════ */
+const $ = (s, el) => (el || document).querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.floor(Math.random() * 99999).toString(36);
+const dkey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayKey = () => dkey(new Date());
+const fmtMcg = (n) => { if (n == null || isNaN(n)) return '—'; if (n >= 1000) return (n/1000).toFixed(2).replace(/\.?0+$/,'') + ' mg'; return Math.round(n) + ' mcg'; };
+const nowLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+const relDay = (iso) => { if (!iso) return 'never'; const days = Math.round((Date.now() - new Date(iso).getTime())/86400000); return days <= 0 ? 'today' : days === 1 ? 'yesterday' : days + 'd ago'; };
+const fmtD = (iso) => iso ? new Date(iso + (iso.length === 10 ? 'T12:00' : '')).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '—';
+
+function toast(msg, undoFn) {
+  const t = $('#toast');
+  t.innerHTML = `<span class="m">${esc(msg)}</span>` + (undoFn ? `<button class="u" id="tundo">Undo</button>` : '');
+  t.classList.add('on');
+  if (undoFn) $('#tundo').onclick = () => { t.classList.remove('on'); undoFn(); };
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('on'), undoFn ? 6000 : 3200);
+}
+
+/* ════════ cloud ════════ */
+async function api(path, body) {
+  const opt = { headers: { 'Authorization': 'Bearer ' + S.token } };
+  if (body) { opt.method = 'POST'; opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+  const r = await fetch(API + path, opt);
+  let j = null; try { j = await r.json(); } catch {}
+  if (r.status === 401) { S.role = null; throw Object.assign(new Error((j && j.error) || 'Bad access code'), { auth: true }); }
+  if (!r.ok) throw Object.assign(new Error((j && j.error) || ('Error ' + r.status)), { status: r.status, body: j });
+  return j;
+}
+async function pull(silent) {
+  if (!S.token) return;
+  S.sync = 'syncing'; if (!silent) render();
+  try {
+    const d = await api('/state');
+    S.role = d.role;
+    S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], _rev: d._rev||0 };
+    S.sync = 'ok'; S.loaded = true;
+  } catch (e) {
+    S.sync = 'error';
+    if (e.auth) { S.token = ''; localStorage.removeItem('trey_token'); }
+  }
+  render();
+}
+async function adminWrite(patch, okMsg) {
+  try {
+    await api('/admin', { baseRev: S.data._rev, ...patch });
+    await pull(true);
+    if (okMsg) toast(okMsg);
+    return true;
+  } catch (e) {
+    if (e.status === 409) { await pull(true); toast('Someone saved first — check and try again'); }
+    else toast(e.message);
+    return false;
+  }
+}
+setInterval(() => { if (S.token && document.visibilityState === 'visible') pull(true); }, 45000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token) pull(true); });
+
+/* ════════ schedule logic ════════ */
+const blockOf = (c) => {
+  const days = c.schedule && c.schedule.days;
+  if (Array.isArray(days) && days.length === 0) return 'prn';
+  return /night|even|pm|bed/i.test(c.timing || '') ? 'pm' : 'am';
+};
+const dueOn = (c, date) => {
+  if (c.active === false) return false;
+  const days = (c.schedule && c.schedule.days) || [0,1,2,3,4,5,6];
+  if (days.length === 0) return false;
+  return days.includes(date.getDay());
+};
+const logFor = (c, dateK) => S.data.logs.find(l => l.compoundId === c.id && (l.datetime||'').slice(0,10) === dateK);
+const lastLog = (c) => S.data.logs.filter(l => l.compoundId === c.id).sort((a,b) => (b.datetime||'').localeCompare(a.datetime||''))[0];
+
+/* ════════ icons ════════ */
+const I = {
+  inject: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4fd6e6" stroke-width="1.8" stroke-linecap="round"><path d="M18 3l3 3M16 5l3 3"/><path d="M17.5 6.5L9 15l-1.5 4.5L3 21l1.5-4.5L13 8"/><path d="M11 10l3 3"/></svg>',
+  plus: (c) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  check: (c,s) => `<svg width="${s||15}" height="${s||15}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+  pencil: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.62)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
+  chev: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  tabs: {
+    protocol: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>',
+    library: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    labs: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7C12 2.7 6.5 8.8 6.5 12.8a5.5 5.5 0 0 0 11 0C17.5 8.8 12 2.7 12 2.7z"/></svg>',
+    progress: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M15 8h6v6"/></svg>',
+  },
+};
+
+/* ════════ views ════════ */
+function headerHTML(title, subHTML) {
+  const cap = !S.token ? '' :
+    S.sync === 'error' ? `<button class="cap err" data-act="pull" aria-label="Sync failed, tap to retry">sync failed — retry</button>` :
+    S.sync === 'syncing' ? `<span class="cap">↻ syncing…</span>` :
+    `<button class="cap" data-act="pull" aria-label="Synced, tap to refresh"><span class="dot"></span>synced</button>`;
+  const av = S.role ? `<span class="avatar" title="${S.role === 'admin' ? 'Roman' : 'Trey'}">${S.role === 'admin' ? 'R' : 'T'}</span>` : '';
+  const admin = S.role === 'admin' ? `<span class="pill amber" style="margin-left:6px">ADMIN</span>` : '';
+  return `
+  <div class="hdr"><span style="width:44px"></span><span class="mark">PROTOCOL${admin}</span>${cap}${av}</div>
+  <div style="padding:10px 16px 0">
+    <div class="eyebrow">${esc(new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}).toUpperCase())}</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:2px">
+      <div class="big-title" style="flex:1">${esc(title)}</div>
+      ${title === 'Today' || !isToday() ? ringHTML() : ''}
+    </div>
+    ${subHTML || ''}
+  </div>`;
+}
+const isToday = () => dkey(S.viewDate) === todayKey();
+
+function ringHTML() {
+  const k = dkey(S.viewDate);
+  const due = S.data.compounds.filter(c => dueOn(c, S.viewDate));
+  const done = due.filter(c => logFor(c, k)).length;
+  const frac = due.length ? Math.min(1, done / due.length) : 0;
+  const off = (125.66 * (1 - frac)).toFixed(2);
+  const col = due.length && done >= due.length ? 'var(--ok)' : 'var(--accent)';
+  return `<div style="width:44px;height:44px;position:relative;display:flex;align-items:center;justify-content:center" role="img" aria-label="${done} of ${due.length} doses logged">
+    <svg viewBox="0 0 48 48" width="40" height="40" style="position:absolute">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="4.5"/>
+      <circle cx="24" cy="24" r="20" fill="none" stroke="${col}" stroke-width="4.5" stroke-linecap="round"
+        stroke-dasharray="125.66" stroke-dashoffset="${off}" transform="rotate(-90 24 24)" style="transition:stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)"/>
+    </svg>
+    <span class="mono" style="font-size:11px;font-weight:700;color:var(--ink2);position:relative">${done}/${due.length}</span>
+  </div>`;
+}
+
+function weekHTML() {
+  const now = new Date();
+  const start = new Date(S.viewDate); start.setDate(start.getDate() - start.getDay());
+  let cells = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const k = dkey(d);
+    const due = S.data.compounds.filter(c => dueOn(c, d));
+    const done = due.length > 0 && due.every(c => logFor(c, k));
+    const has = due.length > 0 && k <= todayKey();
+    const sel = k === dkey(S.viewDate), today = k === todayKey();
+    cells += `<button class="day ${sel?'sel':''} ${today?'today':''}" data-act="day" data-k="${k}" aria-label="${d.toDateString()}">
+      <span class="n">${d.getDate()}</span><span class="w">${'SMTWTFS'[d.getDay()]}</span>
+      <span class="d ${!has?'none':done?'done':''}"></span></button>`;
+  }
+  return `<div class="week">${cells}</div>`;
+}
+
+function doseCardHTML(c, glow) {
+  const k = dkey(S.viewDate);
+  const log = logFor(c, k);
+  const units = c.mcgPerUnit > 0 ? Math.round(((log ? log.doseMcg : c.doseMcg) / c.mcgPerUnit) * 10) / 10 : null;
+  const state = log ? 'logged' : '';
+  const heroV = units != null ? units : (c.doseMcg >= 1000 ? (c.doseMcg/1000).toFixed(1).replace(/\.0$/,'') : Math.round(c.doseMcg));
+  const heroU = units != null ? 'u' : (c.doseMcg >= 1000 ? 'mg' : 'mcg');
+  const meta = log
+    ? `Logged ${new Date(log.datetime).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}).toLowerCase().replace(' ','')}`
+    : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
+  return `<button class="card dose press ${state} ${glow && !log ? 'glow' : ''}" data-act="opendose" data-id="${esc(c.id)}">
+    <div class="r1">
+      <span style="display:flex;align-items:center;gap:6px"><span class="rt">${I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
+      <span style="display:flex;gap:6px;align-items:center">
+        ${S.role === 'admin' ? `<span class="ring" style="border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.05)" data-act="editcomp" data-id="${esc(c.id)}" role="button" aria-label="Edit ${esc(c.name)}">${I.pencil}</span>` : ''}
+        <span class="ring">${log ? I.check('#06231a') : I.plus('#4fd6e6')}</span>
+      </span>
+    </div>
+    <div class="nm">${esc(c.name)}</div>
+    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${fmtMcg(log ? log.doseMcg : c.doseMcg)}</span></div>
+    <div class="ft"><span class="mt">${meta}</span></div>
+  </button>`;
+}
+
+function protocolView() {
+  const comps = S.data.compounds.filter(c => c.active !== false);
+  const k = dkey(S.viewDate);
+  const byBlock = { am: [], pm: [], prn: [] };
+  comps.forEach(c => { if (dueOn(c, S.viewDate) || blockOf(c) === 'prn') byBlock[blockOf(c)].push(c); });
+  const glowId = (byBlock.am.concat(byBlock.pm).find(c => !logFor(c, k)) || {}).id;
+  const title = isToday() ? 'Today' : S.viewDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  let body = '';
+  if (!comps.length) {
+    body = `<div style="margin:56px auto 0;max-width:280px;padding:36px 20px;border-radius:18px;background:#0c0e12;border:1px dashed rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="1.6" stroke-linecap="round"><path d="M18 3l3 3M16 5l3 3"/><path d="M17.5 6.5L9 15l-1.5 4.5L3 21l1.5-4.5L13 8"/></svg>
+      <div style="font-size:17px;font-weight:700">No compounds yet</div>
+      <div style="font-size:14px;color:var(--ink3);line-height:1.45">${S.role === 'admin' ? 'Add the first compound to build the protocol.' : "Roman hasn't set up the protocol yet."}</div>
+      ${S.role === 'admin' ? '<button class="btn-primary" style="margin-top:6px" data-act="addcomp">Add compound</button>' : ''}
+    </div>`;
+  } else {
+    const sect = (id, label) => byBlock[id].length ? `
+      <div class="sect"><span class="t">${label}</span><span class="r"></span>
+        <span class="c">${byBlock[id].filter(c => logFor(c, k)).length} OF ${byBlock[id].length}</span></div>
+      <div class="grid2">${byBlock[id].map(c => doseCardHTML(c, c.id === glowId)).join('')}</div>` : '';
+    body = sect('am', 'AM Block') + sect('pm', 'PM Block') +
+      (byBlock.prn.length ? `<div class="sect"><span class="t">As Needed</span><span class="r"></span><span class="c">PRN</span></div>
+       <div class="grid2">${byBlock.prn.map(c => doseCardHTML(c, false)).join('')}</div>` : '');
+    if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:18px" data-act="addcomp">${I.plus('#04211b')} Add compound</button>
+      <div class="fine" style="margin-top:8px">Only you see this button.</div>`;
+  }
+  return headerHTML(title, weekHTML()) + `<div style="padding:4px 16px 0" class="fade">${body}</div>`;
+}
+
+function libraryView() {
+  const comps = S.data.compounds.filter(c => c.active !== false);
+  const cards = comps.length ? comps.map(c => {
+    const u = c.mcgPerUnit > 0 ? ` · ${Math.round((c.doseMcg / c.mcgPerUnit) * 10) / 10}u` : '';
+    return `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="flex:1;font-size:17px;font-weight:700">${esc(c.name)}</span>
+        <span class="pill cyan">${esc(c.category || 'Peptide')}</span>
+      </div>
+      <div style="font-size:14px;line-height:1.5;color:var(--ink2)">${esc(c.purpose || '')}</div>
+      ${(c.benefits || []).length ? `<div style="display:flex;flex-direction:column;gap:6px">${c.benefits.map(b =>
+        `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)">${I.check('#5fdc97', 14)}${esc(b)}</div>`).join('')}</div>` : ''}
+      <div style="padding-top:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:var(--ink3)">Roman's dose</span>
+        <span class="mono" style="font-size:13px;font-weight:700;color:var(--accent)">${fmtMcg(c.doseMcg)}${u} · ${esc((c.timing||'daily').toLowerCase())}</span>
+      </div>
+    </div>`;
+  }).join('') : `<div class="fine" style="margin-top:40px">Compounds Roman adds will be explained here.</div>`;
+  return headerHTML('Library', `<div class="sub" style="margin-top:4px">What each compound does and why it's in your protocol — written by Roman.</div>`) +
+    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${cards}</div>`;
+}
+
+function labsView() {
+  const labs = [...S.data.labs].sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const latest = labs[0];
+  let body = '';
+  if (!latest) {
+    body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first blood panel below.' : 'Blood panels Roman uploads will appear here.'}</div>`;
+  } else {
+    body = (latest.markers || []).map(m => {
+      const lo = Number(m.lo), hi = Number(m.hi), v = Number(m.value);
+      const span = (hi - lo) || 1, dispLo = lo - span * 0.3, dispSpan = span * 1.6;
+      const pct = Math.max(3, Math.min(97, ((v - dispLo) / dispSpan) * 100));
+      const zL = Math.max(0, Math.min(100, ((lo - dispLo) / dispSpan) * 100));
+      const zR = Math.max(0, Math.min(100, ((hi - dispLo) / dispSpan) * 100));
+      const flagged = m.flag || v < lo || v > hi;
+      const col = flagged ? 'var(--warn)' : 'var(--ok)';
+      const verdict = m.note ? esc(m.note) : flagged ? (v < lo ? 'Below range' : v > hi ? 'Above range' : 'Flagged by Roman') : 'In range';
+      const cardBg = flagged ? 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(244,185,74,.08),rgba(244,185,74,.015) 55%),var(--sheen),var(--plate);border-color:rgba(244,185,74,.26)"'
+                            : 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"';
+      return `<div class="card" ${cardBg}>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="flex:1;font-size:15px;font-weight:700">${esc(m.name)}</span>
+          <span class="mono" style="font-size:20px;font-weight:700">${esc(m.value)}</span>
+          <span class="mono" style="font-size:11px;color:var(--ink3)">${esc(m.unit || '')}</span>
+        </div>
+        <div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span>
+          <span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:10.5px;color:var(--ink4)">Range ${esc(m.lo)}–${esc(m.hi)}</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${col}">${flagged ? '' : I.check('#5fdc97', 12)}${verdict}</span>
+        </div></div>`;
+    }).join('');
+    if (labs.length > 1) body += `<div class="bench"><span style="font-size:13px;font-weight:600;color:var(--ink2)">Earlier panels</span>
+      <span class="mono" style="font-size:12px;color:var(--ink3)">${labs.length - 1} more</span></div>`;
+  }
+  if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:16px" data-act="addlab">${I.plus('#04211b')} Add blood panel</button>`;
+  else body += `<div class="fine" style="margin-top:14px">New panels are added by Roman.</div>`;
+  return headerHTML('Blood Work', latest ? `<div class="sub" style="margin-top:4px">Latest panel · <span class="mono" style="color:var(--ink2)">${fmtD(latest.date)}</span> — uploaded by Roman.</div>` : '') +
+    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${body}</div>`;
+}
+
+function progressView() {
+  const scans = [...S.data.scans].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  const first = scans[0], last = scans[scans.length - 1];
+  let body = '';
+  if (!last) {
+    body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first InBody scan below.' : 'InBody scans Roman uploads will appear here.'}</div>`;
+  } else {
+    const dl = (v, goodDown) => {
+      if (first === last || v == null) return '';
+      const good = goodDown ? v <= 0 : v >= 0;
+      const arrow = v <= 0 ? '<path d="M12 5v14M5 12l7 7 7-7"/>' : '<path d="M12 19V5M5 12l7-7 7 7"/>';
+      return `<span class="delta ${good ? 'good' : 'warn'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${arrow}</svg>${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</span>`;
+    };
+    const tile = (label, v, unit, delta) => `<div class="card" style="border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">${label}</span>
+      <span style="display:flex;align-items:baseline;gap:3px"><span class="mono" style="font-size:22px;font-weight:700">${v}</span><span class="mono" style="font-size:11px;color:var(--ink3)">${unit}</span></span>${delta}</div>`;
+    body += `<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+      ${tile('Weight', last.weightLb, 'lb', dl(first ? last.weightLb - first.weightLb : null, true))}
+      ${tile('Muscle', last.smmLb, 'lb', dl(first ? last.smmLb - first.smmLb : null, false))}
+      ${tile('Body fat', last.pbfPct, '%', dl(first ? last.pbfPct - first.pbfPct : null, true))}
+    </div>`;
+    if (scans.length >= 2) {
+      const ws = scans.map(s => Number(s.weightLb));
+      const lo = Math.min(...ws) - 1, hi = Math.max(...ws) + 1;
+      const X = (i) => 12 + (i / (scans.length - 1)) * 310;
+      const Y = (w) => 110 - ((w - lo) / (hi - lo)) * 84;
+      const pts = scans.map((s, i) => `${X(i).toFixed(1)} ${Y(Number(s.weightLb)).toFixed(1)}`);
+      const line = 'M' + pts.join(' L');
+      const area = line + ` L${X(scans.length-1).toFixed(1)} 110 L12 110 Z`;
+      const dots = scans.map((s, i) => i === scans.length - 1
+        ? `<circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="4.5" fill="#4fd6e6"/><circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="8" fill="none" stroke="rgba(79,214,230,.35)" stroke-width="2"/>`
+        : `<circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="3" fill="#4fd6e6" opacity=".5"/>`).join('');
+      const lbls = scans.map(s => `<span class="mono" style="font-size:10px;color:var(--ink4)">${fmtD(s.date).replace(' ', '/').replace(/[A-Za-z]+\//, m => ({'Jan/':'1/','Feb/':'2/','Mar/':'3/','Apr/':'4/','May/':'5/','Jun/':'6/','Jul/':'7/','Aug/':'8/','Sep/':'9/','Oct/':'10/','Nov/':'11/','Dec/':'12/'}[m] || m))}</span>`).join('');
+      body += `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:700">Weight across scans</span>
+          <span class="mono" style="font-size:10.5px;color:var(--ink4)">${scans.length} scans</span></div>
+        <svg viewBox="0 0 358 118" style="display:block;width:100%">
+          <line x1="0" y1="110" x2="358" y2="110" stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+          <path d="${area}" fill="rgba(79,214,230,.10)"/>
+          <path d="${line}" fill="none" stroke="#4fd6e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>
+        <div style="display:flex;justify-content:space-between;padding:0 2px">${lbls}</div></div>`;
+    }
+    const row = (l, v, u) => `<div style="display:flex;align-items:center;gap:10px">
+      <span style="flex:1;font-size:13px;color:var(--ink2)">${l}</span>
+      <span class="mono" style="font-size:15px;font-weight:700">${v != null ? v : '—'}</span>
+      <span class="mono" style="font-size:11px;color:var(--ink3)">${u}</span></div>`;
+    body += `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:12px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:700">This scan</span>
+        <span class="mono" style="font-size:10.5px;color:var(--ink4)">${fmtD(last.date)}</span></div>
+      ${row('Body fat mass', last.bfmLb, 'lb')}
+      ${row('Visceral fat level', last.vfl, (Number(last.vfl) <= 9 ? '· healthy' : '· high'))}
+      ${row('Total body water', last.tbwLb, 'lb')}
+      ${row('Basal metabolic rate', last.bmrKcal, 'kcal')}
+    </div>`;
+  }
+  if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:16px" data-act="addscan">${I.plus('#04211b')} Add InBody scan</button>`;
+  else body += `<div class="fine" style="margin-top:14px">Scans are uploaded by Roman from the InBody H40.</div>`;
+  return headerHTML('Progress', last ? `<div class="sub" style="margin-top:4px">InBody H40 · last scan <span class="mono" style="color:var(--ink2)">${fmtD(last.date)}</span></div>` : '') +
+    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:0" class="fade">${body}</div>`;
+}
+
+function setupView() {
+  return `
+  <div style="min-height:80vh;display:flex;flex-direction:column;justify-content:center;padding:0 24px">
+    <div class="eyebrow" style="text-align:center">PROTOCOL</div>
+    <div class="big-title" style="text-align:center;margin-top:4px">Welcome</div>
+    <div class="sub" style="text-align:center;margin-top:8px">Enter the access code Roman gave you.</div>
+    <input class="well mono" id="tok" style="margin-top:24px;text-align:center" placeholder="access code" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <button class="btn-primary" style="margin-top:12px" data-act="connect">Connect</button>
+    <div class="fine" id="seterr" style="margin-top:12px;color:var(--err)"></div>
+  </div>`;
+}
+
+function tabbarHTML() {
+  const T = [['protocol','Protocol'],['library','Library'],['labs','Blood Work'],['progress','Progress']];
+  return `<nav class="tabbar" role="tablist">${T.map(([id,l]) =>
+    `<button class="tab ${S.tab === id ? 'on' : ''}" role="tab" aria-selected="${S.tab === id}" data-act="tab" data-tab="${id}">${I.tabs[id === 'labs' ? 'labs' : id]}${l}</button>`).join('')}</nav>`;
+}
+
+function render() {
+  const app = $('#app');
+  if (!S.token) { app.innerHTML = setupView(); return; }
+  if (!S.loaded) { app.innerHTML = `<div class="hdr"><span class="mark">PROTOCOL</span></div><div class="fine" style="margin-top:80px">Loading…</div>`; return; }
+  const v = { protocol: protocolView, library: libraryView, labs: labsView, progress: progressView }[S.tab];
+  app.innerHTML = v() + tabbarHTML();
+}
+
+/* ════════ sheet plumbing ════════ */
+let sheetTimer = null;
+function openSheet(html, onmount) {
+  const sh = $('#sheet'), sc = $('#scrim');
+  clearTimeout(sheetTimer);
+  sh.classList.remove('closing');
+  sh.innerHTML = `<button class="grab" data-act="closesheet" aria-label="Close"><i></i></button>` + html;
+  sc.classList.add('on');
+  requestAnimationFrame(() => requestAnimationFrame(() => { sh.classList.add('open'); sh.focus(); }));
+  sheetTimer = setTimeout(() => sh.classList.add('settled'), 460);
+  if (onmount) onmount(sh);
+}
+function closeSheet() {
+  const sh = $('#sheet'), sc = $('#scrim');
+  clearTimeout(sheetTimer);
+  sh.classList.add('closing'); sh.classList.remove('open', 'settled');
+  sc.classList.remove('on');
+  sheetTimer = setTimeout(() => { sh.innerHTML = ''; sh.classList.remove('closing'); }, 380);
+}
+$('#scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+
+/* ════════ The Draw (dose sheet) ════════ */
+function openDose(c) {
+  const k = dkey(S.viewDate);
+  const existing = logFor(c, k);
+  const conc = Number(c.mcgPerUnit) || 0;
+  const rec = Number(c.doseMcg) || 0;
+  const recU = conc > 0 ? rec / conc : 0;
+  const maxU = conc > 0 ? Math.max(30, Math.ceil((recU * 2.2) / 10) * 10) : 0;
+  let units = conc > 0 ? (existing ? (existing.doseMcg / conc) : recU) : 0;
+  let mcg = existing ? existing.doseMcg : rec;
+
+  const draw = conc > 0;
+  const html = `
+  <div class="sheet-body">
+    <div>
+      <div style="font-size:22px;line-height:27px;font-weight:700;letter-spacing:-.015em">${esc(c.name)}</div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:3px">${esc(c.timing || 'Daily')} · Roman recommends <span class="mono" style="color:var(--ink2)">${fmtMcg(rec)}</span></div>
+    </div>
+    <div class="card" style="border-radius:16px;padding:14px 14px 12px">
+      <div class="lbl" style="margin:0 0 6px">The Draw</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (mcg >= 1000 ? (mcg/1000) : mcg)}" aria-label="Dose">
+        <span style="font-size:16px;color:var(--ink3)">${draw ? 'u' : (mcg >= 1000 ? 'mg' : 'mcg')}</span>
+        <span class="mono" id="conv" style="margin-left:auto;font-size:13px;color:var(--ink2)"></span>
+      </div>
+      ${draw ? `
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+        <button class="step" id="dec" aria-label="Decrease one unit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.82)" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+        <svg id="barrel" viewBox="0 0 266 64" style="flex:1;min-width:0;display:block;touch-action:none;cursor:grab;overflow:visible">
+          <rect x="8" y="10" width="250" height="26" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" stroke-width="1.3"/>
+          <rect id="liq" x="9.5" y="11.5" width="0" height="23" fill="rgba(79,214,230,.42)"/>
+          <rect id="men" x="9" y="11.5" width="2" height="23" fill="#4fd6e6"/>
+          <rect id="plg" x="7" y="6" width="6" height="34" rx="2" fill="#4fd6e6"/>
+          <g id="ticks"></g><g id="tlbl"></g>
+        </svg>
+        <button class="step" id="inc" aria-label="Increase one unit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4fd6e6" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="mono" style="font-size:11px;color:var(--ink3);margin-top:8px">${conc} mcg per unit · snaps 0.5u · drag the plunger</div>` : ''}
+      <div id="guard"></div>
+    </div>
+    <div>
+      <span class="lbl">Time</span>
+      <div class="chiprow" id="times"></div>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    ${existing ? `<button class="btn-ghost" id="undo" style="color:var(--err)">Remove</button>` : `<button class="btn-ghost" id="cancel">Cancel</button>`}
+    <button class="btn-primary" id="go" style="flex:1;height:52px"></button>
+  </div>`;
+
+  openSheet(html, (sh) => {
+    const dv = $('#dv', sh), conv = $('#conv', sh), guard = $('#guard', sh), go = $('#go', sh);
+    let when = existing ? existing.datetime : nowLocal();
+    const times = $('#times', sh);
+    const timeChips = [['Now', nowLocal()], ['Morning', k + 'T08:00'], ['Evening', k + 'T19:00'], ['Bedtime', k + 'T22:00']];
+    const renderTimes = () => { times.innerHTML = timeChips.map(([l, v]) =>
+      `<button class="chip ${when === v ? 'sel' : ''}" data-t="${v}">${l}${when === v ? `<span class="mono" style="font-size:10px">${new Date(v).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</span>` : ''}</button>`).join('');
+      times.querySelectorAll('.chip').forEach(b => b.onclick = () => { when = b.dataset.t; renderTimes(); });
+    };
+    renderTimes();
+
+    const X0 = 8, W = 250;
+    const buildTicks = () => {
+      if (!draw) return;
+      let t = '', l = '';
+      const step = maxU <= 30 ? 1 : maxU <= 60 ? 2 : 5;
+      for (let u = 0; u <= maxU; u += step) {
+        const x = X0 + (u / maxU) * W, major = u % (step * 5) === 0;
+        t += `<line x1="${x}" y1="40" x2="${x}" y2="${major ? 48 : 44}" stroke="rgba(255,255,255,${major ? '.45' : '.30'})" stroke-width="1"/>`;
+        if (major) l += `<text x="${x}" y="60" fill="rgba(255,255,255,.51)" font-size="11" font-family="JetBrains Mono, ui-monospace, monospace" text-anchor="middle">${u}</text>`;
+      }
+      $('#ticks', sh).innerHTML = t; $('#tlbl', sh).innerHTML = l;
+    };
+    buildTicks();
+
+    const upd = (fromInput) => {
+      if (draw) {
+        units = Math.max(0, Math.min(maxU, units));
+        mcg = Math.round(units * conc);
+        if (!fromInput) dv.value = units.toFixed(1);
+        conv.textContent = `${fmtMcg(mcg)} · ${(units / 100).toFixed(3)} mL`;
+        const fill = Math.max(0, Math.min(W - 3, (units / maxU) * (W - 3)));
+        $('#liq', sh).setAttribute('width', fill);
+        $('#men', sh).setAttribute('x', 9.5 + fill - 1);
+        $('#plg', sh).setAttribute('x', Math.min(252, 9.5 + fill - 2));
+      } else {
+        conv.textContent = fmtMcg(mcg);
+      }
+      const ratio = rec > 0 ? mcg / rec : 1;
+      const blocked = rec > 0 && ratio >= 5;
+      const off = !blocked && rec > 0 && Math.abs(mcg - rec) / rec > 0.25;
+      dv.classList.toggle('warned', off); dv.classList.toggle('blocked', blocked);
+      const men = $('#men', sh), plg = $('#plg', sh);
+      if (men) { const col = blocked ? '#ff6b6b' : off ? '#f4b94a' : '#4fd6e6'; men.setAttribute('fill', col); plg.setAttribute('fill', col); }
+      guard.innerHTML = blocked
+        ? `<div class="advice err"><span class="t">Blocked at <span class="mono">${ratio.toFixed(1)}×</span> Roman's dose — talk to Roman</span>
+           <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset</button></div>`
+        : off
+        ? `<div class="advice"><span class="t"><span class="mono">${ratio.toFixed(1)}×</span> Roman's recommended dose</span>
+           <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset to ${draw ? (Math.round(recU * 2) / 2) + 'u' : fmtMcg(rec)}</button></div>`
+        : '';
+      const r = $('#rst', sh); if (r) r.onclick = () => { units = recU; mcg = rec; upd(); };
+      go.disabled = blocked || !(mcg > 0);
+      go.innerHTML = blocked ? 'Blocked by the dose gate'
+        : `${existing ? 'Save' : 'Log'} <span class="mono" style="margin-left:6px">${draw ? (Math.round(units * 10) / 10) + 'u · ' : ''}${fmtMcg(mcg)}</span>`;
+    };
+
+    if (draw) {
+      $('#inc', sh).onclick = () => { units = Math.round((units + 1) * 2) / 2; upd(); };
+      $('#dec', sh).onclick = () => { units = Math.round((units - 1) * 2) / 2; upd(); };
+      const barrel = $('#barrel', sh);
+      let dragging = false;
+      const toUnits = (e) => { const r = barrel.getBoundingClientRect();
+        return ((((e.clientX - r.left) / r.width) * 266) - X0) / W * maxU; };
+      barrel.addEventListener('pointerdown', (e) => { dragging = true; barrel.setPointerCapture(e.pointerId); units = toUnits(e); upd(); });
+      barrel.addEventListener('pointermove', (e) => { if (dragging) { units = toUnits(e); upd(); } });
+      barrel.addEventListener('pointerup', () => { dragging = false; units = Math.round(units * 2) / 2; upd(); });
+      dv.addEventListener('input', () => { const v = parseFloat(dv.value); if (Number.isFinite(v)) { units = v; upd(true); } });
+      dv.addEventListener('blur', () => { units = Math.round(units * 2) / 2; upd(); });
+    } else {
+      dv.addEventListener('input', () => { const v = parseFloat(dv.value); if (Number.isFinite(v)) { mcg = rec >= 1000 ? v * 1000 : v; upd(true); } });
+    }
+    upd();
+
+    const cancel = $('#cancel', sh); if (cancel) cancel.onclick = closeSheet;
+    const undo = $('#undo', sh); if (undo) undo.onclick = async () => {
+      try { await api('/log', { deleteId: existing.id }); closeSheet(); await pull(true); toast('Removed'); }
+      catch (e) { toast(e.message); }
+    };
+    go.onclick = async () => {
+      go.disabled = true;
+      const entry = { id: existing ? existing.id : uid(), compoundId: c.id, datetime: when, doseMcg: Math.round(mcg), units: draw ? Math.round(units * 10) / 10 : null };
+      try {
+        await api('/log', { log: entry });
+        closeSheet(); await pull(true);
+        toast(`✓ ${c.name} · ${fmtMcg(entry.doseMcg)}`, async () => {
+          try { await api('/log', { deleteId: entry.id }); await pull(true); } catch (e) { toast(e.message); }
+        });
+      } catch (e) { go.disabled = false; toast(e.message); }
+    };
+  });
+}
+
+/* ════════ admin forms ════════ */
+function compForm(c) {
+  const isNew = !c;
+  c = c || { id: 'c_' + uid(), name: '', category: '', purpose: '', benefits: [], doseMcg: '', mcgPerUnit: '', timing: 'Morning', schedule: { days: [0,1,2,3,4,5,6] }, active: true };
+  const days = (c.schedule && c.schedule.days) || [0,1,2,3,4,5,6];
+  const html = `
+  <div class="sheet-body">
+    <div style="font-size:22px;font-weight:700">${isNew ? 'Add compound' : 'Edit ' + esc(c.name)}</div>
+    <div><span class="lbl">Name</span>
+      <input class="well" id="f-name" list="libnames" value="${esc(c.name)}" placeholder="Start typing — common ones autofill">
+      <datalist id="libnames">${Object.keys(LIB).map(n => `<option value="${esc(n)}"></option>`).join('')}</datalist></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">Category</span><input class="well" id="f-cat" value="${esc(c.category)}"></div>
+      <div><span class="lbl">Timing</span><select class="well" id="f-time">
+        ${['Morning','Evening','Nightly','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">Dose (mcg)</span><input class="well mono" id="f-dose" inputmode="numeric" value="${esc(c.doseMcg)}"></div>
+      <div><span class="lbl">mcg per unit</span><input class="well mono" id="f-conc" inputmode="numeric" value="${esc(c.mcgPerUnit)}" placeholder="0 = not injected"></div>
+    </div>
+    <div><span class="lbl">Days</span><div class="days7" id="f-days">
+      ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}">${d}</button>`).join('')}</div>
+      <div class="fine" style="text-align:left;margin-top:6px">No days selected = as-needed only.</div></div>
+    <div><span class="lbl">What it does (shown in Library)</span><textarea class="well" id="f-purp" rows="3">${esc(c.purpose)}</textarea></div>
+    <div><span class="lbl">Benefits — one per line</span><textarea class="well" id="f-ben" rows="3">${esc((c.benefits || []).join('\n'))}</textarea></div>
+  </div>
+  <div class="sheet-foot">
+    ${isNew ? `<button class="btn-ghost" id="f-cancel">Cancel</button>` : `<button class="btn-ghost" id="f-deact" style="color:var(--warn)">${c.active === false ? 'Reactivate' : 'Deactivate'}</button>`}
+    <button class="btn-primary" id="f-save" style="flex:1">Save</button>
+  </div>`;
+  openSheet(html, (sh) => {
+    const nameEl = $('#f-name', sh);
+    nameEl.addEventListener('change', () => {
+      const lib = LIB[nameEl.value.trim()];
+      if (lib && isNew) {
+        $('#f-cat', sh).value = lib.category; $('#f-time', sh).value = lib.timing;
+        $('#f-dose', sh).value = lib.doseMcg; $('#f-conc', sh).value = lib.mcgPerUnit;
+        $('#f-purp', sh).value = lib.purpose; $('#f-ben', sh).value = lib.benefits.join('\n');
+      }
+    });
+    sh.querySelectorAll('.dtoggle').forEach(b => b.onclick = () => b.classList.toggle('on'));
+    const fc = $('#f-cancel', sh); if (fc) fc.onclick = closeSheet;
+    const fd = $('#f-deact', sh); if (fd) fd.onclick = async () => {
+      const next = S.data.compounds.map(x => x.id === c.id ? { ...x, active: x.active === false } : x);
+      if (await adminWrite({ compounds: next }, c.active === false ? 'Reactivated' : 'Deactivated')) closeSheet();
+    };
+    $('#f-save', sh).onclick = async () => {
+      const name = nameEl.value.trim();
+      const dose = parseFloat($('#f-dose', sh).value);
+      if (!name) return toast('Name it first');
+      if (!Number.isFinite(dose) || dose <= 0) return toast('Set a dose in mcg');
+      const upd = {
+        ...c, name, category: $('#f-cat', sh).value.trim(), timing: $('#f-time', sh).value,
+        doseMcg: Math.round(dose), mcgPerUnit: parseFloat($('#f-conc', sh).value) || 0,
+        purpose: $('#f-purp', sh).value.trim(),
+        benefits: $('#f-ben', sh).value.split('\n').map(s => s.trim()).filter(Boolean),
+        schedule: { days: [...sh.querySelectorAll('.dtoggle.on')].map(b => Number(b.dataset.d)).sort() },
+      };
+      const next = isNew ? [...S.data.compounds, upd] : S.data.compounds.map(x => x.id === c.id ? upd : x);
+      if (await adminWrite({ compounds: next }, isNew ? `Added ${name}` : 'Saved')) closeSheet();
+    };
+  });
+}
+
+function labForm() {
+  const rowHTML = () => `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:6px" class="mrow">
+    <input class="well" placeholder="Marker" style="padding:10px 10px">
+    <input class="well mono" placeholder="Value" inputmode="decimal" style="padding:10px 8px">
+    <input class="well" placeholder="Unit" style="padding:10px 8px">
+    <input class="well mono" placeholder="Low" inputmode="decimal" style="padding:10px 8px">
+    <input class="well mono" placeholder="High" inputmode="decimal" style="padding:10px 8px">
+  </div>`;
+  const html = `
+  <div class="sheet-body">
+    <div style="font-size:22px;font-weight:700">Add blood panel</div>
+    <div><span class="lbl">Panel date</span><input class="well mono" id="l-date" type="date" value="${todayKey()}"></div>
+    <div><span class="lbl">Markers</span><div id="l-rows" style="display:flex;flex-direction:column;gap:8px">${rowHTML()}${rowHTML()}${rowHTML()}</div>
+      <button class="btn-ghost" id="l-more" style="margin-top:8px;height:44px">+ Another marker</button></div>
+  </div>
+  <div class="sheet-foot"><button class="btn-ghost" id="l-cancel">Cancel</button>
+    <button class="btn-primary" id="l-save" style="flex:1">Save panel</button></div>`;
+  openSheet(html, (sh) => {
+    $('#l-more', sh).onclick = () => $('#l-rows', sh).insertAdjacentHTML('beforeend', rowHTML());
+    $('#l-cancel', sh).onclick = closeSheet;
+    $('#l-save', sh).onclick = async () => {
+      const markers = [...sh.querySelectorAll('.mrow')].map(r => {
+        const [n, v, u, lo, hi] = [...r.querySelectorAll('input')].map(i => i.value.trim());
+        return n && v ? { name: n, value: parseFloat(v), unit: u, lo: parseFloat(lo) || 0, hi: parseFloat(hi) || 0 } : null;
+      }).filter(Boolean);
+      if (!markers.length) return toast('Add at least one marker');
+      const next = [...S.data.labs, { id: 'lab_' + uid(), date: $('#l-date', sh).value, markers }];
+      if (await adminWrite({ labs: next }, 'Panel added')) closeSheet();
+    };
+  });
+}
+
+function scanForm() {
+  const F = [['weightLb','Weight (lb)'],['smmLb','Skeletal muscle mass (lb)'],['pbfPct','Body fat (%)'],['bfmLb','Body fat mass (lb)'],['vfl','Visceral fat level'],['tbwLb','Total body water (lb)'],['bmrKcal','BMR (kcal)']];
+  const html = `
+  <div class="sheet-body">
+    <div style="font-size:22px;font-weight:700">Add InBody scan</div>
+    <div><span class="lbl">Scan date</span><input class="well mono" id="s-date" type="date" value="${todayKey()}"></div>
+    ${F.map(([k, l]) => `<div><span class="lbl">${l}</span><input class="well mono" id="s-${k}" inputmode="decimal"></div>`).join('')}
+  </div>
+  <div class="sheet-foot"><button class="btn-ghost" id="s-cancel">Cancel</button>
+    <button class="btn-primary" id="s-save" style="flex:1">Save scan</button></div>`;
+  openSheet(html, (sh) => {
+    $('#s-cancel', sh).onclick = closeSheet;
+    $('#s-save', sh).onclick = async () => {
+      const scan = { id: 'scan_' + uid(), date: $('#s-date', sh).value };
+      let any = false;
+      F.forEach(([k]) => { const v = parseFloat($('#s-' + k, sh).value); if (Number.isFinite(v)) { scan[k] = v; any = true; } });
+      if (!any) return toast('Enter the scan numbers');
+      const next = [...S.data.scans, scan];
+      if (await adminWrite({ scans: next }, 'Scan added')) closeSheet();
+    };
+  });
+}
+
+/* ════════ actions ════════ */
+document.addEventListener('click', async (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === 'tab') { S.tab = el.dataset.tab; render(); }
+  else if (act === 'day') { const [y, m, d] = el.dataset.k.split('-').map(Number); S.viewDate = new Date(y, m - 1, d); render(); }
+  else if (act === 'pull') pull();
+  else if (act === 'closesheet') closeSheet();
+  else if (act === 'opendose') {
+    const c = S.data.compounds.find(x => x.id === el.dataset.id);
+    if (c) openDose(c);
+  }
+  else if (act === 'editcomp') { e.stopPropagation(); const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) compForm(c); }
+  else if (act === 'addcomp') compForm(null);
+  else if (act === 'addlab') labForm();
+  else if (act === 'addscan') scanForm();
+  else if (act === 'connect') {
+    const tok = $('#tok').value.trim();
+    if (!tok) return;
+    S.token = tok;
+    try {
+      const d = await api('/state');
+      localStorage.setItem('trey_token', tok);
+      S.role = d.role;
+      S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], _rev: d._rev||0 };
+      S.loaded = true; S.sync = 'ok';
+      render();
+      toast(d.role === 'admin' ? 'Connected as Roman (admin)' : 'Connected as Trey');
+    } catch (err) {
+      S.token = '';
+      const se = $('#seterr'); if (se) se.textContent = err.message || 'That code didn’t work.';
+    }
+  }
+}, true);
+// stop card-tap when tapping the admin pencil inside it
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-act="editcomp"]');
+  if (p) e.stopPropagation();
+}, true);
+
+/* ════════ boot ════════ */
+render();
+if (S.token) pull();
+</script>
+</body>
+</html>
