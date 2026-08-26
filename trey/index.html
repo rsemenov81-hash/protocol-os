@@ -101,6 +101,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .card.logged .ring{border:none;background:var(--ok)}
 .card.logged .hv{color:rgba(255,255,255,.78)}
 .card.logged .mt{color:var(--ok);font-family:var(--mono);font-size:10.5px}
+@keyframes discPop{0%{transform:scale(.4)}62%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes ripOut{from{transform:scale(1);opacity:.85}to{transform:scale(2.4);opacity:0}}
+.ring.pop{animation:discPop 320ms cubic-bezier(.34,1.56,.64,1)}
+.ring .rip{position:absolute;inset:-2px;border-radius:50%;border:1.5px solid rgba(95,220,151,.9);pointer-events:none;animation:ripOut 560ms cubic-bezier(.16,1,.3,1) 120ms both}
 .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));z-index:100;
   width:min(calc(100% - 40px),356px);height:58px;border-radius:29px;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);
   background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 55%),rgba(13,15,20,.62);
@@ -190,6 +194,7 @@ const S = {
   data: { compounds: [], logs: [], labs: [], scans: [], _rev: 0 },
   tab: 'protocol',
   viewDate: new Date(),
+  pinnedDate: false, // true once the user navigates the week strip; cleared when they return to today
   sync: 'idle', // idle | syncing | ok | error
   loaded: false,
 };
@@ -258,7 +263,8 @@ const reconLine = (c) => (c.vialAmount > 0 && c.bacMl > 0)
   ? `${c.unit === 'IU' ? Math.round(c.vialAmount).toLocaleString() + ' IU' : (c.vialAmount >= 1 ? c.vialAmount + ' mg' : fmtMcg(c.vialAmount*1000))} vial · ${c.bacMl} mL BAC · ${(Math.round(concOf(c)*100)/100)} ${unitLabel(c)}/u`
   : (concOf(c) > 0 ? `${concOf(c)} ${unitLabel(c)} per unit` : '');
 const nowLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
-const relDay = (iso) => { if (!iso) return 'never'; const days = Math.round((Date.now() - new Date(iso).getTime())/86400000); return days <= 0 ? 'today' : days === 1 ? 'yesterday' : days + 'd ago'; };
+const relDay = (iso) => { if (!iso) return 'never'; const k = String(iso).slice(0,10); const t = todayKey(); if (k === t) return 'today';
+  const days = Math.round((new Date(t + 'T12:00') - new Date(k + 'T12:00'))/86400000); return days === 1 ? 'yesterday' : days + 'd ago'; };
 const fmtD = (iso) => iso ? new Date(iso + (iso.length === 10 ? 'T12:00' : '')).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '—';
 
 function toast(msg, undoFn) {
@@ -282,6 +288,8 @@ async function api(path, body) {
 }
 async function pull(silent) {
   if (!S.token) return;
+  // midnight rollover: an app left open overnight must not keep logging "yesterday"
+  if (!S.pinnedDate && dkey(S.viewDate) !== todayKey()) S.viewDate = new Date();
   S.sync = 'syncing'; if (!silent) render();
   try {
     const d = await api('/state');
@@ -308,6 +316,8 @@ async function adminWrite(patch, okMsg) {
 }
 setInterval(() => { if (S.token && document.visibilityState === 'visible') pull(true); }, 45000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token) pull(true); });
+
+let flashId = null; // card that just logged — plays the check pop once
 
 /* ════════ schedule logic ════════ */
 const blockOf = (c) => {
@@ -402,8 +412,9 @@ function doseCardHTML(c, glow) {
   const units = conc > 0 ? Math.round(((log ? log.doseMcg : c.doseMcg) / conc) * 10) / 10 : null;
   const state = log ? 'logged' : '';
   const isIU = c.unit === 'IU';
-  const heroV = units != null ? units : isIU ? Math.round(c.doseMcg).toLocaleString() : (c.doseMcg >= 1000 ? (c.doseMcg/1000).toFixed(1).replace(/\.0$/,'') : Math.round(c.doseMcg));
-  const heroU = units != null ? 'u' : isIU ? 'IU' : (c.doseMcg >= 1000 ? 'mg' : 'mcg');
+  const amt = log ? log.doseMcg : c.doseMcg;
+  const heroV = units != null ? units : isIU ? Math.round(amt).toLocaleString() : (amt >= 1000 ? (amt/1000).toFixed(1).replace(/\.0$/,'') : Math.round(amt));
+  const heroU = units != null ? 'u' : isIU ? 'IU' : (amt >= 1000 ? 'mg' : 'mcg');
   const meta = log
     ? `Logged ${new Date(log.datetime).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}).toLowerCase().replace(' ','')}`
     : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
@@ -412,7 +423,7 @@ function doseCardHTML(c, glow) {
       <span style="display:flex;align-items:center;gap:6px"><span class="rt">${I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
       <span style="display:flex;gap:6px;align-items:center">
         ${S.role === 'admin' ? `<span class="ring" style="border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.05)" data-act="editcomp" data-id="${esc(c.id)}" role="button" aria-label="Edit ${esc(c.name)}">${I.pencil}</span>` : ''}
-        <span class="ring">${log ? I.check('#06231a') : I.plus('#4fd6e6')}</span>
+        <span class="ring ${log && c.id === flashId ? 'pop' : ''}">${log ? I.check('#06231a') : I.plus('#4fd6e6')}${log && c.id === flashId ? '<span class="rip"></span>' : ''}</span>
       </span>
     </div>
     <div class="nm">${esc(c.name)}</div>
@@ -444,8 +455,14 @@ function protocolView() {
     body = sect('am', 'AM Block') + sect('pm', 'PM Block') +
       (byBlock.prn.length ? `<div class="sect"><span class="t">As Needed</span><span class="r"></span><span class="c">PRN</span></div>
        <div class="grid2">${byBlock.prn.map(c => doseCardHTML(c, false)).join('')}</div>` : '');
-    if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:18px" data-act="addcomp">${I.plus('#04211b')} Add compound</button>
+    if (S.role === 'admin') {
+      body += `<button class="btn-primary" style="margin-top:18px" data-act="addcomp">${I.plus('#04211b')} Add compound</button>
       <div class="fine" style="margin-top:8px">Only you see this button.</div>`;
+      const inactive = S.data.compounds.filter(c => c.active === false);
+      if (inactive.length) body += `<div class="sect"><span class="t">Inactive</span><span class="r"></span><span class="c">${inactive.length}</span></div>` +
+        inactive.map(c => `<div class="bench" style="margin-bottom:8px"><span style="font-size:13px;font-weight:600;color:var(--ink3)">${esc(c.name)}</span>
+          <button class="btn-ghost" style="height:44px;font-size:13px" data-act="editcomp" data-id="${esc(c.id)}">Edit / Reactivate</button></div>`).join('');
+    }
   }
   return headerHTML(title, weekHTML()) + `<div style="padding:4px 16px 0" class="fade">${body}</div>`;
 }
@@ -483,14 +500,17 @@ function labsView() {
     body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first blood panel below.' : 'Blood panels Roman uploads will appear here.'}</div>`;
   } else {
     body = (latest.markers || []).map(m => {
-      const lo = Number(m.lo), hi = Number(m.hi), v = Number(m.value);
+      const v = Number(m.value);
+      const hasLo = m.lo != null && Number.isFinite(Number(m.lo));
+      const hasHi = m.hi != null && Number.isFinite(Number(m.hi)) && Number(m.hi) !== 0;
+      const lo = hasLo ? Number(m.lo) : 0, hi = hasHi ? Number(m.hi) : Math.max(v * 1.5, lo + 1);
       const span = (hi - lo) || 1, dispLo = lo - span * 0.3, dispSpan = span * 1.6;
       const pct = Math.max(3, Math.min(97, ((v - dispLo) / dispSpan) * 100));
       const zL = Math.max(0, Math.min(100, ((lo - dispLo) / dispSpan) * 100));
-      const zR = Math.max(0, Math.min(100, ((hi - dispLo) / dispSpan) * 100));
-      const flagged = m.flag || v < lo || v > hi;
+      const zR = hasHi ? Math.max(0, Math.min(100, ((hi - dispLo) / dispSpan) * 100)) : 100;
+      const flagged = m.flag || (hasLo && v < lo) || (hasHi && v > hi);
       const col = flagged ? 'var(--warn)' : 'var(--ok)';
-      const verdict = m.note ? esc(m.note) : flagged ? (v < lo ? 'Below range' : v > hi ? 'Above range' : 'Flagged by Roman') : 'In range';
+      const verdict = m.note ? esc(m.note) : flagged ? ((hasLo && v < lo) ? 'Below range' : (hasHi && v > hi) ? 'Above range' : 'Flagged by Roman') : 'In range';
       const cardBg = flagged ? 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(244,185,74,.08),rgba(244,185,74,.015) 55%),var(--sheen),var(--plate);border-color:rgba(244,185,74,.26)"'
                             : 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"';
       return `<div class="card" ${cardBg}>
@@ -502,7 +522,7 @@ function labsView() {
         <div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span>
           <span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:10.5px;color:var(--ink4)">Range ${esc(m.lo)}–${esc(m.hi)}</span>
+          <span class="mono" style="font-size:10.5px;color:var(--ink4)">Range ${hasLo ? esc(m.lo) : '—'}–${hasHi ? esc(m.hi) : '—'}</span>
           <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${col}">${flagged ? '' : I.check('#5fdc97', 12)}${verdict}</span>
         </div></div>`;
     }).join('');
@@ -523,34 +543,37 @@ function progressView() {
     body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first InBody scan below.' : 'InBody scans Roman uploads will appear here.'}</div>`;
   } else {
     const dl = (v, goodDown) => {
-      if (first === last || v == null) return '';
+      if (first === last || v == null || !Number.isFinite(v)) return '';
       const good = goodDown ? v <= 0 : v >= 0;
       const arrow = v <= 0 ? '<path d="M12 5v14M5 12l7 7 7-7"/>' : '<path d="M12 19V5M5 12l7-7 7 7"/>';
       return `<span class="delta ${good ? 'good' : 'warn'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${arrow}</svg>${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</span>`;
     };
+    const fmtv = (v) => (v == null || !Number.isFinite(Number(v))) ? '—' : v;
     const tile = (label, v, unit, delta) => `<div class="card" style="border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
       <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">${label}</span>
       <span style="display:flex;align-items:baseline;gap:3px"><span class="mono" style="font-size:22px;font-weight:700">${v}</span><span class="mono" style="font-size:11px;color:var(--ink3)">${unit}</span></span>${delta}</div>`;
     body += `<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
-      ${tile('Weight', last.weightLb, 'lb', dl(first ? last.weightLb - first.weightLb : null, true))}
-      ${tile('Muscle', last.smmLb, 'lb', dl(first ? last.smmLb - first.smmLb : null, false))}
-      ${tile('Body fat', last.pbfPct, '%', dl(first ? last.pbfPct - first.pbfPct : null, true))}
+      ${tile('Weight', fmtv(last.weightLb), 'lb', dl(first ? last.weightLb - first.weightLb : null, true))}
+      ${tile('Muscle', fmtv(last.smmLb), 'lb', dl(first ? last.smmLb - first.smmLb : null, false))}
+      ${tile('Body fat', fmtv(last.pbfPct), '%', dl(first ? last.pbfPct - first.pbfPct : null, true))}
     </div>`;
-    if (scans.length >= 2) {
-      const ws = scans.map(s => Number(s.weightLb));
+    const wScans = scans.filter(s => Number.isFinite(Number(s.weightLb)));
+    if (wScans.length >= 2) {
+      const scansW = wScans;
+      const ws = scansW.map(s => Number(s.weightLb));
       const lo = Math.min(...ws) - 1, hi = Math.max(...ws) + 1;
-      const X = (i) => 12 + (i / (scans.length - 1)) * 310;
+      const X = (i) => 12 + (i / (scansW.length - 1)) * 310;
       const Y = (w) => 110 - ((w - lo) / (hi - lo)) * 84;
-      const pts = scans.map((s, i) => `${X(i).toFixed(1)} ${Y(Number(s.weightLb)).toFixed(1)}`);
+      const pts = scansW.map((s, i) => `${X(i).toFixed(1)} ${Y(Number(s.weightLb)).toFixed(1)}`);
       const line = 'M' + pts.join(' L');
       const area = line + ` L${X(scans.length-1).toFixed(1)} 110 L12 110 Z`;
-      const dots = scans.map((s, i) => i === scans.length - 1
+      const dots = scansW.map((s, i) => i === scansW.length - 1
         ? `<circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="4.5" fill="#4fd6e6"/><circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="8" fill="none" stroke="rgba(79,214,230,.35)" stroke-width="2"/>`
         : `<circle cx="${X(i)}" cy="${Y(Number(s.weightLb))}" r="3" fill="#4fd6e6" opacity=".5"/>`).join('');
-      const lbls = scans.map(s => `<span class="mono" style="font-size:10px;color:var(--ink4)">${fmtD(s.date).replace(' ', '/').replace(/[A-Za-z]+\//, m => ({'Jan/':'1/','Feb/':'2/','Mar/':'3/','Apr/':'4/','May/':'5/','Jun/':'6/','Jul/':'7/','Aug/':'8/','Sep/':'9/','Oct/':'10/','Nov/':'11/','Dec/':'12/'}[m] || m))}</span>`).join('');
+      const lbls = scansW.map(s => `<span class="mono" style="font-size:10px;color:var(--ink4)">${fmtD(s.date).replace(' ', '/').replace(/[A-Za-z]+\//, m => ({'Jan/':'1/','Feb/':'2/','Mar/':'3/','Apr/':'4/','May/':'5/','Jun/':'6/','Jul/':'7/','Aug/':'8/','Sep/':'9/','Oct/':'10/','Nov/':'11/','Dec/':'12/'}[m] || m))}</span>`).join('');
       body += `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px;margin-top:12px">
         <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:700">Weight across scans</span>
-          <span class="mono" style="font-size:10.5px;color:var(--ink4)">${scans.length} scans</span></div>
+          <span class="mono" style="font-size:10.5px;color:var(--ink4)">${scansW.length} scans</span></div>
         <svg viewBox="0 0 358 118" style="display:block;width:100%">
           <line x1="0" y1="110" x2="358" y2="110" stroke="rgba(255,255,255,.10)" stroke-width="1"/>
           <path d="${area}" fill="rgba(79,214,230,.10)"/>
@@ -627,7 +650,12 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet
 /* ════════ The Draw (dose sheet) ════════ */
 function openDose(c) {
   const k = dkey(S.viewDate);
-  const existing = logFor(c, k);
+  const isPrn = !((c.schedule && c.schedule.days) || []).length;
+  const found = isPrn ? null : logFor(c, k);   // PRN: every log is a new entry
+  if (found && S.role !== 'admin' && found.by && found.by !== S.role) {
+    return toast(`Already logged by Roman today — ask him to change it.`);
+  }
+  const existing = found;
   const conc = concOf(c);
   const rec = Number(c.doseMcg) || 0;
   const uL = unitLabel(c);
@@ -635,6 +663,7 @@ function openDose(c) {
   const maxU = conc > 0 ? Math.max(30, Math.ceil((recU * 2.2) / 10) * 10) : 0;
   let units = conc > 0 ? (existing ? (existing.doseMcg / conc) : recU) : 0;
   let mcg = existing ? existing.doseMcg : rec;
+  const showMg = c.unit !== 'IU' && mcg >= 1000; // single source for display unit AND parse scale
 
   const draw = conc > 0;
   const html = `
@@ -646,8 +675,8 @@ function openDose(c) {
     <div class="card" style="border-radius:16px;padding:14px 14px 12px">
       <div class="lbl" style="margin:0 0 6px">The Draw</div>
       <div style="display:flex;align-items:baseline;gap:6px">
-        <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (mcg >= 1000 ? (mcg/1000) : mcg))}" aria-label="Dose">
-        <span style="font-size:16px;color:var(--ink3)">${draw ? 'u' : (c.unit === 'IU' ? 'IU' : (mcg >= 1000 ? 'mg' : 'mcg'))}</span>
+        <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (showMg ? (mcg/1000) : mcg))}" aria-label="Dose">
+        <span style="font-size:16px;color:var(--ink3)">${draw ? 'u' : (c.unit === 'IU' ? 'IU' : (showMg ? 'mg' : 'mcg'))}</span>
         <span class="mono" id="conv" style="margin-left:auto;font-size:13px;color:var(--ink2)"></span>
       </div>
       ${draw ? `
@@ -680,9 +709,10 @@ function openDose(c) {
 
   openSheet(html, (sh) => {
     const dv = $('#dv', sh), conv = $('#conv', sh), guard = $('#guard', sh), go = $('#go', sh);
-    let when = existing ? existing.datetime : nowLocal();
+    const isTodayView = k === todayKey();
+    let when = existing ? existing.datetime : (isTodayView ? nowLocal() : k + 'T08:00');
     const times = $('#times', sh);
-    const timeChips = [['Now', nowLocal()], ['Morning', k + 'T08:00'], ['Evening', k + 'T19:00'], ['Bedtime', k + 'T22:00']];
+    const timeChips = (isTodayView ? [['Now', nowLocal()]] : []).concat([['Morning', k + 'T08:00'], ['Evening', k + 'T19:00'], ['Bedtime', k + 'T22:00']]);
     const renderTimes = () => { times.innerHTML = timeChips.map(([l, v]) =>
       `<button class="chip ${when === v ? 'sel' : ''}" data-t="${v}">${l}${when === v ? `<span class="mono" style="font-size:10px">${new Date(v).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</span>` : ''}</button>`).join('');
       times.querySelectorAll('.chip').forEach(b => b.onclick = () => { when = b.dataset.t; renderTimes(); });
@@ -758,7 +788,7 @@ function openDose(c) {
       dv.addEventListener('input', () => { const v = parseFloat(dv.value); if (Number.isFinite(v)) { units = v; upd(true); } });
       dv.addEventListener('blur', () => { units = Math.round(units * 2) / 2; upd(); });
     } else {
-      dv.addEventListener('input', () => { const v = parseFloat(dv.value); if (Number.isFinite(v)) { mcg = c.unit === 'IU' ? v : (rec >= 1000 ? v * 1000 : v); upd(true); } });
+      dv.addEventListener('input', () => { const v = parseFloat(dv.value); if (Number.isFinite(v)) { mcg = c.unit === 'IU' ? v : (showMg ? v * 1000 : v); upd(true); } });
     }
     upd();
 
@@ -769,10 +799,26 @@ function openDose(c) {
     };
     go.onclick = async () => {
       go.disabled = true;
-      const entry = { id: existing ? existing.id : uid(), compoundId: c.id, datetime: when, doseMcg: Math.round(mcg), units: draw ? Math.round(units * 10) / 10 : null };
+      // re-resolve against FRESH state: a background pull may have brought a same-day log in
+      const live = isPrn ? null : logFor(c, k);
+      if (live && S.role !== 'admin' && live.by && live.by !== S.role) {
+        go.disabled = false; closeSheet();
+        return toast('Already logged by Roman today — ask him to change it.');
+      }
+      const entry = { id: existing ? existing.id : (live ? live.id : uid()), compoundId: c.id, datetime: when, doseMcg: Math.round(mcg), units: draw ? Math.round(units * 10) / 10 : null };
       try {
         await api('/log', { log: entry });
-        closeSheet(); await pull(true);
+        // instant confirmation: update locally + pop the check, then reconcile in background
+        S.data.logs = [{ ...entry, by: S.role }, ...S.data.logs.filter(l => l.id !== entry.id)];
+        flashId = c.id; setTimeout(() => { flashId = null; }, 1600);
+        closeSheet(); render();
+        // reconcile + self-heal: KV writes from two devices in the same instant can drop one —
+        // if ours vanished from the pulled state, post it once more.
+        pull(true).then(async () => {
+          if (!S.data.logs.some(l => l.id === entry.id)) {
+            try { await api('/log', { log: entry }); await pull(true); } catch (e) {}
+          }
+        });
         toast(`✓ ${c.name} · ${fmtAmt(entry.doseMcg, c.unit)}`, async () => {
           try { await api('/log', { deleteId: entry.id }); await pull(true); } catch (e) { toast(e.message); }
         });
@@ -851,10 +897,12 @@ function compForm(c) {
       if (await adminWrite({ compounds: next }, c.active === false ? 'Reactivated' : 'Deactivated')) closeSheet();
     };
     $('#f-save', sh).onclick = async () => {
+      const btn = $('#f-save', sh); if (btn.disabled) return; btn.disabled = true;
+      const done = (ok) => { if (!ok) btn.disabled = false; };
       const name = nameEl.value.trim();
       const dose = parseFloat($('#f-dose', sh).value);
-      if (!name) return toast('Name it first');
-      if (!Number.isFinite(dose) || dose <= 0) return toast('Set a dose in mcg');
+      if (!name) { done(false); return toast('Name it first'); }
+      if (!Number.isFinite(dose) || dose <= 0) { done(false); return toast('Set a dose first'); }
       const upd = {
         ...c, name, category: $('#f-cat', sh).value.trim(), timing: $('#f-time', sh).value,
         unit: $('#f-unit', sh).value === 'IU' ? 'IU' : 'mcg',
@@ -867,7 +915,8 @@ function compForm(c) {
         schedule: { days: [...sh.querySelectorAll('.dtoggle.on')].map(b => Number(b.dataset.d)).sort() },
       };
       const next = isNew ? [...S.data.compounds, upd] : S.data.compounds.map(x => x.id === c.id ? upd : x);
-      if (await adminWrite({ compounds: next }, isNew ? `Added ${name}` : 'Saved')) closeSheet();
+      const ok = await adminWrite({ compounds: next }, isNew ? `Added ${name}` : 'Saved');
+      done(ok); if (ok) closeSheet();
     };
   });
 }
@@ -893,13 +942,16 @@ function labForm() {
     $('#l-more', sh).onclick = () => $('#l-rows', sh).insertAdjacentHTML('beforeend', rowHTML());
     $('#l-cancel', sh).onclick = closeSheet;
     $('#l-save', sh).onclick = async () => {
+      const btn = $('#l-save', sh); if (btn.disabled) return; btn.disabled = true;
+      const pf = (x) => { const f = parseFloat(x); return Number.isFinite(f) ? f : null; };
       const markers = [...sh.querySelectorAll('.mrow')].map(r => {
         const [n, v, u, lo, hi] = [...r.querySelectorAll('input')].map(i => i.value.trim());
-        return n && v ? { name: n, value: parseFloat(v), unit: u, lo: parseFloat(lo) || 0, hi: parseFloat(hi) || 0 } : null;
+        return n && v ? { name: n, value: parseFloat(v), unit: u, lo: pf(lo), hi: pf(hi) } : null;
       }).filter(Boolean);
-      if (!markers.length) return toast('Add at least one marker');
+      if (!markers.length) { btn.disabled = false; return toast('Add at least one marker'); }
       const next = [...S.data.labs, { id: 'lab_' + uid(), date: $('#l-date', sh).value, markers }];
-      if (await adminWrite({ labs: next }, 'Panel added')) closeSheet();
+      const ok = await adminWrite({ labs: next }, 'Panel added');
+      if (!ok) btn.disabled = false; else closeSheet();
     };
   });
 }
@@ -917,12 +969,14 @@ function scanForm() {
   openSheet(html, (sh) => {
     $('#s-cancel', sh).onclick = closeSheet;
     $('#s-save', sh).onclick = async () => {
+      const btn = $('#s-save', sh); if (btn.disabled) return; btn.disabled = true;
       const scan = { id: 'scan_' + uid(), date: $('#s-date', sh).value };
       let any = false;
       F.forEach(([k]) => { const v = parseFloat($('#s-' + k, sh).value); if (Number.isFinite(v)) { scan[k] = v; any = true; } });
-      if (!any) return toast('Enter the scan numbers');
+      if (!any) { btn.disabled = false; return toast('Enter the scan numbers'); }
       const next = [...S.data.scans, scan];
-      if (await adminWrite({ scans: next }, 'Scan added')) closeSheet();
+      const ok = await adminWrite({ scans: next }, 'Scan added');
+      if (!ok) btn.disabled = false; else closeSheet();
     };
   });
 }
@@ -933,7 +987,7 @@ document.addEventListener('click', async (e) => {
   if (!el) return;
   const act = el.dataset.act;
   if (act === 'tab') { S.tab = el.dataset.tab; render(); }
-  else if (act === 'day') { const [y, m, d] = el.dataset.k.split('-').map(Number); S.viewDate = new Date(y, m - 1, d); render(); }
+  else if (act === 'day') { const [y, m, d] = el.dataset.k.split('-').map(Number); S.viewDate = new Date(y, m - 1, d); S.pinnedDate = dkey(S.viewDate) !== todayKey(); render(); }
   else if (act === 'pull') pull();
   else if (act === 'closesheet') closeSheet();
   else if (act === 'opendose') {
