@@ -604,6 +604,8 @@ function progressView() {
     const w = series('weightLb'), sm = series('smmLb'), bf = series('pbfPct');
     body += chartCard('Weight (lb)', w.length + ' scans', trendSVG(w, 1));
     body += chartCard('Skeletal Muscle Mass (lb)', sm.length + ' scans', trendSVG(sm, 1));
+    const sl = series('slmLb');
+    body += chartCard('Soft Lean Mass (lb)', sl.length + ' scans', trendSVG(sl, 1));
     body += chartCard('Percent Body Fat (%)', bf.length + ' scans', trendSVG(bf, 1));
     const row = (l, v, u) => `<div style="display:flex;align-items:center;gap:10px">
       <span style="flex:1;font-size:13px;color:var(--ink2)">${l}</span>
@@ -612,6 +614,7 @@ function progressView() {
     body += `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:12px">
       <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:700">This scan</span>
         <span class="mono" style="font-size:10.5px;color:var(--ink4)">${fmtD(last.date)}</span></div>
+      ${row('Soft lean mass', last.slmLb, 'lb')}
       ${row('Body fat mass', last.bfmLb, 'lb')}
       ${row('Visceral fat level', last.vfl, (Number(last.vfl) <= 9 ? '· healthy' : '· high'))}
       ${row('Total body water', last.tbwLb, 'lb')}
@@ -982,7 +985,7 @@ function labForm() {
 }
 
 function scanForm() {
-  const F = [['weightLb','Weight (lb)'],['smmLb','Skeletal muscle mass (lb)'],['pbfPct','Body fat (%)'],['bfmLb','Body fat mass (lb)'],['vfl','Visceral fat level'],['tbwLb','Total body water (lb)'],['bmrKcal','BMR (kcal)']];
+  const F = [['weightLb','Weight (lb)'],['smmLb','Skeletal muscle mass (lb)'],['slmLb','Soft lean mass (lb)'],['pbfPct','Body fat (%)'],['bfmLb','Body fat mass (lb)'],['vfl','Visceral fat level'],['tbwLb','Total body water (lb)'],['bmrKcal','BMR (kcal)']];
   const html = `
   <div class="sheet-body">
     <div style="font-size:22px;font-weight:700">Add InBody scan</div>
