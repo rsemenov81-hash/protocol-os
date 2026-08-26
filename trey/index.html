@@ -255,13 +255,16 @@ const fmtMcg = (n) => { if (n == null || isNaN(n)) return '—'; if (n >= 1000) 
 const fmtAmt = (n, unit) => unit === 'IU' ? (n == null || isNaN(n) ? '—' : Math.round(n).toLocaleString() + ' IU') : fmtMcg(n);
 const unitLabel = (c) => (c && c.unit === 'IU') ? 'IU' : 'mcg';
 // effective per-unit concentration: stored number, or derived from reconstitution (vial + BAC)
+const mlOf = (u) => (u / 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + ' mL';
 const concOf = (c) => {
   if (c.vialAmount > 0 && c.bacMl > 0) return c.unit === 'IU' ? c.vialAmount / (c.bacMl * 100) : (c.vialAmount * 1000) / (c.bacMl * 100);
   return Number(c.mcgPerUnit) || 0;
 };
+const concTxt = (c) => { const v = Math.round(concOf(c) * 100) / 100; if (c.unit === 'IU') return v + ' IU/unit';
+  return v >= 1000 ? (v / 1000).toFixed(2).replace(/\.?0+$/, '') + ' mg/unit' : v + ' mcg/unit'; };
 const reconLine = (c) => (c.vialAmount > 0 && c.bacMl > 0)
-  ? `${c.unit === 'IU' ? Math.round(c.vialAmount).toLocaleString() + ' IU' : (c.vialAmount >= 1 ? c.vialAmount + ' mg' : fmtMcg(c.vialAmount*1000))} vial · ${c.bacMl} mL BAC · ${(Math.round(concOf(c)*100)/100)} ${unitLabel(c)}/u`
-  : (concOf(c) > 0 ? `${concOf(c)} ${unitLabel(c)} per unit` : '');
+  ? `${c.unit === 'IU' ? Math.round(c.vialAmount).toLocaleString() + ' IU' : (c.vialAmount >= 1 ? c.vialAmount + ' mg' : fmtMcg(c.vialAmount*1000))} vial in ${c.bacMl} mL · ${concTxt(c)}`
+  : (concOf(c) > 0 ? concTxt(c) : '');
 const nowLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
 const relDay = (iso) => { if (!iso) return 'never'; const k = String(iso).slice(0,10); const t = todayKey(); if (k === t) return 'today';
   const days = Math.round((new Date(t + 'T12:00') - new Date(k + 'T12:00'))/86400000); return days === 1 ? 'yesterday' : days + 'd ago'; };
@@ -447,7 +450,7 @@ function doseCardHTML(c, glow) {
   const isIU = c.unit === 'IU';
   const amt = log ? log.doseMcg : c.doseMcg;
   const heroV = units != null ? units : isIU ? Math.round(amt).toLocaleString() : (amt >= 1000 ? (amt/1000).toFixed(1).replace(/\.0$/,'') : Math.round(amt));
-  const heroU = units != null ? 'u' : isIU ? 'IU' : (amt >= 1000 ? 'mg' : 'mcg');
+  const heroU = units != null ? 'units' : isIU ? 'IU' : (amt >= 1000 ? 'mg' : 'mcg');
   const meta = log
     ? `Logged ${new Date(log.datetime).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}).toLowerCase().replace(' ','')}`
     : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
@@ -460,7 +463,7 @@ function doseCardHTML(c, glow) {
       </span>
     </div>
     <div class="nm">${esc(c.name)}</div>
-    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit)}</span></div>
+    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit)}${units != null ? ' · ' + mlOf(units) : ''}</span></div>
     <div class="ft"><span class="mt">${meta}</span></div>
   </button>`;
 }
@@ -504,7 +507,7 @@ function libraryView() {
   const comps = S.data.compounds.filter(c => c.active !== false);
   const cards = comps.length ? comps.map(c => {
     const cc = concOf(c);
-    const u = cc > 0 ? ` · ${Math.round((c.doseMcg / cc) * 10) / 10}u` : '';
+    const u = cc > 0 ? ` · ${Math.round((c.doseMcg / cc) * 10) / 10} units / ${mlOf(Math.round((c.doseMcg / cc) * 10) / 10)}` : '';
     const ing = (c.ingredients || []).length ? `<div style="font-size:12px;color:var(--ink3)">In the blend: <span class="mono" style="color:var(--ink2)">${c.ingredients.map(i => esc(i.name) + ' ' + i.mg + ' mg').join(' · ')}</span></div>` : '';
     return `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;align-items:center;gap:8px">
@@ -704,7 +707,7 @@ function openDose(c) {
       <div class="lbl" style="margin:0 0 6px">The Draw</div>
       <div style="display:flex;align-items:baseline;gap:6px">
         <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (showMg ? (mcg/1000) : mcg))}" aria-label="Dose">
-        <span style="font-size:16px;color:var(--ink3)">${draw ? 'u' : (c.unit === 'IU' ? 'IU' : (showMg ? 'mg' : 'mcg'))}</span>
+        <span style="font-size:16px;color:var(--ink3)">${draw ? 'units' : (c.unit === 'IU' ? 'IU' : (showMg ? 'mg' : 'mcg'))}</span>
         <span class="mono" id="conv" style="margin-left:auto;font-size:13px;color:var(--ink2)"></span>
       </div>
       ${draw ? `
@@ -719,7 +722,7 @@ function openDose(c) {
         </svg>
         <button class="step" id="inc" aria-label="Increase one unit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4fd6e6" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
-      <div class="mono" style="font-size:11px;color:var(--ink3);margin-top:8px">${reconLine(c)} · snaps 0.5u · drag the plunger</div>` : ''}
+      <div class="mono" style="font-size:11px;color:var(--ink3);margin-top:8px">${reconLine(c)} · 10 units = 0.1 mL · snaps &frac12; unit · drag the plunger</div>` : ''}
       ${(c.ingredients || []).length ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
         <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">In this shot</div>
         <div id="shotmix" style="display:flex;flex-direction:column;gap:7px"></div></div>` : ''}
@@ -766,7 +769,7 @@ function openDose(c) {
         units = Math.max(0, Math.min(maxU, units));
         mcg = Math.round(units * conc);
         if (!fromInput) dv.value = units.toFixed(1);
-        conv.textContent = `${fmtAmt(mcg, c.unit)} · ${(units / 100).toFixed(3)} mL`;
+        conv.textContent = `${fmtAmt(mcg, c.unit)} · ${mlOf(units)}`;
         const fill = Math.max(0, Math.min(W - 3, (units / maxU) * (W - 3)));
         $('#liq', sh).setAttribute('width', fill);
         $('#men', sh).setAttribute('x', 9.5 + fill - 1);
@@ -795,12 +798,12 @@ function openDose(c) {
            <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset</button></div>`
         : off
         ? `<div class="advice"><span class="t"><span class="mono">${ratio.toFixed(1)}×</span> Roman's recommended dose</span>
-           <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset to ${draw ? (Math.round(recU * 2) / 2) + 'u' : fmtAmt(rec, c.unit)}</button></div>`
+           <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset to ${draw ? (Math.round(recU * 2) / 2) + ' units' : fmtAmt(rec, c.unit)}</button></div>`
         : '';
       const r = $('#rst', sh); if (r) r.onclick = () => { units = recU; mcg = rec; upd(); };
       go.disabled = blocked || !(mcg > 0);
       go.innerHTML = blocked ? 'Blocked by the dose gate'
-        : `${existing ? 'Save' : 'Log'} <span class="mono" style="margin-left:6px">${draw ? (Math.round(units * 10) / 10) + 'u · ' : ''}${fmtAmt(mcg, c.unit)}</span>`;
+        : `${existing ? 'Save' : 'Log'} <span class="mono" style="margin-left:6px">${draw ? (Math.round(units * 10) / 10) + ' units · ' : ''}${fmtAmt(mcg, c.unit)}</span>`;
     };
 
     if (draw) {
