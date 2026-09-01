@@ -1156,6 +1156,10 @@ function routeOf(proto, vial) {
   const ft = vial && vial.formType;
   if (ft === 'oral') return 'oral';
   if (ft === 'spray' || ft === 'nasal') return 'nasal';
+  // A reconstituted liquid vial means injectable — checked BEFORE the compound-DB string so a
+  // dual-route compound (Cartalax "Oral or SubQ") with a real vial administers as an injection.
+  // The mcgPerMl fallback covers synced/legacy vials that carry no formType field.
+  if (vial && (ft === 'liquid' || (vial.mcgPerMl || 0) > 0)) return 'inj';
   const pep = findPep(proto && proto.peptideId);
   const r = ((pep && pep.protocol && pep.protocol.route) || '').toLowerCase();
   if (/oral|capsule|sublingual|tablet/.test(r)) return 'oral';
@@ -1315,6 +1319,62 @@ function RouteFields({ f, setF }) {
         <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'-2px 2px 12px'}}>→ {route==='oral'?'Take':'Use'} <b style={{color: route==='oral'?'var(--rt-oral)':'#c78bf0'}}>{preview.chip}</b> per dose {route==='inj'?'':''}</div>
       )}
     </>
+  );
+}
+
+// Reconstitution block for injectable protocols in the Add/Edit forms: vial size + BAC water with a
+// live "draw N units" preview for the standard dose. f.reconMg is CANONICAL MG (IU compounds display
+// ×1000 and store /1000, the same proxy the administer sheet and HCG vials use), so toggling the
+// dose unit can never silently reinterpret the number. IU-ness is vial-aware (f.reconIsIU from
+// prefill) OR protocol-unit-driven, mirroring the administer sheet's reconIsIU. Edits set
+// f.reconDirty so untouched DB-guessed prefills are never persisted from the Edit form.
+// Both fields blank = settle at first log (and, when a vial was already set, clears its draw).
+function ReconFields({ f, setF }) {
+  if ((f.route || 'inj') !== 'inj') return null;
+  const isIU = f.doseUnit === 'IU' || !!f.reconIsIU;
+  const mg = parseFloat(f.reconMg) || 0;
+  const ml = parseFloat(f.reconMl) || 0;
+  const dose = parseFloat(f.doseMcg) || 0;
+  const m = (mg > 0 && ml > 0) ? vialMath(mg, ml, dose) : null;
+  const partial = (mg > 0) !== (ml > 0);
+  const overVial = m && dose > 0 && m.totalDoses < 1;      // dose exceeds the whole vial
+  const overBarrel = m && dose > 0 && m.unitsPerDose > 100; // draw beyond a full U-100 syringe
+  const suspect = overVial || overBarrel;
+  const lbl = { fontSize:10, color:'var(--text-faint)', textTransform:'uppercase', fontWeight:700, letterSpacing:'0.04em' };
+  return (
+    <div style={{background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', padding:12, borderRadius:14, marginBottom:10}}>
+      <div style={{fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8}}>🧪 Reconstitution</div>
+      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
+        <div>
+          <label style={lbl}>{isIU ? 'Vial (IU)' : 'Vial size (mg)'}</label>
+          <input type="number" step={isIU ? '1' : '0.1'}
+            value={isIU ? (f.reconMg !== '' && !isNaN(parseFloat(f.reconMg)) ? Math.round(parseFloat(f.reconMg) * 1000) : '') : f.reconMg}
+            onChange={e => { const v = e.target.value; setF(p => ({ ...p, reconDirty: true, reconMg: isIU ? (v === '' ? '' : String((parseFloat(v) || 0) / 1000)) : v })); }}
+            className="input" style={{textAlign:'center', fontFamily:'var(--mono)', fontWeight:700}}/>
+        </div>
+        <div>
+          <label style={lbl}>BAC water (mL)</label>
+          <input type="number" step="0.1" value={f.reconMl} onChange={e => { const v = e.target.value; setF(p => ({ ...p, reconDirty: true, reconMl: v })); }}
+            className="input" style={{textAlign:'center', fontFamily:'var(--mono)', fontWeight:700}}/>
+        </div>
+      </div>
+      {m && dose > 0 ? (
+        <>
+          <div style={{display:'flex', alignItems:'baseline', gap:6, marginTop:10}}>
+            <span style={{fontSize:12.5, color:'var(--text-dim)'}}>Draw</span>
+            <span className="mono" style={{fontSize:20, fontWeight:700, color: suspect ? 'var(--amber)' : 'var(--accent)'}}>{m.unitsPerDose.toFixed(1)}</span>
+            <span style={{fontSize:12.5, color:'var(--text-dim)'}}>units per dose</span>
+            <span className="mono" style={{marginLeft:'auto', fontSize:11, color:'var(--text-faint)'}}>{isIU ? Math.round(m.mcgPerMl).toLocaleString() + ' IU/mL' : (m.mcgPerMl/1000).toFixed(2) + ' mg/mL'} · ~{m.totalDoses} doses</span>
+          </div>
+          {suspect && <div style={{fontSize:11.5, color:'var(--amber)', background:'rgba(247,140,58,0.10)', border:'1px solid rgba(247,140,58,0.25)', borderRadius:10, padding:'8px 10px', marginTop:8}}>{overVial ? '⚠ Dose exceeds this vial’s total content — check vial size or dose' : '⚠ Draw exceeds a U-100 syringe (100u = 1 mL) — check vial size or BAC volume'}</div>}
+        </>
+      ) : partial ? (
+        <div style={{fontSize:11.5, color:'var(--amber)', marginTop:8}}>Enter both vial size and BAC water to set the draw.</div>
+      ) : (
+        <div style={{fontSize:11.5, color:'var(--text-faint)', marginTop:8}}>Optional — leave blank to settle it on your first log.</div>
+      )}
+      {SOLVENT_OVERRIDE[f.peptideId] && <div style={{fontSize:11.5, color:'var(--amber)', background:'rgba(247,140,58,0.10)', border:'1px solid rgba(247,140,58,0.25)', borderRadius:10, padding:'8px 10px', marginTop:8}}>💡 Preferred solvent: <b>{SOLVENT_OVERRIDE[f.peptideId]}</b> (not plain BAC)</div>}
+    </div>
   );
 }
 
@@ -2272,9 +2332,65 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   // Most recent non-skipped log for this protocol or an equivalent compound (PRN footer).
   const lastPrnLogFor = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); const pids = new Set(myProtocols.filter(x => ids.has(x.peptideId)).map(x => x.id)); let best = null; for (const l of logs) { if (l.skipped || !pids.has(l.protocolId)) continue; if (!best || (l.datetime||'') > (best.datetime||'')) best = l; } return best; };
 
+  // ── Add/Edit-form reconstitution (feeds ReconFields; canonical mg, IU handled by display) ──
+  // Modals close over the ProtocolView render that opened them, so all reads here go through
+  // vialsRef (always-current) and all writes use FUNCTIONAL updaters — a cloud pull or an
+  // in-administer recon save landing while a form is open can neither be clobbered nor duplicated.
+  const vialsRef = useRef(vials); vialsRef.current = vials;
+  // A form's recon can only target an INJECTABLE vial record: pens and oral/spray records are
+  // excluded so a dual-route compound's pill bottle is never rewritten into an injection vial.
+  const injectableVialsFor = (list, peptideId) => {
+    const ids = new Set(getEquivalentIds(peptideId));
+    return list.filter(v => ids.has(v.peptideId) && v.active !== false && !v.isPen && !['oral', 'spray', 'nasal'].includes(v.formType) && isItemVisibleToProfile(v, activeProfile));
+  };
+  // Prefill: the compound's existing vial wins (so edits update it in place); otherwise the
+  // compound DB's typical vial + diluent as a starting suggestion the user confirms by saving.
+  const reconPrefill = (peptideId) => {
+    const mine = injectableVialsFor(vialsRef.current, peptideId);
+    const v = mine.find(x => (x.mcgPerMl || 0) > 0) || mine[0];
+    const reconIsIU = isIUVial(v);
+    if (v && v.mgPerVial > 0 && v.diluentMl > 0) return { reconMg: String(v.mgPerVial), reconMl: String(v.diluentMl), reconVialId: v.id, reconIsIU, reconDirty: false };
+    const pep = findPep(peptideId);
+    const tMg = (pep && pep.reconstitution && pep.reconstitution.typicalVialMg) || 0;
+    const tMl = (pep && pep.reconstitution && pep.reconstitution.defaultDiluentMl) || 0;
+    return { reconMg: tMg > 0 ? String(tMg) : '', reconMl: tMl > 0 ? String(tMl) : '', reconVialId: v ? v.id : null, reconIsIU, reconDirty: false };
+  };
+  // Persist the form's reconstitution into the compound's vial record (update in place, else create).
+  // Called ONLY inside the gate-approved apply() paths. editMode never writes untouched prefills:
+  // a DB-guessed suggestion the user didn't type must not become an authoritative concentration.
+  const saveProtoRecon = (f, peptideId, peptideName, doseMcg, cycleDays, editMode) => {
+    if ((f.route || 'inj') !== 'inj') return;
+    const isIU = f.doseUnit === 'IU' || !!f.reconIsIU;
+    const mg = parseFloat(f.reconMg);
+    const ml = parseFloat(f.reconMl);
+    const bothBlank = !(mg > 0) && !(ml > 0);
+    setVials(prev => {
+      // Re-resolve the target against CURRENT state: by id first, else by compound (so a stale
+      // form can't duplicate a vial another path just created).
+      const ex = (f.reconVialId && prev.find(v => v.id === f.reconVialId)) || injectableVialsFor(prev, peptideId).find(x => (x.mcgPerMl || 0) > 0) || injectableVialsFor(prev, peptideId)[0] || null;
+      // Deliberate clear (Edit form only): user blanked both fields on a vial that had a draw —
+      // drop its concentration so cards fall back to mass and the administer sheet re-prompts recon.
+      if (editMode && bothBlank && f.reconDirty && ex && (ex.mcgPerMl || 0) > 0) {
+        return prev.map(v => v.id === ex.id ? { ...v, mcgPerMl: 0, mcgPerUnit: 0, unitsPerDose: 0, diluentMl: null } : v);
+      }
+      if (!(mg > 0) || !(ml > 0) || !(doseMcg > 0)) return prev; // blank/partial = no-op
+      if (editMode && !f.reconDirty && !(ex && (ex.mcgPerMl || 0) > 0)) return prev; // edit: untouched DB guess, no real vial — don't invent one
+      const totalMcg = mg * 1000;
+      const npm = totalMcg / ml;
+      const unitsPerDose = doseMcg / (npm / 100);
+      if (ex) {
+        if (ex.mgPerVial === mg && ex.diluentMl === ml && (ex.doseMcg || 0) === doseMcg && (ex.mcgPerMl || 0) > 0 && (!isIU || ex.unitLabel === 'IU')) return prev; // unchanged (incl. IU flag)
+        const patch = { mgPerVial: mg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, totalMcg, remainingMcg: totalMcg, doseMcg, unitLabel: isIU ? 'IU' : (ex.unitLabel || null), iuPerVial: isIU ? Math.round(totalMcg) : (ex.iuPerVial || null), active: true, formType: 'liquid', reconstitutedAt: ex.reconstitutedAt || new Date().toISOString() };
+        return prev.map(v => v.id === ex.id ? { ...v, ...patch } : v);
+      }
+      const pep = findPep(peptideId);
+      const nv = { id: 'proto_' + uid(), peptideId, peptideName, mgPerVial: mg, doseMcg, totalMcg, remainingMcg: totalMcg, diluentMl: ml, mcgPerMl: npm, mcgPerUnit: npm / 100, unitsPerDose, unitLabel: isIU ? 'IU' : null, iuPerVial: isIU ? Math.round(totalMcg) : null, reconstitutedAt: new Date().toISOString(), cycleStartDate: todayLocal(), cycleDays: (pep && pep.protocol.cycleDays) || cycleDays || 30, active: true, formType: 'liquid', inventoryProfile: getInventoryProfile(activeProfile) };
+      return [nv, ...prev];
+    });
+  };
+
   const administer = (proto, existingLog = null) => {
     const protoPep = findPep(proto.peptideId);
-    const isOralProto = /oral|sublingual/i.test((protoPep && protoPep.protocol && protoPep.protocol.route) || '');
     const _ids = new Set(getEquivalentIds(proto.peptideId));
     const _matchAll = (proto.route === 'pen' && proto.penVialId)
       ? vials.filter(v => v.id === proto.penVialId)
@@ -2302,7 +2418,10 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const mcgPerMl = (targetVial && targetVial.mcgPerMl) || 0;
       const hasConc = mcgPerMl > 0;
       const adminRoute = routeOf(proto, targetVial);
-      const isOral = adminRoute === 'oral' || adminRoute === 'nasal' || adminRoute === 'pen' || (targetVial && targetVial.formType === 'oral') || isOralProto; // "no reconstitution prompt" routes
+      // routeOf already resolves explicit proto route > vial formType > compound-DB route, so an
+      // explicitly-injectable protocol keeps its reconstitution path even when the compound DB lists
+      // an oral option (e.g. Cartalax "Oral or SubQ" used to suppress the recon prompt entirely).
+      const isOral = adminRoute !== 'inj'; // "no reconstitution prompt" routes: oral/nasal/pen
       const adminDelivery = deliveryFor(proto, targetVial);
       const isIU = isIUVial(targetVial);
       // Reconstitution IU-awareness: an IU-denominated protocol (proto.doseUnit==='IU') drives an IU vial
@@ -2653,28 +2772,33 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   const editProtocol = (proto) => {
     // Pens are intentionally mcg/units-only: dose shows as syringe units (DoseCard), doseMcg is computed canonically in managePen; no mass-unit (g/mg/IU) tag applies.
     if (proto.route === 'pen') return managePen(proto);
-    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning', route: proto.route || routeOf(proto, null), oralUnitLabel: proto.oralUnitLabel || 'mcg', doseUnit: proto.doseUnit || 'mcg' };
+    // Route default is vial-aware: a route-less protocol whose compound has a reconstituted liquid
+    // vial opens the form as Injection (routeOf alone would fall through to the compound-DB string).
+    const _rv = (() => { const mine = injectableVialsFor(vialsRef.current, proto.peptideId); return mine.find(x => (x.mcgPerMl || 0) > 0) || mine[0] || null; })();
+    const init = { ...proto, days: (proto.schedule && proto.schedule.days) || [0,1,2,3,4,5,6], timeOfDay: (proto.schedule && proto.schedule.timeOfDay) || 'morning', route: proto.route || routeOf(proto, _rv), oralUnitLabel: proto.oralUnitLabel || 'mcg', doseUnit: proto.doseUnit || 'mcg', ...reconPrefill(proto.peptideId) };
     const Modal = () => {
       const [f, setF] = useState(init);
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
       const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
       const onSave = () => {
         const _dm = parseFloat(f.doseMcg); if (!_dm || isNaN(_dm)) return showToast('Set dose','error');
+        if ((f.route || 'inj') === 'inj' && f.reconDirty) { const _hMg = parseFloat(f.reconMg) > 0, _hMl = parseFloat(f.reconMl) > 0; if (_hMg !== _hMl) return showToast(_hMg ? 'Enter BAC water (mL)' : 'Enter vial size (mg)', 'error'); }
         const _tag = doseUnitTag(f.doseUnit, _dm);
-        const apply = (needsReview) => { setProtocols(protocols.map(p => p.id === proto.id ? {...p, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate, ...(needsReview?{needsReview:true}:{})} : p)); showToast('Updated'); closeModal(); };
+        const apply = (needsReview) => { setProtocols(prev => prev.map(p => p.id === proto.id ? {...p, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate, ...(needsReview?{needsReview:true}:{})} : p)); saveProtoRecon(f, proto.peptideId, proto.peptideName, _dm, parseInt(f.cycleDays), true); showToast('Updated'); closeModal(); };
         // dose gate: unchanged dose passes silently; changes confirm; ≥5×/unit-change/ceiling block.
         if (_dm === proto.doseMcg && (f.doseUnit || null) === (proto.doseUnit || null)) return apply(false);
         const verdict = gateProtocolSave({ peptideId: proto.peptideId, peptideName: proto.peptideName, doseMcg: _dm, doseUnit: _tag.doseUnit, route: f.route, days: f.days }, proto, logs, protocols);
         if (verdict.decision === 'PASS') return apply(false);
         openModal(<GateDialog verdict={verdict} onConfirm={verdict.decision === 'CONFIRM' ? (() => apply(true)) : null} onCancel={closeModal}/>);
       };
-      const onRemove = () => confirmModal('Remove protocol?', `Remove ${proto.peptideName}?`, () => { setProtocols(protocols.filter(p => p.id !== proto.id)); showToast('Removed'); }, 'Remove');
+      const onRemove = () => confirmModal('Remove protocol?', `Remove ${proto.peptideName}?`, () => { setProtocols(prev => prev.filter(p => p.id !== proto.id)); showToast('Removed'); }, 'Remove');
       const dl = ['S','M','T','W','T','F','S'];
       return (
         <div>
           <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>Edit Protocol</h3>
           <p style={{margin:'0 0 20px',fontSize:14,color:'var(--text-dim)'}}>{proto.peptideName}</p>
           <RouteFields f={f} setF={setF}/>
+          <ReconFields f={f} setF={setF}/>
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
               {[['daily','Daily'],['weekdays','Weekdays'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Weekly'],['asneeded','As needed ⚡']].map(([k,l]) => { const on = k==='asneeded' && f.days.length===0; return <button key={k} onClick={() => setPreset(k)} style={{background:on?'rgba(247,140,58,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(on?'rgba(247,140,58,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',fontSize:11,color:on?'var(--amber)':'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>; })}
@@ -2699,20 +2823,31 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const addProtocol = () => {
-    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal(), route: 'inj', oralUnitLabel: 'mcg', doseUnit: 'mcg' };
+    let f0 = { peptideId: '', doseMcg: 0, days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal(), route: 'inj', oralUnitLabel: 'mcg', doseUnit: 'mcg', reconMg: '', reconMl: '', reconVialId: null };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
-      const apply = (id) => { const p = findPep(id); if (p) setF(prev => ({...prev, peptideId: id, doseMcg: p.protocol.defaultDoseMcg, cycleDays: p.protocol.cycleDays || 30})); };
+      const apply = (id) => {
+        const p = findPep(id); if (!p) return;
+        const rp = reconPrefill(id);
+        // Start the form in IU for IU-denominated compounds: an existing IU vial is authoritative,
+        // else an equivalent protocol already dosed in IU, else the DB dose-range naming IU (HCG,
+        // HGH). Explicitly reset to mcg otherwise so IU can't leak across compound switches.
+        const _eq = new Set(getEquivalentIds(id));
+        const iu = rp.reconIsIU || protocols.some(x => _eq.has(x.peptideId) && x.doseUnit === 'IU') || /\bIU\b/i.test((p.protocol && p.protocol.doseRange) || '');
+        setF(prev => ({...prev, peptideId: id, doseMcg: p.protocol.defaultDoseMcg, cycleDays: p.protocol.cycleDays || 30, doseUnit: iu ? 'IU' : 'mcg', ...rp}));
+      };
       const toggleDay = (d) => setF({...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d].sort()});
       const setPreset = (k) => { const map = {daily:[0,1,2,3,4,5,6], weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[]}; if (map[k] !== undefined) setF({...f, days: map[k]}); };
       const onSave = () => {
         if (!f.peptideId) return showToast('Pick compound', 'error');
         if (!f.doseMcg) return showToast('Set dose', 'error');
+        if ((f.route || 'inj') === 'inj' && f.reconDirty) { const _hMg = parseFloat(f.reconMg) > 0, _hMl = parseFloat(f.reconMl) > 0; if (_hMg !== _hMl) return showToast(_hMg ? 'Enter BAC water (mL)' : 'Enter vial size (mg)', 'error'); }
         const _dm = parseFloat(f.doseMcg); const _tag = doseUnitTag(f.doseUnit, _dm);
         const apply = (needsReview) => {
           const proto = { id: uid(), profile: activeProfile, peptideId: f.peptideId, peptideName: pep.name, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, active: true, createdAt: new Date().toISOString(), ...(needsReview?{needsReview:true}:{}) };
-          setProtocols([proto, ...protocols]);
+          setProtocols(prev => [proto, ...prev]);
+          saveProtoRecon(f, f.peptideId, pep.name, _dm, parseInt(f.cycleDays) || 30, false);
           showToast(`Added ${pep.name}`); closeModal();
         };
         // dose gate: new compounds confirm with implied totals; ceiling/≥5×-vs-history blocks stay hard.
@@ -2737,6 +2872,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           </Field>
           {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
           <RouteFields f={f} setF={setF}/>
+          {f.peptideId && <ReconFields f={f} setF={setF}/>}
           <Field label="Schedule">
             <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:10}}>
               {[['daily','Daily'],['weekdays','Wkdys'],['mwf','MWF'],['tth','TTh'],['wth','W/Th'],['weekly','Wkly'],['asneeded','As needed ⚡']].map(([k,l]) => { const on = k==='asneeded' && f.days.length===0; return <button key={k} onClick={() => setPreset(k)} style={{background:on?'rgba(247,140,58,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(on?'rgba(247,140,58,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',fontSize:11,color:on?'var(--amber)':'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>; })}
