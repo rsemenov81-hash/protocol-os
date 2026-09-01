@@ -70,7 +70,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .eyebrow{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink3)}
 .big-title{font-family:var(--serif);font-size:34px;line-height:40px;font-weight:700;letter-spacing:-.02em}
 .sub{font-size:13px;color:var(--ink3)}
-.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin:8px 0 2px}
+.week{display:grid;grid-template-columns:22px repeat(7,minmax(0,1fr)) 22px;margin:8px 0 2px;align-items:center}
+.wknav{height:56px;display:flex;align-items:center;justify-content:center;color:var(--ink4);position:relative}
+.wknav::after{content:'';position:absolute;inset:-4px 0}
+.wknav[data-dir="-1"]::after{left:-12px}
+.wknav[data-dir="1"]::after{right:-12px}
+.wknav:active{color:var(--accent)}
+.wknav:disabled{opacity:0;pointer-events:none}
 .day{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 .day .n{font-family:var(--mono);font-size:13px;font-weight:600;color:rgba(255,255,255,.78);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .day.sel .n{background:var(--accent);color:var(--on-accent);font-weight:700}
@@ -426,21 +432,26 @@ function ringHTML() {
 }
 
 function weekHTML() {
-  const now = new Date();
   const start = new Date(S.viewDate); start.setDate(start.getDate() - start.getDay());
+  const curStart = new Date(); curStart.setDate(curStart.getDate() - curStart.getDay());
+  const atCurrentWeek = dkey(start) === dkey(curStart);
+  // days before the first log ever get no dot — the schedule has no history, so older weeks would read as missed doses
+  const firstK = S.data.logs.reduce((m, l) => { const lk = (l.datetime || '').slice(0, 10); return lk && (!m || lk < m) ? lk : m; }, '');
   let cells = '';
   for (let i = 0; i < 7; i++) {
     const d = new Date(start); d.setDate(start.getDate() + i);
     const k = dkey(d);
     const due = S.data.compounds.filter(c => dueOn(c, d));
     const done = due.length > 0 && due.every(c => logFor(c, k));
-    const has = due.length > 0 && k <= todayKey();
+    const has = due.length > 0 && k <= todayKey() && (!firstK || k >= firstK);
     const sel = k === dkey(S.viewDate), today = k === todayKey();
     cells += `<button class="day ${sel?'sel':''} ${today?'today':''}" data-act="day" data-k="${k}" aria-label="${d.toDateString()}">
       <span class="n">${d.getDate()}</span><span class="w">${'SMTWTFS'[d.getDay()]}</span>
       <span class="d ${!has?'none':done?'done':''}"></span></button>`;
   }
-  return `<div class="week">${cells}</div>`;
+  const chev = (dir, off, label, path) => `<button class="wknav" data-act="weeknav" data-dir="${dir}" ${off ? 'disabled' : ''} aria-label="${label}">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg></button>`;
+  return `<div class="week">${chev(-1, false, 'Previous week', 'M15 6l-6 6 6 6')}${cells}${chev(1, atCurrentWeek, 'Next week', 'M9 6l6 6-6 6')}</div>`;
 }
 
 function doseCardHTML(c, glow) {
@@ -686,7 +697,7 @@ function openDose(c) {
   const isPrn = !((c.schedule && c.schedule.days) || []).length;
   const found = isPrn ? null : logFor(c, k);   // PRN: every log is a new entry
   if (found && S.role !== 'admin' && found.by && found.by !== S.role) {
-    return toast(`Already logged by Roman today — ask him to change it.`);
+    return toast(`Already logged by Roman ${relDay(k)} — ask him to change it.`);
   }
   const existing = found;
   const conc = concOf(c);
@@ -836,7 +847,7 @@ function openDose(c) {
       const live = isPrn ? null : logFor(c, k);
       if (live && S.role !== 'admin' && live.by && live.by !== S.role) {
         go.disabled = false; closeSheet();
-        return toast('Already logged by Roman today — ask him to change it.');
+        return toast(`Already logged by Roman ${relDay(k)} — ask him to change it.`);
       }
       const entry = { id: existing ? existing.id : (live ? live.id : uid()), compoundId: c.id, datetime: when, doseMcg: Math.round(mcg), units: draw ? Math.round(units * 10) / 10 : null };
       try {
@@ -1021,6 +1032,15 @@ document.addEventListener('click', async (e) => {
   const act = el.dataset.act;
   if (act === 'tab') { S.tab = el.dataset.tab; render(); }
   else if (act === 'day') { const [y, m, d] = el.dataset.k.split('-').map(Number); S.viewDate = new Date(y, m - 1, d); S.pinnedDate = dkey(S.viewDate) !== todayKey(); render(); }
+  else if (act === 'weeknav') {
+    const d = new Date(S.viewDate); d.setDate(d.getDate() + 7 * Number(el.dataset.dir));
+    const sow = (x) => { const s = new Date(x); s.setDate(s.getDate() - s.getDay()); return dkey(s); };
+    const cur = sow(new Date());
+    if (sow(d) > cur) return; // never navigate past the current week
+    S.viewDate = (sow(d) === cur && dkey(d) > todayKey()) ? new Date() : d; // forward into this week lands on today, not a future weekday
+    S.pinnedDate = dkey(S.viewDate) !== todayKey();
+    render();
+  }
   else if (act === 'pull') pull();
   else if (act === 'closesheet') closeSheet();
   else if (act === 'opendose') {
