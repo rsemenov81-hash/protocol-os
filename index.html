@@ -1095,9 +1095,12 @@ function freqToLabel(f) {
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 // ===== DOSE-GATE-END =====
 
-// ── Gate wiring (policy: D60 tiers — fail-closed; the gate is the gate, UI guards are advisory) ──
+// ── Gate wiring (policy: D60 tiers, softened 2026-09-01 per Roman: warnings inform, never wall) ──
 // knownCompound: the compound has a settled protocol dose OR prior non-skipped logs.
-// priorDoseMcg: last non-skipped logged dose for any equivalent compound, else the protocol standard.
+// priorDoseMcg: the PROTOCOL's settled dose is the baseline (it already passed the protocol-save
+// gate); logs are only the fallback. Comparing against the last log instead let a stale titration
+// log from months ago flag today's normal protocol dose as "≥5× prior" (the Cagrilintide 0→1 mg
+// false block) — the settled dose is what "prior" means once a protocol exists.
 function gateContextFor(proto, logs) {
   const ids = new Set(getEquivalentIds(proto.peptideId));
   const prior = (logs || []).filter(l => ids.has(l.peptideId) && !l.skipped && l.doseMcg > 0)
@@ -1107,8 +1110,8 @@ function gateContextFor(proto, logs) {
   const freq = Array.isArray(days) ? (days.length || null) : null;
   return {
     knownCompound: !!(protoDose || prior),
-    priorDoseMcg: prior ? prior.doseMcg : protoDose,
-    priorUnit: (prior && prior.doseUnit) || proto.doseUnit || null,
+    priorDoseMcg: protoDose || (prior ? prior.doseMcg : null),
+    priorUnit: proto.doseUnit || (prior && prior.doseUnit) || null,
     priorFrequencyPerWeek: freq,
     priorRoute: proto.route || null,
     scheduledDoseMcg: protoDose,
@@ -2446,6 +2449,9 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const barrelRef = useRef(null);      // D5 The Draw — barrel SVG node
       const needsRecon = !isOral && !hasConc;
       const saveRecon = () => {
+        // A blend's vial is defined by its components — if the record is missing/archived, the
+        // blend editor must rebuild it; an on-the-fly component-less vial would break the breakdown.
+        if ((proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !(targetVial && targetVial.id)) return showToast('Rebuild this blend via ✎ Edit protocol', 'error');
         const ml = parseFloat(reconMl);
         const mg = parseFloat(reconMg);
         if (!mg || mg <= 0) return showToast('Enter vial size (mg)', 'error');
@@ -2578,13 +2584,22 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName}{(v.mcgPerMl||0) > 0 ? ` · ${isIUVial(v) ? Math.round(v.mcgPerMl).toLocaleString()+' IU/mL' : (v.mcgPerMl/1000).toFixed(2)+' mg/mL'}` : ' · not reconstituted'}</option>)}</select></Field>}
           {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? (isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial`) : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
           {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{(mcgPerMl/100).toFixed(1)} {isIU ? 'IU' : 'mcg'}/unit · {targetVial.diluentMl} mL BAC</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>✎ Edit reconstitution</button></div>}
-          {!isOral && (needsRecon || editRecon) && (
+          {!isOral && needsRecon && (proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial && (
+            <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
+              <div style={{fontSize:12,color:'var(--text-2)',marginBottom:10}}>This blend's vial record is missing — rebuild it in the blend editor so the per-component breakdown stays correct.</div>
+              <button className="btn btn-ghost" style={{width:'100%'}} onClick={() => { closeModal(); editProtocol(proto); }}>✎ Edit blend</button>
+            </div>
+          )}
+          {!isOral && (needsRecon || editRecon) && !((proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial) && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
               <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{needsRecon ? '🧪 Set reconstitution' : '✎ Edit reconstitution'}</div>
               <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>Enter vial size and BAC water to dose this {isIU ? 'in IU' : 'by syringe units'}. {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose below)</span>}</div>
-              {SOLVENT_OVERRIDE[proto.peptideId] && <div style={{fontSize:11.5,color:'var(--rt-oral, #f78c3a)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId]}</b> (not plain BAC)</div>}
+              {(SOLVENT_OVERRIDE[proto.peptideId] || (targetVial && (targetVial.penComponents || []).some(c => SOLVENT_OVERRIDE[c.peptideId]))) && <div style={{fontSize:11.5,color:'var(--rt-oral, #f78c3a)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId] || solventFor(null, targetVial.penComponents)}</b> (not plain BAC)</div>}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
-                <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
+                {/* Blend vials: the total is the sum of the components — locked here (edit the blend itself via ✎ Edit protocol) so the concentration can never drift from what's actually in the vial. */}
+                {(targetVial && targetVial.penComponents && targetVial.penComponents.length)
+                  ? <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
+                  : <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
                 <div><label style={{fontSize:10,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>BAC water (mL)</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
               </div>
               <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
@@ -2769,9 +2784,151 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     openModal(<Modal/>);
   };
 
+  // ── Custom blend vial: up to 4 compounds mixed in ONE vial (the pen builder's sibling, but a
+  // real vial — mg per compound + BAC water — dosed in mcg/mg of total blend). Each blend gets a
+  // UNIQUE peptideId shared by its protocol + vial, so vial lookups, the dose gate, and recon
+  // editing all stay per-blend and two different blends can never cross-match.
+  const manageBlend = (existing = null) => {
+    const exVial = existing ? (vialsRef.current.find(v => v.id === existing.blendVialId) || injectableVialsFor(vialsRef.current, existing.peptideId)[0] || null) : null;
+    const f0 = existing ? {
+      name: existing.peptideName || '',
+      comps: (exVial && exVial.penComponents && exVial.penComponents.length) ? exVial.penComponents.map(c => ({ peptideId: c.peptideId || '', mg: String((c.mcg || 0) / 1000) })) : [{ peptideId: '', mg: '' }],
+      doseStr: String(existing.doseUnit === 'mg' ? (existing.doseMcg || 0) / 1000 : (existing.doseMcg || 0)), doseUnit: existing.doseUnit === 'mg' ? 'mg' : 'mcg',
+      reconMl: exVial && exVial.diluentMl ? String(exVial.diluentMl) : '',
+      days: (existing.schedule && existing.schedule.days) || [0,1,2,3,4,5,6],
+      timeOfDay: (existing.schedule && existing.schedule.timeOfDay) || 'morning',
+      cycleDays: existing.cycleDays || 30, startDate: existing.startDate || todayLocal(),
+    } : { name: '', comps: [{ peptideId: '', mg: '' }], doseStr: '', doseUnit: 'mcg', reconMl: '', days: [0,1,2,3,4,5,6], timeOfDay: 'morning', cycleDays: 30, startDate: todayLocal() };
+    const Modal = () => {
+      const [f, setF] = useState(f0);
+      const setComp = (i, patch) => setF(p => ({ ...p, comps: p.comps.map((c, j) => j === i ? { ...c, ...patch } : c) }));
+      const addComp = () => setF(p => p.comps.length < 4 ? { ...p, comps: [...p.comps, { peptideId: '', mg: '' }] } : p);
+      const rmComp = (i) => setF(p => ({ ...p, comps: p.comps.length > 1 ? p.comps.filter((_, j) => j !== i) : p.comps }));
+      const toggleDay = (d) => setF(p => ({ ...p, days: p.days.includes(d) ? p.days.filter(x => x !== d) : [...p.days, d].sort() }));
+      const goodComps = f.comps.filter(c => c.peptideId && (parseFloat(c.mg) || 0) > 0);
+      const totalMg = goodComps.reduce((s, c) => s + (parseFloat(c.mg) || 0), 0);
+      const ml = parseFloat(f.reconMl) || 0;
+      const duF = f.doseUnit === 'mg' ? 1000 : 1;
+      // f.doseStr holds the RAW typed string in the display unit (so decimals like "2.5 mg" type
+      // cleanly); canonical mcg is derived here, and the unit toggle converts the string in place.
+      const dose = Math.round((parseFloat(f.doseStr) || 0) * duF); // canonical mcg of total blend
+      const m = (totalMg > 0 && ml > 0) ? vialMath(totalMg, ml, dose) : null;
+      const overVial = m && dose > 0 && m.totalDoses < 1;
+      const overBarrel = m && dose > 0 && m.unitsPerDose > 100;
+      const solventNote = solventFor(null, goodComps.map(c => ({ peptideId: c.peptideId })));
+      const onSave = () => {
+        // A row with a compound but no mg (or mg but no compound) must not be silently dropped —
+        // the saved concentration would understate what is physically in the vial.
+        if (f.comps.some(c => (!!c.peptideId) !== ((parseFloat(c.mg) || 0) > 0))) return showToast('Finish or remove the incomplete compound row', 'error');
+        if (!goodComps.length) return showToast('Add at least one compound', 'error');
+        if (!(dose > 0)) return showToast('Set dose', 'error');
+        const comps2 = goodComps.map(c => { const p = findPep(c.peptideId); return { peptideId: c.peptideId, name: p ? p.name : c.peptideId, icon: p ? p.icon : '💊', mcg: Math.round((parseFloat(c.mg) || 0) * 1000) }; });
+        const label = (f.name || '').trim() || comps2.map(c => (c.name || '').split(' ')[0]).join(' + ');
+        const _tag = doseUnitTag(f.doseUnit, dose);
+        const pid = existing ? existing.peptideId : 'blend_' + uid();
+        const vialId = exVial ? exVial.id : 'blv_' + uid();
+        const apply = (needsReview) => {
+          const totalMcg = comps2.reduce((s, c) => s + c.mcg, 0); // integer mcg sum — exact, and can never disagree with the stored components
+          const conc = ml > 0
+            ? { diluentMl: ml, mcgPerMl: totalMcg / ml, mcgPerUnit: totalMcg / ml / 100, unitsPerDose: dose / ((totalMcg / ml) / 100) }
+            : { diluentMl: null, mcgPerMl: 0, mcgPerUnit: 0, unitsPerDose: 0 };
+          const nvial = { id: vialId, peptideId: pid, peptideName: label, penComponents: comps2, mgPerVial: totalMcg / 1000, totalMcg, remainingMcg: (exVial && exVial.remainingMcg != null && exVial.totalMcg === totalMcg) ? exVial.remainingMcg : totalMcg, doseMcg: dose, ...conc, reconstitutedAt: (exVial && exVial.reconstitutedAt) || new Date().toISOString(), cycleStartDate: (exVial && exVial.cycleStartDate) || todayLocal(), cycleDays: parseInt(f.cycleDays) || 30, active: true, formType: 'liquid', inventoryProfile: (exVial && exVial.inventoryProfile) || getInventoryProfile(activeProfile) };
+          setVials(prev => prev.some(v => v.id === vialId) ? prev.map(v => v.id === vialId ? { ...v, ...nvial } : v) : [nvial, ...prev]);
+          const protoPatch = { peptideId: pid, peptideName: label, isBlend: true, blendVialId: vialId, route: 'inj', doseMcg: dose, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, schedule: { days: f.days, timeOfDay: f.timeOfDay }, cycleDays: parseInt(f.cycleDays) || 30, startDate: f.startDate, ...(needsReview ? { needsReview: true } : {}) };
+          setProtocols(prev => existing ? prev.map(p => p.id === existing.id ? { ...p, ...protoPatch } : p) : [{ id: uid(), profile: activeProfile, active: true, createdAt: new Date().toISOString(), ...protoPatch }, ...prev]);
+          showToast(existing ? 'Blend updated' : `Added ${label}`); closeModal();
+        };
+        // Dose gate: a NEW blend is a first-time compound (unique id) -> CONFIRM with implied totals;
+        // edits compare against this same blend's own prior dose. Unchanged dose passes silently.
+        if (existing && dose === existing.doseMcg && (f.doseUnit === 'mg' ? 'mg' : null) === (existing.doseUnit || null)) return apply(false);
+        const verdict = gateProtocolSave({ peptideId: pid, peptideName: label, doseMcg: dose, doseUnit: _tag.doseUnit, route: 'inj', days: f.days }, existing || null, logs, protocols);
+        if (verdict.decision === 'PASS') return apply(false);
+        openModal(<GateDialog verdict={verdict} onConfirm={verdict.decision === 'CONFIRM' ? (() => apply(true)) : null} onCancel={closeModal}/>);
+      };
+      const onRemove = () => confirmModal('Delete blend?', `Remove ${existing.peptideName} and its vial?`, () => { setProtocols(prev => prev.filter(p => p.id !== existing.id)); setVials(prev => prev.filter(v => v.id !== existing.blendVialId && v.peptideId !== existing.peptideId)); showToast('Blend deleted'); }, 'Delete');
+      const dl = ['S','M','T','W','T','F','S'];
+      const lbl = { fontSize:10, color:'var(--text-faint)', textTransform:'uppercase', fontWeight:700, letterSpacing:'0.04em' };
+      return (
+        <div>
+          <h3 style={{margin:'0 0 4px',fontSize:22,fontWeight:700}}>{existing ? 'Edit Blend Vial' : 'Custom Blend Vial'}</h3>
+          <p style={{margin:'0 0 16px',fontSize:13,color:'var(--text-dim)'}}>Up to 4 compounds in one vial · reconstitute with BAC · dosed as total blend</p>
+          <Field label="Blend name"><input value={f.name} onChange={e => setF(p => ({...p, name: e.target.value}))} placeholder="Optional — e.g. Wolverine 20/20" className="input" style={{fontSize:14}}/></Field>
+          <Field label="Compounds (mg of each in the vial)">
+            {f.comps.map((c, i) => (
+              <div key={i} style={{display:'grid',gridTemplateColumns:'1fr 90px auto',gap:6,marginBottom:6,alignItems:'center'}}>
+                <select value={c.peptideId} onChange={e => setComp(i, { peptideId: e.target.value })} className="input" style={{padding:'10px'}}><option value="">Compound…</option>{CATEGORIES.map(cat => <optgroup key={cat} label={cat}>{PEPTIDE_DB.filter(p => p.category === cat).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}</select>
+                <input type="number" step="0.1" placeholder="mg" value={c.mg} onChange={e => setComp(i, { mg: e.target.value })} className="input" style={{padding:'10px',textAlign:'center',fontFamily:'var(--mono)'}}/>
+                <button onClick={() => rmComp(i)} disabled={f.comps.length <= 1} aria-label="Remove compound" style={{width:34,height:34,borderRadius:9,border:'1px solid var(--border)',background:'var(--bg-card-2)',color:'var(--danger)',cursor:f.comps.length<=1?'default':'pointer',opacity:f.comps.length<=1?0.3:1}}>✕</button>
+              </div>
+            ))}
+            {f.comps.length < 4 && <button onClick={addComp} style={{fontSize:12,fontWeight:700,color:'var(--accent)',background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:10,padding:'8px 12px',cursor:'pointer',marginTop:2}}>+ Add compound</button>}
+            {totalMg > 0 && <div style={{fontSize:12,color:'var(--text-dim)',marginTop:8}}>Vial total: <b className="mono" style={{color:'var(--text)'}}>{totalMg.toFixed(2).replace(/\.?0+$/,'')} mg</b></div>}
+          </Field>
+          {SOLVENT_OVERRIDE && goodComps.some(c => SOLVENT_OVERRIDE[c.peptideId]) && <div style={{fontSize:11.5,color:'var(--amber)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent: <b>{solventNote}</b></div>}
+          <Field label={`Standard dose (${f.doseUnit} of total blend)`}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
+              <input type="number" value={f.doseStr} onChange={e => setF(p => ({...p, doseStr: e.target.value}))} className="input"/>
+              <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u => <button key={u} type="button" onClick={() => setF(p => { if (p.doseUnit === u) return p; const v = parseFloat(p.doseStr); return {...p, doseUnit: u, doseStr: isNaN(v) ? p.doseStr : String(u === 'mg' ? v / 1000 : v * 1000)}; })} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(f.doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:f.doseUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:f.doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+            </div>
+          </Field>
+          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:10}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>🧪 Reconstitution</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <div><label style={lbl}>Vial size (mg)</label><div className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{totalMg > 0 ? totalMg.toFixed(2).replace(/\.?0+$/,'') : '—'}</div></div>
+              <div><label style={lbl}>BAC water (mL)</label><input type="number" step="0.1" value={f.reconMl} onChange={e => setF(p => ({...p, reconMl: e.target.value}))} className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700}}/></div>
+            </div>
+            {m && dose > 0 ? (
+              <>
+                <div style={{display:'flex',alignItems:'baseline',gap:6,marginTop:10}}>
+                  <span style={{fontSize:12.5,color:'var(--text-dim)'}}>Draw</span>
+                  <span className="mono" style={{fontSize:20,fontWeight:700,color:(overVial||overBarrel)?'var(--amber)':'var(--accent)'}}>{m.unitsPerDose.toFixed(1)}</span>
+                  <span style={{fontSize:12.5,color:'var(--text-dim)'}}>units per dose</span>
+                  <span className="mono" style={{marginLeft:'auto',fontSize:11,color:'var(--text-faint)'}}>{(m.mcgPerMl/1000).toFixed(2)} mg/mL · ~{m.totalDoses} doses</span>
+                </div>
+                {(overVial || overBarrel) && <div style={{fontSize:11.5,color:'var(--amber)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginTop:8}}>{overVial ? '⚠ Dose exceeds this vial’s total content — check amounts or dose' : '⚠ Draw exceeds a U-100 syringe (100u = 1 mL) — check amounts or BAC volume'}</div>}
+                {goodComps.length > 0 && totalMg > 0 && (
+                  <div style={{marginTop:10,paddingTop:8,borderTop:'1px solid var(--border-light)'}}>
+                    <div style={{fontSize:10,fontWeight:800,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>In each dose</div>
+                    {goodComps.map((c, i) => { const p = findPep(c.peptideId); const frac = (parseFloat(c.mg) || 0) / totalMg; return (
+                      <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                        <span style={{fontSize:14}}>{p ? p.icon : '💊'}</span>
+                        <span style={{flex:1,fontSize:12,color:'var(--text-2)'}}>{p ? p.name : c.peptideId} <span style={{color:'var(--text-faint)'}}>· {Math.round(frac*100)}%</span></span>
+                        <span className="mono" style={{fontSize:13,fontWeight:800,color:'var(--accent)'}}>{fmtMcg(dose * frac)}</span>
+                      </div>
+                    ); })}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:8}}>Enter BAC water to see the draw{totalMg > 0 ? '' : ' — add compounds first'}. Optional — you can also settle it at first log.</div>
+            )}
+          </div>
+          <Field label="Schedule">
+            <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5,marginBottom:8}}>
+              {dl.map((d, i) => <button key={i} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:f.days.includes(i)?'rgba(227,200,134,0.18)':'rgba(255,255,255,0.04)',color:f.days.includes(i)?'var(--accent)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+            </div>
+            <button onClick={() => setF(p => ({...p, days: []}))} style={{fontSize:11,fontWeight:600,color:f.days.length===0?'var(--amber)':'var(--text-dim)',background:f.days.length===0?'rgba(247,140,58,0.16)':'rgba(255,255,255,0.06)',border:'1px solid '+(f.days.length===0?'rgba(247,140,58,0.4)':'var(--border)'),borderRadius:100,padding:'6px 12px',cursor:'pointer'}}>As needed ⚡</button>
+          </Field>
+          <Field label="Time of Day"><select value={f.timeOfDay} onChange={e => setF(p => ({...p, timeOfDay: e.target.value}))} className="input"><option value="morning">🌅 Morning</option><option value="preworkout">💪 Pre-workout</option><option value="noon">☀️ Mid-day</option><option value="evening">🌆 Evening</option><option value="bedtime">🌙 Before bed</option><option value="anytime">⏱ Any time</option></select></Field>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+            <Field label="Cycle (days)"><input type="number" value={f.cycleDays} onChange={e => setF(p => ({...p, cycleDays: e.target.value}))} className="input"/></Field>
+            <Field label="Start"><input type="date" value={f.startDate} onChange={e => setF(p => ({...p, startDate: e.target.value}))} className="input"/></Field>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns: existing ? '1fr 1.4fr' : '1fr',gap:10,marginTop:6}}>
+            {existing && <button className="btn btn-danger" onClick={onRemove}>Delete</button>}
+            <button className="btn btn-primary" onClick={onSave}>{existing ? 'Save Blend' : 'Add Blend'}</button>
+          </div>
+        </div>
+      );
+    };
+    openModal(<Modal/>);
+  };
+
   const editProtocol = (proto) => {
     // Pens are intentionally mcg/units-only: dose shows as syringe units (DoseCard), doseMcg is computed canonically in managePen; no mass-unit (g/mg/IU) tag applies.
     if (proto.route === 'pen') return managePen(proto);
+    // Custom blend vials get their own builder (components + BAC), not the generic form.
+    if (proto.isBlend || (proto.peptideId || '').indexOf('blend_') === 0) return manageBlend(proto);
     // Route default is vial-aware: a route-less protocol whose compound has a reconstituted liquid
     // vial opens the form as Injection (routeOf alone would fall through to the compound-DB string).
     const _rv = (() => { const mine = injectableVialsFor(vialsRef.current, proto.peptideId); return mine.find(x => (x.mcgPerMl || 0) > 0) || mine[0] || null; })();
@@ -2828,6 +2985,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
       const apply = (id) => {
+        if (id === '__new_blend__') return manageBlend(null); // hands the sheet to the blend builder
         const p = findPep(id); if (!p) return;
         const rp = reconPrefill(id);
         // Start the form in IU for IU-denominated compounds: an existing IU vial is authoritative,
@@ -2866,6 +3024,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <Field label="Compound">
             <select value={f.peptideId} onChange={e => apply(e.target.value)} className="input">
               <option value="" disabled>Select...</option>
+              <option value="__new_blend__">🧪 Custom blend — mix up to 4 compounds in one vial…</option>
               <optgroup label="📦 On hand">{PEPTIDE_DB.filter(p => inStock.has(p.id)).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>
               {CATEGORIES.map(cat => <optgroup key={cat} label={cat}>{PEPTIDE_DB.filter(p => p.category === cat && !inStock.has(p.id)).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}
             </select>
@@ -3120,6 +3279,8 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit, g
 // ── Dose-gate dialogs (fail-closed UI; BLOCK has no override path) ──
 function GateDialog({ verdict, onConfirm, onCancel }) {
   const block = verdict.decision === 'BLOCK';
+  const firedRef = useRef(false); // double-tap latch: one confirm tap commits at most once
+  const confirmOnce = onConfirm ? (() => { if (firedRef.current) return; firedRef.current = true; onConfirm(); }) : null;
   return (
     <div role="alertdialog" aria-modal="true" aria-label={block ? 'Dose blocked by safety gate' : 'Confirm this dose'}>
       <div style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:14}}>
@@ -3146,7 +3307,7 @@ function GateDialog({ verdict, onConfirm, onCancel }) {
       ) : (
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
           <button className="btn btn-ghost" style={{height:48}} onClick={onCancel}>Cancel</button>
-          <button className="btn btn-primary" style={{height:48}} onClick={onConfirm}>Log — flagged for review</button>
+          <button className="btn btn-primary" style={{height:48}} onClick={confirmOnce}>Log — flagged for review</button>
         </div>
       )}
     </div>
