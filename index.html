@@ -1095,6 +1095,25 @@ function freqToLabel(f) {
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 // ===== DOSE-GATE-END =====
 
+// ── 2026-09-03 (Roman): the gate ADVISES, it does not veto. ─────────────────
+// Every safety BLOCK (≥5× prior dose, ≥5× weekly exposure, ceiling breach,
+// unit change, unknown/first-time compound, volume-as-mass) is downgraded to a
+// CONFIRM the user can override with "Log anyway". The entry is still tagged
+// needsReview so peptide-tracker/Claude sees it on the next sync. The ONLY
+// remaining hard stop is a missing/invalid dose — there is no number to write.
+// The gate function above is untouched: it stays the shared, tested analyzer;
+// this wrapper decides what the APP does with its verdict.
+function softenVerdict(v) {
+  if (!v || v.decision !== 'BLOCK') return v;
+  const unwritable = (v.reasons || []).some(r => /missing\/invalid dose/.test(r));
+  if (unwritable) return v;                       // no number to log — still hard
+  const msg = String(v.message || '')
+    .replace(/^BLOCKED — /, 'WARNING — ')
+    .replace(/ Re-enter the intended dose or finish in Claude\.$/,
+             ' Log it anyway if this is what you intended — it gets flagged for review.');
+  return { ...v, decision: 'CONFIRM', severity: 'warn', wasBlocked: true, needsReview: true, message: msg };
+}
+
 // ── Gate wiring (policy: D60 tiers, softened 2026-09-01 per Roman: warnings inform, never wall) ──
 // knownCompound: the compound has a settled protocol dose OR prior non-skipped logs.
 // priorDoseMcg: the PROTOCOL's settled dose is the baseline (it already passed the protocol-save
@@ -1121,7 +1140,7 @@ function gateContextFor(proto, logs) {
 function runDoseGate(proto, doseMcg, opts, logs) {
   opts = opts || {};
   const ctx = gateContextFor(proto, logs);
-  return evaluateDose({
+  return softenVerdict(evaluateDose({
     peptideId: proto.peptideId,
     peptideName: proto.peptideName,
     doseMcg: doseMcg,
@@ -1129,7 +1148,7 @@ function runDoseGate(proto, doseMcg, opts, logs) {
     route: proto.route || null,
     frequencyPerWeek: ctx.priorFrequencyPerWeek,
     isScheduledCheckoff: opts.isScheduledCheckoff === true,
-  }, ctx);
+  }, ctx));
 }
 // Boot self-check (console only; mirrors dose_gate.test.js core cases).
 (function gateSelfTest(){
@@ -2520,7 +2539,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           setTimeout(doCommit, 600);        // 560ms depress, then the real commit + closeModal
         } else doCommit();
         };
-        // ── dose gate (fail-closed; D60 tiers). PASS commits; CONFIRM echoes implied totals; BLOCK stops. ──
+        // ── dose gate (advisory). PASS commits; CONFIRM/warning echoes implied totals and offers "Log anyway". ──
         const isCheckoff = !existingLog && d === proto.doseMcg;
         const verdict = runDoseGate(proto, d, { isScheduledCheckoff: isCheckoff, doseUnit: (admUnit && admUnit !== 'mcg') ? admUnit : null }, logs);
         if (verdict.decision === 'PASS') return commitDose(false);
@@ -2942,7 +2961,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         if ((f.route || 'inj') === 'inj' && f.reconDirty) { const _hMg = parseFloat(f.reconMg) > 0, _hMl = parseFloat(f.reconMl) > 0; if (_hMg !== _hMl) return showToast(_hMg ? 'Enter BAC water (mL)' : 'Enter vial size (mg)', 'error'); }
         const _tag = doseUnitTag(f.doseUnit, _dm);
         const apply = (needsReview) => { setProtocols(prev => prev.map(p => p.id === proto.id ? {...p, doseMcg: _dm, route: f.route, oralPerUnitMcg: parseFloat(f.oralPerUnitMcg)||null, oralUnitLabel: f.oralUnitLabel, doseUnit: _tag.doseUnit, doseValue: _tag.doseValue, sprayMcgPerMl: parseFloat(f.sprayMcgPerMl)||null, sprayMlPerSpray: parseFloat(f.sprayMlPerSpray)||null, schedule: {days:f.days, timeOfDay:f.timeOfDay}, cycleDays: parseInt(f.cycleDays), startDate: f.startDate, ...(needsReview?{needsReview:true}:{})} : p)); saveProtoRecon(f, proto.peptideId, proto.peptideName, _dm, parseInt(f.cycleDays), true); showToast('Updated'); closeModal(); };
-        // dose gate: unchanged dose passes silently; changes confirm; ≥5×/unit-change/ceiling block.
+        // dose gate: unchanged dose passes silently; changes confirm; ≥5×/unit-change/ceiling warn.
         if (_dm === proto.doseMcg && (f.doseUnit || null) === (proto.doseUnit || null)) return apply(false);
         const verdict = gateProtocolSave({ peptideId: proto.peptideId, peptideName: proto.peptideName, doseMcg: _dm, doseUnit: _tag.doseUnit, route: f.route, days: f.days }, proto, logs, protocols);
         if (verdict.decision === 'PASS') return apply(false);
@@ -3008,7 +3027,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           saveProtoRecon(f, f.peptideId, pep.name, _dm, parseInt(f.cycleDays) || 30, false);
           showToast(`Added ${pep.name}`); closeModal();
         };
-        // dose gate: new compounds confirm with implied totals; ceiling/≥5×-vs-history blocks stay hard.
+        // dose gate: new compounds confirm with implied totals; ceiling/≥5×-vs-history warn, never wall.
         const verdict = gateProtocolSave({ peptideId: f.peptideId, peptideName: pep.name, doseMcg: _dm, doseUnit: _tag.doseUnit, route: f.route, days: f.days }, null, logs, protocols);
         if (verdict.decision === 'PASS') return apply(false);
         openModal(<GateDialog verdict={verdict} onConfirm={verdict.decision === 'CONFIRM' ? (() => apply(true)) : null} onCancel={closeModal}/>);
@@ -3276,13 +3295,15 @@ function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit, g
   );
 }
 
-// ── Dose-gate dialogs (fail-closed UI; BLOCK has no override path) ──
+// ── Dose-gate dialogs. Warnings inform; they never wall. The only dialog with
+// no override path is a missing/invalid dose (nothing to write). ──
 function GateDialog({ verdict, onConfirm, onCancel }) {
   const block = verdict.decision === 'BLOCK';
+  const warn = verdict.severity === 'warn';
   const firedRef = useRef(false); // double-tap latch: one confirm tap commits at most once
   const confirmOnce = onConfirm ? (() => { if (firedRef.current) return; firedRef.current = true; onConfirm(); }) : null;
   return (
-    <div role="alertdialog" aria-modal="true" aria-label={block ? 'Dose blocked by safety gate' : 'Confirm this dose'}>
+    <div role="alertdialog" aria-modal="true" aria-label={block ? 'Dose cannot be logged' : warn ? 'Dose warning' : 'Confirm this dose'}>
       <div style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:14}}>
         <div style={{width:44,height:44,borderRadius:14,flexShrink:0,display:'grid',placeItems:'center',
           background: block ? 'rgba(255,107,107,.12)' : 'rgba(247,140,58,.12)',
@@ -3290,7 +3311,7 @@ function GateDialog({ verdict, onConfirm, onCancel }) {
           <ShieldAlert size={20} color={block ? 'var(--danger)' : 'var(--warn)'}/>
         </div>
         <div>
-          <h3 style={{margin:0,fontSize:19,fontWeight:700}}>{block ? 'Blocked by the dose gate' : 'Confirm this dose'}</h3>
+          <h3 style={{margin:0,fontSize:19,fontWeight:700}}>{block ? 'Dose can’t be read' : warn ? 'Dose warning' : 'Confirm this dose'}</h3>
           <p style={{margin:'6px 0 0',fontSize:14,lineHeight:1.45,color:'var(--text-2)'}}>{verdict.message}</p>
         </div>
       </div>
@@ -3301,21 +3322,25 @@ function GateDialog({ verdict, onConfirm, onCancel }) {
       )}
       {block ? (
         <>
-          <p style={{margin:'0 0 14px',fontSize:12.5,color:'var(--text-dim)'}}>This entry can’t be logged in-app. Review it with Claude (peptide-tracker) first — the gate has no override here by design.</p>
+          <p style={{margin:'0 0 14px',fontSize:12.5,color:'var(--text-dim)'}}>There’s no usable number to log — go back and enter the dose.</p>
           <button className="btn btn-ghost" style={{width:'100%',height:48}} onClick={onCancel}>Close</button>
         </>
       ) : (
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-          <button className="btn btn-ghost" style={{height:48}} onClick={onCancel}>Cancel</button>
-          <button className="btn btn-primary" style={{height:48}} onClick={confirmOnce}>Log — flagged for review</button>
-        </div>
+        <>
+          {warn && <p style={{margin:'0 0 12px',fontSize:12.5,color:'var(--text-dim)'}}>This is a warning, not a wall. Log it if it’s what you meant — the entry is flagged for review so peptide-tracker sees it.</p>}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <button className="btn btn-ghost" style={{height:48}} onClick={onCancel}>Cancel</button>
+            <button className="btn btn-primary" style={{height:48}} onClick={confirmOnce}>{warn ? 'Log anyway' : 'Log — flagged for review'}</button>
+          </div>
+        </>
       )}
     </div>
   );
 }
-// Gate for protocol create/edit. First-time compounds (no history anywhere) downgrade the
-// unknown-compound hard block to CONFIRM — protocol creation IS how compounds legitimately
-// enter this app — but every other block reason (ceiling, ≥5×, unit change) stays hard.
+// Gate for protocol create/edit. First-time compounds (no history anywhere) get a plain
+// CONFIRM — protocol creation IS how compounds legitimately enter this app. Every other
+// gate reason (ceiling, ≥5×, unit change) comes through softenVerdict as a warning you
+// can override; none of them stop the save.
 function gateProtocolSave(nextProto, priorProto, logs, allProtocols) {
   const ids = new Set(getEquivalentIds(nextProto.peptideId));
   const priorLog = (logs || []).find(l => ids.has(l.peptideId) && !l.skipped && l.doseMcg > 0);
@@ -3339,7 +3364,7 @@ function gateProtocolSave(nextProto, priorProto, logs, allProtocols) {
         (v.impliedWeeklyMcg != null ? ', ' + fmtMcg(v.impliedWeeklyMcg) + '/week' : '') +
         '. Settle new compounds with Claude (peptide-tracker) when in doubt.' };
   }
-  return v;
+  return softenVerdict(v);
 }
 
 function Field({ label, children }) { return <div style={{marginBottom:10}}>{label && <label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>{label}</label>}{children}</div>; }
