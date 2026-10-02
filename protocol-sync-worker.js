@@ -51,46 +51,59 @@ function dayStr(d) {
   return dt.toISOString().slice(0, 10);
 }
 
-// ===== SCHEDULE-RULES-BEGIN (portable — paste this block into the deployed worker too) =====
+// ===== SCHEDULE-RULES-BEGIN (portable — paste this whole block into the deployed worker too) =====
 // Mirrors the app's schedule engine (index.html, SCHEDULE-ENGINE block) so Claude's tools agree
 // with the app on WHEN a compound is due:
 //   schedule.every>1 + schedule.anchor  → interval schedule ("every other day" = 2)
 //   startDate / endDate                 → the compound exists only inside that range (Finish cycle)
 //   timeline[{from, schedule, doseMcg}] → dated plan revisions; base fields mirror TODAY's entry
 // Day keys are 'YYYY-MM-DD'. Arithmetic at UTC noon so DST can never shift a day.
-const DAY_MS = 86400000;
-function dkParse(dk) { if (!dk || typeof dk !== "string") return NaN; const p = dk.slice(0, 10).split("-"); if (p.length < 3) return NaN; return Date.UTC(+p[0], +p[1] - 1, +p[2], 12); }
-function dkDiff(a, b) { return Math.round((dkParse(a) - dkParse(b)) / DAY_MS); }
-function dkDow(dk) { return new Date(dkParse(dk)).getUTCDay(); }
-function dkOf(v) { return v == null ? null : String(v).slice(0, 10); }
-function protoAt(p, dk) {
-  if (!p || !Array.isArray(p.timeline) || !p.timeline.length) return p;
-  const tl = p.timeline.slice().sort((a, b) => (a.from == null ? -1 : b.from == null ? 1 : a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
-  let pick = null; for (const e of tl) { if (e.from == null || e.from <= dk) pick = e; else break; }
-  if (!pick) pick = tl[0];
-  const out = { ...p }; for (const k of ["schedule", "doseMcg", "doseUnit", "doseValue"]) if (pick[k] !== undefined) out[k] = pick[k];
-  return out;
-}
-function isPrnSched(s) { const d = s && s.days; return !(s && +s.every > 1) && Array.isArray(d) && d.length === 0; }
-function dueOn(p, dk) {
-  const s = (p && p.schedule) || {};
-  if (+s.every > 1) { const a = dkOf(s.anchor) || dkOf(p.startDate); if (isNaN(dkParse(a))) return true; const n = +s.every, diff = dkDiff(dk, a); return ((diff % n) + n) % n === 0; }
-  const days = s.days || [0,1,2,3,4,5,6]; if (!days.length) return false; return days.includes(dkDow(dk));
-}
-function activeOn(p, dk) {
-  if (!p) return false;
-  const e = dkOf(p.endDate), s = dkOf(p.startDate);
-  if (p.active === false && isNaN(dkParse(e))) return false;      // archived: hidden everywhere
-  if (!isNaN(dkParse(s)) && dk < s) return false;
-  if (!isNaN(dkParse(e)) && dk > e) return false;
-  return true;
-}
-function schedLabel(s) {
-  s = s || {};
-  if (+s.every > 1) return +s.every === 2 ? "Every other day" : `Every ${s.every} days`;
-  const d = s.days || [0,1,2,3,4,5,6]; if (d.length === 7) return "Daily"; if (!d.length) return "PRN";
-  const dn = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]; return d.map(x => dn[x]).join("/");
-}
+// Everything lives on ONE name (SCHED) so the block can be dropped into any worker without
+// colliding with its existing helpers.
+const SCHED = (() => {
+  const DAY_MS = 86400000;
+  const dkParse = (dk) => { if (!dk || typeof dk !== "string") return NaN; const p = dk.slice(0, 10).split("-"); if (p.length < 3) return NaN; return Date.UTC(+p[0], +p[1] - 1, +p[2], 12); };
+  const dkDiff = (a, b) => Math.round((dkParse(a) - dkParse(b)) / DAY_MS);
+  const dkDow = (dk) => new Date(dkParse(dk)).getUTCDay();
+  const dkOf = (v) => (v == null ? null : String(v).slice(0, 10));
+  // Local calendar day in an IANA zone (e.g. "America/New_York"); falls back to UTC.
+  const todayIn = (tz, at) => { try { return new Intl.DateTimeFormat("en-CA", { timeZone: tz || "UTC", year: "numeric", month: "2-digit", day: "2-digit" }).format(at || new Date()); } catch (e) { return new Date(at || Date.now()).toISOString().slice(0, 10); } };
+  // The protocol as it stands on day dk (dated plan revisions applied).
+  const protoAt = (p, dk) => {
+    if (!p || !Array.isArray(p.timeline) || !p.timeline.length) return p;
+    const tl = p.timeline.slice().sort((a, b) => (a.from == null ? -1 : b.from == null ? 1 : a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
+    let pick = null; for (const e of tl) { if (e.from == null || e.from <= dk) pick = e; else break; }
+    if (!pick) pick = tl[0];
+    const out = { ...p }; for (const k of ["schedule", "doseMcg", "doseUnit", "doseValue"]) if (pick[k] !== undefined) out[k] = pick[k];
+    return out;
+  };
+  const isPrnSched = (s) => { const d = s && s.days; return !(s && +s.every > 1) && Array.isArray(d) && d.length === 0; };
+  // Due on dk? (pass the protoAt-resolved protocol)
+  const dueOn = (p, dk) => {
+    const s = (p && p.schedule) || {};
+    if (+s.every > 1) { const a = dkOf(s.anchor) || dkOf(p.startDate); if (isNaN(dkParse(a))) return true; const n = +s.every, diff = dkDiff(dk, a); return ((diff % n) + n) % n === 0; }
+    const days = s.days || [0,1,2,3,4,5,6]; if (!days.length) return false; return days.includes(dkDow(dk));
+  };
+  // On the calendar on dk? Archived (active:false, no endDate) is hidden everywhere; a finished
+  // cycle stays visible inside its date range.
+  const activeOn = (p, dk) => {
+    if (!p) return false;
+    const e = dkOf(p.endDate), s = dkOf(p.startDate);
+    if (p.active === false && isNaN(dkParse(e))) return false;
+    if (!isNaN(dkParse(s)) && dk < s) return false;
+    if (!isNaN(dkParse(e)) && dk > e) return false;
+    return true;
+  };
+  // Scheduled (non-PRN, due) on dk, resolved — the one call the tools need.
+  const scheduledOn = (protocols, dk) => (protocols || []).filter(p => activeOn(p, dk)).map(p => protoAt(p, dk)).filter(p => !isPrnSched(p.schedule) && dueOn(p, dk));
+  const schedLabel = (s) => {
+    s = s || {};
+    if (+s.every > 1) return +s.every === 2 ? "Every other day" : `Every ${s.every} days`;
+    const d = s.days || [0,1,2,3,4,5,6]; if (d.length === 7) return "Daily"; if (!d.length) return "PRN";
+    const dn = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]; return d.map(x => dn[x]).join("/");
+  };
+  return { dkParse, dkDiff, dkDow, dkOf, todayIn, protoAt, isPrnSched, dueOn, activeOn, scheduledOn, schedLabel };
+})();
 // ===== SCHEDULE-RULES-END =====
 
 // ── MCP tools ─────────────────────────────────────────────────────────────────
@@ -120,17 +133,17 @@ const TOOLS = [
 async function callTool(name, args, env, profile) {
   const state = await loadState(env, profile);
   const logs = state.logs || [];
-  const todayDk = new Date().toISOString().slice(0, 10);
+  const todayDk = SCHED.todayIn("UTC");
   // "Active" = on the calendar today (respects start/end dates and Finish cycle), resolved to the
   // plan revision in force today.
-  const protocols = (state.protocols || []).filter(p => activeOn(p, todayDk)).map(p => protoAt(p, todayDk));
+  const protocols = (state.protocols || []).filter(p => SCHED.activeOn(p, todayDk)).map(p => SCHED.protoAt(p, todayDk));
 
   if (name === "get_protocol") {
     const list = protocols.map(p => {
       const next = Array.isArray(p.timeline) ? p.timeline.filter(e => e.from && e.from > todayDk).sort((a, b) => a.from < b.from ? -1 : 1)[0] : null;
-      return { name: p.peptideName, dose: fmtDose(p.doseMcg), days: schedLabel(p.schedule), timing: (p.schedule&&p.schedule.timeOfDay)||"",
-        ...(p.endDate ? { endsOn: dkOf(p.endDate) } : {}),
-        ...(next ? { nextChange: { from: next.from, days: schedLabel(next.schedule), dose: fmtDose(next.doseMcg) } } : {}) };
+      return { name: p.peptideName, dose: fmtDose(p.doseMcg), days: SCHED.schedLabel(p.schedule), timing: (p.schedule&&p.schedule.timeOfDay)||"",
+        ...(p.endDate ? { endsOn: SCHED.dkOf(p.endDate) } : {}),
+        ...(next ? { nextChange: { from: next.from, days: SCHED.schedLabel(next.schedule), dose: fmtDose(next.doseMcg) } } : {}) };
     });
     return { activeCount: protocols.length, lastSynced: state._syncedAt || null, protocols: list };
   }
@@ -146,7 +159,7 @@ async function callTool(name, args, env, profile) {
 
   if (name === "get_today") {
     const today = todayDk;
-    const scheduled = protocols.filter(p => !isPrnSched(p.schedule) && dueOn(p, today))
+    const scheduled = SCHED.scheduledOn(state.protocols || [], today)
       .map(p => ({ name: p.peptideName, dose: fmtDose(p.doseMcg) }));
     const taken = logs.filter(l => String(l.datetime || "").startsWith(today))
       .map(l => ({ compound: l.peptide || l.peptideName || l.peptideId, dose: fmtDose(l.doseMcg), time: l.datetime }));
