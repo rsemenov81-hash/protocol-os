@@ -1,39 +1,20 @@
-# Cloudflare worker patch — schedule rules
+# Cloudflare worker — how to deploy `protocol-sync-worker.js`
 
-The deployed `protocol-sync` worker is newer than `protocol-sync-worker.js` in this repo, so do **not** replace the whole file. Add the block below and point the "scheduled today" logic at it.
+`protocol-sync-worker.js` in this repo is the **complete** worker (v1.4.0): the production build that was running in Cloudflare on 2026-10-02 plus the schedule rules. Deploying it is a copy-paste.
 
-## What it fixes
+1. Open `protocol-sync-worker.js` on GitHub and click the **copy** icon at the top of the file (or open the raw file, press Cmd + A, then Cmd + C).
+2. In Chrome, Cloudflare dashboard → **Workers & Pages → protocol-sync → Edit code**.
+3. Click once inside the code editor, press **Cmd + A**, then **Cmd + V** so the whole file is replaced.
+4. Click the blue **Deploy** button (top right). Confirm if asked.
+5. Check: ask Claude "what's scheduled today". The reply now comes from the new worker (`get_protocol` returns `"scheduleRules": "v1"`).
 
-Without it Claude's tools (`get_today`, `get_adherence`, `get_protocol`) only read `schedule.days`, so they
+## What changed in v1.4.0
 
-- count an **every-other-day** compound as due on every weekday it hit this week,
-- keep counting a compound after **Finish cycle** (the app flips it inactive the next day, so this is a one-day lag),
-- ignore **dated plan changes** when scoring adherence for past days.
+Claude's tools (`get_today`, `get_adherence`, `get_protocol`) now follow the same rules as the app:
 
-The app mirrors today's plan into the old fields, so `get_today` stays right either way. This patch makes the history scoring right too.
+- **Every other day** (and every N days) compounds count only their due days.
+- **Finish cycle** / start dates: a compound is on the calendar only inside its dates, and adherence still counts a finished cycle's past days.
+- **Dated plan changes** apply from their date when scoring past days; `get_protocol` shows the upcoming change (`nextChange`) and end date (`endsOn`).
+- Back-dated entries are flagged `backdated: true` in `get_logs_for_date`.
 
-## Step 1 — paste the block
-
-Cloudflare dashboard → **Workers & Pages → protocol-sync → Edit code**. Scroll to the very **end** of the file and paste everything between `SCHEDULE-RULES-BEGIN` and `SCHEDULE-RULES-END` from `protocol-sync-worker.js` (the whole `const SCHED = (() => { … })();` block). It defines a single name, `SCHED`, so it cannot collide with anything already there, and it is fine at the end of the file.
-
-## Step 2 — use it
-
-Wherever the worker decides whether a protocol is scheduled on a day, replace the `days.includes(...)` test with the one call:
-
-```js
-// today's scheduled list (get_today)
-const scheduled = SCHED.scheduledOn(state.protocols || [], today);
-
-// adherence: expected doses for a past day `dk` ('YYYY-MM-DD')
-const expectedOn = SCHED.scheduledOn(state.protocols || [], dk);
-```
-
-Pass the **unfiltered** `state.protocols` (not the `active !== false` subset): `scheduledOn` applies start/end dates and dated revisions itself, so a cycle finished on Sep 28 still counts as expected on Sep 10.
-
-Optional, for nicer `get_protocol` output: `SCHED.schedLabel(p.schedule)` returns "Every other day" / "Daily" / "Mon/Wed/Fri".
-
-`SCHED.todayIn("America/New_York")` gives the local calendar day if the worker does not already compute it.
-
-## Step 3 — Deploy
-
-Click **Deploy** (top right). Then, in Claude, run `get_today` once and check the list matches the app.
+The `/sync` API (revisions, `If-Match`, `prev` snapshot, tokens) is untouched. Secrets (`SYNC_TOKEN`, `READ_TOKEN`) and the KV binding live in the worker settings, not in the code, so a code paste never affects them.
