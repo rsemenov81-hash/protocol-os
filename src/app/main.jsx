@@ -791,7 +791,7 @@ function runDoseGate(proto, doseMcg, opts, logs) {
 
 /* ══════════ Liquid Glass kit — route/block mapping, syringe, icons ══════════ */
 const LG = { accent:'#e3c886', green:'#5fdc97', amber:'#f78c3a', red:'#ff6b6b',
-  text:'#f3f6f8', dim:'rgba(255,255,255,0.60)', dim2:'rgba(255,255,255,0.38)', hair:'rgba(255,255,255,0.12)',
+  text:'var(--text)', dim:'var(--text-dim)', dim2:'var(--text-faint)', hair:'var(--hair)',
   mono:"'JetBrains Mono', ui-monospace, monospace" };
 const ROUTE_META = {
   inj:   { label:'Inject', color:'#e3c886', verb:'Draw'  },
@@ -914,18 +914,18 @@ function Syringe({ units, max, color }) {
   for (let i=0;i<=10;i++){
     const x = X0 + W*i/10, major = i%2===0;
     ticks.push(<line key={'t'+i} x1={x} y1={Y+H} x2={x} y2={Y+H+(major?8:4)} stroke="rgba(255,255,255,.40)" strokeWidth="1"/>);
-    if (major) ticks.push(<text key={'l'+i} x={x} y={Y+H+19} fill="rgba(255,255,255,.5)" fontSize="8" fontFamily={LG.mono} textAnchor="middle">{Math.round(M/10*i)}</text>);
+    if (major) ticks.push(<text key={'l'+i} x={x} y={Y+H+19} fill="var(--ink-50)" fontSize="8" fontFamily={LG.mono} textAnchor="middle">{Math.round(M/10*i)}</text>);
   }
   return (
     <svg viewBox="0 0 246 50" width="100%" style={{display:'block'}}>
       <rect x="2" y="7" width="7" height={H+6} rx="2" fill={color}/>
       <line x1="9" y1={Y+H/2} x2={px} y2={Y+H/2} stroke={color} strokeWidth="3"/>
-      <rect x={X0} y={Y} width={W} height={H} rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" strokeWidth="1.3"/>
+      <rect x={X0} y={Y} width={W} height={H} rx="3" fill="var(--fill-1)" stroke="var(--ink-35)" strokeWidth="1.3"/>
       <rect x={X0} y={Y} width={fillW} height={H} fill={color} opacity="0.34"/>
       <rect x={Math.max(X0,px-1.6)} y={Y} width="1.6" height={H} fill={color}/>
       <rect x={px-1.5} y={Y-3} width="3" height={H+6} rx="1" fill={color}/>
       <rect x={X1} y={Y+H/2-5} width="7" height="10" rx="1" fill="rgba(255,255,255,.28)"/>
-      <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="rgba(255,255,255,.45)" strokeWidth="1.3"/>
+      <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="var(--ink-45)" strokeWidth="1.3"/>
       {ticks}
     </svg>
   );
@@ -946,13 +946,13 @@ function RouteFields({ f, setF }) {
     <>
       <Field label="Type">
         <div style={{display:'flex',gap:7}}>
-          {[['inj','💉 Injection','#e3c886'],['oral','💊 Oral','#f78c3a'],['nasal','👃 Nasal spray','#c78bf0']].map(([k,l,col]) => { const on=route===k; return <button key={k} onClick={()=>setF({...f,route:k})} style={{flex:1,padding:'10px 4px',borderRadius:12,fontSize:12,fontWeight:600,border:'1px solid '+(on?col+'66':'var(--border)'),background:on?col+'1f':'rgba(255,255,255,.04)',color:on?col:'var(--text-dim)',cursor:'pointer'}}>{l}</button>; })}
+          {[['inj','💉 Injection','#e3c886'],['oral','💊 Oral','#f78c3a'],['nasal','👃 Nasal spray','#c78bf0']].map(([k,l,col]) => { const on=route===k; return <button key={k} onClick={()=>setF({...f,route:k})} style={{flex:1,padding:'10px 4px',borderRadius:12,fontSize:12,fontWeight:600,border:'1px solid '+(on?col+'66':'var(--border)'),background:on?col+'1f':'var(--fill-1)',color:on?col:'var(--text-dim)',cursor:'pointer'}}>{l}</button>; })}
         </div>
       </Field>
       {route === 'oral' ? (
         <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'flex-end',marginBottom:10}}>
           <div><label style={lbl}>Dose per cap ({oralUnit})</label><input type="number" value={(f.oralPerUnitMcg!=null && f.oralPerUnitMcg!=='') ? (oralUnit==='mg'?(f.oralPerUnitMcg/1000):f.oralPerUnitMcg) : ''} onChange={e=>{const v=parseFloat(e.target.value)||0; setF({...f, oralPerUnitMcg: oralUnit==='mg'? v*1000 : v});}} className="input"/></div>
-          <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u=><button key={u} onClick={()=>setF({...f,oralUnitLabel:u})} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:13,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(oralUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:oralUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:oralUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u=><button key={u} onClick={()=>setF({...f,oralUnitLabel:u})} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:13,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(oralUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:oralUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:oralUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
         </div>
       ) : route === 'nasal' ? (
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
@@ -963,7 +963,7 @@ function RouteFields({ f, setF }) {
       <Field label={`Standard dose (${doseUnit})`}>
         <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
           <input type="number" value={doseDisp} onChange={e=>setF({...f, doseMcg: duFactor===1 ? e.target.value : Math.round((parseFloat(e.target.value)||0)*duFactor)})} className="input"/>
-          <div style={{display:'flex',gap:4}}>{['mcg','mg','g','IU'].map(u=><button key={u} type="button" onClick={()=>setF({...f,doseUnit:u})} style={{padding:'0 9px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:doseUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg','g','IU'].map(u=><button key={u} type="button" onClick={()=>setF({...f,doseUnit:u})} style={{padding:'0 9px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:doseUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
         </div>
       </Field>
       {(route==='oral'||route==='nasal') && (parseFloat(f.doseMcg)||0)>0 && preview.n!=null && (
@@ -994,7 +994,7 @@ function ReconFields({ f, setF }) {
   const suspect = overVial || overBarrel;
   const lbl = { fontSize:11, color:'var(--text-faint)', textTransform:'uppercase', fontWeight:700, letterSpacing:'0.04em' };
   return (
-    <div style={{background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', padding:12, borderRadius:14, marginBottom:10}}>
+    <div style={{background:'var(--fill-1)', border:'1px solid var(--border)', padding:12, borderRadius:14, marginBottom:10}}>
       <div style={{fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8}}>{oil ? '🧴 Vial concentration (pre-mixed oil)' : '🧪 Reconstitution'}</div>
       <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
         <div>
@@ -1041,7 +1041,7 @@ const fmtDk = (dk) => { const t = dkParse(dk); if (isNaN(t)) return '—'; const
 // Dose in its tagged unit (timeline entries, plan card, history rows).
 const fmtDoseAny = (mcg, unit) => { if (mcg == null || isNaN(mcg)) return '—'; if (unit === 'IU') return fmtIU(mcg); if (unit === 'g') return (mcg/1e6).toFixed(2).replace(/\.?0+$/,'') + ' g'; if (unit === 'mg') return (mcg/1000).toFixed(2).replace(/\.?0+$/,'') + ' mg'; return fmtMcg(mcg); };
 const DAY_PRESETS = { daily: ALL_DAYS, weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[] };
-const chipSt = (on, warn) => ({ background: on ? (warn ? 'rgba(247,140,58,0.16)' : 'rgba(227,200,134,0.16)') : 'rgba(255,255,255,0.06)', border: '1px solid ' + (on ? (warn ? 'rgba(247,140,58,0.4)' : 'rgba(227,200,134,0.45)') : 'var(--border)'), borderRadius: 100, padding: '7px 12px', minHeight: 34, fontSize: 11, color: on ? (warn ? 'var(--amber)' : 'var(--accent)') : 'var(--text-dim)', cursor: 'pointer', fontWeight: 600 });
+const chipSt = (on, warn) => ({ background: on ? (warn ? 'rgba(247,140,58,0.16)' : 'rgba(227,200,134,0.16)') : 'var(--fill-2)', border: '1px solid ' + (on ? (warn ? 'rgba(247,140,58,0.4)' : 'rgba(227,200,134,0.45)') : 'var(--border)'), borderRadius: 100, padding: '7px 12px', minHeight: 34, fontSize: 11, color: on ? (warn ? 'var(--amber)' : 'var(--accent)') : 'var(--text-dim)', cursor: 'pointer', fontWeight: 600 });
 // value = { days, every?, anchor?, timeOfDay } · onChange(next). Interval mode ("every other day")
 // counts from `anchor` (first dose day) and shows a 14-day preview so the pattern is unambiguous.
 function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
@@ -1068,9 +1068,9 @@ function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
           <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
             <span style={{fontSize:12.5,color:'var(--text-dim)'}}>Every</span>
             <div style={{display:'inline-flex',alignItems:'center',border:'1px solid var(--border)',borderRadius:10,overflow:'hidden'}}>
-              <button type="button" aria-label="Fewer days between doses" onClick={() => setEvery(every - 1)} style={{width:38,height:36,border:'none',background:'rgba(255,255,255,.05)',color:'var(--text)',fontSize:18,cursor:'pointer'}}>−</button>
+              <button type="button" aria-label="Fewer days between doses" onClick={() => setEvery(every - 1)} style={{width:38,height:36,border:'none',background:'var(--fill-2)',color:'var(--text)',fontSize:18,cursor:'pointer'}}>−</button>
               <span className="mono" style={{minWidth:30,textAlign:'center',fontWeight:700,fontSize:15}}>{every}</span>
-              <button type="button" aria-label="More days between doses" onClick={() => setEvery(every + 1)} style={{width:38,height:36,border:'none',background:'rgba(255,255,255,.05)',color:'var(--accent)',fontSize:18,cursor:'pointer'}}>＋</button>
+              <button type="button" aria-label="More days between doses" onClick={() => setEvery(every + 1)} style={{width:38,height:36,border:'none',background:'var(--fill-2)',color:'var(--accent)',fontSize:18,cursor:'pointer'}}>＋</button>
             </div>
             <span style={{fontSize:12.5,color:'var(--text-dim)'}}>days{every === 2 ? ' · every other day' : ''}</span>
           </div>
@@ -1081,13 +1081,13 @@ function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
           <div style={{display:'grid',gridTemplateColumns:'repeat(14, 1fr)',gap:3,marginTop:10}} aria-label="Dose days over the next 14 days">
             {preview.map(p => <div key={p.dk} title={p.dk} style={{textAlign:'center'}}>
               <div style={{fontSize:8,color:'var(--text-ghost)',textTransform:'uppercase'}}>{p.wd}</div>
-              <div className="mono" style={{fontSize:9.5,lineHeight:'18px',height:18,borderRadius:5,background:p.due?'rgba(227,200,134,.22)':'rgba(255,255,255,.04)',color:p.due?'var(--accent)':'var(--text-ghost)',fontWeight:p.due?700:500}}>{p.n}</div>
+              <div className="mono" style={{fontSize:9.5,lineHeight:'18px',height:18,borderRadius:5,background:p.due?'rgba(227,200,134,.22)':'var(--fill-1)',color:p.due?'var(--accent)':'var(--text-ghost)',fontWeight:p.due?700:500}}>{p.n}</div>
             </div>)}
           </div>
         </div>
       ) : (
         <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-          {dl.map((d,i) => <button key={i} type="button" aria-pressed={days.includes(i)} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:days.includes(i)?'rgba(227,200,134,0.18)':'rgba(255,255,255,0.04)',color:days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+          {dl.map((d,i) => <button key={i} type="button" aria-pressed={days.includes(i)} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:days.includes(i)?'rgba(227,200,134,0.18)':'var(--fill-1)',color:days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
         </div>
       )}
     </>
@@ -1221,11 +1221,11 @@ function SyncConfig({ initialUrl, initialToken, onSave, onClose }) {
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Worker URL</label>
       <input value={u} onChange={e=>setU(e.target.value)} placeholder="https://protocol-sync.<you>.workers.dev"
         autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="url"
-        style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+        style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:14}}/>
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Sync token</label>
       <input value={t} onChange={e=>setT(e.target.value)} placeholder="your SYNC_TOKEN secret"
         autoCapitalize="none" autoCorrect="off" spellCheck={false}
-        style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+        style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:14}}/>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
         <button className="btn btn-primary" onClick={()=>onSave(u.trim(),t.trim())} disabled={!u||!t}>Connect</button>
@@ -1380,6 +1380,37 @@ function App() {
   useEffect(() => { persist('protocol_os_vials', JSON.stringify(vials)); }, [vials]);
   useEffect(() => { persist('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { persist('protocol_os_active_profile', activeProfile); }, [activeProfile]);
+  // App lock: an optional PIN (hashed with a per-device salt) asked at launch and after the app was hidden
+  // longer than the chosen timeout. It protects a shared phone; it is not encryption.
+  const [lock, setLock] = useState(() => { try { return JSON.parse(localStorage.getItem('protocol_os_lock') || 'null'); } catch (e) { return null; } });
+  const [locked, setLocked] = useState(() => { try { return !!JSON.parse(localStorage.getItem('protocol_os_lock') || 'null'); } catch (e) { return false; } });
+  const hiddenAt = useRef(null);
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') { hiddenAt.current = Date.now(); return; }
+      if (lock && hiddenAt.current != null && Date.now() - hiddenAt.current >= (lock.timeoutMin || 0) * 60000) setLocked(true);
+    };
+    document.addEventListener('visibilitychange', onVis); window.addEventListener('pagehide', () => { hiddenAt.current = Date.now(); });
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [lock]);
+  const saveLock = (rec) => { setLock(rec); if (rec) persist('protocol_os_lock', JSON.stringify(rec)); else { try { localStorage.removeItem('protocol_os_lock'); } catch (e) {} } };
+  const openLockSettings = () => openModal(<LockSheet lock={lock} onSave={(rec) => { saveLock(rec); closeModal(); showToast(rec ? 'App lock is on' : 'App lock is off'); }} onClose={closeModal}/>);
+  const forgetAndResync = () => {
+    // Keeps sync settings; wipes this phone's copy so the next launch pulls the cloud record.
+    ['protocol_os_protocols', 'protocol_os_logs', 'protocol_os_vials', 'protocol_os_meta', 'protocol_os_backup', 'protocol_os_lock'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    location.reload();
+  };
+  // Theme: auto (follows the device), dark or light — applied as data-theme on <html>; the browser chrome colour follows.
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem('protocol_os_theme') || 'auto'; } catch (e) { return 'auto'; } });
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', theme);
+    persist('protocol_os_theme', theme);
+    const apply = () => { const light = theme === 'light' || (theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', light ? '#f3f1ea' : '#0e2820'); };
+    apply();
+    const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    if (mq && mq.addEventListener) { mq.addEventListener('change', apply); return () => mq.removeEventListener('change', apply); }
+  }, [theme]);
   // Text size: a zoom token on the root (1 / 1.15 / 1.3), remembered per device.
   const [textScale, setTextScale] = useState(() => { try { return localStorage.getItem('protocol_os_text_scale') || '1'; } catch (e) { return '1'; } });
   useEffect(() => { document.documentElement.style.setProperty('--ts', textScale); persist('protocol_os_text_scale', textScale); }, [textScale]);
@@ -1760,6 +1791,7 @@ function App() {
     showToast(status === 'approved' ? `Applied · ${pr.peptideName}` : `Dismissed · ${pr.peptideName}`);
     return true;
   };
+  const [report, setReport] = useState(null); // { logs, label, adherence } → the printable report overlay
   const openReminders = () => openModal(<RemindersSheet syncUrl={syncUrl} token={syncToken} profile={activeProfile} syncReady={!!syncReady} onClose={closeModal} onSetupSync={() => openSyncConfigModal(true)} showToast={showToast}/>);
   // A tapped reminder lands on its day and the Today tab (the service worker posts open-block, or the launch URL carries it).
   useEffect(() => listenForOpenBlock((data) => { if (data && data.date) { const t = dkParse(data.date); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } } setActiveTab('protocol'); }), []);
@@ -1780,6 +1812,7 @@ function App() {
         <button className="btn btn-ghost" style={{flex:1}} onClick={openReminders}>Reminders…</button>
         <button className="btn btn-ghost" style={{flex:1}} onClick={openRestore}>Restore a backup…</button>
       </div>
+      <button className="btn btn-ghost" style={{width:'100%',marginBottom:10}} onClick={openLockSettings}>App lock · {lock ? `on · after ${lock.timeoutMin === 0 ? 'leaving the app' : lock.timeoutMin + ' min'}` : 'off'}</button>
       {syncReady
         ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>Edit cloud sync settings</button>
         : <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(true)}>Set up cloud sync</button>}
@@ -1789,7 +1822,7 @@ function App() {
   return (
     <div style={{position:'relative',minHeight:'100vh'}}>
       <div className="ambient"/>
-      <div {...(sheet.content ? { inert: '' } : {})}>
+      <div {...((sheet.content || locked) ? { inert: '' } : {})}>
       <AppHeader
         viewDate={viewDate} setViewDate={setViewDate} isToday={isToday}
         activeProfile={activeProfile} setActiveProfile={switchProfile} protocols={protocols}
@@ -1801,14 +1834,14 @@ function App() {
           if (!pulledOnce.current || syncStatus === 'error') { cloudPull(true).then(() => cloudPush(false, true)); }
           else if (syncQueued) { cloudPush(true, true); } else { cloudPull(true); }
         }}
-        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} onOpenReminders={openReminders} textScale={textScale} setTextScale={setTextScale}/>
+        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} onOpenReminders={openReminders} textScale={textScale} setTextScale={setTextScale} theme={theme} setTheme={setTheme}/>
       <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
       {storageFull && <div role="alert" className="storage-banner"><span>Storage is full. New entries are kept in memory only until space is freed.</span><button onClick={exportData}>Export now</button></div>}
       {!isToday && activeTab === 'protocol' && <div style={{position:'relative',zIndex:2,maxWidth:480,margin:'0 auto',padding:'10px 18px 0'}}><button className="viewing-pill" onClick={() => setViewDate(new Date())}>Viewing {fmtDk(dateKey)} · Back to today</button></div>}
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
           {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} proposalsPending={proposalsPending} onOpenProposals={openProposals} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
-          {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON}
+          {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON} onReport={(list, label, adherence) => setReport({ logs: list, label, adherence })}
             onJump={(dk, protocolId, logId) => { const t = dkParse(dk); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } setJumpTo({ dateKey: dk, protocolId, logId }); setActiveTab('protocol'); }}/>}
         </div>
       </div>
@@ -1824,6 +1857,8 @@ function App() {
       </div>
 
       </div>
+      {report && <ReportView profile={activeProfile} protocols={protocols} vials={vials} logs={report.logs} label={report.label} adherence={report.adherence} onClose={() => setReport(null)}/>}
+      {locked && lock && <LockScreen lock={lock} syncReady={!!syncReady} onUnlock={() => setLocked(false)} onForget={forgetAndResync}/>}
       {toast && (
         <div role="status" aria-live="polite" style={{position:'fixed',bottom:'calc(100px + env(safe-area-inset-bottom))',left:'50%',transform:'translateX(-50%)',zIndex:200}} className="anim-slide-up">
           <div className="glass-strong" style={{borderRadius:100,padding:'12px 18px',display:'flex',gap:10,alignItems:'center',boxShadow:'0 12px 32px rgba(0,0,0,0.4)'}}>
@@ -1852,7 +1887,7 @@ function App() {
               }
             }}>
             <button className="sheet-grab" onClick={closeModal} aria-label="Close"><i/></button>
-            <button onClick={closeModal} aria-label="Close" style={{position:'absolute',top:8,right:14,zIndex:6,background:'rgba(255,255,255,0.08)',border:'none',borderRadius:100,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-dim)',cursor:'pointer'}}><X size={16}/></button>
+            <button onClick={closeModal} aria-label="Close" style={{position:'absolute',top:8,right:14,zIndex:6,background:'var(--fill-3)',border:'none',borderRadius:100,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-dim)',cursor:'pointer'}}><X size={16}/></button>
             <div className="sheet-body">{sheet.content}</div>
           </div>
         </div>
@@ -1886,9 +1921,9 @@ function DateButton({ viewDate, setViewDate }) {
           <div onClick={() => setOpen(false)} style={{position:'fixed',inset:0,zIndex:190}}/>
           <div className="glass-strong anim-slide-up" role="dialog" aria-label="Choose date" style={{position:'fixed',top:'calc(env(safe-area-inset-top, 0px) + 56px)',left:12,zIndex:195,borderRadius:18,padding:14,minWidth:280,boxShadow:'0 20px 50px rgba(0,0,0,0.6)'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1))} aria-label="Previous month" style={{background:'rgba(255,255,255,0.06)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronLeft size={14}/></button>
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1))} aria-label="Previous month" style={{background:'var(--fill-2)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronLeft size={14}/></button>
               <div style={{fontSize:13,fontWeight:700}}>{monthName}</div>
-              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1))} aria-label="Next month" style={{background:'rgba(255,255,255,0.06)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronRight size={14}/></button>
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1))} aria-label="Next month" style={{background:'var(--fill-2)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronRight size={14}/></button>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:2,marginBottom:6}}>
               {['S','M','T','W','T','F','S'].map((d,i) => <div key={i} style={{textAlign:'center',fontSize:9,color:'var(--text-faint)',fontWeight:700,textTransform:'uppercase'}}>{d}</div>)}
@@ -1902,7 +1937,7 @@ function DateButton({ viewDate, setViewDate }) {
                 return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(227,200,134,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
               })}
             </div>
-            <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
+            <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
           </div>
         </>,
         document.body
@@ -1911,7 +1946,10 @@ function DateButton({ viewDate, setViewDate }) {
   );
 }
 
-function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
+function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
+  const themes = [['auto', 'Auto'], ['dark', 'Dark'], ['light', 'Light']];
+  const themeLabel = (themes.find(t => t[0] === theme) || themes[0])[1];
+  const nextTheme = () => { const i = themes.findIndex(t => t[0] === theme); setTheme(themes[(i + 1) % themes.length][0]); };
   const scales = [['1', 'Normal'], ['1.15', 'Larger'], ['1.3', 'Largest']];
   const scaleLabel = (scales.find(s => s[0] === String(textScale)) || scales[0])[1];
   const nextScale = () => { const i = scales.findIndex(s => s[0] === String(textScale)); setTextScale(scales[(i + 1) % scales.length][0]); };
@@ -1940,6 +1978,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenLibrary && onOpenLibrary(); }}><span style={{flex:1,fontSize:15}}>Library…</span></button>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenCalculator && onOpenCalculator(); }}><span style={{flex:1,fontSize:15}}>Reconstitution calculator…</span></button>
             <button role="menuitem" className="menu-row" onClick={nextScale} aria-label={'Text size: ' + scaleLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Text size</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{scaleLabel}</span></button>
+            <button role="menuitem" className="menu-row" onClick={nextTheme} aria-label={'Theme: ' + themeLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Theme</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{themeLabel}</span></button>
             <div className="menu-hair"/>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenDataSync(); }}>
               <span style={{flex:1,fontSize:15}}>{'Data & sync…'}</span>
@@ -1953,7 +1992,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
   );
 }
 
-function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
+function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = React.useRef(null);
   useEffect(() => {
@@ -1986,7 +2025,7 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
             <span className="hdr-title num">{titleLabel}<span className="mini mono num">{logged}/{scheduled}</span></span>
           </div>
           <button className={'sync-cap num ' + syncState} aria-label={syncAria} onClick={onSyncTap}>{syncLabel}</button>
-          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} onOpenReminders={onOpenReminders} textScale={textScale} setTextScale={setTextScale}/>
+          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} onOpenReminders={onOpenReminders} textScale={textScale} setTextScale={setTextScale} theme={theme} setTheme={setTheme}/>
         </div>
       </header>
       <div className="hdr-large">
@@ -2020,6 +2059,142 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
   );
 }
 
+// Printable report: a paper-styled page for a clinician (plan, adherence, every dose in the range).
+// Print / Save as PDF uses the browser's print dialog; on iPhone that is Share → Print → pinch out → share the PDF.
+function ReportView({ profile, protocols, vials, logs, label, adherence, onClose }) {
+  const today = todayLocal();
+  const nameOf = (l) => l.peptide || l.peptideName || l.peptideId || '?';
+  const sorted = logs.slice().sort((a, b) => (a.datetime || '').localeCompare(b.datetime || ''));
+  const days = []; let cur = null; sorted.forEach(l => { const dk = dkOf(l.datetime); if (!cur || cur.dk !== dk) { cur = { dk, items: [] }; days.push(cur); } cur.items.push(l); });
+  const inLogs = new Set(sorted.map(l => l.protocolId));
+  const plan = protocols.filter(p => p.profile === profile && (activeOn(p, today) || inLogs.has(p.id))).map(p => { const pd = protoAt(p, today); const ids = new Set(getEquivalentIds(p.peptideId)); const v = (vials || []).find(x => ids.has(x.peptideId) && x.active !== false && (x.mcgPerMl || 0) > 0); return { p, pd, route: routeOf(pd, v), conc: v && v.mcgPerMl ? v.mcgPerMl : 0, v }; });
+  const doseStr = (l) => { if (l.skipped) return 'skipped'; if (l.doseUnit) return fmtDoseAny(l.doseMcg, l.doseUnit); const p = protocols.find(x => x.id === l.protocolId); return fmtDoseAny(l.doseMcg, (p && p.doseUnit) || null); };
+  const timeStr = (l) => { const d = new Date(l.datetime); return isNaN(d) ? '' : d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
+  const dayStr = (dk) => { const t = dkParse(dk); return isNaN(t) ? dk : new Date(t).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); };
+  const first = days.length ? days[0].dk : null, last = days.length ? days[days.length - 1].dk : null;
+  const doses = sorted.filter(l => !l.skipped).length, skipped = sorted.length - doses;
+  return (
+    <div className="report-view" role="dialog" aria-modal="true" aria-label="Dose report">
+      <div className="report-in">
+        <div className="report-actions">
+          <button onClick={onClose}>Close</button>
+          <button className="primary" onClick={() => window.print()}>Print / Save as PDF</button>
+        </div>
+        <h1>Protocol OS · dose report</h1>
+        <div className="meta">{profile} · {label}{first ? ` · ${fmtDk(first)} – ${fmtDk(last)}` : ''} · generated {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+        <div className="meta">{doses} doses logged{skipped ? `, ${skipped} skipped` : ''} · {plan.length} compound{plan.length === 1 ? '' : 's'}</div>
+        <h2>Plan</h2>
+        <table><thead><tr><th>Compound</th><th>Route</th><th>Schedule</th><th className="num">Dose</th><th>Vial</th></tr></thead><tbody>
+          {plan.map(({ p, pd, route, conc, v }) => <tr key={p.id}><td>{p.peptideName}{dkValid(dkOf(p.endDate)) ? ` (ends ${fmtDk(dkOf(p.endDate))})` : ''}</td><td>{(ROUTE_META[route] || ROUTE_META.inj).label}</td><td>{schedLabel(pd.schedule)}{pd.schedule && pd.schedule.timeOfDay ? ` · ${todLabel(pd.schedule.timeOfDay)}` : ''}</td><td className="num">{fmtDoseAny(pd.doseMcg, pd.doseUnit)}{conc && !isIUVial(v) ? ` (${Math.round(pd.doseMcg / conc * 1000) / 10} u)` : ''}</td><td>{v ? (isIUVial(v) ? `${Math.round(v.mgPerVial * 1000).toLocaleString()} IU in ${v.diluentMl} mL` : `${v.mgPerVial} mg in ${v.diluentMl} mL`) : '—'}</td></tr>)}
+          {plan.length === 0 && <tr><td colSpan="5">No compounds on the plan for this period.</td></tr>}
+        </tbody></table>
+        {adherence && adherence.rows && adherence.rows.length > 0 && (<>
+          <h2>Adherence · {label}</h2>
+          <table><thead><tr><th>Compound</th><th className="num">Scheduled</th><th className="num">Logged</th><th className="num">Rate</th></tr></thead><tbody>
+            {adherence.rows.map(r => <tr key={r.id}><td>{r.name}</td><td className="num">{r.exp}</td><td className="num">{r.got}</td><td className="num">{r.pct}%</td></tr>)}
+            <tr><td><b>All scheduled compounds</b></td><td className="num"><b>{adherence.exp}</b></td><td className="num"><b>{adherence.got}</b></td><td className="num"><b>{adherence.pct}%</b></td></tr>
+          </tbody></table>
+        </>)}
+        <h2>Doses</h2>
+        <table><thead><tr><th>Time</th><th>Compound</th><th className="num">Dose</th><th className="num">Draw</th><th>Site</th><th>Notes</th></tr></thead><tbody>
+          {days.map(d => (<React.Fragment key={d.dk}>
+            <tr className="rday"><td colSpan="6">{dayStr(d.dk)}</td></tr>
+            {d.items.map((l, i) => <tr key={l.id || i}><td>{timeStr(l)}</td><td>{nameOf(l)}</td><td className="num">{doseStr(l)}</td><td className="num">{l.doseMl != null ? `${(l.doseMl * 100).toFixed(1)} u · ${l.doseMl} mL` : ''}</td><td>{l.site || ''}</td><td>{[l.backfilled ? 'back-dated' : null, l.needsReview ? 'flagged' : null, l.notes || null].filter(Boolean).join(' · ')}</td></tr>)}
+          </React.Fragment>))}
+        </tbody></table>
+        <div className="foot">Entries were logged by {profile} in Protocol OS and exported as recorded; this is a personal log, not a medical record. Doses are shown in the unit they were logged in; "u" is units on a U-100 insulin syringe.</div>
+      </div>
+    </div>
+  );
+}
+
+// ── App lock: PIN hashing (SHA-256 with a per-device salt), the lock screen and its settings sheet ──
+const hashPin = async (pin, salt) => {
+  const data = new TextEncoder().encode(salt + ':' + pin);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+};
+const randomSalt = () => { const a = new Uint8Array(12); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); };
+function PinPad({ length, value, onChange, disabled }) {
+  const press = (d) => { if (disabled) return; if (d === 'del') onChange(value.slice(0, -1)); else if (value.length < length) onChange(value + d); };
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'center',gap:14,margin:'10px 0 22px'}} aria-label={`${value.length} of ${length} digits entered`}>
+        {Array.from({ length }, (_, i) => <span key={i} style={{width:14,height:14,borderRadius:'50%',border:'1.6px solid var(--accent)',background: i < value.length ? 'var(--accent)' : 'transparent'}}/>)}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3, 72px)',gap:14,justifyContent:'center'}}>
+        {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => k === '' ? <span key={i}/> : (
+          <button key={k} type="button" onClick={() => press(k)} aria-label={k === 'del' ? 'Delete' : k} disabled={disabled} className="lg" style={{width:72,height:72,borderRadius:'50%',fontSize: k === 'del' ? 18 : 26,fontWeight:600,color:'var(--text)',cursor:'pointer'}}>{k === 'del' ? '⌫' : k}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+function LockScreen({ lock, syncReady, onUnlock, onForget }) {
+  const [pin, setPin] = useState(''); const [err, setErr] = useState(''); const [fails, setFails] = useState(0); const [until, setUntil] = useState(0); const [forget, setForget] = useState(false);
+  const cooling = until > Date.now();
+  useEffect(() => {
+    if (pin.length !== lock.len) return;
+    let live = true;
+    hashPin(pin, lock.salt).then(h => { if (!live) return; if (h === lock.hash) onUnlock(); else { const n = fails + 1; setFails(n); setPin(''); setErr('Wrong PIN'); if (n >= 5) { setUntil(Date.now() + 30000); setErr('Too many tries. Wait 30 seconds.'); setTimeout(() => { setUntil(0); setFails(0); setErr(''); }, 30000); } } });
+    return () => { live = false; };
+  }, [pin]);
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Enter your PIN" style={{position:'fixed',inset:0,zIndex:1000,background:'var(--bg)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,textAlign:'center'}}>
+      <div style={{width:56,height:56,borderRadius:'50%',background:'var(--accent)',boxShadow:'0 0 0 6px rgba(227,200,134,.18)',marginBottom:18}}/>
+      <div className="eyebrow num" style={{marginBottom:6}}>PROTOCOL OS</div>
+      <h2 style={{margin:'0 0 4px',fontSize:22,fontWeight:800}}>Enter your PIN</h2>
+      <div role="status" style={{minHeight:20,fontSize:13,color:'var(--danger)'}}>{err}</div>
+      <PinPad length={lock.len} value={pin} onChange={(v) => { setErr(''); setPin(v); }} disabled={cooling}/>
+      {!forget ? <button className="btn btn-ghost" style={{marginTop:26,fontSize:12.5}} onClick={() => setForget(true)}>Forgot the PIN?</button> : (
+        <div className="lg" style={{marginTop:22,borderRadius:14,padding:14,fontSize:13,lineHeight:1.45,maxWidth:340}}>
+          {syncReady ? <>Your data is in the cloud. Erase this phone's copy and sign back in with the next launch; the cloud record comes back down.<button className="btn btn-danger" style={{width:'100%',marginTop:10}} onClick={onForget}>Erase this phone's copy and re-sync</button></>
+            : <>Cloud sync is not set up, so there is no copy to recover from. Clearing Safari's website data removes the lock together with the data on this phone.</>}
+          <button className="btn btn-ghost" style={{width:'100%',marginTop:8}} onClick={() => setForget(false)}>Back</button>
+        </div>
+      )}
+    </div>
+  );
+}
+function LockSheet({ lock, onSave, onClose }) {
+  const [step, setStep] = useState(lock ? 'manage' : 'new');  // new → confirm → (save) | manage → verify → off | timeout
+  const [pin, setPin] = useState(''); const [first, setFirst] = useState(''); const [err, setErr] = useState('');
+  const [len, setLen] = useState(lock ? lock.len : 4); const [timeoutMin, setTimeoutMin] = useState(lock ? lock.timeoutMin : 5);
+  const save = async (code) => { const salt = randomSalt(); onSave({ len: code.length, salt, hash: await hashPin(code, salt), timeoutMin, setAt: new Date().toISOString() }); };
+  useEffect(() => {
+    if (step === 'new' && pin.length === len) { setFirst(pin); setPin(''); setStep('confirm'); }
+    else if (step === 'confirm' && pin.length === len) { if (pin === first) save(pin); else { setErr('The two PINs differ. Start again.'); setPin(''); setFirst(''); setStep('new'); } }
+    else if (step === 'verify' && pin.length === lock.len) { hashPin(pin, lock.salt).then(h => { if (h === lock.hash) onSave(null); else { setErr('Wrong PIN'); setPin(''); } }); }
+  }, [pin]);
+  const TimeoutPick = () => (
+    <label style={{display:'flex',alignItems:'center',gap:10,justifyContent:'space-between',fontSize:14,margin:'14px 0 6px'}}>Ask again after
+      <select className="input" style={{width:170,padding:'8px 10px'}} value={String(timeoutMin)} onChange={e => setTimeoutMin(parseInt(e.target.value))}>
+        <option value="0">leaving the app</option><option value="1">1 minute away</option><option value="5">5 minutes away</option><option value="15">15 minutes away</option><option value="60">1 hour away</option>
+      </select>
+    </label>
+  );
+  return (
+    <div style={{textAlign:'center'}}>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>App lock</h3>
+      {step === 'manage' && (<>
+        <p style={{margin:'0 0 10px',fontSize:13,color:'var(--text-dim)'}}>On. The PIN is asked at launch and after the app has been away for a while.</p>
+        <div style={{textAlign:'left'}}><TimeoutPick/></div>
+        <button className="btn btn-primary" style={{width:'100%',marginTop:8}} onClick={() => onSave({ ...lock, timeoutMin })}>Save</button>
+        <button className="btn btn-ghost" style={{width:'100%',marginTop:8,color:'var(--warn)'}} onClick={() => { setErr(''); setPin(''); setStep('verify'); }}>Turn off (enter the PIN)</button>
+      </>)}
+      {step === 'verify' && (<><p style={{margin:'0 0 6px',fontSize:13,color:'var(--text-dim)'}}>Enter the current PIN to turn the lock off.</p><div role="status" style={{minHeight:18,fontSize:12.5,color:'var(--danger)'}}>{err}</div><PinPad length={lock.len} value={pin} onChange={setPin}/></>)}
+      {(step === 'new' || step === 'confirm') && (<>
+        <p style={{margin:'0 0 6px',fontSize:13,color:'var(--text-dim)'}}>{step === 'new' ? 'Choose a PIN.' : 'Enter it once more.'}</p>
+        {step === 'new' && <div style={{display:'flex',justifyContent:'center',gap:8,marginBottom:4}}>{[4, 6].map(n => <button key={n} type="button" aria-pressed={len === n} onClick={() => { setLen(n); setPin(''); }} style={{minHeight:36,padding:'0 14px',borderRadius:100,border:'1px solid ' + (len === n ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: len === n ? 'rgba(227,200,134,.14)' : 'transparent',color: len === n ? 'var(--accent)' : 'var(--text-2)',fontWeight:700,fontSize:12.5,cursor:'pointer'}}>{n} digits</button>)}</div>}
+        <div role="status" style={{minHeight:18,fontSize:12.5,color:'var(--danger)'}}>{err}</div>
+        <PinPad length={len} value={pin} onChange={setPin}/>
+        {step === 'new' && <div style={{textAlign:'left'}}><TimeoutPick/></div>}
+      </>)}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:14}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
 // Reminders: one notification per time block through the Worker's cron + Web Push. On iPhone this works once the
 // app is on the Home Screen (iOS 16.4+); the notification opens the block, it cannot carry Log buttons.
 function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSync, showToast }) {
@@ -2040,7 +2215,7 @@ function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSy
     if (r && r.ok) { setMsg({ ok: true, t: okText }); showToast && showToast(okText); } else { setMsg({ ok: false, t: (r && r.error) || 'Did not work' }); }
     refresh();
   };
-  const Toggle = ({ on, onChange, label }) => <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} style={{width:46,height:28,borderRadius:14,border:'none',background: on ? 'var(--success)' : 'rgba(255,255,255,.18)',position:'relative',cursor:'pointer',flexShrink:0}}><span style={{position:'absolute',top:3,left: on ? 21 : 3,width:22,height:22,borderRadius:'50%',background:'#fff',transition:'left .15s'}}/></button>;
+  const Toggle = ({ on, onChange, label }) => <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} style={{width:46,height:28,borderRadius:14,border:'none',background: on ? 'var(--success)' : 'var(--fill-4)',position:'relative',cursor:'pointer',flexShrink:0}}><span style={{position:'absolute',top:3,left: on ? 21 : 3,width:22,height:22,borderRadius:'50%',background:'#fff',transition:'left .15s'}}/></button>;
   const form = (
     <div className="blk" style={{marginBottom:12}}>
       {blocks.map(([k, label]) => (
@@ -2189,14 +2364,14 @@ function FirstRun({ activeProfile, onPick, onLibrary }) {
         <p style={{margin:'8px 0 0',fontSize:14,lineHeight:1.45,color:'var(--text-dim)'}}>Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.</p>
       </div>
       <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:12}}>
-        {buckets.map(b => <button key={b.label} onClick={() => setOpen(b.label)} aria-pressed={b.label === open} style={{minHeight:40,padding:'0 13px',borderRadius:100,fontSize:12.5,fontWeight:700,cursor:'pointer',border:'1px solid ' + (b.label === open ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: b.label === open ? 'rgba(227,200,134,.14)' : 'rgba(255,255,255,.04)',color: b.label === open ? 'var(--accent)' : 'var(--text-2)'}}>{b.label}</button>)}
+        {buckets.map(b => <button key={b.label} onClick={() => setOpen(b.label)} aria-pressed={b.label === open} style={{minHeight:40,padding:'0 13px',borderRadius:100,fontSize:12.5,fontWeight:700,cursor:'pointer',border:'1px solid ' + (b.label === open ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: b.label === open ? 'rgba(227,200,134,.14)' : 'var(--fill-1)',color: b.label === open ? 'var(--accent)' : 'var(--text-2)'}}>{b.label}</button>)}
       </div>
       {cur && (
         <section className="blk" aria-label={cur.label}>
           {cur.items.map((p, i) => (
             <div key={p.id} className="blk-row" style={i === 0 ? {borderTop:'none'} : undefined}>
               <button className="blk-main" onClick={() => onPick(p.id)}>
-                <span className="blk-disc" aria-hidden="true" style={{fontSize:15,borderColor:'var(--border)',background:'rgba(255,255,255,.05)'}}>{p.icon}</span>
+                <span className="blk-disc" aria-hidden="true" style={{fontSize:15,borderColor:'var(--border)',background:'var(--fill-2)'}}>{p.icon}</span>
                 <span className="blk-text">
                   <span className="blk-name">{p.name}</span>
                   <span className="blk-dose">{(p.protocol && p.protocol.route) || ''}{p.protocol && p.protocol.doseRange ? ' · ' + p.protocol.doseRange : ''}{p.protocol && p.protocol.timing ? ' · ' + p.protocol.timing : ''}</span>
@@ -2379,7 +2554,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
                 <div style={{fontSize:13,fontWeight:700}}>Supply · {sup.vial.peptideName}</div>
                 <div className="mono" style={{fontSize:12.5,fontWeight:700,color: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--text-2)'}}>{sup.dosesLeft} dose{sup.dosesLeft === 1 ? '' : 's'} left</div>
               </div>
-              <div style={{height:6,borderRadius:3,background:'rgba(255,255,255,.08)',overflow:'hidden',margin:'8px 0 6px'}}><div style={{width:(sup.pct*100)+'%',height:'100%',background: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--success)'}}/></div>
+              <div style={{height:6,borderRadius:3,background:'var(--fill-3)',overflow:'hidden',margin:'8px 0 6px'}}><div style={{width:(sup.pct*100)+'%',height:'100%',background: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--success)'}}/></div>
               <div style={{fontSize:11.5,color:'var(--text-dim)'}}>{sup.runOut ? `Runs out around ${fmtDk(sup.runOut)}` : 'Covers the visible plan'}{sup.vial.reconstitutedAt ? ` · opened ${fmtDk(String(sup.vial.reconstitutedAt).slice(0,10))}` : ''}</div>
             </div>
           ) : (route === 'inj' && !isPrn(p) ? <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'0 2px 14px'}}>No supply figure yet. Set the vial's reconstitution in the log sheet to get doses left and a run-out date.</div> : null)}
@@ -2451,7 +2626,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
             {alerts.length === 0 && <div style={{padding:'6px 4px 10px',fontSize:13,color:'var(--text-dim)'}}>Nothing running low or changing soon.</div>}
             {alerts.map((a, i) => (
               <div key={i} className="blk-row"><button className="blk-main" style={{minHeight:46}} onClick={() => openCompound(a.p)}>
-                <span className="blk-disc" aria-hidden="true" style={{width:22,height:22,borderColor: a.k === 'supply' ? 'var(--warn)' : 'var(--border)',background: a.k === 'supply' ? 'rgba(247,140,58,.14)' : 'rgba(255,255,255,.05)'}}><span style={{fontSize:11,color: a.k === 'supply' ? 'var(--warn)' : 'var(--text-dim)'}}>{a.k === 'supply' ? '!' : a.k === 'end' ? '⏹' : '↗'}</span></span>
+                <span className="blk-disc" aria-hidden="true" style={{width:22,height:22,borderColor: a.k === 'supply' ? 'var(--warn)' : 'var(--border)',background: a.k === 'supply' ? 'rgba(247,140,58,.14)' : 'var(--fill-2)'}}><span style={{fontSize:11,color: a.k === 'supply' ? 'var(--warn)' : 'var(--text-dim)'}}>{a.k === 'supply' ? '!' : a.k === 'end' ? '⏹' : '↗'}</span></span>
                 <span className="blk-text"><span className="blk-dose" style={{fontSize:13,color:'var(--text)'}}>{a.t}</span></span>
                 <span className="plan-chev" aria-hidden="true">›</span>
               </button></div>
@@ -2759,15 +2934,15 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
                     onPointerMove={(e) => { if (drawDragRef.current) dragUnits(e); }}
                     onPointerUp={() => { if (!drawDragRef.current) return; drawDragRef.current = false; snapU(units); }}
                     onPointerCancel={() => { if (!drawDragRef.current) return; drawDragRef.current = false; snapU(units); }}>
-                    <rect x="2" y="10" width="251" height="26" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" strokeWidth="1.3"/>
+                    <rect x="2" y="10" width="251" height="26" rx="4" fill="var(--fill-1)" stroke="var(--ink-35)" strokeWidth="1.3"/>
                     <defs><linearGradient id="d5lq" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0" stopColor="#e3c886" stopOpacity="0.55"/><stop offset="1" stopColor="#e3c886" stopOpacity="0.26"/>
                     </linearGradient></defs>
                     <rect x="3.5" y="11.5" width={liqW} height="23" fill="url(#d5lq)" className={committing ? 'liq-commit' : undefined} style={{transformBox:'fill-box',transformOrigin:'left center'}}/>
                     <rect x={plX - 1} y="11.5" width="2" height="23" fill="var(--accent)"/>
                     <rect x={plX - 2} y="6" width="7" height="34" rx="2" fill="var(--accent)"/>
-                    {(() => { const t = []; for (let u2 = 0; u2 <= barMax; u2 += 2) { const x = 3.5 + (u2 / barMax) * 248; const major = u2 % 10 === 0; t.push(<line key={u2} x1={x} y1="38" x2={x} y2={major ? 48 : 42} stroke={major ? 'rgba(255,255,255,.45)' : 'rgba(255,255,255,.30)'} strokeWidth="1"/>); } return t; })()}
-                    {(() => { const L = []; const st = barMax > 50 ? 20 : 10; for (let u2 = 0; u2 <= barMax; u2 += st) { const x = 3.5 + (u2 / barMax) * 248; L.push(<text key={u2} x={x} y="60" fill="rgba(255,255,255,.51)" fontSize="11" fontFamily="var(--mono)" textAnchor="middle">{u2}</text>); } return L; })()}
+                    {(() => { const t = []; for (let u2 = 0; u2 <= barMax; u2 += 2) { const x = 3.5 + (u2 / barMax) * 248; const major = u2 % 10 === 0; t.push(<line key={u2} x1={x} y1="38" x2={x} y2={major ? 48 : 42} stroke={major ? 'var(--ink-45)' : 'rgba(255,255,255,.30)'} strokeWidth="1"/>); } return t; })()}
+                    {(() => { const L = []; const st = barMax > 50 ? 20 : 10; for (let u2 = 0; u2 <= barMax; u2 += st) { const x = 3.5 + (u2 / barMax) * 248; L.push(<text key={u2} x={x} y="60" fill="var(--ink-50)" fontSize="11" fontFamily="var(--mono)" textAnchor="middle">{u2}</text>); } return L; })()}
                   </svg>
                   <button className="card step" aria-label="Increase by one unit" onClick={() => stepU(1)} style={{color:'var(--accent)'}}>＋</button>
                 </div>
@@ -2812,13 +2987,13 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
           <Field label="Date & Time">
             <input type="datetime-local" aria-label="Date and time" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
             <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
-              {[['Now',null],['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
+              {[['Now',null],['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'var(--fill-2)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
           </Field>
           {adminRoute === 'inj' && (
             <Field label="Injection site">
               <div style={{display:'grid',gridTemplateColumns:'repeat(4, minmax(0,1fr))',gap:6}}>
-                {SITES.map(s => <button key={s} type="button" aria-pressed={f.site === s} onClick={() => setF(p => ({ ...p, site: p.site === s ? '' : s }))} style={{minHeight:40,padding:'0 4px',borderRadius:11,fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',border:'1px solid ' + (f.site === s ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: f.site === s ? 'rgba(227,200,134,.14)' : 'rgba(255,255,255,.04)',color: f.site === s ? 'var(--accent)' : 'var(--text-2)'}}>{s}</button>)}
+                {SITES.map(s => <button key={s} type="button" aria-pressed={f.site === s} onClick={() => setF(p => ({ ...p, site: p.site === s ? '' : s }))} style={{minHeight:40,padding:'0 4px',borderRadius:11,fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',border:'1px solid ' + (f.site === s ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: f.site === s ? 'rgba(227,200,134,.14)' : 'var(--fill-1)',color: f.site === s ? 'var(--accent)' : 'var(--text-2)'}}>{s}</button>)}
               </div>
               {!existingLog && suggestedSite && <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:6}}>Next in rotation: {suggestedSite}</div>}
             </Field>
@@ -2844,7 +3019,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
                 {/* Blend vials: the total is the sum of the components — locked here (edit the blend itself via ✎ Edit protocol) so the concentration can never drift from what's actually in the vial. */}
                 {(targetVial && targetVial.penComponents && targetVial.penComponents.length)
-                  ? <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
+                  ? <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
                   : <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" aria-label={reconIsIU ? 'Vial size in IU' : 'Vial size in mg'} step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
                 <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isOilPep(proto.peptideId) ? 'Vial volume (mL)' : 'BAC water (mL)'}</label><input type="number" aria-label={isOilPep(proto.peptideId) ? 'Vial volume in mL' : 'BAC water in mL'} step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
               </div>
@@ -2962,7 +3137,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
           <p style={{margin:'0 0 16px',fontSize:13,color:'var(--text-dim)'}}>Mix up to 4 compounds in a {PEN_VOL_ML} mL pen · dosed in syringe units</p>
           <Field label="Pen colour">
             <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:7}}>
-              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'rgba(255,255,255,.04)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:11,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
+              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'var(--fill-1)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:11,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
             </div>
             <input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={`Custom pen name (optional, e.g. "${PEN_META[f.color].label.split(' ')[0]} #2")`} className="input" style={{marginTop:8,fontSize:13}}/>
           </Field>
@@ -3081,13 +3256,13 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
           <Field label={`Standard dose (${f.doseUnit} of total blend)`}>
             <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
               <input type="number" value={f.doseStr} onChange={e => setF(p => ({...p, doseStr: e.target.value}))} className="input"/>
-              <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u => <button key={u} type="button" onClick={() => setF(p => { if (p.doseUnit === u) return p; const v = parseFloat(p.doseStr); return {...p, doseUnit: u, doseStr: isNaN(v) ? p.doseStr : String(u === 'mg' ? v / 1000 : v * 1000)}; })} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(f.doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:f.doseUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:f.doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+              <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u => <button key={u} type="button" onClick={() => setF(p => { if (p.doseUnit === u) return p; const v = parseFloat(p.doseStr); return {...p, doseUnit: u, doseStr: isNaN(v) ? p.doseStr : String(u === 'mg' ? v / 1000 : v * 1000)}; })} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(f.doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:f.doseUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:f.doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
             </div>
           </Field>
-          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:10}}>
+          <div style={{background:'var(--fill-1)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:10}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>🧪 Reconstitution</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-              <div><label style={lbl}>Vial size (mg)</label><div className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{totalMg > 0 ? totalMg.toFixed(2).replace(/\.?0+$/,'') : '—'}</div></div>
+              <div><label style={lbl}>Vial size (mg)</label><div className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{totalMg > 0 ? totalMg.toFixed(2).replace(/\.?0+$/,'') : '—'}</div></div>
               <div><label style={lbl}>BAC water (mL)</label><input type="number" step="0.1" value={f.reconMl} onChange={e => setF(p => ({...p, reconMl: e.target.value}))} className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700}}/></div>
             </div>
             {m && dose > 0 ? (
@@ -3264,7 +3439,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
               {CATEGORIES.map(cat => <optgroup key={cat} label={cat}>{PEPTIDE_DB.filter(p => p.category === cat && !inStock.has(p.id)).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}
             </select>
           </Field>
-          {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
+          {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'var(--fill-1)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
           <RouteFields f={f} setF={setF}/>
           {f.peptideId && <ReconFields f={f} setF={setF}/>}
           <Field label="Schedule">
@@ -3313,7 +3488,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
                 <button onClick={() => confirmModal('Restart cycle?', `${p.peptideName}: cycle restarts today.`, () => { setProtocols(prev => prev.map(x => x.id === p.id ? resumeProto({...x, startDate: todayDk}, todayDk) : x)); showToast('Cycle restarted'); }, 'Restart')}
                   style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid rgba(227,200,134,.35)', background:'rgba(227,200,134,.12)', color:'var(--accent)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Restart</button>
                 <button onClick={() => confirmModal('Finish cycle?', `${p.peptideName} comes off the schedule after today. Logged history stays.`, () => { setProtocols(prev => prev.map(x => x.id === p.id ? finishProto(x, todayDk, todayDk) : x)); showToast('Cycle finished'); }, 'Finish')}
-                  style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid var(--border)', background:'rgba(255,255,255,.05)', color:'var(--text-2)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Finish</button>
+                  style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid var(--border)', background:'var(--fill-2)', color:'var(--text-2)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Finish</button>
               </div>
             ); })}
             {expiredProtos.length > 3 && <div style={{fontSize:11, color:'var(--text-faint)', paddingTop:6}}>+{expiredProtos.length - 3} more</div>}
@@ -3329,7 +3504,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
         {/* route filter chips */}
         <div style={{display:'flex', gap:7, marginBottom:16}}>
           {filters.map(([k,label,col]) => { const active = routeFilter === k; const cnt = routeCounts[k]; return (
-            <button key={k} onClick={() => setRouteFilter(k)} style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 4px', borderRadius:13, fontSize:12.5, fontWeight:600, cursor:'pointer', border:'1px solid '+(active?col+'55':LG.hair), background:active?col+'1f':'rgba(255,255,255,.04)', color:active?col:LG.dim}}>
+            <button key={k} onClick={() => setRouteFilter(k)} style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 4px', borderRadius:13, fontSize:12.5, fontWeight:600, cursor:'pointer', border:'1px solid '+(active?col+'55':LG.hair), background:active?col+'1f':'var(--fill-1)', color:active?col:LG.dim}}>
               {label}<span style={{fontFamily:LG.mono, fontSize:11.5, fontWeight:700, color:active?col:LG.dim2}}>{cnt}</span>
             </button>
           ); })}
@@ -3414,8 +3589,8 @@ function DoseRow({ proto, log, status, isFuture, isPast, vials, viewDateKey, glo
     <div className={'blk-row' + (glow && state === 'due' ? ' glow' : '') + (state === 'logged' ? ' is-logged' : state === 'skipped' ? ' is-skipped' : '')}>
       <button className="blk-main" onClick={onOpen} style={isPen ? { boxShadow: 'inset 3px 0 0 ' + pm.color, paddingLeft: 10 } : undefined}>
         <span className={'blk-disc ' + disc} aria-hidden="true">
-          {cel ? <span className="cel-disc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="#06231a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-            : state === 'logged' ? <Check size={14} strokeWidth={3} color="#06231a"/>
+          {cel ? <span className="cel-disc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="var(--on-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            : state === 'logged' ? <Check size={14} strokeWidth={3} color="var(--on-success)"/>
             : state === 'skipped' ? <span style={{fontSize:12,color:LG.amber}}>⏭</span>
             : state === 'expired' ? <span style={{fontSize:13,color:LG.amber}}>↻</span>
             : <RouteIcon route={route} color={rt.color} s={13}/>}
@@ -3508,7 +3683,7 @@ function gateProtocolSave(nextProto, priorProto, logs, allProtocols) {
 function Field({ label, children }) { return <div style={{marginBottom:10}}>{label && <label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>{label}</label>}{children}</div>; }
 
 // ══════════ History tab — every logged entry for the profile, filterable, downloadable, editable ══════════
-function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal, closeModal, confirmModal, showToast, onJump, exportCSV, exportJSON }) {
+function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal, closeModal, confirmModal, showToast, onJump, exportCSV, exportJSON, onReport }) {
   const today = todayLocal();
   const [range, setRange] = useState('30');            // '7' | '30' | '90' | 'all' | 'custom'
   const [from, setFrom] = useState(() => dkAdd(today, -29));
@@ -3610,6 +3785,7 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
         <div style={{display:'flex',gap:8,marginTop:12}}>
           <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => exportCSV(filtered)} disabled={!filtered.length}>⬇ CSV · {filtered.length}</button>
           <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => exportJSON(filtered)} disabled={!filtered.length}>⬇ JSON · {filtered.length}</button>
+          <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => onReport && onReport(filtered, rangeLabel, adherence)} disabled={!filtered.length}>Report</button>
         </div>
       </div>
       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:10}}>
@@ -3633,7 +3809,7 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
             {(comp === 'all' ? adherence.rows : adherence.rows.filter(r => r.name === comp)).map(r => (
               <div key={r.id} style={{display:'grid',gridTemplateColumns:'minmax(0,112px) 1fr 44px',gap:10,alignItems:'center'}}>
                 <span style={{fontSize:12.5,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}} title={r.name}>{r.name}</span>
-                <div style={{height:10,borderRadius:5,background:'rgba(255,255,255,.07)',overflow:'hidden'}} role="img" aria-label={`${r.name}: ${r.got} of ${r.exp} doses, ${r.pct} percent`}><div style={{width:r.pct+'%',height:'100%',borderRadius:5,background: adhColor(r.pct)}}/></div>
+                <div style={{height:10,borderRadius:5,background:'var(--fill-2)',overflow:'hidden'}} role="img" aria-label={`${r.name}: ${r.got} of ${r.exp} doses, ${r.pct} percent`}><div style={{width:r.pct+'%',height:'100%',borderRadius:5,background: adhColor(r.pct)}}/></div>
                 <span className="mono" style={{fontSize:12,fontWeight:700,textAlign:'right',color: adhColor(r.pct)}}>{r.pct}%</span>
               </div>
             ))}
@@ -3746,8 +3922,8 @@ function LabView({ vials }) {
     <div style={{paddingBottom:40}}>
       <div style={{margin:'8px 0 14px'}}><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search compounds..." className="input"/></div>
       <div style={{display:'flex',gap:6,overflowX:'auto',marginBottom:16,paddingBottom:4}} className="hide-scrollbar">
-        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(227,200,134,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
-        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(227,200,134,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
+        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(227,200,134,0.15)':'var(--fill-1)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
+        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(227,200,134,0.15)':'var(--fill-1)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {filtered.map(p => {
@@ -3841,7 +4017,7 @@ function MathView() {
         <Field label="Compound"><select value={preset} onChange={e => apply(e.target.value)} className="input"><option value="">— Pick a peptide —</option>{CATEGORIES.map(c => <optgroup key={c} label={c}>{PEPTIDE_DB.filter(p => p.category === c && p.reconstitution.typicalVialMg > 0).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}</select></Field>
         
         {components.length > 0 && (
-          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
+          <div style={{background:'var(--fill-1)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>🧪 Blend Components</div>
             {components.map((c, i) => {
               const compMcgPerMl = (c.mg * 1000) / parseFloat(ml || 1);
@@ -3873,7 +4049,7 @@ function MathView() {
         
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
           {components.length === 0 && <Field label="Vial (mg)"><input type="number" step="0.1" value={mg} onChange={e => setMg(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>}
-          {components.length > 0 && <div><label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Total mg</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{totalMg.toFixed(2)}</div></div>}
+          {components.length > 0 && <div><label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Total mg</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{totalMg.toFixed(2)}</div></div>}
           <Field label="BAC (mL)"><input type="number" step="0.1" value={ml} onChange={e => setMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
         </div>
         <Field label="Dose (mcg of total blend)"><input type="number" value={dose} onChange={e => setDose(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
