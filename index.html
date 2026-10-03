@@ -599,10 +599,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
 .sheet-grab i{width:36px;height:5px;border-radius:3px;background:var(--fill-4);display:block}
 .sheet-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
   padding:8px 20px calc(24px + env(safe-area-inset-bottom))}
-/* administer confirm bar — sticky INSIDE .sheet-body (shell choice: pragmatic sticky foot,
-   not a flex sibling); negative margins cancel .sheet-body padding so it sits flush */
-.sheet-foot{position:sticky;bottom:0;z-index:5;display:flex;gap:10px;align-items:stretch;
-  margin:16px -20px calc(-24px - env(safe-area-inset-bottom));
+/* confirm bar — a flex sibling BELOW .sheet-body (the sheet portals it into .sheet-foot-slot), so the scrolling
+   content always ends above it. Sticky-inside-the-scroller was offset by the scroller's padding on iOS and
+   covered the last rows (the Plan disclosure) at the end of the scroll. */
+.sheet-foot-slot{flex-shrink:0}
+.sheet-foot-slot:empty{display:none}
+.sheet:has(.sheet-foot) .sheet-body{padding-bottom:16px}
+.sheet-foot{display:flex;gap:10px;align-items:stretch;
   padding:12px 16px calc(12px + env(safe-area-inset-bottom));
   border-top:1px solid rgba(255,255,255,.08);
   background:var(--foot-bg)}
@@ -1130,7 +1133,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   }
 
   // src/app/main.jsx
-  var { useState, useEffect, useRef, useMemo, useCallback } = React;
+  var { useState, useEffect, useRef, useMemo, useCallback, useContext } = React;
+  var SheetFootContext = React.createContext(null);
   var {
     LayoutDashboard,
     Package,
@@ -2456,6 +2460,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const [sheet, setSheet] = useState({ content: null, open: false, closing: false, settled: false });
     const sheetTimer = useRef(null);
     const sheetRef = useRef(null);
+    const [footSlot, setFootSlot] = useState(null);
     const prevFocusRef = useRef(null);
     useEffect(() => {
       try {
@@ -3217,7 +3222,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       },
       /* @__PURE__ */ React.createElement("button", { className: "sheet-grab", onClick: closeModal, "aria-label": "Close" }, /* @__PURE__ */ React.createElement("i", null)),
       /* @__PURE__ */ React.createElement("button", { onClick: closeModal, "aria-label": "Close", style: { position: "absolute", top: 8, right: 14, zIndex: 6, background: "var(--fill-3)", border: "none", borderRadius: 100, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", cursor: "pointer" } }, /* @__PURE__ */ React.createElement(X, { size: 16 })),
-      /* @__PURE__ */ React.createElement("div", { className: "sheet-body" }, sheet.content)
+      /* @__PURE__ */ React.createElement("div", { className: "sheet-body" }, /* @__PURE__ */ React.createElement(SheetFootContext.Provider, { value: footSlot }, sheet.content)),
+      /* @__PURE__ */ React.createElement("div", { className: "sheet-foot-slot", ref: setFootSlot })
     )));
   }
   function DateButton({ viewDate, setViewDate }) {
@@ -3959,6 +3965,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         const [f, setF] = useState(f0);
         const [unitsText, setUnitsText] = useState(null);
         const rm = useReducedMotion();
+        const footSlot = useContext(SheetFootContext);
         const [committing, setCommitting] = useState(false);
         const liveRef = useRef(true);
         useEffect(() => () => {
@@ -4029,6 +4036,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         const logVerb = pastDay ? "Log for " + fmtDk(dateKey) : "Log";
         const [planOpen, setPlanOpen] = useState(!!planOnly);
         const submit = () => {
+          if (committing) return;
           const d = parseFloat(f.doseMcg);
           if (!(d > 0)) return showToast("Enter a dose above zero", "error");
           const tv = vials.find((v) => v.id === f.vialId);
@@ -4142,6 +4150,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           const compMcgPerMl = compMg * 1e3 / targetVial.diluentMl;
           return { id: cid, name: sub ? sub.name : cid, icon: sub ? sub.icon : "💊", pct: Math.round(frac * 100), mcgInShot: drawMl * compMcgPerMl };
         }) : null;
+        const foot = planOnly ? /* @__PURE__ */ React.createElement("div", { className: "sheet-foot" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 48, borderRadius: 14 }, onClick: closeModal }, "Close")) : /* @__PURE__ */ React.createElement("div", { className: "sheet-foot", style: committing ? { pointerEvents: "none" } : void 0 }, existingLog ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-danger", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: undoLog }, "Undo") : isPrn(proto) ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: closeModal }, "Cancel") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: () => {
+          closeModal();
+          skipDose(proto);
+        } }, "Skip"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: submit, disabled: editRecon, style: { flex: 1, minHeight: 52, fontSize: 16, borderRadius: 14 } }, existingLog ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Save · ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, hasConc && !isOral ? `${units}u` : fmtAdmDose(dNow))) : hasConc && !isOral ? /* @__PURE__ */ React.createElement(React.Fragment, null, logVerb, " ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, units, "u"), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, fmtAdmDose(dNow))) : /* @__PURE__ */ React.createElement(React.Fragment, null, logVerb, " ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, fmtAdmDose(dNow)))));
         return /* @__PURE__ */ React.createElement("div", { style: committing ? { pointerEvents: "none" } : void 0 }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 } }, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 22, fontWeight: 700 } }, existingLog ? "Edit Dose" : pastDay ? "Log for " + fmtDk(dateKey) : "Administer"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
           closeModal();
           editProtocol(proto);
@@ -4239,10 +4251,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
             onFinish: () => finishCycle(proto),
             onResume: () => resumeCycle(proto)
           }
-        ))), planOnly ? /* @__PURE__ */ React.createElement("div", { className: "sheet-foot" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 48, borderRadius: 14 }, onClick: closeModal }, "Close")) : /* @__PURE__ */ React.createElement("div", { className: "sheet-foot" }, existingLog ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-danger", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: undoLog }, "Undo") : isPrn(proto) ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: closeModal }, "Cancel") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { minHeight: 48, padding: "0 18px", borderRadius: 14 }, onClick: () => {
-          closeModal();
-          skipDose(proto);
-        } }, "Skip"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: submit, disabled: editRecon, style: { flex: 1, minHeight: 52, fontSize: 16, borderRadius: 14 } }, existingLog ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Save · ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, hasConc && !isOral ? `${units}u` : fmtAdmDose(dNow))) : hasConc && !isOral ? /* @__PURE__ */ React.createElement(React.Fragment, null, logVerb, " ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, units, "u"), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, fmtAdmDose(dNow))) : /* @__PURE__ */ React.createElement(React.Fragment, null, logVerb, " ", /* @__PURE__ */ React.createElement("span", { className: "mono" }, fmtAdmDose(dNow))))));
+        ))), footSlot ? ReactDOM.createPortal(foot, footSlot) : null);
       };
       openModal(/* @__PURE__ */ React.createElement(Modal, null));
     };

@@ -20,7 +20,7 @@ function loadSW({ clients = [] } = {}) {
     console, URL, setTimeout, clearTimeout,
     caches: {
       open: async () => ({ addAll: async (a) => { calls.addAll.push(a); }, match: async () => undefined, put: async () => {} }),
-      keys: async () => ['protocol-os-v16', 'protocol-os-v17'],
+      keys: async () => ['protocol-os-v17', 'protocol-os-v18'],
       delete: async (k) => { calls.deleted.push(k); return true; },
     },
     fetch: async () => { throw new TypeError('network is off in tests'); },
@@ -71,9 +71,9 @@ describe('sw.js shape', () => {
     const { listeners } = loadSW();
     assert.deepEqual(Object.keys(listeners).sort(), ['activate', 'fetch', 'install', 'notificationclick', 'push']);
   });
-  test('CACHE is bumped to v17 and ASSETS precache the manifest and icons', () => {
+  test('CACHE is bumped to v18 and ASSETS precache the manifest and icons', () => {
     const { CACHE, ASSETS } = loadSW();
-    assert.equal(CACHE, 'protocol-os-v17');
+    assert.equal(CACHE, 'protocol-os-v18');
     for (const a of ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png']) {
       assert.ok(ASSETS.includes(a), 'ASSETS missing ' + a);
     }
@@ -99,7 +99,7 @@ describe('sw.js shape', () => {
     const waits = [];
     listeners.activate({ waitUntil: (p) => waits.push(p) });
     await Promise.all(waits);
-    assert.deepEqual(calls.deleted, ['protocol-os-v16']);
+    assert.deepEqual(calls.deleted, ['protocol-os-v17']);
     assert.equal(calls.claim, 1);
   });
   test('fetch: non-GET and cross-origin requests are left to the network; same-origin GETs are handled', () => {

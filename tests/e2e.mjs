@@ -132,6 +132,16 @@ try {
 
   // 3. tile sheet → Plan card
   await tCard.click();
+  // Regression (Oct 3): the Skip/Log bar must sit BELOW the scroller, never over its last rows (iOS offset the
+  // old sticky bar by the scroller's padding and hid the Plan row at the end of the scroll).
+  await page.locator('.sheet-body').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  await page.waitForTimeout(200);
+  const footGeo = await page.evaluate(() => {
+    const f = document.querySelector('.sheet .sheet-foot'), p = document.querySelector('.sheet-body details.plan-dis');
+    if (!f || !p) return null;
+    return { footTop: Math.round(f.getBoundingClientRect().top), planBottom: Math.round(p.getBoundingClientRect().bottom), inScroller: !!document.querySelector('.sheet-body .sheet-foot') };
+  });
+  check('sheet: Skip/Log bar sits below the scroller and the Plan row is fully visible at the end of the scroll', footGeo && !footGeo.inScroller && footGeo.planBottom <= footGeo.footTop, JSON.stringify(footGeo));
   await openPlan();
   await page.getByText(/Plan · today/).waitFor();
   const planText = await page.locator('.sheet-body').innerText();
