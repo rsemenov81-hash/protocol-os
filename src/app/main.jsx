@@ -1,3 +1,4 @@
+import { pushStatus, enableReminders, updateReminders, disableReminders, sendTestReminder, listenForOpenBlock, defaultReminderSettings, getSavedReminders } from './push.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 const { LayoutDashboard, Package, Beaker, Clock, Calculator, BookOpen, Bot,
@@ -790,7 +791,7 @@ function runDoseGate(proto, doseMcg, opts, logs) {
 
 /* ══════════ Liquid Glass kit — route/block mapping, syringe, icons ══════════ */
 const LG = { accent:'#e3c886', green:'#5fdc97', amber:'#f78c3a', red:'#ff6b6b',
-  text:'#f3f6f8', dim:'rgba(255,255,255,0.60)', dim2:'rgba(255,255,255,0.38)', hair:'rgba(255,255,255,0.12)',
+  text:'var(--text)', dim:'var(--text-dim)', dim2:'var(--text-faint)', hair:'var(--hair)',
   mono:"'JetBrains Mono', ui-monospace, monospace" };
 const ROUTE_META = {
   inj:   { label:'Inject', color:'#e3c886', verb:'Draw'  },
@@ -896,6 +897,7 @@ function RouteIcon({ route, color, s=16 }) {
 function NavIcon({ id, color }) {
   const p = { width:22, height:22, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.8, strokeLinecap:'round', strokeLinejoin:'round' };
   if (id==='protocol') return <svg {...p}><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>;
+  if (id==='plan') return <svg {...p}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>;
   if (id==='lab') return <svg {...p}><path d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"/></svg>;
   if (id==='history') return <svg {...p}><path d="M4 6h16M4 12h9M4 18h6"/><circle cx="17.5" cy="16.5" r="3.6"/><path d="M17.5 14.6v1.9l1.3.9"/></svg>;
   return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h3M14 9h2M14 14.5h2M9 13v3M7.9 17.1l2.2-2.2M10.1 17.1l-2.2-2.2"/></svg>;
@@ -912,18 +914,18 @@ function Syringe({ units, max, color }) {
   for (let i=0;i<=10;i++){
     const x = X0 + W*i/10, major = i%2===0;
     ticks.push(<line key={'t'+i} x1={x} y1={Y+H} x2={x} y2={Y+H+(major?8:4)} stroke="rgba(255,255,255,.40)" strokeWidth="1"/>);
-    if (major) ticks.push(<text key={'l'+i} x={x} y={Y+H+19} fill="rgba(255,255,255,.5)" fontSize="8" fontFamily={LG.mono} textAnchor="middle">{Math.round(M/10*i)}</text>);
+    if (major) ticks.push(<text key={'l'+i} x={x} y={Y+H+19} fill="var(--ink-50)" fontSize="8" fontFamily={LG.mono} textAnchor="middle">{Math.round(M/10*i)}</text>);
   }
   return (
     <svg viewBox="0 0 246 50" width="100%" style={{display:'block'}}>
       <rect x="2" y="7" width="7" height={H+6} rx="2" fill={color}/>
       <line x1="9" y1={Y+H/2} x2={px} y2={Y+H/2} stroke={color} strokeWidth="3"/>
-      <rect x={X0} y={Y} width={W} height={H} rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" strokeWidth="1.3"/>
+      <rect x={X0} y={Y} width={W} height={H} rx="3" fill="var(--fill-1)" stroke="var(--ink-35)" strokeWidth="1.3"/>
       <rect x={X0} y={Y} width={fillW} height={H} fill={color} opacity="0.34"/>
       <rect x={Math.max(X0,px-1.6)} y={Y} width="1.6" height={H} fill={color}/>
       <rect x={px-1.5} y={Y-3} width="3" height={H+6} rx="1" fill={color}/>
       <rect x={X1} y={Y+H/2-5} width="7" height="10" rx="1" fill="rgba(255,255,255,.28)"/>
-      <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="rgba(255,255,255,.45)" strokeWidth="1.3"/>
+      <line x1={X1+7} y1={Y+H/2} x2="242" y2={Y+H/2} stroke="var(--ink-45)" strokeWidth="1.3"/>
       {ticks}
     </svg>
   );
@@ -944,13 +946,13 @@ function RouteFields({ f, setF }) {
     <>
       <Field label="Type">
         <div style={{display:'flex',gap:7}}>
-          {[['inj','💉 Injection','#e3c886'],['oral','💊 Oral','#f78c3a'],['nasal','👃 Nasal spray','#c78bf0']].map(([k,l,col]) => { const on=route===k; return <button key={k} onClick={()=>setF({...f,route:k})} style={{flex:1,padding:'10px 4px',borderRadius:12,fontSize:12,fontWeight:600,border:'1px solid '+(on?col+'66':'var(--border)'),background:on?col+'1f':'rgba(255,255,255,.04)',color:on?col:'var(--text-dim)',cursor:'pointer'}}>{l}</button>; })}
+          {[['inj','💉 Injection','#e3c886'],['oral','💊 Oral','#f78c3a'],['nasal','👃 Nasal spray','#c78bf0']].map(([k,l,col]) => { const on=route===k; return <button key={k} onClick={()=>setF({...f,route:k})} style={{flex:1,padding:'10px 4px',borderRadius:12,fontSize:12,fontWeight:600,border:'1px solid '+(on?col+'66':'var(--border)'),background:on?col+'1f':'var(--fill-1)',color:on?col:'var(--text-dim)',cursor:'pointer'}}>{l}</button>; })}
         </div>
       </Field>
       {route === 'oral' ? (
         <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'flex-end',marginBottom:10}}>
           <div><label style={lbl}>Dose per cap ({oralUnit})</label><input type="number" value={(f.oralPerUnitMcg!=null && f.oralPerUnitMcg!=='') ? (oralUnit==='mg'?(f.oralPerUnitMcg/1000):f.oralPerUnitMcg) : ''} onChange={e=>{const v=parseFloat(e.target.value)||0; setF({...f, oralPerUnitMcg: oralUnit==='mg'? v*1000 : v});}} className="input"/></div>
-          <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u=><button key={u} onClick={()=>setF({...f,oralUnitLabel:u})} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:13,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(oralUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:oralUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:oralUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u=><button key={u} onClick={()=>setF({...f,oralUnitLabel:u})} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:13,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(oralUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:oralUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:oralUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
         </div>
       ) : route === 'nasal' ? (
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
@@ -961,7 +963,7 @@ function RouteFields({ f, setF }) {
       <Field label={`Standard dose (${doseUnit})`}>
         <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
           <input type="number" value={doseDisp} onChange={e=>setF({...f, doseMcg: duFactor===1 ? e.target.value : Math.round((parseFloat(e.target.value)||0)*duFactor)})} className="input"/>
-          <div style={{display:'flex',gap:4}}>{['mcg','mg','g','IU'].map(u=><button key={u} type="button" onClick={()=>setF({...f,doseUnit:u})} style={{padding:'0 9px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:doseUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+          <div style={{display:'flex',gap:4}}>{['mcg','mg','g','IU'].map(u=><button key={u} type="button" onClick={()=>setF({...f,doseUnit:u})} style={{padding:'0 9px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:doseUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
         </div>
       </Field>
       {(route==='oral'||route==='nasal') && (parseFloat(f.doseMcg)||0)>0 && preview.n!=null && (
@@ -992,7 +994,7 @@ function ReconFields({ f, setF }) {
   const suspect = overVial || overBarrel;
   const lbl = { fontSize:11, color:'var(--text-faint)', textTransform:'uppercase', fontWeight:700, letterSpacing:'0.04em' };
   return (
-    <div style={{background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', padding:12, borderRadius:14, marginBottom:10}}>
+    <div style={{background:'var(--fill-1)', border:'1px solid var(--border)', padding:12, borderRadius:14, marginBottom:10}}>
       <div style={{fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8}}>{oil ? '🧴 Vial concentration (pre-mixed oil)' : '🧪 Reconstitution'}</div>
       <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
         <div>
@@ -1039,7 +1041,7 @@ const fmtDk = (dk) => { const t = dkParse(dk); if (isNaN(t)) return '—'; const
 // Dose in its tagged unit (timeline entries, plan card, history rows).
 const fmtDoseAny = (mcg, unit) => { if (mcg == null || isNaN(mcg)) return '—'; if (unit === 'IU') return fmtIU(mcg); if (unit === 'g') return (mcg/1e6).toFixed(2).replace(/\.?0+$/,'') + ' g'; if (unit === 'mg') return (mcg/1000).toFixed(2).replace(/\.?0+$/,'') + ' mg'; return fmtMcg(mcg); };
 const DAY_PRESETS = { daily: ALL_DAYS, weekdays:[1,2,3,4,5], mwf:[1,3,5], tth:[2,4], wth:[3,4], weekly:[1], asneeded:[] };
-const chipSt = (on, warn) => ({ background: on ? (warn ? 'rgba(247,140,58,0.16)' : 'rgba(227,200,134,0.16)') : 'rgba(255,255,255,0.06)', border: '1px solid ' + (on ? (warn ? 'rgba(247,140,58,0.4)' : 'rgba(227,200,134,0.45)') : 'var(--border)'), borderRadius: 100, padding: '7px 12px', minHeight: 34, fontSize: 11, color: on ? (warn ? 'var(--amber)' : 'var(--accent)') : 'var(--text-dim)', cursor: 'pointer', fontWeight: 600 });
+const chipSt = (on, warn) => ({ background: on ? (warn ? 'rgba(247,140,58,0.16)' : 'rgba(227,200,134,0.16)') : 'var(--fill-2)', border: '1px solid ' + (on ? (warn ? 'rgba(247,140,58,0.4)' : 'rgba(227,200,134,0.45)') : 'var(--border)'), borderRadius: 100, padding: '7px 12px', minHeight: 34, fontSize: 11, color: on ? (warn ? 'var(--amber)' : 'var(--accent)') : 'var(--text-dim)', cursor: 'pointer', fontWeight: 600 });
 // value = { days, every?, anchor?, timeOfDay } · onChange(next). Interval mode ("every other day")
 // counts from `anchor` (first dose day) and shows a 14-day preview so the pattern is unambiguous.
 function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
@@ -1066,9 +1068,9 @@ function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
           <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
             <span style={{fontSize:12.5,color:'var(--text-dim)'}}>Every</span>
             <div style={{display:'inline-flex',alignItems:'center',border:'1px solid var(--border)',borderRadius:10,overflow:'hidden'}}>
-              <button type="button" aria-label="Fewer days between doses" onClick={() => setEvery(every - 1)} style={{width:38,height:36,border:'none',background:'rgba(255,255,255,.05)',color:'var(--text)',fontSize:18,cursor:'pointer'}}>−</button>
+              <button type="button" aria-label="Fewer days between doses" onClick={() => setEvery(every - 1)} style={{width:38,height:36,border:'none',background:'var(--fill-2)',color:'var(--text)',fontSize:18,cursor:'pointer'}}>−</button>
               <span className="mono" style={{minWidth:30,textAlign:'center',fontWeight:700,fontSize:15}}>{every}</span>
-              <button type="button" aria-label="More days between doses" onClick={() => setEvery(every + 1)} style={{width:38,height:36,border:'none',background:'rgba(255,255,255,.05)',color:'var(--accent)',fontSize:18,cursor:'pointer'}}>＋</button>
+              <button type="button" aria-label="More days between doses" onClick={() => setEvery(every + 1)} style={{width:38,height:36,border:'none',background:'var(--fill-2)',color:'var(--accent)',fontSize:18,cursor:'pointer'}}>＋</button>
             </div>
             <span style={{fontSize:12.5,color:'var(--text-dim)'}}>days{every === 2 ? ' · every other day' : ''}</span>
           </div>
@@ -1079,13 +1081,13 @@ function SchedulePicker({ value, onChange, anchorDefault, previewFrom }) {
           <div style={{display:'grid',gridTemplateColumns:'repeat(14, 1fr)',gap:3,marginTop:10}} aria-label="Dose days over the next 14 days">
             {preview.map(p => <div key={p.dk} title={p.dk} style={{textAlign:'center'}}>
               <div style={{fontSize:8,color:'var(--text-ghost)',textTransform:'uppercase'}}>{p.wd}</div>
-              <div className="mono" style={{fontSize:9.5,lineHeight:'18px',height:18,borderRadius:5,background:p.due?'rgba(227,200,134,.22)':'rgba(255,255,255,.04)',color:p.due?'var(--accent)':'var(--text-ghost)',fontWeight:p.due?700:500}}>{p.n}</div>
+              <div className="mono" style={{fontSize:9.5,lineHeight:'18px',height:18,borderRadius:5,background:p.due?'rgba(227,200,134,.22)':'var(--fill-1)',color:p.due?'var(--accent)':'var(--text-ghost)',fontWeight:p.due?700:500}}>{p.n}</div>
             </div>)}
           </div>
         </div>
       ) : (
         <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:5}}>
-          {dl.map((d,i) => <button key={i} type="button" aria-pressed={days.includes(i)} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:days.includes(i)?'rgba(227,200,134,0.18)':'rgba(255,255,255,0.04)',color:days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
+          {dl.map((d,i) => <button key={i} type="button" aria-pressed={days.includes(i)} onClick={() => toggleDay(i)} style={{padding:'10px 0',borderRadius:10,border:'1px solid var(--border)',background:days.includes(i)?'rgba(227,200,134,0.18)':'var(--fill-1)',color:days.includes(i)?'var(--accent-2)':'var(--text-faint)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{d}</button>)}
         </div>
       )}
     </>
@@ -1153,10 +1155,10 @@ function PlanCard({ proto, dateKey, onChange, onFinish, onResume }) {
       <div style={{fontSize:15,fontWeight:700,color:'var(--text)',marginTop:4}}>{schedLabel(s)} · <span className="mono" style={{color:'var(--accent)'}}>{fmtDoseAny(proto.doseMcg, proto.doseUnit)}</span></div>
       <div style={{fontSize:11.5,color:'var(--text-dim)',marginTop:3}}>{bits.join(' · ')}</div>
       <div style={{display:'flex',gap:8,marginTop:10}}>
-        <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={onChange}>✎ Change from {isToday ? 'today' : fmtDk(dateKey)}</button>
+        <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={onChange}>Change from {isToday ? 'today' : fmtDk(dateKey)}</button>
         {ended
-          ? <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--success)'}} onClick={onResume}>↻ Resume</button>
-          : <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--warn)'}} onClick={onFinish}>⏹ Finish cycle</button>}
+          ? <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--success)'}} onClick={onResume}>Resume</button>
+          : <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--warn)'}} onClick={onFinish}>Finish cycle</button>}
       </div>
     </div>
   );
@@ -1219,11 +1221,11 @@ function SyncConfig({ initialUrl, initialToken, onSave, onClose }) {
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Worker URL</label>
       <input value={u} onChange={e=>setU(e.target.value)} placeholder="https://protocol-sync.<you>.workers.dev"
         autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="url"
-        style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+        style={{width:'100%',padding:'10px',margin:'4px 0 12px',borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:14}}/>
       <label style={{fontSize:12,fontWeight:600,color:'var(--text-dim)'}}>Sync token</label>
       <input value={t} onChange={e=>setT(e.target.value)} placeholder="your SYNC_TOKEN secret"
         autoCapitalize="none" autoCorrect="off" spellCheck={false}
-        style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:14}}/>
+        style={{width:'100%',padding:'10px',margin:'4px 0 16px',borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:14}}/>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
         <button className="btn btn-primary" onClick={()=>onSave(u.trim(),t.trim())} disabled={!u||!t}>Connect</button>
@@ -1378,6 +1380,40 @@ function App() {
   useEffect(() => { persist('protocol_os_vials', JSON.stringify(vials)); }, [vials]);
   useEffect(() => { persist('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { persist('protocol_os_active_profile', activeProfile); }, [activeProfile]);
+  // App lock: an optional PIN (hashed with a per-device salt) asked at launch and after the app was hidden
+  // longer than the chosen timeout. It protects a shared phone; it is not encryption.
+  const [lock, setLock] = useState(() => { try { return JSON.parse(localStorage.getItem('protocol_os_lock') || 'null'); } catch (e) { return null; } });
+  const [locked, setLocked] = useState(() => { try { return !!JSON.parse(localStorage.getItem('protocol_os_lock') || 'null'); } catch (e) { return false; } });
+  const hiddenAt = useRef(null);
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') { hiddenAt.current = Date.now(); return; }
+      if (lock && hiddenAt.current != null && Date.now() - hiddenAt.current >= (lock.timeoutMin || 0) * 60000) setLocked(true);
+    };
+    document.addEventListener('visibilitychange', onVis); window.addEventListener('pagehide', () => { hiddenAt.current = Date.now(); });
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [lock]);
+  const saveLock = (rec) => { setLock(rec); if (rec) persist('protocol_os_lock', JSON.stringify(rec)); else { try { localStorage.removeItem('protocol_os_lock'); } catch (e) {} } };
+  const openLockSettings = () => openModal(<LockSheet lock={lock} onSave={(rec) => { saveLock(rec); closeModal(); showToast(rec ? 'App lock is on' : 'App lock is off'); }} onClose={closeModal}/>);
+  const forgetAndResync = () => {
+    // Keeps sync settings; wipes this phone's copy so the next launch pulls the cloud record.
+    ['protocol_os_protocols', 'protocol_os_logs', 'protocol_os_vials', 'protocol_os_meta', 'protocol_os_backup', 'protocol_os_lock'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    location.reload();
+  };
+  // Theme: auto (follows the device), dark or light — applied as data-theme on <html>; the browser chrome colour follows.
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem('protocol_os_theme') || 'auto'; } catch (e) { return 'auto'; } });
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', theme);
+    persist('protocol_os_theme', theme);
+    const apply = () => { const light = theme === 'light' || (theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', light ? '#f3f1ea' : '#0e2820'); };
+    apply();
+    const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    if (mq && mq.addEventListener) { mq.addEventListener('change', apply); return () => mq.removeEventListener('change', apply); }
+  }, [theme]);
+  // Text size: a zoom token on the root (1 / 1.15 / 1.3), remembered per device.
+  const [textScale, setTextScale] = useState(() => { try { return localStorage.getItem('protocol_os_text_scale') || '1'; } catch (e) { return '1'; } });
+  useEffect(() => { document.documentElement.style.setProperty('--ts', textScale); persist('protocol_os_text_scale', textScale); }, [textScale]);
 
   // ── Cloud sync (Cloudflare Worker + KV): auto-sync everywhere, no files ──
   const [syncUrl, setSyncUrl] = useState(() => localStorage.getItem('protocol_os_sync_url') || '');
@@ -1392,6 +1428,7 @@ function App() {
   const pullTries = React.useRef(0);         // launch-pull retries (2 s, 8 s, 30 s)
   const syncBase = React.useRef(null);       // snapshot of the last synced state: diffed to stamp updatedAt and to write delete markers
   const [syncQueued, setSyncQueued] = useState(false); // a push failed and is waiting for retry/reconnect
+  const [proposalsPending, setProposalsPending] = useState(0); // Claude's pending plan suggestions (worker 1.6+)
   const metaRef = useRef(meta); metaRef.current = meta;
 
   // ONE shared cloud record for every profile: the whole store travels under ?profile=all, so a profile
@@ -1419,6 +1456,7 @@ function App() {
       const r = await fetch(cloudEndpoint(), { method: 'GET', headers: authHeaders() });
       if (!r.ok) throw new Error('GET ' + r.status);
       const d = await r.json();
+      if (d && typeof d._proposalsPending === 'number') setProposalsPending(d._proposalsPending); // Claude's pending suggestions ride along with every pull
       // Rev comes from the BODY (_rev): Cloudflare rewrites ETags to weak (W/"n") when it
       // compresses responses, which poisoned If-Match and 409'd every push from Safari.
       if (d && d._rev != null) cloudRev.current = String(d._rev);
@@ -1552,7 +1590,7 @@ function App() {
   };
   const logsToCSV = (list) => {
     const esc = (s) => { s = (s == null ? '' : String(s)); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; /* a note starting with = + - @ must not become a formula in Excel/Numbers */ return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
-    const rows = [['Date','Time','Compound','Dose','Unit','Syringe units','mL','Status','Notes','Profile','Entry id']];
+    const rows = [['Date','Time','Compound','Dose','Unit','Syringe units','mL','Status','Site','Notes','Profile','Entry id']];
     list.forEach(l => {
       const dt = new Date(l.datetime);
       const isIUx = l.doseUnit === 'IU';
@@ -1563,7 +1601,7 @@ function App() {
       const u = l.doseMl != null ? (l.doseMl * 100).toFixed(1) : '';
       const status = l.skipped ? 'skipped' : (l.backfilled ? 'logged (back-dated)' : 'logged') + (l.needsReview ? ' · flagged' : '');
       rows.push([isNaN(dt) ? (l.datetime || '') : dt.toLocaleDateString('en-CA'), isNaN(dt) ? '' : dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-        l.peptide || l.peptideName || l.peptideId || '', dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', status, l.notes || '', l.profile || activeProfile, l.id || '']);
+        l.peptide || l.peptideName || l.peptideId || '', dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', status, l.site || '', l.notes || '', l.profile || activeProfile, l.id || '']);
     });
     return rows.map(r => r.map(esc).join(',')).join('\n');
   };
@@ -1654,7 +1692,15 @@ function App() {
   // C5 a11y: Escape dismisses the sheet while it is open.
   useEffect(() => {
     if (!sheet.content) return;
-    const onKey = (e) => { if (e.key === 'Escape') closeModal(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') return closeModal();
+      if (e.key !== 'Tab' || !sheetRef.current) return;   // keep keyboard focus inside the open sheet
+      const f = Array.from(sheetRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled && el.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === sheetRef.current)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [!!sheet.content]);
@@ -1698,31 +1744,85 @@ function App() {
       aria: d.toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}) };
   });
   const switchProfile = (p) => { if (p === activeProfile) return; setActiveProfile(p); showToast('Now viewing ' + p); };
+  // Library and the reconstitution calculator live in sheets now (Plan tab and profile menu), not in the tab bar.
+  const openLibrary = () => openModal(<LabView vials={vials}/>);
+  const openCalculator = () => openModal(<MathView/>);
   const openSyncConfigModal = (pullAfter) => openModal(
     <SyncConfig initialUrl={syncUrl} initialToken={syncToken}
       onSave={(u,t)=>{ saveSyncConfig(u,t); closeModal(); if (pullAfter) setTimeout(()=>cloudPull(true),300); }}
       onClose={closeModal}/>
   );
+  // ── Restore from a backup (cloud daily snapshots, Worker 1.5+, or the local pre-import backup) ──
+  const restoreFrom = (blob, label) => {
+    try { localStorage.setItem('protocol_os_backup', JSON.stringify({ at: new Date().toISOString(), protocols: protocolsRef.current, vials: vialsRef.current, logs: logsRef.current, meta: metaRef.current })); } catch (e) {}
+    // Everything restored is stamped now and local delete markers are cleared, so the restore wins the next merge.
+    const now = nowIso(); const stamp = (arr) => arr.map(o => (o && o.id != null) ? { ...o, updatedAt: now } : o);
+    const s = remoteOf(blob); const meta = { ...(s.meta || {}), tombstones: { logs: {}, protocols: {}, vials: {} } };
+    applyState(withToday({ protocols: stamp(s.protocols), vials: stamp(s.vials), logs: stamp(s.logs), meta }));
+    syncBase.current = null; lastPushRef.current = '';
+    showToast('Restored the ' + label);
+    if (syncReady) setTimeout(() => cloudPush(true, true), 50);
+  };
+  const openRestore = () => {
+    let lb = null; try { lb = JSON.parse(localStorage.getItem('protocol_os_backup') || 'null'); } catch (e) {}
+    openModal(<RestoreSheet syncUrl={syncUrl} token={syncToken} localBackup={lb} onClose={closeModal}
+      onRestore={(blob, label) => confirmModal('Restore?', `Replace this phone's data with the ${label}? Entries made after it will be gone; the current data is saved as the local backup first.`, () => restoreFrom(blob, label), 'Restore')}/>);
+  };
+  // ── Claude's proposals: suggested dated changes that do nothing until approved here ──
+  const resolveProposal = async (pr, status) => {
+    if (status === 'approved') {
+      const p = protocolsRef.current.find(x => x.id === pr.protocolId);
+      if (!p) { showToast('That compound is no longer in the plan', 'error'); return false; }
+      const todayDk = todayLocal();
+      const from = (pr.effectiveFrom && dkValid(pr.effectiveFrom)) ? pr.effectiveFrom : todayDk;
+      const ch = pr.change || {}; const fields = {};
+      if (ch.schedule) fields.schedule = normSched(ch.schedule, from);
+      if (ch.doseMcg > 0) { fields.doseMcg = ch.doseMcg; fields.doseUnit = ch.doseUnit || p.doseUnit || null; }
+      let np = p;
+      if (Object.keys(fields).length) np = canonicalizeDose(applyRevision(np, from, fields, todayDk));
+      if (ch.endDate && dkValid(ch.endDate)) np = finishProto(np, ch.endDate, todayDk);
+      setProtocols(prev => prev.map(x => x.id === p.id ? np : x));
+    }
+    try {
+      const r = await fetch(`${syncUrl.replace(/\/+$/, '')}/proposals/${encodeURIComponent(pr.id)}`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ status }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    } catch (e) { showToast('Could not record that in the cloud: ' + (e.message || e), 'error'); }
+    setProposalsPending(n => Math.max(0, n - 1));
+    showToast(status === 'approved' ? `Applied · ${pr.peptideName}` : `Dismissed · ${pr.peptideName}`);
+    return true;
+  };
+  const [report, setReport] = useState(null); // { logs, label, adherence } → the printable report overlay
+  const openReminders = () => openModal(<RemindersSheet syncUrl={syncUrl} token={syncToken} profile={activeProfile} syncReady={!!syncReady} onClose={closeModal} onSetupSync={() => openSyncConfigModal(true)} showToast={showToast}/>);
+  // A tapped reminder lands on its day and the Today tab (the service worker posts open-block, or the launch URL carries it).
+  useEffect(() => listenForOpenBlock((data) => { if (data && data.date) { const t = dkParse(data.date); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } } setActiveTab('protocol'); }), []);
+  const openProposals = () => openModal(<ProposalsSheet syncUrl={syncUrl} token={syncToken} profile={activeProfile} onClose={closeModal} onResolve={resolveProposal}/>);
+
   const openDataSyncModal = () => openModal(
     <div>
       <h3 style={{margin:'0 0 12px',fontSize:17,fontWeight:700}}>{'Data & sync'}</h3>
       <div style={{display:'flex',gap:8,marginBottom:10}}>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>⬆️ Export file</button>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>⬇️ Import file</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>Export file</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>Import file</button>
       </div>
       <div style={{display:'flex',gap:8,marginBottom:10}}>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryCSV();}}>📊 History CSV</button>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryJSON();}}>🧾 History JSON</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryCSV();}}>History CSV</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryJSON();}}>History JSON</button>
       </div>
+      <div style={{display:'flex',gap:8,marginBottom:10}}>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={openReminders}>Reminders…</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={openRestore}>Restore a backup…</button>
+      </div>
+      <button className="btn btn-ghost" style={{width:'100%',marginBottom:10}} onClick={openLockSettings}>App lock · {lock ? `on · after ${lock.timeoutMin === 0 ? 'leaving the app' : lock.timeoutMin + ' min'}` : 'off'}</button>
       {syncReady
-        ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>⚙️ Edit cloud sync settings</button>
-        : <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(true)}>🔗 Set up cloud sync</button>}
+        ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>Edit cloud sync settings</button>
+        : <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(true)}>Set up cloud sync</button>}
     </div>
   );
 
   return (
     <div style={{position:'relative',minHeight:'100vh'}}>
       <div className="ambient"/>
+      <div {...((sheet.content || locked) ? { inert: '' } : {})}>
       <AppHeader
         viewDate={viewDate} setViewDate={setViewDate} isToday={isToday}
         activeProfile={activeProfile} setActiveProfile={switchProfile} protocols={protocols}
@@ -1734,23 +1834,21 @@ function App() {
           if (!pulledOnce.current || syncStatus === 'error') { cloudPull(true).then(() => cloudPush(false, true)); }
           else if (syncQueued) { cloudPush(true, true); } else { cloudPull(true); }
         }}
-        onOpenDataSync={openDataSyncModal}/>
+        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} onOpenReminders={openReminders} textScale={textScale} setTextScale={setTextScale} theme={theme} setTheme={setTheme}/>
       <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
       {storageFull && <div role="alert" className="storage-banner"><span>Storage is full. New entries are kept in memory only until space is freed.</span><button onClick={exportData}>Export now</button></div>}
       {!isToday && activeTab === 'protocol' && <div style={{position:'relative',zIndex:2,maxWidth:480,margin:'0 auto',padding:'10px 18px 0'}}><button className="viewing-pill" onClick={() => setViewDate(new Date())}>Viewing {fmtDk(dateKey)} · Back to today</button></div>}
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
-          {activeTab === 'protocol' && <ProtocolView viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
-          {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON}
+          {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} proposalsPending={proposalsPending} onOpenProposals={openProposals} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
+          {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON} onReport={(list, label, adherence) => setReport({ logs: list, label, adherence })}
             onJump={(dk, protocolId, logId) => { const t = dkParse(dk); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } setJumpTo({ dateKey: dk, protocolId, logId }); setActiveTab('protocol'); }}/>}
-          {activeTab === 'lab' && <LabView vials={vials}/>}
-          {activeTab === 'math' && <MathView/>}
         </div>
       </div>
 
       <div className="pill-nav-wrap">
         <div className="pill-nav">
-          {[['protocol','Protocol'],['history','History'],['lab','Lab'],['math','Math']].map(([id,label]) => (
+          {[['protocol','Today'],['plan','Plan'],['history','History']].map(([id,label]) => (
             <button key={id} onClick={() => setActiveTab(id)} className={`pill-nav-item ${activeTab===id?'active':''}`}>
               <NavIcon id={id} color={activeTab===id?'var(--accent)':'var(--text-faint)'}/><span>{label}</span>
             </button>
@@ -1758,6 +1856,9 @@ function App() {
         </div>
       </div>
 
+      </div>
+      {report && <ReportView profile={activeProfile} protocols={protocols} vials={vials} logs={report.logs} label={report.label} adherence={report.adherence} onClose={() => setReport(null)}/>}
+      {locked && lock && <LockScreen lock={lock} syncReady={!!syncReady} onUnlock={() => setLocked(false)} onForget={forgetAndResync}/>}
       {toast && (
         <div role="status" aria-live="polite" style={{position:'fixed',bottom:'calc(100px + env(safe-area-inset-bottom))',left:'50%',transform:'translateX(-50%)',zIndex:200}} className="anim-slide-up">
           <div className="glass-strong" style={{borderRadius:100,padding:'12px 18px',display:'flex',gap:10,alignItems:'center',boxShadow:'0 12px 32px rgba(0,0,0,0.4)'}}>
@@ -1786,7 +1887,7 @@ function App() {
               }
             }}>
             <button className="sheet-grab" onClick={closeModal} aria-label="Close"><i/></button>
-            <button onClick={closeModal} aria-label="Close" style={{position:'absolute',top:8,right:14,zIndex:6,background:'rgba(255,255,255,0.08)',border:'none',borderRadius:100,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-dim)',cursor:'pointer'}}><X size={16}/></button>
+            <button onClick={closeModal} aria-label="Close" style={{position:'absolute',top:8,right:14,zIndex:6,background:'var(--fill-3)',border:'none',borderRadius:100,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-dim)',cursor:'pointer'}}><X size={16}/></button>
             <div className="sheet-body">{sheet.content}</div>
           </div>
         </div>
@@ -1798,6 +1899,7 @@ function App() {
 
 function DateButton({ viewDate, setViewDate }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (!open) return; const k = (e) => { if (e.key === 'Escape') setOpen(false); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [open]);
   const [calMonth, setCalMonth] = useState(() => new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
   const today = new Date();
   const sel = viewDate;
@@ -1819,9 +1921,9 @@ function DateButton({ viewDate, setViewDate }) {
           <div onClick={() => setOpen(false)} style={{position:'fixed',inset:0,zIndex:190}}/>
           <div className="glass-strong anim-slide-up" role="dialog" aria-label="Choose date" style={{position:'fixed',top:'calc(env(safe-area-inset-top, 0px) + 56px)',left:12,zIndex:195,borderRadius:18,padding:14,minWidth:280,boxShadow:'0 20px 50px rgba(0,0,0,0.6)'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1))} aria-label="Previous month" style={{background:'rgba(255,255,255,0.06)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronLeft size={14}/></button>
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1))} aria-label="Previous month" style={{background:'var(--fill-2)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronLeft size={14}/></button>
               <div style={{fontSize:13,fontWeight:700}}>{monthName}</div>
-              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1))} aria-label="Next month" style={{background:'rgba(255,255,255,0.06)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronRight size={14}/></button>
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1))} aria-label="Next month" style={{background:'var(--fill-2)',border:'none',borderRadius:8,padding:'6px 10px',color:'var(--accent)',cursor:'pointer'}}><ChevronRight size={14}/></button>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:2,marginBottom:6}}>
               {['S','M','T','W','T','F','S'].map((d,i) => <div key={i} style={{textAlign:'center',fontSize:9,color:'var(--text-faint)',fontWeight:700,textTransform:'uppercase'}}>{d}</div>)}
@@ -1835,7 +1937,7 @@ function DateButton({ viewDate, setViewDate }) {
                 return <button key={i} onClick={() => pickDay(d)} style={{aspectRatio:'1',border:'none',borderRadius:8,background:isSel?'var(--accent)':isToday2?'rgba(227,200,134,0.18)':'transparent',color:isSel?'white':isToday2?'var(--accent-2)':'var(--text)',fontSize:12,fontWeight:isSel||isToday2?700:500,cursor:'pointer'}}>{d}</button>;
               })}
             </div>
-            <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'rgba(255,255,255,0.04)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
+            <button onClick={() => { setViewDate(new Date()); setOpen(false); }} style={{marginTop:10,width:'100%',padding:8,borderRadius:10,border:'1px solid var(--border)',background:'var(--fill-1)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Today</button>
           </div>
         </>,
         document.body
@@ -1844,7 +1946,13 @@ function DateButton({ viewDate, setViewDate }) {
   );
 }
 
-function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync }) {
+function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
+  const themes = [['auto', 'Auto'], ['dark', 'Dark'], ['light', 'Light']];
+  const themeLabel = (themes.find(t => t[0] === theme) || themes[0])[1];
+  const nextTheme = () => { const i = themes.findIndex(t => t[0] === theme); setTheme(themes[(i + 1) % themes.length][0]); };
+  const scales = [['1', 'Normal'], ['1.15', 'Larger'], ['1.3', 'Largest']];
+  const scaleLabel = (scales.find(s => s[0] === String(textScale)) || scales[0])[1];
+  const nextScale = () => { const i = scales.findIndex(s => s[0] === String(textScale)); setTextScale(scales[(i + 1) % scales.length][0]); };
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -1866,6 +1974,12 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
               );
             })}
             <div className="menu-hair"/>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenReminders && onOpenReminders(); }}><span style={{flex:1,fontSize:15}}>Reminders…</span></button>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenLibrary && onOpenLibrary(); }}><span style={{flex:1,fontSize:15}}>Library…</span></button>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenCalculator && onOpenCalculator(); }}><span style={{flex:1,fontSize:15}}>Reconstitution calculator…</span></button>
+            <button role="menuitem" className="menu-row" onClick={nextScale} aria-label={'Text size: ' + scaleLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Text size</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{scaleLabel}</span></button>
+            <button role="menuitem" className="menu-row" onClick={nextTheme} aria-label={'Theme: ' + themeLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Theme</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{themeLabel}</span></button>
+            <div className="menu-hair"/>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenDataSync(); }}>
               <span style={{flex:1,fontSize:15}}>{'Data & sync…'}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
@@ -1878,7 +1992,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
   );
 }
 
-function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync }) {
+function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = React.useRef(null);
   useEffect(() => {
@@ -1911,7 +2025,7 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
             <span className="hdr-title num">{titleLabel}<span className="mini mono num">{logged}/{scheduled}</span></span>
           </div>
           <button className={'sync-cap num ' + syncState} aria-label={syncAria} onClick={onSyncTap}>{syncLabel}</button>
-          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync}/>
+          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} onOpenReminders={onOpenReminders} textScale={textScale} setTextScale={setTextScale} theme={theme} setTheme={setTheme}/>
         </div>
       </header>
       <div className="hdr-large">
@@ -1945,7 +2059,335 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
   );
 }
 
-function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
+// Printable report: a paper-styled page for a clinician (plan, adherence, every dose in the range).
+// Print / Save as PDF uses the browser's print dialog; on iPhone that is Share → Print → pinch out → share the PDF.
+function ReportView({ profile, protocols, vials, logs, label, adherence, onClose }) {
+  const today = todayLocal();
+  const nameOf = (l) => l.peptide || l.peptideName || l.peptideId || '?';
+  const sorted = logs.slice().sort((a, b) => (a.datetime || '').localeCompare(b.datetime || ''));
+  const days = []; let cur = null; sorted.forEach(l => { const dk = dkOf(l.datetime); if (!cur || cur.dk !== dk) { cur = { dk, items: [] }; days.push(cur); } cur.items.push(l); });
+  const inLogs = new Set(sorted.map(l => l.protocolId));
+  const plan = protocols.filter(p => p.profile === profile && (activeOn(p, today) || inLogs.has(p.id))).map(p => { const pd = protoAt(p, today); const ids = new Set(getEquivalentIds(p.peptideId)); const v = (vials || []).find(x => ids.has(x.peptideId) && x.active !== false && (x.mcgPerMl || 0) > 0); return { p, pd, route: routeOf(pd, v), conc: v && v.mcgPerMl ? v.mcgPerMl : 0, v }; });
+  const doseStr = (l) => { if (l.skipped) return 'skipped'; if (l.doseUnit) return fmtDoseAny(l.doseMcg, l.doseUnit); const p = protocols.find(x => x.id === l.protocolId); return fmtDoseAny(l.doseMcg, (p && p.doseUnit) || null); };
+  const timeStr = (l) => { const d = new Date(l.datetime); return isNaN(d) ? '' : d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
+  const dayStr = (dk) => { const t = dkParse(dk); return isNaN(t) ? dk : new Date(t).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); };
+  const first = days.length ? days[0].dk : null, last = days.length ? days[days.length - 1].dk : null;
+  const doses = sorted.filter(l => !l.skipped).length, skipped = sorted.length - doses;
+  return (
+    <div className="report-view" role="dialog" aria-modal="true" aria-label="Dose report">
+      <div className="report-in">
+        <div className="report-actions">
+          <button onClick={onClose}>Close</button>
+          <button className="primary" onClick={() => window.print()}>Print / Save as PDF</button>
+        </div>
+        <h1>Protocol OS · dose report</h1>
+        <div className="meta">{profile} · {label}{first ? ` · ${fmtDk(first)} – ${fmtDk(last)}` : ''} · generated {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+        <div className="meta">{doses} doses logged{skipped ? `, ${skipped} skipped` : ''} · {plan.length} compound{plan.length === 1 ? '' : 's'}</div>
+        <h2>Plan</h2>
+        <table><thead><tr><th>Compound</th><th>Route</th><th>Schedule</th><th className="num">Dose</th><th>Vial</th></tr></thead><tbody>
+          {plan.map(({ p, pd, route, conc, v }) => <tr key={p.id}><td>{p.peptideName}{dkValid(dkOf(p.endDate)) ? ` (ends ${fmtDk(dkOf(p.endDate))})` : ''}</td><td>{(ROUTE_META[route] || ROUTE_META.inj).label}</td><td>{schedLabel(pd.schedule)}{pd.schedule && pd.schedule.timeOfDay ? ` · ${todLabel(pd.schedule.timeOfDay)}` : ''}</td><td className="num">{fmtDoseAny(pd.doseMcg, pd.doseUnit)}{conc && !isIUVial(v) ? ` (${Math.round(pd.doseMcg / conc * 1000) / 10} u)` : ''}</td><td>{v ? (isIUVial(v) ? `${Math.round(v.mgPerVial * 1000).toLocaleString()} IU in ${v.diluentMl} mL` : `${v.mgPerVial} mg in ${v.diluentMl} mL`) : '—'}</td></tr>)}
+          {plan.length === 0 && <tr><td colSpan="5">No compounds on the plan for this period.</td></tr>}
+        </tbody></table>
+        {adherence && adherence.rows && adherence.rows.length > 0 && (<>
+          <h2>Adherence · {label}</h2>
+          <table><thead><tr><th>Compound</th><th className="num">Scheduled</th><th className="num">Logged</th><th className="num">Rate</th></tr></thead><tbody>
+            {adherence.rows.map(r => <tr key={r.id}><td>{r.name}</td><td className="num">{r.exp}</td><td className="num">{r.got}</td><td className="num">{r.pct}%</td></tr>)}
+            <tr><td><b>All scheduled compounds</b></td><td className="num"><b>{adherence.exp}</b></td><td className="num"><b>{adherence.got}</b></td><td className="num"><b>{adherence.pct}%</b></td></tr>
+          </tbody></table>
+        </>)}
+        <h2>Doses</h2>
+        <table><thead><tr><th>Time</th><th>Compound</th><th className="num">Dose</th><th className="num">Draw</th><th>Site</th><th>Notes</th></tr></thead><tbody>
+          {days.map(d => (<React.Fragment key={d.dk}>
+            <tr className="rday"><td colSpan="6">{dayStr(d.dk)}</td></tr>
+            {d.items.map((l, i) => <tr key={l.id || i}><td>{timeStr(l)}</td><td>{nameOf(l)}</td><td className="num">{doseStr(l)}</td><td className="num">{l.doseMl != null ? `${(l.doseMl * 100).toFixed(1)} u · ${l.doseMl} mL` : ''}</td><td>{l.site || ''}</td><td>{[l.backfilled ? 'back-dated' : null, l.needsReview ? 'flagged' : null, l.notes || null].filter(Boolean).join(' · ')}</td></tr>)}
+          </React.Fragment>))}
+        </tbody></table>
+        <div className="foot">Entries were logged by {profile} in Protocol OS and exported as recorded; this is a personal log, not a medical record. Doses are shown in the unit they were logged in; "u" is units on a U-100 insulin syringe.</div>
+      </div>
+    </div>
+  );
+}
+
+// ── App lock: PIN hashing (SHA-256 with a per-device salt), the lock screen and its settings sheet ──
+const hashPin = async (pin, salt) => {
+  const data = new TextEncoder().encode(salt + ':' + pin);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+};
+const randomSalt = () => { const a = new Uint8Array(12); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); };
+function PinPad({ length, value, onChange, disabled }) {
+  const press = (d) => { if (disabled) return; if (d === 'del') onChange(value.slice(0, -1)); else if (value.length < length) onChange(value + d); };
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'center',gap:14,margin:'10px 0 22px'}} aria-label={`${value.length} of ${length} digits entered`}>
+        {Array.from({ length }, (_, i) => <span key={i} style={{width:14,height:14,borderRadius:'50%',border:'1.6px solid var(--accent)',background: i < value.length ? 'var(--accent)' : 'transparent'}}/>)}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3, 72px)',gap:14,justifyContent:'center'}}>
+        {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => k === '' ? <span key={i}/> : (
+          <button key={k} type="button" onClick={() => press(k)} aria-label={k === 'del' ? 'Delete' : k} disabled={disabled} className="lg" style={{width:72,height:72,borderRadius:'50%',fontSize: k === 'del' ? 18 : 26,fontWeight:600,color:'var(--text)',cursor:'pointer'}}>{k === 'del' ? '⌫' : k}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+function LockScreen({ lock, syncReady, onUnlock, onForget }) {
+  const [pin, setPin] = useState(''); const [err, setErr] = useState(''); const [fails, setFails] = useState(0); const [until, setUntil] = useState(0); const [forget, setForget] = useState(false);
+  const cooling = until > Date.now();
+  useEffect(() => {
+    if (pin.length !== lock.len) return;
+    let live = true;
+    hashPin(pin, lock.salt).then(h => { if (!live) return; if (h === lock.hash) onUnlock(); else { const n = fails + 1; setFails(n); setPin(''); setErr('Wrong PIN'); if (n >= 5) { setUntil(Date.now() + 30000); setErr('Too many tries. Wait 30 seconds.'); setTimeout(() => { setUntil(0); setFails(0); setErr(''); }, 30000); } } });
+    return () => { live = false; };
+  }, [pin]);
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Enter your PIN" style={{position:'fixed',inset:0,zIndex:1000,background:'var(--bg)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,textAlign:'center'}}>
+      <div style={{width:56,height:56,borderRadius:'50%',background:'var(--accent)',boxShadow:'0 0 0 6px rgba(227,200,134,.18)',marginBottom:18}}/>
+      <div className="eyebrow num" style={{marginBottom:6}}>PROTOCOL OS</div>
+      <h2 style={{margin:'0 0 4px',fontSize:22,fontWeight:800}}>Enter your PIN</h2>
+      <div role="status" style={{minHeight:20,fontSize:13,color:'var(--danger)'}}>{err}</div>
+      <PinPad length={lock.len} value={pin} onChange={(v) => { setErr(''); setPin(v); }} disabled={cooling}/>
+      {!forget ? <button className="btn btn-ghost" style={{marginTop:26,fontSize:12.5}} onClick={() => setForget(true)}>Forgot the PIN?</button> : (
+        <div className="lg" style={{marginTop:22,borderRadius:14,padding:14,fontSize:13,lineHeight:1.45,maxWidth:340}}>
+          {syncReady ? <>Your data is in the cloud. Erase this phone's copy and sign back in with the next launch; the cloud record comes back down.<button className="btn btn-danger" style={{width:'100%',marginTop:10}} onClick={onForget}>Erase this phone's copy and re-sync</button></>
+            : <>Cloud sync is not set up, so there is no copy to recover from. Clearing Safari's website data removes the lock together with the data on this phone.</>}
+          <button className="btn btn-ghost" style={{width:'100%',marginTop:8}} onClick={() => setForget(false)}>Back</button>
+        </div>
+      )}
+    </div>
+  );
+}
+function LockSheet({ lock, onSave, onClose }) {
+  const [step, setStep] = useState(lock ? 'manage' : 'new');  // new → confirm → (save) | manage → verify → off | timeout
+  const [pin, setPin] = useState(''); const [first, setFirst] = useState(''); const [err, setErr] = useState('');
+  const [len, setLen] = useState(lock ? lock.len : 4); const [timeoutMin, setTimeoutMin] = useState(lock ? lock.timeoutMin : 5);
+  const save = async (code) => { const salt = randomSalt(); onSave({ len: code.length, salt, hash: await hashPin(code, salt), timeoutMin, setAt: new Date().toISOString() }); };
+  useEffect(() => {
+    if (step === 'new' && pin.length === len) { setFirst(pin); setPin(''); setStep('confirm'); }
+    else if (step === 'confirm' && pin.length === len) { if (pin === first) save(pin); else { setErr('The two PINs differ. Start again.'); setPin(''); setFirst(''); setStep('new'); } }
+    else if (step === 'verify' && pin.length === lock.len) { hashPin(pin, lock.salt).then(h => { if (h === lock.hash) onSave(null); else { setErr('Wrong PIN'); setPin(''); } }); }
+  }, [pin]);
+  const TimeoutPick = () => (
+    <label style={{display:'flex',alignItems:'center',gap:10,justifyContent:'space-between',fontSize:14,margin:'14px 0 6px'}}>Ask again after
+      <select className="input" style={{width:170,padding:'8px 10px'}} value={String(timeoutMin)} onChange={e => setTimeoutMin(parseInt(e.target.value))}>
+        <option value="0">leaving the app</option><option value="1">1 minute away</option><option value="5">5 minutes away</option><option value="15">15 minutes away</option><option value="60">1 hour away</option>
+      </select>
+    </label>
+  );
+  return (
+    <div style={{textAlign:'center'}}>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>App lock</h3>
+      {step === 'manage' && (<>
+        <p style={{margin:'0 0 10px',fontSize:13,color:'var(--text-dim)'}}>On. The PIN is asked at launch and after the app has been away for a while.</p>
+        <div style={{textAlign:'left'}}><TimeoutPick/></div>
+        <button className="btn btn-primary" style={{width:'100%',marginTop:8}} onClick={() => onSave({ ...lock, timeoutMin })}>Save</button>
+        <button className="btn btn-ghost" style={{width:'100%',marginTop:8,color:'var(--warn)'}} onClick={() => { setErr(''); setPin(''); setStep('verify'); }}>Turn off (enter the PIN)</button>
+      </>)}
+      {step === 'verify' && (<><p style={{margin:'0 0 6px',fontSize:13,color:'var(--text-dim)'}}>Enter the current PIN to turn the lock off.</p><div role="status" style={{minHeight:18,fontSize:12.5,color:'var(--danger)'}}>{err}</div><PinPad length={lock.len} value={pin} onChange={setPin}/></>)}
+      {(step === 'new' || step === 'confirm') && (<>
+        <p style={{margin:'0 0 6px',fontSize:13,color:'var(--text-dim)'}}>{step === 'new' ? 'Choose a PIN.' : 'Enter it once more.'}</p>
+        {step === 'new' && <div style={{display:'flex',justifyContent:'center',gap:8,marginBottom:4}}>{[4, 6].map(n => <button key={n} type="button" aria-pressed={len === n} onClick={() => { setLen(n); setPin(''); }} style={{minHeight:36,padding:'0 14px',borderRadius:100,border:'1px solid ' + (len === n ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: len === n ? 'rgba(227,200,134,.14)' : 'transparent',color: len === n ? 'var(--accent)' : 'var(--text-2)',fontWeight:700,fontSize:12.5,cursor:'pointer'}}>{n} digits</button>)}</div>}
+        <div role="status" style={{minHeight:18,fontSize:12.5,color:'var(--danger)'}}>{err}</div>
+        <PinPad length={len} value={pin} onChange={setPin}/>
+        {step === 'new' && <div style={{textAlign:'left'}}><TimeoutPick/></div>}
+      </>)}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:14}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Reminders: one notification per time block through the Worker's cron + Web Push. On iPhone this works once the
+// app is on the Home Screen (iOS 16.4+); the notification opens the block, it cannot carry Log buttons.
+function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSync, showToast }) {
+  const saved = getSavedReminders();
+  const [status, setStatus] = useState('checking');
+  const [settings, setSettings] = useState(() => ({ ...defaultReminderSettings(), ...((saved && saved.settings) || {}) }));
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const refresh = () => pushStatus().then(setStatus).catch(() => setStatus('unsupported'));
+  useEffect(() => { refresh(); }, []);
+  const blocks = [['am', 'Morning'], ['pre', 'Pre-workout'], ['pm', 'Evening']];
+  const setBlock = (k, on) => setSettings(s => ({ ...s, blocks: { ...s.blocks, [k]: on } }));
+  const setTime = (k, v) => setSettings(s => ({ ...s, times: { ...s.times, [k]: v } }));
+  const run = async (fn, okText) => {
+    setBusy(true); setMsg(null);
+    const r = await fn();
+    setBusy(false);
+    if (r && r.ok) { setMsg({ ok: true, t: okText }); showToast && showToast(okText); } else { setMsg({ ok: false, t: (r && r.error) || 'Did not work' }); }
+    refresh();
+  };
+  const Toggle = ({ on, onChange, label }) => <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} style={{width:46,height:28,borderRadius:14,border:'none',background: on ? 'var(--success)' : 'var(--fill-4)',position:'relative',cursor:'pointer',flexShrink:0}}><span style={{position:'absolute',top:3,left: on ? 21 : 3,width:22,height:22,borderRadius:'50%',background:'#fff',transition:'left .15s'}}/></button>;
+  const form = (
+    <div className="blk" style={{marginBottom:12}}>
+      {blocks.map(([k, label]) => (
+        <div key={k} className="blk-row" style={{gap:10,minHeight:54,padding:'4px 2px'}}>
+          <span style={{flex:1,fontSize:14,fontWeight:700}}>{label}</span>
+          <input type="time" aria-label={label + ' reminder time'} value={(settings.times || {})[k] || ''} onChange={e => setTime(k, e.target.value)} className="input" style={{width:112,padding:'8px 10px',fontFamily:'var(--mono)'}} disabled={!(settings.blocks || {})[k]}/>
+          <Toggle on={!!(settings.blocks || {})[k]} onChange={v => setBlock(k, v)} label={label + ' reminders'}/>
+        </div>
+      ))}
+      <div className="blk-row" style={{gap:10,minHeight:54,padding:'4px 2px'}}>
+        <span style={{flex:1,fontSize:14,fontWeight:700}}>Nudge if still due</span>
+        <select aria-label="Nudge delay" value={String(settings.nudgeMinutes || 0)} onChange={e => setSettings(s => ({ ...s, nudgeMinutes: parseInt(e.target.value) || 0 }))} className="input" style={{width:140,padding:'8px 10px'}}>
+          <option value="0">Off</option><option value="30">after 30 min</option><option value="60">after 1 h</option><option value="120">after 2 h</option>
+        </select>
+      </div>
+    </div>
+  );
+  let body;
+  if (!syncReady) body = <><p style={{fontSize:13,color:'var(--text-dim)',lineHeight:1.45}}>Reminders are sent by the same cloud Worker that syncs your data. Set up cloud sync first.</p><button className="btn btn-primary" style={{width:'100%'}} onClick={onSetupSync}>Set up cloud sync</button></>;
+  else if (status === 'checking') body = <p style={{fontSize:13,color:'var(--text-dim)'}}>Checking this device…</p>;
+  else if (status === 'unsupported') body = <p style={{fontSize:13,color:'var(--text-dim)',lineHeight:1.45}}>This browser cannot receive notifications. On iPhone use Safari and add the app to the Home Screen; on a computer use Chrome, Edge or Safari 16 or newer.</p>;
+  else if (status === 'needs-install') body = <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,lineHeight:1.5}}><b>Almost there.</b> On iPhone, notifications work once Protocol OS is on the Home Screen: tap <b>Share</b> → <b>Add to Home Screen</b>, open it from the new icon, then come back here and turn reminders on.</div>;
+  else if (status === 'denied') body = <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,lineHeight:1.5}}>Notifications are blocked for this app. Allow them in <b>Settings → Notifications → Protocol OS</b>, then return here.</div>;
+  else body = (
+    <>
+      {form}
+      {status === 'subscribed' ? (
+        <>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+            <button className="btn btn-primary" disabled={busy} onClick={() => run(() => updateReminders({ syncUrl, token, profile, settings }), 'Reminder settings saved')}>Save</button>
+            <button className="btn btn-ghost" disabled={busy} onClick={() => run(() => sendTestReminder({ syncUrl, token, profile }), 'Test sent — it should arrive in a few seconds')}>Send a test</button>
+          </div>
+          <button className="btn btn-ghost" style={{width:'100%',color:'var(--warn)'}} disabled={busy} onClick={() => run(() => disableReminders({ syncUrl, token }), 'Reminders turned off on this device')}>Turn off on this device</button>
+        </>
+      ) : (
+        <button className="btn btn-primary" style={{width:'100%'}} disabled={busy} onClick={() => run(() => enableReminders({ syncUrl, token, profile, settings }), 'Reminders are on')}>Turn on reminders</button>
+      )}
+      <p style={{margin:'10px 2px 0',fontSize:11.5,lineHeight:1.45,color:'var(--text-faint)'}}>One notification per block for {profile}, only while doses are still unlogged. Tapping it opens that block. Times follow this device's clock.</p>
+    </>
+  );
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Reminders</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>{status === 'subscribed' ? 'On for this device.' : 'Off on this device.'}</p>
+      {msg && <div role="status" style={{fontSize:12.5,marginBottom:10,color: msg.ok ? 'var(--success)' : 'var(--danger)'}}>{msg.t}</div>}
+      {body}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Restore: the cloud keeps one snapshot per day (30 days); the app keeps one local backup before an import or restore.
+function RestoreSheet({ syncUrl, token, localBackup, onRestore, onClose }) {
+  const [list, setList] = useState(null); const [err, setErr] = useState(null); const [sel, setSel] = useState(null); const [blob, setBlob] = useState(null); const [busy, setBusy] = useState(false);
+  const base = (syncUrl || '').replace(/\/+$/, ''); const hdr = { 'Authorization': 'Bearer ' + token };
+  useEffect(() => {
+    if (!syncUrl || !token) { setList([]); return; }
+    fetch(`${base}/sync?profile=all&snapshots=1`, { headers: hdr }).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+      .then(d => setList(Array.isArray(d.snapshots) ? d.snapshots : [])).catch(e => { setErr(e.message || String(e)); setList([]); });
+  }, []);
+  const pick = async (key) => {
+    setSel(key); setBlob(null); setBusy(true); setErr(null);
+    try { if (key === 'local') setBlob(localBackup); else { const r = await fetch(`${base}/sync?profile=all&snapshot=${encodeURIComponent(key)}`, { headers: hdr }); if (!r.ok) throw new Error('HTTP ' + r.status); setBlob(await r.json()); } }
+    catch (e) { setErr(e.message || String(e)); }
+    setBusy(false);
+  };
+  const counts = (b) => { const P = Array.isArray(b.protocols) ? b.protocols : [], L = Array.isArray(b.logs) ? b.logs : [], V = Array.isArray(b.vials) ? b.vials : []; const byP = {}; P.forEach(p => { const k = p.profile || '?'; byP[k] = (byP[k] || 0) + 1; }); return `${P.length} protocols (${Object.entries(byP).map(([k, v]) => k + ' ' + v).join(', ') || 'none'}) · ${L.length} log entries · ${V.length} vials`; };
+  const Row = ({ k, name, sub }) => <div className="blk-row"><button className="blk-main" aria-pressed={sel === k} onClick={() => pick(k)} style={sel === k ? { background: 'rgba(227,200,134,.08)' } : undefined}><span className="blk-text"><span className="blk-name">{name}</span><span className="blk-dose mono">{sub}</span></span><span className="plan-chev" aria-hidden="true">›</span></button></div>;
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Restore from a backup</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,lineHeight:1.45,color:'var(--text-dim)'}}>The cloud keeps one snapshot per day for 30 days. Restoring replaces what is on this phone with that snapshot and syncs it back up. The current data is saved as the local backup first.</p>
+      {err && <div role="alert" style={{color:'var(--danger)',fontSize:12.5,marginBottom:10}}>Could not reach the cloud: {err}</div>}
+      <div className="blk" style={{marginBottom:12}}>
+        {localBackup && <Row k="local" name="Local backup" sub={'saved ' + new Date(localBackup.at).toLocaleString() + ' · before the last import or restore'}/>}
+        {list === null ? <div style={{padding:12,fontSize:13,color:'var(--text-dim)'}}>Loading snapshots…</div>
+          : (list.length === 0 && !localBackup) ? <div style={{padding:12,fontSize:13,color:'var(--text-dim)'}}>No backups yet. The cloud writes one after the first sync of each day (Worker 1.5 or newer).</div>
+          : list.map(dk => <Row key={dk} k={dk} name={fmtDk(dk)} sub={'cloud snapshot · ' + dk}/>)}
+      </div>
+      {sel && (busy ? <div style={{fontSize:13,color:'var(--text-dim)'}}>Loading…</div> : blob ? (
+        <div className="lg" style={{borderRadius:14,padding:'12px 14px'}}>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:4}}>{sel === 'local' ? 'Local backup' : fmtDk(sel)}</div>
+          <div style={{fontSize:12.5,color:'var(--text-dim)',marginBottom:12}}>{counts(blob)}</div>
+          <button className="btn btn-primary" style={{width:'100%'}} onClick={() => onRestore(blob, sel === 'local' ? 'local backup' : 'snapshot of ' + fmtDk(sel))}>Restore this</button>
+        </div>) : null)}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Claude's proposals: Claude can suggest a dated change through the Worker; nothing changes until it is approved here.
+function ProposalsSheet({ syncUrl, token, profile, onClose, onResolve }) {
+  const [list, setList] = useState(null); const [err, setErr] = useState(null); const [busyId, setBusyId] = useState(null);
+  const base = (syncUrl || '').replace(/\/+$/, '');
+  useEffect(() => {
+    if (!syncUrl || !token) { setList([]); return; }
+    fetch(`${base}/proposals?profile=${encodeURIComponent(profile)}`, { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+      .then(d => setList(Array.isArray(d.proposals) ? d.proposals : [])).catch(e => { setErr(e.message || String(e)); setList([]); });
+  }, []);
+  const describe = (pr) => { const ch = pr.change || {}; const bits = []; if (ch.doseMcg > 0) bits.push('dose ' + fmtDoseAny(ch.doseMcg, ch.doseUnit || null)); if (ch.schedule) bits.push(schedLabel(normSched(ch.schedule, pr.effectiveFrom))); if (ch.endDate) bits.push('ends ' + fmtDk(ch.endDate)); if (ch.note) bits.push(ch.note); return bits.join(' · ') || 'no change fields'; };
+  const act = async (pr, status) => { setBusyId(pr.id); const ok = await onResolve(pr, status); setBusyId(null); if (ok) setList(prev => prev.map(x => x.id === pr.id ? { ...x, status } : x)); };
+  const pending = (list || []).filter(p => p.status === 'pending'); const done = (list || []).filter(p => p.status !== 'pending');
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Claude suggests</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,lineHeight:1.45,color:'var(--text-dim)'}}>Suggestions arrive here from Claude. Approving applies a dated plan change you can see in the compound's plan history; nothing is ever applied on its own.</p>
+      {err && <div role="alert" style={{color:'var(--danger)',fontSize:12.5,marginBottom:10}}>Could not reach the cloud: {err}</div>}
+      {list === null ? <div style={{fontSize:13,color:'var(--text-dim)'}}>Loading…</div> : pending.length === 0 ? <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,color:'var(--text-dim)'}}>Nothing waiting for {profile}.</div> : pending.map(pr => (
+        <div key={pr.id} className="lg" style={{borderRadius:16,padding:'12px 14px',marginBottom:10}}>
+          <div style={{fontSize:15,fontWeight:700}}>{pr.peptideName}</div>
+          <div className="mono" style={{fontSize:12.5,color:'var(--accent)',margin:'3px 0 6px'}}>{describe(pr)}{pr.effectiveFrom ? ` · from ${fmtDk(pr.effectiveFrom)}` : ''}</div>
+          {pr.rationale && <div style={{fontSize:13,lineHeight:1.45,color:'var(--text-2)',marginBottom:10}}>{pr.rationale}</div>}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <button className="btn btn-ghost" disabled={busyId === pr.id} onClick={() => act(pr, 'dismissed')}>Dismiss</button>
+            <button className="btn btn-primary" disabled={busyId === pr.id} onClick={() => act(pr, 'approved')}>Approve</button>
+          </div>
+        </div>
+      ))}
+      {done.length > 0 && <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:6}}>{done.length} earlier suggestion{done.length === 1 ? '' : 's'} already answered.</div>}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// First run / empty plan: pick a compound from plain-language groups; dose and days come on the next step.
+function FirstRun({ activeProfile, onPick, onLibrary }) {
+  const groups = [
+    ['TRT & hormones', /anabolic|hormone|testosterone|trt|estrogen|aromatase|thyroid|sexual/i],
+    ['Growth hormone & peptides', /\bgh\b|ghrh|secretagogue|igf|growth/i],
+    ['Healing & recovery', /heal|repair|recovery|tissue|joint|injur/i],
+    ['Sleep & focus', /sleep|cognitive|nootropic|mood|focus|neuro/i],
+    ['Weight & metabolic', /glp|weight|metabolic|fat|appetite|insulin/i],
+    ['Longevity & other', /./],
+  ];
+  const used = new Set();
+  const lead = ['testosterone', 'testosterone-cypionate', 'testosterone-enanthate', 'hcg', 'anastrozole', 'enclomiphene', 'ipamorelin', 'cjc1295-no-dac', 'tesamorelin', 'bpc157', 'tb500', 'dsip', 'semaglutide', 'tirzepatide', 'retatrutide'];
+  const rank = (p) => { const i = lead.indexOf(p.id); return i < 0 ? 99 : i; };
+  const buckets = groups.map(([label, re]) => { const items = PEPTIDE_DB.filter(p => !used.has(p.id) && re.test(p.category || '')).sort((a, b) => rank(a) - rank(b)).slice(0, 8); items.forEach(p => used.add(p.id)); return { label, items }; }).filter(b => b.items.length);
+  const [open, setOpen] = useState(buckets.length ? buckets[0].label : null);
+  const cur = buckets.find(b => b.label === open);
+  return (
+    <div className="anim-fade-in">
+      <div style={{padding:'10px 2px 14px'}}>
+        <div className="eyebrow num" style={{marginBottom:6}}>STEP 1 OF 2 · ABOUT A MINUTE</div>
+        <h3 style={{margin:0,fontSize:22,fontWeight:800,lineHeight:1.15}}>What is {activeProfile} taking right now?</h3>
+        <p style={{margin:'8px 0 0',fontSize:14,lineHeight:1.45,color:'var(--text-dim)'}}>Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.</p>
+      </div>
+      <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:12}}>
+        {buckets.map(b => <button key={b.label} onClick={() => setOpen(b.label)} aria-pressed={b.label === open} style={{minHeight:40,padding:'0 13px',borderRadius:100,fontSize:12.5,fontWeight:700,cursor:'pointer',border:'1px solid ' + (b.label === open ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: b.label === open ? 'rgba(227,200,134,.14)' : 'var(--fill-1)',color: b.label === open ? 'var(--accent)' : 'var(--text-2)'}}>{b.label}</button>)}
+      </div>
+      {cur && (
+        <section className="blk" aria-label={cur.label}>
+          {cur.items.map((p, i) => (
+            <div key={p.id} className="blk-row" style={i === 0 ? {borderTop:'none'} : undefined}>
+              <button className="blk-main" onClick={() => onPick(p.id)}>
+                <span className="blk-disc" aria-hidden="true" style={{fontSize:15,borderColor:'var(--border)',background:'var(--fill-2)'}}>{p.icon}</span>
+                <span className="blk-text">
+                  <span className="blk-name">{p.name}</span>
+                  <span className="blk-dose">{(p.protocol && p.protocol.route) || ''}{p.protocol && p.protocol.doseRange ? ' · ' + p.protocol.doseRange : ''}{p.protocol && p.protocol.timing ? ' · ' + p.protocol.timing : ''}</span>
+                </span>
+                <span className="plan-chev" aria-hidden="true">›</span>
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onLibrary}>Search the whole library</button>
+    </div>
+  );
+}
+
+function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onOpenProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
   const [routeFilter, setRouteFilter] = useState('all');
   const [flashId, setFlashId] = useState(null);  // D6 check-off cascade: which card celebrates its fresh log
   const todayDk = todayLocal();
@@ -2055,6 +2497,220 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     });
   };
 
+  // ── Plan tab + compound page helpers: supply, next dose, adherence, 14-day strip, site rotation ──
+  const baseOf = (p) => baseMine.find(b => b.id === p.id) || p;
+  const vialOf = (p) => { if (p.route === 'pen') return (vials || []).find(x => x.id === p.penVialId) || null; const ids = new Set(getEquivalentIds(p.peptideId)); const cands = (vials || []).filter(v => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile)); return cands.find(v => (v.mcgPerMl || 0) > 0) || cands[0] || null; };
+  const loggedOn = (p, dk) => logs.some(l => l.protocolId === p.id && (l.datetime || '').slice(0, 10) === dk && !l.skipped);
+  const supplyFor = (p0) => {
+    const p = baseOf(p0); const v = vialOf(p);
+    if (!v || typeof v.remainingMcg !== 'number' || !(p.doseMcg > 0) || !(v.totalMcg > 0)) return null;
+    const dosesLeft = Math.max(0, Math.floor(v.remainingMcg / p.doseMcg + 1e-9));
+    let runOut = null;
+    if (!isPrn(p)) { let n = 0; for (let i = loggedOn(p, todayDk) ? 1 : 0; i <= 400; i++) { const dk = dkAdd(todayDk, i); if (!activeOn(p, dk)) continue; if (dueOn(protoAt(p, dk), dk)) { n++; if (n > dosesLeft) { runOut = dk; break; } } } }
+    return { vial: v, dosesLeft, runOut, pct: Math.max(0, Math.min(1, v.remainingMcg / v.totalMcg)) };
+  };
+  const nextDoseFor = (p0) => { const p = baseOf(p0); if (isPrn(p)) return null; for (let i = 0; i <= 60; i++) { const dk = dkAdd(todayDk, i); if (!activeOn(p, dk)) continue; if (dueOn(protoAt(p, dk), dk)) { if (i === 0 && loggedOn(p, dk)) continue; return dk; } } return null; };
+  const adherenceFor = (p0, days) => { const p = baseOf(p0); let exp = 0, got = 0; if (!isPrn(p)) for (let i = 0; i < days; i++) { const dk = dkAdd(todayDk, -i); if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue; exp++; if (loggedOn(p, dk)) got++; } return { exp, got, pct: exp ? Math.round(got / exp * 100) : null }; };
+  const dayStatus = (p0, dk) => { const p = baseOf(p0); const ls = logs.filter(l => l.protocolId === p.id && (l.datetime || '').slice(0, 10) === dk); if (ls.some(l => !l.skipped)) return 'logged'; if (ls.length) return 'skipped'; if (isPrn(p) || !activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) return 'none'; return dk > todayDk ? 'future' : dk === todayDk ? 'due' : 'missed'; };
+  const SITES = ['L abdomen', 'R abdomen', 'L thigh', 'R thigh', 'L glute', 'R glute', 'L delt', 'R delt'];
+  // Rotation: the site after the one last used for this compound (any equivalent id), so a one-tap log never repeats a site.
+  const nextSiteFor = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); let last = null; for (const l of logs) { if (l.skipped || !l.site || !ids.has(l.peptideId)) continue; if (!last || (l.datetime || '') > (last.datetime || '')) last = l; } return SITES[(SITES.indexOf(last ? last.site : '') + 1) % SITES.length]; };
+
+  // ── Compound page: one place per compound for plan, history, supply and deletion ──
+  const openCompound = (base0) => {
+    const base = baseOf(base0);
+    const p = protoAt(base, todayDk);
+    const v = vialOf(base);
+    const route = base.route === 'pen' ? 'inj' : routeOf(p, v); const rt = ROUTE_META[route] || ROUTE_META.inj;
+    const sup = supplyFor(base); const adh = adherenceFor(base, 30); const next = nextDoseFor(base);
+    const startDk = dkOf(base.startDate); const endDk = dkOf(base.endDate); const ended = dkValid(endDk);
+    const dayN = (dkValid(startDk) && base.cycleDays > 0 && !isPrn(p)) ? dkDiff(todayDk, startDk) + 1 : null;
+    const strip = Array.from({ length: 14 }, (_, i) => { const dk = dkAdd(todayDk, i - 13); return { dk, s: dayStatus(base, dk) }; });
+    const tl = timelineSorted(base.timeline || []);
+    const title = base.route === 'pen' ? penLabelOf(base) : base.peptideName;
+    const Body = () => {
+      const [more, setMore] = useState(false);
+      return (
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <div style={{width:44,height:44,borderRadius:13,background:rt.color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+rt.color+'40',flexShrink:0}}><RouteIcon route={route} color={rt.color} s={22}/></div>
+            <div style={{flex:1,minWidth:0}}>
+              <h3 style={{margin:0,fontSize:20,fontWeight:800,lineHeight:1.15,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{title}</h3>
+              <div style={{fontSize:13,color:'var(--text-dim)',marginTop:2}}>{base.profile} · {schedLabel(p.schedule)} · <span className="mono" style={{color:'var(--accent)'}}>{fmtDoseAny(p.doseMcg, p.doseUnit)}</span></div>
+            </div>
+            <button onClick={() => { closeModal(); editProtocol(base); }} aria-label="Edit protocol" className="lg" style={{width:44,height:44,borderRadius:'50%',display:'grid',placeItems:'center',padding:0,cursor:'pointer',flexShrink:0}}><Edit2 size={16} color="var(--text-dim)"/></button>
+          </div>
+          <div className="cp-stats">
+            <div className="cp-stat"><div className="cp-v">{ended ? (endDk < todayDk ? 'Ended' : 'Ends') : dayN ? `Day ${dayN}` : dkValid(startDk) ? fmtDk(startDk) : '—'}</div><div className="cp-k">{ended ? fmtDk(endDk) : dayN ? `of ${base.cycleDays}` : 'since'}</div></div>
+            <div className="cp-stat"><div className="cp-v">{adh.pct == null ? '—' : adh.pct + '%'}</div><div className="cp-k">{adh.exp ? `${adh.got}/${adh.exp} doses · 30 d` : 'nothing due yet'}</div></div>
+            <div className="cp-stat"><div className="cp-v">{next ? (next === todayDk ? 'Today' : next === dkAdd(todayDk, 1) ? 'Tomorrow' : fmtDk(next)) : isPrn(p) ? 'As needed' : '—'}</div><div className="cp-k">next dose</div></div>
+          </div>
+          <div className="cp-strip" role="img" aria-label={'Last 14 days: ' + strip.filter(c => c.s === 'logged').length + ' logged, ' + strip.filter(c => c.s === 'missed').length + ' missed'}>{strip.map(c => <span key={c.dk} className={'cp-cell ' + c.s} title={fmtDk(c.dk) + ' · ' + c.s}/>)}</div>
+          <PlanCard proto={p} dateKey={todayDk} onChange={() => { closeModal(); editProtocol(base, { applyFrom: todayDk }); }} onFinish={() => finishCycle(p)} onResume={() => resumeCycle(p)}/>
+          {tl.length > 1 && <TimelineList timeline={base.timeline}/>}
+          {sup ? (
+            <div className="lg" style={{borderRadius:14,padding:'12px 14px',marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:8}}>
+                <div style={{fontSize:13,fontWeight:700}}>Supply · {sup.vial.peptideName}</div>
+                <div className="mono" style={{fontSize:12.5,fontWeight:700,color: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--text-2)'}}>{sup.dosesLeft} dose{sup.dosesLeft === 1 ? '' : 's'} left</div>
+              </div>
+              <div style={{height:6,borderRadius:3,background:'var(--fill-3)',overflow:'hidden',margin:'8px 0 6px'}}><div style={{width:(sup.pct*100)+'%',height:'100%',background: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--success)'}}/></div>
+              <div style={{fontSize:11.5,color:'var(--text-dim)'}}>{sup.runOut ? `Runs out around ${fmtDk(sup.runOut)}` : 'Covers the visible plan'}{sup.vial.reconstitutedAt ? ` · opened ${fmtDk(String(sup.vial.reconstitutedAt).slice(0,10))}` : ''}</div>
+            </div>
+          ) : (route === 'inj' && !isPrn(p) ? <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'0 2px 14px'}}>No supply figure yet. Set the vial's reconstitution in the log sheet to get doses left and a run-out date.</div> : null)}
+          <details className="plan-dis" open={more} onToggle={e => setMore(e.target.open)}>
+            <summary><span className="plan-dis-t">More</span><span className="plan-dis-s">Delete this compound from the plan</span><span className="plan-dis-c">{more ? 'Hide' : 'Show'}</span></summary>
+            <div className="plan-dis-body" style={{paddingBottom:12}}>
+              <p style={{margin:'0 0 10px',fontSize:12.5,color:'var(--text-dim)'}}>Deleting removes it from every day of the plan. Logged entries stay in History. To stop it on a date instead, use Finish cycle above.</p>
+              <button className="btn btn-danger" style={{width:'100%'}} onClick={() => confirmModal('Delete protocol?', `Delete ${title} from ${activeProfile}'s plan? Logged entries stay in History.`, () => { setProtocols(prev => prev.filter(x => x.id !== base.id)); showToast('Deleted ' + title); }, 'Delete')}>Delete {title}</button>
+            </div>
+          </details>
+        </div>
+      );
+    };
+    openModal(<Body/>);
+  };
+
+  // ── Plan tab: the profile's compounds, current and finished ──
+  const renderPlan = () => {
+    const endOf = (p) => dkOf(p.endDate);
+    const finished = baseMine.filter(p => dkValid(endOf(p)) && endOf(p) < todayDk);
+    const live = baseMine.filter(p => !finished.includes(p) && (p.active !== false || dkValid(endOf(p))));
+    const row = (p) => {
+      const v = vialOf(p); const route = p.route === 'pen' ? 'inj' : routeOf(p, v); const rt = ROUTE_META[route] || ROUTE_META.inj;
+      const sup = supplyFor(p); const next = nextDoseFor(p); const pd = protoAt(p, todayDk); const e = endOf(p);
+      const bits = [schedLabel(pd.schedule, true), fmtDoseAny(pd.doseMcg, pd.doseUnit)];
+      if (next) bits.push('next ' + (next === todayDk ? 'today' : next === dkAdd(todayDk, 1) ? 'tomorrow' : fmtDk(next)));
+      if (dkValid(e)) bits.push((e < todayDk ? 'ended ' : 'ends ') + fmtDk(e));
+      return (
+        <div key={p.id} className="blk-row">
+          <button className="blk-main" onClick={() => openCompound(p)}>
+            <span className="blk-disc" aria-hidden="true" style={{borderColor: rt.color + '66', background: rt.color + '18'}}><RouteIcon route={route} color={rt.color} s={14}/></span>
+            <span className="blk-text">
+              <span className="blk-name">{p.route === 'pen' ? penLabelOf(p) : p.peptideName}</span>
+              <span className="blk-dose mono">{bits.join(' · ')}{sup ? <span className={sup.dosesLeft <= 3 ? 'blk-sub warn' : ''}>{' · ' + sup.dosesLeft + ' left'}</span> : null}</span>
+            </span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
+        </div>
+      );
+    };
+    // Heads-up: what needs attention in the next two weeks (supply, cycles ending, dated changes)
+    const alerts = [];
+    live.forEach(p => {
+      const name = p.route === 'pen' ? penLabelOf(p) : p.peptideName;
+      const s = supplyFor(p); if (s && s.dosesLeft <= 3) alerts.push({ k: 'supply', t: `${name}: ${s.dosesLeft} dose${s.dosesLeft === 1 ? '' : 's'} left${s.runOut ? ' · runs out ' + fmtDk(s.runOut) : ''}`, p });
+      const e = endOf(p); if (dkValid(e) && e >= todayDk && dkDiff(e, todayDk) <= 7) alerts.push({ k: 'end', t: `${name} ends ${fmtDk(e)}`, p });
+      const nr = nextRevision(p, todayDk); if (nr && dkDiff(nr.from, todayDk) <= 14) alerts.push({ k: 'change', t: `${name}: ${schedLabel(nr.schedule, true)} · ${fmtDoseAny(nr.doseMcg, nr.doseUnit)} from ${fmtDk(nr.from)}`, p });
+    });
+    const adhAll = live.reduce((acc, p) => { const a = adherenceFor(p, 30); acc.exp += a.exp; acc.got += a.got; return acc; }, { exp: 0, got: 0 });
+    const adhPct = adhAll.exp ? Math.round(adhAll.got / adhAll.exp * 100) : null;
+    return (
+      <div style={{paddingBottom:40}} className="anim-fade-in">
+        <div style={{display:'flex',gap:8,marginBottom:14}}>
+          <button className="btn btn-primary" style={{flex:1}} onClick={() => addProtocol()}>+ Add compound</button>
+          <button className="btn btn-ghost" onClick={() => managePen(null)} aria-label="Create a mix (up to 4 compounds)">Mix</button>
+          <button className="btn btn-ghost" onClick={openLibrary}>Library</button>
+          <button className="btn btn-ghost" onClick={openCalculator} aria-label="Reconstitution calculator">Calc</button>
+        </div>
+        {proposalsPending > 0 && (
+          <button className="lg" onClick={onOpenProposals} style={{width:'100%',textAlign:'left',borderRadius:18,padding:'12px 14px',marginBottom:14,display:'flex',alignItems:'center',gap:12,cursor:'pointer',border:'1px solid rgba(227,200,134,.35)'}}>
+            <span className="blk-disc" aria-hidden="true"><Bot size={15} color="var(--accent)"/></span>
+            <span style={{flex:1,minWidth:0}}><span style={{display:'block',fontSize:14,fontWeight:700}}>Claude suggests {proposalsPending} change{proposalsPending === 1 ? '' : 's'}</span><span style={{display:'block',fontSize:12,color:'var(--text-dim)'}}>Review, then approve or dismiss.</span></span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
+        )}
+        {(alerts.length > 0 || adhPct != null) && (
+          <section className="blk" aria-label="Heads-up" style={{marginBottom:14}}>
+            <div className="blk-hd"><span className="blk-title">Heads-up</span><span className="blk-hint">next two weeks</span>{adhPct != null && <span className="blk-count mono" style={{color: adhPct >= 90 ? 'var(--success)' : adhPct >= 70 ? 'var(--accent)' : 'var(--warn)'}}>{adhPct}% · 30 days</span>}</div>
+            {alerts.length === 0 && <div style={{padding:'6px 4px 10px',fontSize:13,color:'var(--text-dim)'}}>Nothing running low or changing soon.</div>}
+            {alerts.map((a, i) => (
+              <div key={i} className="blk-row"><button className="blk-main" style={{minHeight:46}} onClick={() => openCompound(a.p)}>
+                <span className="blk-disc" aria-hidden="true" style={{width:22,height:22,borderColor: a.k === 'supply' ? 'var(--warn)' : 'var(--border)',background: a.k === 'supply' ? 'rgba(247,140,58,.14)' : 'var(--fill-2)'}}><span style={{fontSize:11,color: a.k === 'supply' ? 'var(--warn)' : 'var(--text-dim)'}}>{a.k === 'supply' ? '!' : a.k === 'end' ? '⏹' : '↗'}</span></span>
+                <span className="blk-text"><span className="blk-dose" style={{fontSize:13,color:'var(--text)'}}>{a.t}</span></span>
+                <span className="plan-chev" aria-hidden="true">›</span>
+              </button></div>
+            ))}
+          </section>
+        )}
+        {live.length === 0 ? <FirstRun activeProfile={activeProfile} onPick={(id) => addProtocol(id)} onLibrary={openLibrary}/> : (
+          <section className="blk plan" aria-label="Current plan">
+            <div className="blk-hd"><span className="blk-title">Current plan</span><span className="blk-count mono">{live.length}</span></div>
+            {live.map(row)}
+          </section>
+        )}
+        {finished.length > 0 && (
+          <section className="blk plan" aria-label="Finished" style={{marginTop:14}}>
+            <div className="blk-hd"><span className="blk-title" style={{color:'var(--text-dim)'}}>Finished</span><span className="blk-count mono" style={{color:'var(--text-dim)'}}>{finished.length}</span></div>
+            {finished.map(row)}
+          </section>
+        )}
+      </div>
+    );
+  };
+
+  // ── Quick log: one tap on a row's Log pill logs the planned dose when the draw is unambiguous ──
+  // (a known syringe concentration or no syringe at all, the last dose equal to the plan, and the dose
+  // gate passing). Anything else opens the full sheet, so a one-tap log can never hide a changed draw.
+  const vialForQuick = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); const cands = (vials || []).filter(v => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile)); return cands.find(v => (v.mcgPerMl || 0) > 0) || cands[0] || null; };
+  const lastDoseFor = (p) => { let best = null; for (const l of logs) { if (l.skipped || l.protocolId !== p.id) continue; if (!best || (l.datetime || '') > (best.datetime || '')) best = l; } return best; };
+  const slotHourOf = (p) => { const tod = ((p.schedule || {}).timeOfDay || '').toLowerCase(); if (/pre|work/.test(tod)) return 6; if (/bed|night/.test(tod)) return 22; if (/eve|pm/.test(tod)) return 19; if (/noon|mid/.test(tod)) return 12; return 8; };
+  // Default timestamp for a dose: the plan's slot on the viewed day, unless that is today and the clock
+  // is within 3 h of the slot (then the clock). A morning dose logged at 15:44 reads 8:00 am, not 3:44 pm.
+  const defaultDatetime = (p, dk) => {
+    const h = slotHourOf(p); const now = new Date(); let dt;
+    if (dk === todayLocal() && Math.abs(now.getHours() + now.getMinutes() / 60 - h) <= 3) dt = now;
+    else { const t = dkParse(dk); const u = new Date(isNaN(t) ? Date.now() : t); dt = new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), h, 0, 0); }
+    const pad = n => String(n).padStart(2, '0');
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  };
+  const quickPlan = (p) => {
+    if (isFuture || isPrn(p) || p.route === 'pen') return null;
+    const vial = vialForQuick(p);
+    const route = routeOf(p, vial);
+    const conc = vial && vial.mcgPerMl > 0 ? vial.mcgPerMl : 0;
+    if (route === 'inj' && !conc) return null;                                                       // syringe draw unknown → sheet
+    const last = lastDoseFor(p);
+    if (last && Math.abs((parseFloat(last.doseMcg) || 0) - p.doseMcg) > 1e-6) return null;         // last dose differed from the plan → sheet
+    const verdict = runDoseGate(p, p.doseMcg, { isScheduledCheckoff: true, doseUnit: (p.doseUnit && p.doseUnit !== 'mcg') ? p.doseUnit : null }, logs);
+    if (verdict.decision !== 'PASS') return null;                                                    // anything the gate wants to say is said in the sheet
+    const iu = isIUVial(vial) || p.doseUnit === 'IU';
+    const unitTag = (conc && !iu) ? {} : iu ? { doseUnit: 'IU', doseValue: p.doseMcg } : p.doseUnit === 'mg' ? { doseUnit: 'mg', doseValue: p.doseMcg / 1000 } : p.doseUnit === 'g' ? { doseUnit: 'g', doseValue: p.doseMcg / 1e6 } : {};
+    return { vial, conc, iu, unitTag, doseMl: conc ? Math.round((p.doseMcg / conc) * 1000) / 1000 : null };
+  };
+  const quickLabel = (p, plan) => (plan.conc && !plan.iu ? `${Math.round(p.doseMcg / plan.conc * 1000) / 10}u · ` : '') + fmtDoseAny(p.doseMcg, plan.iu ? 'IU' : p.doseUnit);
+  const buildQuickLog = (p, plan) => ({ id: uid(), peptide: p.peptideName, peptideId: p.peptideId, vialId: plan.vial ? plan.vial.id : null, protocolId: p.id, profile: p.profile, datetime: defaultDatetime(p, dateKey), doseMcg: p.doseMcg, ...plan.unitTag, doseMl: plan.doseMl, notes: '', site: routeOf(p, plan.vial) === 'inj' ? nextSiteFor(p) : null });
+  // One state write for any number of entries, one toast, one Undo that puts the vials back too.
+  const commitQuick = (entries) => {
+    const byVial = {};
+    entries.forEach(e => { if (!e.plan.vial) return; const v = byVial[e.plan.vial.id] || (byVial[e.plan.vial.id] = { mcg: 0, lastDose: e.log.datetime, prevLast: e.plan.vial.lastDose || null }); v.mcg += e.log.doseMcg; if (e.log.datetime > v.lastDose) v.lastDose = e.log.datetime; });
+    setLogs(prev => [...entries.map(e => e.log), ...prev]);
+    setVials(prev => prev.map(x => byVial[x.id] ? { ...x, lastDose: byVial[x.id].lastDose, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: Math.max(0, x.remainingMcg - byVial[x.id].mcg) } : {}) } : x));
+    const ids = new Set(entries.map(e => e.log.id));
+    return () => {
+      setLogs(prev => prev.filter(l => !ids.has(l.id)));
+      setVials(prev => prev.map(x => byVial[x.id] ? { ...x, lastDose: byVial[x.id].prevLast, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: x.remainingMcg + byVial[x.id].mcg } : {}) } : x));
+    };
+  };
+  const quickLog = (p) => {
+    const plan = quickPlan(p);
+    if (!plan) return administer(p, null);
+    const log = buildQuickLog(p, plan);
+    setFlashId(p.id); setTimeout(() => setFlashId(null), 1600);
+    const undo = commitQuick([{ p, plan, log }]);
+    showToast(`✓ ${p.profile} · ${quickLabel(p, plan)} ${p.peptideName}`, 'success', undo);
+  };
+  const logRemaining = (list) => {
+    const ready = list.map(p => ({ p, plan: quickPlan(p) })).filter(e => e.plan);
+    if (!ready.length) return;
+    const lines = ready.map(e => `${e.p.peptideName} · ${quickLabel(e.p, e.plan)}`).join('; ');
+    confirmModal(`Log ${ready.length} doses as planned?`, lines + '. Each one can be opened and changed afterwards; Undo on the toast removes all of them.', () => {
+      const entries = ready.map(e => ({ ...e, log: buildQuickLog(e.p, e.plan) }));
+      const undo = commitQuick(entries);
+      showToast(`✓ Logged ${entries.length} doses`, 'success', undo);
+    }, `Log ${ready.length}`);
+  };
+
   const administer = (proto, existingLog = null) => {
     const protoPep = findPep(proto.peptideId);
     const _ids = new Set(getEquivalentIds(proto.peptideId));
@@ -2067,8 +2723,9 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     const vial = myVials[0];
     const mcgPerMl0 = (vial && vial.mcgPerMl) || 0;
     const defaultMl = mcgPerMl0 ? proto.doseMcg / mcgPerMl0 : 0;
-    const dt = new Date(viewDate); const _now = new Date(); dt.setHours(_now.getHours(), _now.getMinutes(), 0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
-    let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : '', doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ''), notes: existingLog.notes || '' } : { datetime: dt.toISOString().slice(0,16), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: proto.doseMcg, vialId: vial ? vial.id : '', notes: '' };
+    const suggestedSite = nextSiteFor(proto);
+    const sup = supplyFor(proto);
+    let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : '', doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ''), notes: existingLog.notes || '', site: existingLog.site || '' } : { datetime: defaultDatetime(proto, dateKey), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: proto.doseMcg, vialId: vial ? vial.id : '', notes: '', site: suggestedSite };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const [unitsText, setUnitsText] = useState(null); // raw text while typing in the units field (formatting happens on blur, not per keystroke)
@@ -2168,7 +2825,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         // Functional updaters + targeted undo: a cloud pull that lands while the sheet is open can
         // neither be clobbered by this write nor wiped by its Undo.
         if (existingLog) {
-          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes};
+          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes, site: adminRoute === 'inj' ? (f.site || null) : null};
           if (d > 0 && updatedLog.skipped) delete updatedLog.skipped; // a skip edited into a real dose is a dose everywhere (tile, ring, History, Claude)
           const prevDoseMcg = existingLog.skipped ? 0 : (parseFloat(existingLog.doseMcg) || 0);
           const sameVial = tv && existingLog.vialId === tv.id;
@@ -2180,7 +2837,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           // D6 check-off cascade: new-log path only (never edits). Set right before the state
           // mutations so the card celebrates the same render it turns 'logged'.
           if (!rm) { setFlashId(proto.id); setTimeout(() => setFlashId(null), 1600); }
-          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes };
+          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes, site: adminRoute === 'inj' ? (f.site || null) : null };
           setLogs(prev => [log, ...prev]);
           const prevLastDose = tv ? (tv.lastDose || null) : null;
           if (tv) setVials(prev => prev.map(x => x.id === tv.id ? { ...x, ...(reconPatch && reconPatch.id === x.id ? reconPatch : {}), lastDose: f.datetime, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: Math.max(0, x.remainingMcg - d) } : {}) } : x));
@@ -2226,7 +2883,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const snapU = (u) => { setUnitsText(null); setUnits(Math.round((parseFloat(u) || 0) * 2) / 2); };            // 0.5u snap THROUGH setUnits -> stored mcg === displayed
       const stepU = (d) => { setUnitsText(null); setUnits(Math.min(300, Math.max(0, Math.round(((parseFloat(units) || 0) + d) * 10) / 10))); }; // existing stepper math
       const dragUnits = (e) => { const el = barrelRef.current; if (!el) return; const r = el.getBoundingClientRect(); const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); setUnitsText(null); setUnits(frac * barMax); };
-      const setQuickTime = (h) => { const dt = new Date(viewDate); dt.setHours(h,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset()); setF({...f, datetime: dt.toISOString().slice(0,16)}); };
+      const setQuickTime = (h) => { const dt = new Date(viewDate); if (h == null) { const n = new Date(); dt.setHours(n.getHours(), n.getMinutes(), 0); } else dt.setHours(h,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset()); setF({...f, datetime: dt.toISOString().slice(0,16)}); };
       // "In this shot" — for blend vials, how much of EACH component the current draw delivers.
       const vialPep = targetVial ? findPep(targetVial.peptideId) : null;
       const drawMl = parseFloat(f.doseMl) || 0;
@@ -2277,15 +2934,15 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
                     onPointerMove={(e) => { if (drawDragRef.current) dragUnits(e); }}
                     onPointerUp={() => { if (!drawDragRef.current) return; drawDragRef.current = false; snapU(units); }}
                     onPointerCancel={() => { if (!drawDragRef.current) return; drawDragRef.current = false; snapU(units); }}>
-                    <rect x="2" y="10" width="251" height="26" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)" strokeWidth="1.3"/>
+                    <rect x="2" y="10" width="251" height="26" rx="4" fill="var(--fill-1)" stroke="var(--ink-35)" strokeWidth="1.3"/>
                     <defs><linearGradient id="d5lq" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0" stopColor="#e3c886" stopOpacity="0.55"/><stop offset="1" stopColor="#e3c886" stopOpacity="0.26"/>
                     </linearGradient></defs>
                     <rect x="3.5" y="11.5" width={liqW} height="23" fill="url(#d5lq)" className={committing ? 'liq-commit' : undefined} style={{transformBox:'fill-box',transformOrigin:'left center'}}/>
                     <rect x={plX - 1} y="11.5" width="2" height="23" fill="var(--accent)"/>
                     <rect x={plX - 2} y="6" width="7" height="34" rx="2" fill="var(--accent)"/>
-                    {(() => { const t = []; for (let u2 = 0; u2 <= barMax; u2 += 2) { const x = 3.5 + (u2 / barMax) * 248; const major = u2 % 10 === 0; t.push(<line key={u2} x1={x} y1="38" x2={x} y2={major ? 48 : 42} stroke={major ? 'rgba(255,255,255,.45)' : 'rgba(255,255,255,.30)'} strokeWidth="1"/>); } return t; })()}
-                    {(() => { const L = []; const st = barMax > 50 ? 20 : 10; for (let u2 = 0; u2 <= barMax; u2 += st) { const x = 3.5 + (u2 / barMax) * 248; L.push(<text key={u2} x={x} y="60" fill="rgba(255,255,255,.51)" fontSize="11" fontFamily="var(--mono)" textAnchor="middle">{u2}</text>); } return L; })()}
+                    {(() => { const t = []; for (let u2 = 0; u2 <= barMax; u2 += 2) { const x = 3.5 + (u2 / barMax) * 248; const major = u2 % 10 === 0; t.push(<line key={u2} x1={x} y1="38" x2={x} y2={major ? 48 : 42} stroke={major ? 'var(--ink-45)' : 'rgba(255,255,255,.30)'} strokeWidth="1"/>); } return t; })()}
+                    {(() => { const L = []; const st = barMax > 50 ? 20 : 10; for (let u2 = 0; u2 <= barMax; u2 += st) { const x = 3.5 + (u2 / barMax) * 248; L.push(<text key={u2} x={x} y="60" fill="var(--ink-50)" fontSize="11" fontFamily="var(--mono)" textAnchor="middle">{u2}</text>); } return L; })()}
                   </svg>
                   <button className="card step" aria-label="Increase by one unit" onClick={() => stepU(1)} style={{color:'var(--accent)'}}>＋</button>
                 </div>
@@ -2328,31 +2985,43 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             </>
           ) : null}
           <Field label="Date & Time">
-            <input type="datetime-local" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
+            <input type="datetime-local" aria-label="Date and time" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
             <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
-              {[['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
+              {[['Now',null],['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'var(--fill-2)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
           </Field>
+          {adminRoute === 'inj' && (
+            <Field label="Injection site">
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4, minmax(0,1fr))',gap:6}}>
+                {SITES.map(s => <button key={s} type="button" aria-pressed={f.site === s} onClick={() => setF(p => ({ ...p, site: p.site === s ? '' : s }))} style={{minHeight:40,padding:'0 4px',borderRadius:11,fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',border:'1px solid ' + (f.site === s ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: f.site === s ? 'rgba(227,200,134,.14)' : 'var(--fill-1)',color: f.site === s ? 'var(--accent)' : 'var(--text-2)'}}>{s}</button>)}
+              </div>
+              {!existingLog && suggestedSite && <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:6}}>Next in rotation: {suggestedSite}</div>}
+            </Field>
+          )}
+          <Field label="Note">
+            <input type="text" aria-label="Note for this dose" placeholder="Optional — new vial, slight sting, …" value={f.notes || ''} onChange={e => setF({...f, notes: e.target.value})} className="input"/>
+          </Field>
           {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName}{(v.mcgPerMl||0) > 0 ? ` · ${isIUVial(v) ? Math.round(v.mcgPerMl).toLocaleString()+' IU/mL' : (v.mcgPerMl/1000).toFixed(2)+' mg/mL'}` : ' · not reconstituted'}</option>)}</select></Field>}
-          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? (isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial`) : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
-          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{isIU ? (mcgPerMl/100).toFixed(1) + ' IU' : fmtMcg(mcgPerMl/100)}/unit · {targetVial.diluentMl} mL {isOilPep(proto.peptideId) ? 'vial' : 'BAC'}</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>✎ Edit reconstitution</button></div>}
+          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}><b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? (isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial`) : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
+          {sup && !isOral && !editRecon && <div style={{fontSize:12,margin:'-6px 2px 10px',color: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--text-dim)'}} className="mono">{sup.dosesLeft} dose{sup.dosesLeft === 1 ? '' : 's'} left in this vial{sup.runOut ? ` · runs out around ${fmtDk(sup.runOut)}` : ''}</div>}
+          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{isIU ? (mcgPerMl/100).toFixed(1) + ' IU' : fmtMcg(mcgPerMl/100)}/unit · {targetVial.diluentMl} mL {isOilPep(proto.peptideId) ? 'vial' : 'BAC'}</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>Edit reconstitution</button></div>}
           {!isOral && needsRecon && (proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
               <div style={{fontSize:12,color:'var(--text-2)',marginBottom:10}}>This blend's vial record is missing — rebuild it in the blend editor so the per-component breakdown stays correct.</div>
-              <button className="btn btn-ghost" style={{width:'100%'}} onClick={() => { closeModal(); editProtocol(proto); }}>✎ Edit blend</button>
+              <button className="btn btn-ghost" style={{width:'100%'}} onClick={() => { closeModal(); editProtocol(proto); }}>Edit blend</button>
             </div>
           )}
           {!isOral && (needsRecon || editRecon) && !((proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial) && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{isOilPep(proto.peptideId) ? (needsRecon ? '🧴 Set vial concentration' : '✎ Edit vial concentration') : (needsRecon ? '🧪 Set reconstitution' : '✎ Edit reconstitution')}</div>
+              <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{isOilPep(proto.peptideId) ? (needsRecon ? 'Set vial concentration' : 'Edit vial concentration') : (needsRecon ? 'Set reconstitution' : 'Edit reconstitution')}</div>
               <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>{isOilPep(proto.peptideId) ? 'Pre-mixed oil — enter the total mg and the vial volume (e.g. 2000 mg in 10 mL) to dose by syringe units.' : `Enter vial size and BAC water to dose this ${isIU ? 'in IU' : 'by syringe units'}.`} {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose above)</span>}</div>
               {(SOLVENT_OVERRIDE[proto.peptideId] || (targetVial && (targetVial.penComponents || []).some(c => SOLVENT_OVERRIDE[c.peptideId]))) && <div style={{fontSize:11.5,color:'var(--rt-oral, #f78c3a)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId] || solventFor(null, targetVial.penComponents)}</b> (not plain BAC)</div>}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
                 {/* Blend vials: the total is the sum of the components — locked here (edit the blend itself via ✎ Edit protocol) so the concentration can never drift from what's actually in the vial. */}
                 {(targetVial && targetVial.penComponents && targetVial.penComponents.length)
-                  ? <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
-                  : <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
-                <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isOilPep(proto.peptideId) ? 'Vial volume (mL)' : 'BAC water (mL)'}</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
+                  ? <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
+                  : <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" aria-label={reconIsIU ? 'Vial size in IU' : 'Vial size in mg'} step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
+                <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isOilPep(proto.peptideId) ? 'Vial volume (mL)' : 'BAC water (mL)'}</label><input type="number" aria-label={isOilPep(proto.peptideId) ? 'Vial volume in mL' : 'BAC water in mL'} step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
               </div>
               <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
                 {editRecon && <button className="btn btn-ghost" onClick={() => setEditRecon(false)}>Cancel</button>}
@@ -2468,7 +3137,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <p style={{margin:'0 0 16px',fontSize:13,color:'var(--text-dim)'}}>Mix up to 4 compounds in a {PEN_VOL_ML} mL pen · dosed in syringe units</p>
           <Field label="Pen colour">
             <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:7}}>
-              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'rgba(255,255,255,.04)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:11,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
+              {PEN_ORDER.map(k => { const on=f.color===k; const m=PEN_META[k]; return <button key={k} onClick={()=>setF({...f,color:k})} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'9px 2px',borderRadius:12,border:'1px solid '+(on?m.color:'var(--border)'),background:on?m.color+'22':'var(--fill-1)',cursor:'pointer'}}><span style={{width:16,height:16,borderRadius:'50%',background:m.color,boxShadow:on?'0 0 8px '+m.color:''}}/><span style={{fontSize:11,fontWeight:700,color:on?m.color:'var(--text-dim)'}}>{m.label.split(' ')[0]}</span></button>; })}
             </div>
             <input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={`Custom pen name (optional, e.g. "${PEN_META[f.color].label.split(' ')[0]} #2")`} className="input" style={{marginTop:8,fontSize:13}}/>
           </Field>
@@ -2587,13 +3256,13 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <Field label={`Standard dose (${f.doseUnit} of total blend)`}>
             <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>
               <input type="number" value={f.doseStr} onChange={e => setF(p => ({...p, doseStr: e.target.value}))} className="input"/>
-              <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u => <button key={u} type="button" onClick={() => setF(p => { if (p.doseUnit === u) return p; const v = parseFloat(p.doseStr); return {...p, doseUnit: u, doseStr: isNaN(v) ? p.doseStr : String(u === 'mg' ? v / 1000 : v * 1000)}; })} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(f.doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:f.doseUnit===u?'rgba(227,200,134,.16)':'rgba(255,255,255,.04)',color:f.doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
+              <div style={{display:'flex',gap:4}}>{['mcg','mg'].map(u => <button key={u} type="button" onClick={() => setF(p => { if (p.doseUnit === u) return p; const v = parseFloat(p.doseStr); return {...p, doseUnit: u, doseStr: isNaN(v) ? p.doseStr : String(u === 'mg' ? v / 1000 : v * 1000)}; })} style={{padding:'0 12px',height:48,borderRadius:12,fontSize:12,fontWeight:600,fontFamily:'var(--mono)',border:'1px solid '+(f.doseUnit===u?'rgba(227,200,134,.5)':'var(--border)'),background:f.doseUnit===u?'rgba(227,200,134,.16)':'var(--fill-1)',color:f.doseUnit===u?'var(--accent)':'var(--text-dim)',cursor:'pointer'}}>{u}</button>)}</div>
             </div>
           </Field>
-          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:10}}>
+          <div style={{background:'var(--fill-1)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:10}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>🧪 Reconstitution</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-              <div><label style={lbl}>Vial size (mg)</label><div className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{totalMg > 0 ? totalMg.toFixed(2).replace(/\.?0+$/,'') : '—'}</div></div>
+              <div><label style={lbl}>Vial size (mg)</label><div className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{totalMg > 0 ? totalMg.toFixed(2).replace(/\.?0+$/,'') : '—'}</div></div>
               <div><label style={lbl}>BAC water (mL)</label><input type="number" step="0.1" value={f.reconMl} onChange={e => setF(p => ({...p, reconMl: e.target.value}))} className="input" style={{textAlign:'center',fontFamily:'var(--mono)',fontWeight:700}}/></div>
             </div>
             {m && dose > 0 ? (
@@ -2715,12 +3384,13 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     openModal(<Modal/>);
   };
 
-  const addProtocol = () => {
+  const addProtocol = (presetId) => {
     // Start = the viewed day, so adding while browsing a future (or past) day starts it there.
     let f0 = { peptideId: '', doseMcg: 0, sched: { days: ALL_DAYS.slice(), timeOfDay: 'morning' }, cycleDays: 30, startDate: dateKey, route: 'inj', oralUnitLabel: 'mcg', doseUnit: 'mcg', reconMg: '', reconMl: '', reconVialId: null };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
+      useEffect(() => { if (presetId && !f.peptideId) apply(presetId); /* eslint-disable-next-line */ }, []); // first-run flow lands here with a compound already picked
       const apply = (id) => {
         if (id === '__new_blend__') return manageBlend(null); // hands the sheet to the blend builder
         const p = findPep(id); if (!p) return;
@@ -2769,7 +3439,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
               {CATEGORIES.map(cat => <optgroup key={cat} label={cat}>{PEPTIDE_DB.filter(p => p.category === cat && !inStock.has(p.id)).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}
             </select>
           </Field>
-          {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'rgba(255,255,255,0.04)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
+          {pep && <div style={{fontSize:13,color:'var(--text-dim)',background:'var(--fill-1)',padding:12,borderRadius:12,border:'1px solid var(--border)',marginBottom:10}}>📖 <b style={{color:'var(--text)'}}>{pep.name}</b> · {pep.protocol.doseRange}</div>}
           <RouteFields f={f} setF={setF}/>
           {f.peptideId && <ReconFields f={f} setF={setF}/>}
           <Field label="Schedule">
@@ -2789,6 +3459,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const filters = [['all','All','#e3c886'],['inj','Inject',ROUTE_META.inj.color],['oral','Oral',ROUTE_META.oral.color],['nasal','Nasal',ROUTE_META.nasal.color]];
+  if (mode === 'plan') return renderPlan();
   return (
     <div style={{paddingBottom:40}} className="anim-fade-in">
       {/* summary pill — text + actions only; the header ring owns adherence. Hidden for an empty profile (the empty state has its own call to action). */}
@@ -2797,17 +3468,12 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <div style={{fontSize:16, fontWeight:700, color:LG.text}}>{scheduledCount === 0 ? 'Rest day' : dateKey < todayDk ? (dueCount === 0 ? 'All logged' : `${dueCount} not logged`) : `${dueCount} ${dueCount===1?'dose':'doses'} due`}</div>
           <div style={{fontSize:12.5, color:LG.dim, marginTop:2}}>{loggedCount} logged · {scheduledCount} scheduled {dateKey === todayDk ? 'today' : 'on ' + fmtDk(dateKey)}</div>
         </div>
-        <button onClick={() => managePen(null)} className="lg" title="Create mix" aria-label="Create mix (up to 4 compounds)" style={{width:42, height:42, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer', fontSize:18}}>🖊</button>
+        <button onClick={() => managePen(null)} className="lg" title="Create mix" aria-label="Create mix (up to 4 compounds)" style={{width:44, height:44, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer'}}><Beaker size={18} color="var(--accent)"/></button>
         <button onClick={addProtocol} className="lg" aria-label="Add protocol" style={{width:42, height:42, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer'}}><Plus size={19} color="var(--accent)"/></button>
       </div>}
 
       {myProtocols.length === 0 ? (
-        <div style={{textAlign:'center',padding:'60px 20px',color:LG.dim}}>
-          <div style={{fontSize:60,opacity:0.4,marginBottom:16}}>⚗️</div>
-          <h3 style={{margin:'0 0 6px',fontWeight:600}}>No protocols yet</h3>
-          <p style={{margin:'0 0 20px',fontSize:14}}>Add a compound to start tracking {activeProfile}'s protocol</p>
-          <button className="btn btn-primary" onClick={addProtocol}>+ Add First Compound</button>
-        </div>
+        <FirstRun activeProfile={activeProfile} onPick={(id) => addProtocol(id)} onLibrary={openLibrary}/>
       ) : (<>
         {/* C2 expired-cycle banner */}
         {expiredProtos.length > 0 && (
@@ -2822,16 +3488,23 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
                 <button onClick={() => confirmModal('Restart cycle?', `${p.peptideName}: cycle restarts today.`, () => { setProtocols(prev => prev.map(x => x.id === p.id ? resumeProto({...x, startDate: todayDk}, todayDk) : x)); showToast('Cycle restarted'); }, 'Restart')}
                   style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid rgba(227,200,134,.35)', background:'rgba(227,200,134,.12)', color:'var(--accent)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Restart</button>
                 <button onClick={() => confirmModal('Finish cycle?', `${p.peptideName} comes off the schedule after today. Logged history stays.`, () => { setProtocols(prev => prev.map(x => x.id === p.id ? finishProto(x, todayDk, todayDk) : x)); showToast('Cycle finished'); }, 'Finish')}
-                  style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid var(--border)', background:'rgba(255,255,255,.05)', color:'var(--text-2)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Finish</button>
+                  style={{minHeight:44, padding:'0 14px', borderRadius:12, border:'1px solid var(--border)', background:'var(--fill-2)', color:'var(--text-2)', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0}}>Finish</button>
               </div>
             ); })}
             {expiredProtos.length > 3 && <div style={{fontSize:11, color:'var(--text-faint)', paddingTop:6}}>+{expiredProtos.length - 3} more</div>}
           </div>
         )}
+        {proposalsPending > 0 && (
+          <button className="lg" onClick={onOpenProposals} style={{width:'100%',textAlign:'left',borderRadius:18,padding:'12px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:12,cursor:'pointer',border:'1px solid rgba(227,200,134,.35)'}}>
+            <span className="blk-disc" aria-hidden="true"><Bot size={15} color="var(--accent)"/></span>
+            <span style={{flex:1,minWidth:0}}><span style={{display:'block',fontSize:14,fontWeight:700}}>Claude suggests {proposalsPending} change{proposalsPending === 1 ? '' : 's'}</span><span style={{display:'block',fontSize:12,color:'var(--text-dim)'}}>Review, then approve or dismiss. Nothing is applied on its own.</span></span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
+        )}
         {/* route filter chips */}
         <div style={{display:'flex', gap:7, marginBottom:16}}>
           {filters.map(([k,label,col]) => { const active = routeFilter === k; const cnt = routeCounts[k]; return (
-            <button key={k} onClick={() => setRouteFilter(k)} style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 4px', borderRadius:13, fontSize:12.5, fontWeight:600, cursor:'pointer', border:'1px solid '+(active?col+'55':LG.hair), background:active?col+'1f':'rgba(255,255,255,.04)', color:active?col:LG.dim}}>
+            <button key={k} onClick={() => setRouteFilter(k)} style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 4px', borderRadius:13, fontSize:12.5, fontWeight:600, cursor:'pointer', border:'1px solid '+(active?col+'55':LG.hair), background:active?col+'1f':'var(--fill-1)', color:active?col:LG.dim}}>
               {label}<span style={{fontFamily:LG.mono, fontSize:11.5, fontWeight:700, color:active?col:LG.dim2}}>{cnt}</span>
             </button>
           ); })}
@@ -2842,177 +3515,96 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             <p style={{margin:0,fontSize:14}}>{activeProfile}'s rest day. Nothing scheduled.</p>
           </div>
         )}
-        {blocks.map((b, bi) => byBlock[b.id].length > 0 && (
-          <div key={b.id} style={{marginTop: bi===0?0:20}}>
-            <div style={{display:'flex', alignItems:'center', gap:9, padding:'0 4px 11px'}}>
-              <span style={{fontSize:13, fontWeight:700, letterSpacing:'0.03em', color: b.id==='prn'?LG.amber:LG.text}}>{b.label}</span>
-              <span style={{fontSize:11, color:LG.dim2, fontWeight:500}}>{b.hint}</span>
-              <span style={{fontFamily:LG.mono, fontSize:11, color:LG.dim2, marginLeft:'auto'}}>{byBlock[b.id].length}</span>
-              <div style={{flex:'0 0 18px', height:1, background:LG.hair}}/>
-            </div>
-            <div style={{display:'grid', gridTemplateColumns:'repeat(2, minmax(0,1fr))', gap:12}}>
-              {byBlock[b.id].map(p => {
-                const log = logs.find(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey);
-                const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending';
-                return <DoseCard key={p.id} proto={p} log={log} status={status} isFuture={isFuture} vials={vials} viewDateKey={dateKey} glow={p.id === glowId} celebrate={p.id === flashId && status === 'logged'} lastPrnLog={isPrn(p) ? lastPrnLogFor(p) : null} onAdminister={() => administer(p, log)} onEdit={() => editProtocol(p)}/>;
-              })}
-            </div>
-          </div>
-        ))}
+        {blocks.map((b, bi) => byBlock[b.id].length > 0 && (() => {
+          const items = byBlock[b.id].map(p => { const log = logs.find(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey); const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending'; return { p, log, status }; });
+          const open = items.filter(it => it.status === 'pending' && !isPrn(it.p) && !isFuture && !cycleOverP(it.p)).map(it => it.p);
+          const quickable = open.filter(p => quickPlan(p));
+          return (
+            <section key={b.id} aria-label={b.label} className="blk" style={{marginTop: bi===0?0:14}}>
+              <div className="blk-hd">
+                <span className="blk-title" style={{color: b.id==='prn'?LG.amber:LG.text}}>{b.label}</span>
+                <span className="blk-hint">{b.hint}</span>
+                <span className="blk-count mono">{b.id === 'prn' ? items.length : isFuture ? `${items.length} scheduled` : `${open.length} of ${items.length} left`}</span>
+              </div>
+              {items.map(it => <DoseRow key={it.p.id} proto={it.p} log={it.log} status={it.status} isFuture={isFuture} isPast={dateKey < todayDk} vials={vials} viewDateKey={dateKey}
+                glow={it.p.id === glowId} celebrate={it.p.id === flashId && it.status === 'logged'} lastPrnLog={isPrn(it.p) ? lastPrnLogFor(it.p) : null}
+                quick={!!quickPlan(it.p)} supply={supplyFor(it.p)} onOpen={() => administer(it.p, it.log)} onQuick={() => quickLog(it.p)}
+                onUndoSkip={it.status === 'skipped' ? () => { const row = it.log; setLogs(prev => prev.filter(l => l.id !== row.id)); showToast(`Skip undone · ${it.p.peptideName}`, 'success', () => setLogs(prev => prev.some(l => l.id === row.id) ? prev : [row, ...prev])); } : null}/>)}
+              {quickable.length >= 2 && (
+                <div className="blk-foot">
+                  <button className="btn btn-primary blk-all" onClick={() => logRemaining(open)}>Log the {quickable.length} remaining as planned</button>
+                </div>
+              )}
+            </section>
+          );
+        })())}
       </>)}
     </div>
   );
 }
 
-function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit, glow, celebrate, lastPrnLog, viewDateKey }) {
-  // ── Pen tile (multi-compound blend in a named pen) ──
-  if (proto.route === 'pen') {
-    const pm = PEN_META[proto.penColor] || PEN_META.blue;
-    const penVial = (vials || []).find(v => v.id === proto.penVialId);
-    const comps = (penVial && penVial.penComponents) || [];
-    const mcgPerUnit = penVial && penVial.mcgPerMl ? penVial.mcgPerMl / 100 : 0;
-    const dMcgP = (log && log.doseMcg != null) ? log.doseMcg : proto.doseMcg;
-    const units = mcgPerUnit ? (dMcgP / mcgPerUnit) : (penVial && penVial.unitsPerDose) || 0;
-    const isLoggedP = status === 'logged';
-    const disabledP = isFuture && !isLoggedP;
-    const sP = proto.schedule || {};
-    const daysStrP = schedLabel(sP, true);
-    return (
-      <button onClick={onAdminister} className={isLoggedP ? 'card card-logged' : 'card'}
-        style={{textAlign:'left', borderRadius:18, padding:'10px 11px', display:'flex', flexDirection:'column', gap:6, width:'100%', minWidth:0, opacity:disabledP?0.6:1, cursor:'pointer', borderLeft:'3px solid '+pm.color}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-          <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
-            <span style={{width:14, height:14, borderRadius:'50%', background:pm.color, boxShadow:'0 0 8px '+pm.color+'88', flexShrink:0}}/>
-            <span style={{fontSize:11, fontWeight:800, letterSpacing:'0.05em', color:pm.color, textTransform:'uppercase'}}>{penLabelOf(proto)}</span>
-          </div>
-          <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0, background:isLoggedP?LG.green:'rgba(227,200,134,.12)', border:isLoggedP?'none':'1.6px solid '+LG.accent}}>
-            {isLoggedP ? <Check size={14} strokeWidth={3} color="#06231a"/> : <Plus size={13} strokeWidth={3} color={LG.accent}/>}
-          </div>
-        </div>
-        <div style={{fontSize:12.5, fontWeight:600, color:isLoggedP?LG.dim:LG.text, lineHeight:1.18, minHeight:31, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'}}>{comps.map(c => (c.name||'').split(' ')[0]).join(' + ') || 'Empty pen'}</div>
-        <div style={{display:'flex', alignItems:'baseline', gap:4}}>
-          <span style={{fontFamily:LG.mono, fontSize:17, fontWeight:700, color:isLoggedP?'rgba(255,255,255,.78)':LG.text}}>{(Math.round(units*10)/10)}</span>
-          <span style={{fontFamily:LG.mono, fontSize:11, color:LG.dim}}>units</span>
-          <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:11, fontWeight:600, color:pm.color, background:pm.color+'1c', border:'1px solid '+pm.color+'33', borderRadius:7, padding:'2px 7px'}}>{comps.length}-mix</span>
-        </div>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, paddingTop:6, borderTop:'1px solid '+LG.hair}}>
-          <span style={{fontSize:12, color:LG.dim, fontWeight:500}}>{daysStrP}</span>
-          <span style={{fontFamily:LG.mono, fontSize:9, color:LG.dim2}}>pen</span>
-        </div>
-      </button>
-    );
-  }
+// One row of a time block. The row opens the sheet; the pill on the right logs the planned dose in
+// one tap when that is unambiguous (see quickPlan), otherwise it opens the sheet too.
+function DoseRow({ proto, log, status, isFuture, isPast, vials, viewDateKey, glow, celebrate, lastPrnLog, quick, supply, onOpen, onQuick, onUndoSkip }) {
+  const isPen = proto.route === 'pen';
+  const pm = isPen ? (PEN_META[proto.penColor] || PEN_META.blue) : null;
+  const penVial = isPen ? (vials || []).find(v => v.id === proto.penVialId) : null;
   const sched = proto.schedule || {};
-  const daysStr = schedLabel(sched, true);
-  // Cycle day counts from the VIEWED day, not from now, so browsing history reads correctly.
   const viewDk = viewDateKey || todayLocal();
   const startDk = dkOf(proto.startDate);
   const elapsed = dkValid(startDk) ? dkDiff(viewDk, startDk) : 0;
-  const day = Math.max(1, Math.min(elapsed + 1, proto.cycleDays || 1));
-
   const equivIds = new Set(getEquivalentIds(proto.peptideId));
-  const activeVial = (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl||0) > 0)
-                  || (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false);
-  const route = routeOf(proto, activeVial);
-  const rt = ROUTE_META[route];
+  const activeVial = isPen ? penVial : ((vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl||0) > 0) || (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false));
+  const route = isPen ? 'inj' : routeOf(proto, activeVial);
+  const rt = ROUTE_META[route] || ROUTE_META.inj;
   const mcgPerUnit = activeVial && activeVial.mcgPerMl ? activeVial.mcgPerMl / 100 : 0;
-  const dMcg = (log && !log.skipped && log.doseMcg != null) ? log.doseMcg : proto.doseMcg; // a skip row carries 0; the tile keeps showing the plan
-  const units = mcgPerUnit ? (dMcg / mcgPerUnit) : null;
-
-  const du0 = (log && log.doseUnit) || proto.doseUnit; // explicit unit tag wins over magnitude
-  const isIU = du0 === 'IU' || isIUVial(activeVial) || (log && log.doseUnit === 'IU');
+  const dMcg = (log && !log.skipped && log.doseMcg != null) ? log.doseMcg : proto.doseMcg; // a skip row carries 0; the row keeps showing the plan
+  const units = mcgPerUnit ? dMcg / mcgPerUnit : ((isPen && penVial && penVial.unitsPerDose) || null);
+  const du0 = (log && log.doseUnit) || proto.doseUnit;
+  const isIU = du0 === 'IU' || isIUVial(activeVial);
   let dv, du;
   if (isIU) { dv = String(Math.round(log && log.doseValue != null ? log.doseValue : dMcg)); du = 'IU'; }
   else if (du0 === 'g') { dv = (dMcg/1e6).toFixed(2).replace(/\.?0+$/,''); du = 'g'; }
   else if (du0 === 'mg' || dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
   else { dv = String(Math.round(dMcg)); du = 'mcg'; }
-
-  const deliver = deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip;
-
-  const isLogged = status === 'logged';
-  const isSkipped = status === 'skipped';
+  const ml = (log && log.doseMl != null) ? log.doseMl : (activeVial && activeVial.mcgPerMl ? dMcg / activeVial.mcgPerMl : null);
+  const deliver = (!isPen && (route === 'oral' || route === 'nasal')) ? deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip : null;
   const isPrnProto = isPrnSched(sched);
   const cycleOver = (proto.cycleDays > 0) && !isPrnProto && !proto.endDate && (elapsed + 1 > proto.cycleDays);
-  // D4 state enum — precedence: logged > skipped > expired > future > prn > due.
-  // logged/skipped outrank expired so history stays honest.
-  const state = isLogged ? 'logged' : isSkipped ? 'skipped' : cycleOver ? 'expired' : isFuture ? 'future' : isPrnProto ? 'prn' : 'due';
-  const cls = 'card' + (
-    state === 'logged' ? ' card-logged' :
-    state === 'skipped' ? ' card-skipped' :
-    state === 'expired' ? ' card-expired' :
-    state === 'future' ? ' card-future' :
-    (state === 'due' && glow) ? ' card-due-glow' : '');
-  // Footer: schedule · cycle day, plus a short heads-up when the plan changes or ends soon.
+  // precedence: logged > skipped > expired > future > prn > missed (past day) > due
+  const state = status === 'logged' ? 'logged' : status === 'skipped' ? 'skipped' : cycleOver ? 'expired' : isFuture ? 'future' : isPrnProto ? 'prn' : isPast ? 'missed' : 'due';
+  const logTime = (() => { if (!log || !log.datetime) return ''; const d = new Date(log.datetime); if (isNaN(d.getTime())) return ''; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + m + ap; })();
+  const prnRel = (() => { if (!lastPrnLog || !lastPrnLog.datetime) return 'never'; const d = new Date(lastPrnLog.datetime); if (isNaN(d.getTime())) return 'never'; const n = Math.floor((Date.now() - d.getTime()) / 86400000); return n <= 0 ? 'today' : n === 1 ? '1d ago' : n + 'd ago'; })();
   const endDk = dkOf(proto.endDate);
   const nextRev = nextRevision(proto, viewDk);
   const hint = (dkValid(endDk) && dkDiff(endDk, viewDk) <= 7 && dkDiff(endDk, viewDk) >= 0) ? ('ends ' + fmtDk(endDk))
     : (nextRev && dkDiff(nextRev.from, viewDk) <= 14) ? (schedLabel(nextRev.schedule, true) + ' from ' + fmtDk(nextRev.from)) : null;
-  const meta = ((proto.cycleDays > 0 && !isPrnProto) ? `${daysStr} · ${day}/${proto.cycleDays}` : daysStr) + (hint ? ' · ' + hint : '');
-  const disabled = false; // future days open the sheet in plan mode (change / finish), logging stays blocked there
-  // D6 check-off cascade: while celebrating, the ring shows its former 'due' chrome and the
-  // green disc + hand-drawn check + ripple play over it (300ms base delay = after sheet exit).
+  const name = isPen ? (penLabelOf(proto) + ' · ' + ((((penVial && penVial.penComponents) || []).map(c => (c.name || '').split(' ')[0]).join(' + ')) || 'Empty pen')) : proto.peptideName;
+  const doseLine = [units != null ? `${Math.round(units * 10) / 10} u` : null, isPen ? null : `${dv} ${du}`, (ml != null && units != null) ? `${(+ml).toFixed(ml < 0.1 ? 3 : 2)} mL` : null, deliver].filter(Boolean).join(' · ');
+  const sub = state === 'logged' ? `Logged ${logTime}` : state === 'skipped' ? 'Skipped' : state === 'expired' ? `Cycle ended ${elapsed + 1 - proto.cycleDays}d ago`
+    : state === 'future' ? 'Scheduled' : state === 'prn' ? `As needed · last ${prnRel}` : state === 'missed' ? 'Not logged' : (hint || schedLabel(sched, true));
   const cel = !!celebrate && state === 'logged';
-
-  // per-state display bits
-  const expiredBy = cycleOver ? (elapsed + 1 - proto.cycleDays) : 0;
-  const logTime = (() => { if (!log || !log.datetime) return ''; const d = new Date(log.datetime); if (isNaN(d.getTime())) return ''; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + m + ap; })();
-  const prnRel = (() => { if (!lastPrnLog || !lastPrnLog.datetime) return 'never'; const d = new Date(lastPrnLog.datetime); if (isNaN(d.getTime())) return 'never'; const n = Math.floor((Date.now() - d.getTime()) / 86400000); return n <= 0 ? 'today' : n === 1 ? '1d ago' : n + 'd ago'; })();
-  const uDisp = units != null ? (Math.round(units * 10) / 10) : null;
-  // numerals never strike and never dim below rgba(255,255,255,.62); only the name may drop to text-dim
-  const nameCol = (state === 'logged' || state === 'skipped' || state === 'future') ? 'var(--text-dim)' : LG.text;
-  const heroCol = state === 'logged' ? 'rgba(255,255,255,.78)'
-    : state === 'skipped' ? 'rgba(255,255,255,.62)'
-    : (state === 'expired' || state === 'future') ? 'var(--text-dim)'
-    : (units != null ? 'var(--accent)' : LG.text);
-  const bylineCol = (state === 'future' || state === 'expired') ? 'var(--text-dim)' : 'rgba(255,255,255,.78)';
-  const ringBg = state === 'logged' ? LG.green : state === 'skipped' ? 'rgba(247,140,58,.18)' : state === 'expired' ? 'rgba(247,140,58,.10)' : state === 'future' ? 'transparent' : 'rgba(227,200,134,.12)';
-  const ringBorder = state === 'logged' ? 'none' : (state === 'skipped' || state === 'expired') ? ('1.6px solid ' + LG.amber) : state === 'future' ? '1.6px solid var(--text-ghost)' : ('1.6px solid ' + LG.accent);
-
+  const disc = state === 'logged' ? 'done' : state === 'skipped' ? 'skip' : state === 'expired' ? 'exp' : state === 'future' ? 'fut' : 'due';
   return (
-    <button onClick={() => { if (!disabled) onAdminister(); }} className={cls}
-      style={{textAlign:'left', borderRadius:18, padding:'10px 11px', display:'flex', flexDirection:'column', gap:6, width:'100%', minWidth:0, cursor:disabled?'default':'pointer'}}>
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-        <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
-          <div className="rt-tile" style={{width:25, height:25, borderRadius:8, background:rt.color+'24', display:'grid', placeItems:'center', boxShadow:'inset 0 0 0 1px '+rt.color+'40', flexShrink:0}}>
-            <RouteIcon route={route} color={rt.color} s={15}/>
-          </div>
-          <span style={{fontSize:11, fontWeight:700, letterSpacing:'0.05em', color:rt.color, textTransform:'uppercase'}}>{rt.label}</span>
-        </div>
-        <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0, position:'relative',
-          background: cel ? 'rgba(227,200,134,.12)' : ringBg, border: cel ? ('1.6px solid ' + LG.accent) : ringBorder}}>
-          {cel ? (<>
-            <span className="cel-disc" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="#06231a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </span>
-            <span className="cel-rip" aria-hidden="true"/>
-          </>)
-           : state === 'logged' ? <Check size={14} strokeWidth={3} color="#06231a"/>
-           : state === 'skipped' ? <span aria-hidden="true" style={{fontSize:12,color:LG.amber}}>⏭</span>
-           : state === 'expired' ? <span aria-hidden="true" style={{fontSize:13,color:LG.amber}}>↻</span>
-           : <Plus size={13} strokeWidth={3} color={state === 'future' ? 'var(--text-ghost)' : LG.accent}/>}
-        </div>
-      </div>
-      <div style={{fontSize:13.5, fontWeight:600, color:nameCol, lineHeight:1.16, minHeight:31, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'}}>{proto.peptideName}</div>
-      <div style={{display:'flex', alignItems:'baseline', gap:4, minWidth:0}}>
-        {units != null ? (<>
-          <span style={{fontFamily:LG.mono, fontSize:22, lineHeight:'26px', fontWeight:700, color:heroCol}}>{uDisp}</span>
-          <span style={{fontFamily:LG.mono, fontSize:13, color:'var(--text-dim)'}}>u</span>
-          <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:12, fontWeight:600, color:bylineCol, whiteSpace:'nowrap'}}>{dv} {du}</span>
-        </>) : (<>
-          <span style={{fontFamily:LG.mono, fontSize:22, lineHeight:'26px', fontWeight:700, color:heroCol}}>{dv}</span>
-          <span style={{fontFamily:LG.mono, fontSize:13, color:'var(--text-dim)'}}>{du}</span>
-          {(route === 'oral' || route === 'nasal') && <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:11, fontWeight:600, color:rt.color, background:rt.color+'1c', border:'1px solid '+rt.color+'33', borderRadius:7, padding:'2px 7px', whiteSpace:'nowrap'}}>{deliver}</span>}
-        </>)}
-      </div>
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, paddingTop:6, borderTop:'1px solid '+LG.hair}}>
-        {state === 'logged' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--success)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Logged {logTime}</span>
-         : state === 'skipped' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--warn)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Skipped · tap to undo</span>
-         : state === 'expired' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--warn)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Cycle ended {expiredBy}d ago</span>
-         : state === 'future' ? <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap'}}>Scheduled</span>
-         : state === 'prn' ? <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>PRN · last {prnRel}</span>
-         : <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{meta}</span>}
-      </div>
-    </button>
+    <div className={'blk-row' + (glow && state === 'due' ? ' glow' : '') + (state === 'logged' ? ' is-logged' : state === 'skipped' ? ' is-skipped' : '')}>
+      <button className="blk-main" onClick={onOpen} style={isPen ? { boxShadow: 'inset 3px 0 0 ' + pm.color, paddingLeft: 10 } : undefined}>
+        <span className={'blk-disc ' + disc} aria-hidden="true">
+          {cel ? <span className="cel-disc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="var(--on-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            : state === 'logged' ? <Check size={14} strokeWidth={3} color="var(--on-success)"/>
+            : state === 'skipped' ? <span style={{fontSize:12,color:LG.amber}}>⏭</span>
+            : state === 'expired' ? <span style={{fontSize:13,color:LG.amber}}>↻</span>
+            : <RouteIcon route={route} color={rt.color} s={13}/>}
+        </span>
+        <span className="blk-text">
+          <span className="blk-name">{name}</span>
+          <span className="blk-dose mono">{doseLine}{doseLine && sub ? ' · ' : ''}<span className={'blk-sub' + (state === 'logged' ? ' ok' : (state === 'skipped' || state === 'expired' || state === 'missed') ? ' warn' : '')}>{sub}</span>{supply && supply.dosesLeft <= 3 && state !== 'logged' ? <span className="blk-sub warn">{` · ${supply.dosesLeft} left`}</span> : null}</span>
+        </span>
+      </button>
+      {(state === 'due' || state === 'missed') ? <button className="pill-log" aria-label={quick ? 'Log as planned' : 'Open to log'} title={proto.peptideName} onClick={onQuick}>{quick ? 'Log' : 'Log…'}</button>
+       : state === 'prn' ? <button className="pill-log ghost" aria-label="Log a dose" title={proto.peptideName} onClick={onOpen}>Log</button>
+       : (state === 'skipped' && onUndoSkip) ? <button className="pill-log ghost" aria-label="Undo skip" title={proto.peptideName} onClick={onUndoSkip}>Undo</button>
+       : null}
+    </div>
   );
 }
 
@@ -3091,7 +3683,7 @@ function gateProtocolSave(nextProto, priorProto, logs, allProtocols) {
 function Field({ label, children }) { return <div style={{marginBottom:10}}>{label && <label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>{label}</label>}{children}</div>; }
 
 // ══════════ History tab — every logged entry for the profile, filterable, downloadable, editable ══════════
-function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal, closeModal, confirmModal, showToast, onJump, exportCSV, exportJSON }) {
+function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal, closeModal, confirmModal, showToast, onJump, exportCSV, exportJSON, onReport }) {
   const today = todayLocal();
   const [range, setRange] = useState('30');            // '7' | '30' | '90' | 'all' | 'custom'
   const [from, setFrom] = useState(() => dkAdd(today, -29));
@@ -3119,6 +3711,25 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
   const doses = filtered.filter(l => !l.skipped).length;
   const compCount = new Set(filtered.filter(l => !l.skipped).map(nameOf)).size;
   const dayCount = groups.filter(g => g.items.some(l => !l.skipped)).length;
+  // Adherence by compound over the selected range: scheduled days only (as-needed compounds excluded),
+  // capped at 400 days so the all-time range stays cheap. Same engine rules as Today and the Worker.
+  const adherence = useMemo(() => {
+    const start = (range === 'all' || lo < '1000') ? dkAdd(today, -364) : lo;
+    const end = hi > today ? today : hi;
+    if (!dkValid(start) || !dkValid(end) || start > end) return { rows: [], exp: 0, got: 0, pct: null };
+    const nDays = Math.min(400, dkDiff(end, start) + 1);
+    const byProto = {}; mine.forEach(l => { if (!l.skipped) { const dk = dkOf(l.datetime); (byProto[l.protocolId] = byProto[l.protocolId] || new Set()).add(dk); } });
+    const rows = [];
+    protocols.filter(p => p.profile === activeProfile && !isPrnSched(p.schedule)).forEach(p => {
+      let exp = 0, got = 0;
+      for (let i = 0; i < nDays; i++) { const dk = dkAdd(end, -i); if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue; exp++; if (byProto[p.id] && byProto[p.id].has(dk)) got++; }
+      if (exp) rows.push({ id: p.id, name: p.peptideName, exp, got, pct: Math.round(got / exp * 100) });
+    });
+    rows.sort((a, b) => a.pct - b.pct || b.exp - a.exp);
+    const exp = rows.reduce((s, r) => s + r.exp, 0), got = rows.reduce((s, r) => s + r.got, 0);
+    return { rows, exp, got, pct: exp ? Math.round(got / exp * 100) : null };
+  }, [mine, protocols, activeProfile, lo, hi, range, today]);
+  const adhColor = (pct) => pct >= 90 ? 'var(--success)' : pct >= 70 ? 'var(--accent)' : 'var(--warn)';
   const protoFor = (l) => protocols.find(p => p.id === l.protocolId) || null;
   const routeFor = (l) => { const p = protoFor(l); const v = l.vialId ? vials.find(x => x.id === l.vialId) : null; if (p && p.route === 'pen') return 'inj'; return p ? routeOf(p, v) : (v && v.formType === 'oral' ? 'oral' : 'inj'); };
   const doseStr = (l) => { if (l.skipped) return 'skipped'; if (l.doseUnit) return fmtDoseAny(l.doseMcg, l.doseUnit); const p = protoFor(l); return fmtDoseAny(l.doseMcg, (p && p.doseUnit) || null); };
@@ -3174,6 +3785,7 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
         <div style={{display:'flex',gap:8,marginTop:12}}>
           <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => exportCSV(filtered)} disabled={!filtered.length}>⬇ CSV · {filtered.length}</button>
           <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => exportJSON(filtered)} disabled={!filtered.length}>⬇ JSON · {filtered.length}</button>
+          <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={() => onReport && onReport(filtered, rangeLabel, adherence)} disabled={!filtered.length}>Report</button>
         </div>
       </div>
       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:10}}>
@@ -3190,6 +3802,20 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
         <option value="all">All compounds ({compounds.length})</option>
         {compounds.map(([n, c]) => <option key={n} value={n}>{n} · {c}</option>)}
       </select>
+      {adherence.rows.length > 0 && (
+        <section className="blk" aria-label="Adherence by compound" style={{marginBottom:14}}>
+          <div className="blk-hd"><span className="blk-title">Adherence</span><span className="blk-hint">{rangeLabel}</span><span className="blk-count mono" style={{color: adhColor(adherence.pct)}}>{adherence.pct}% · {adherence.got} of {adherence.exp}</span></div>
+          <div style={{display:'flex',flexDirection:'column',gap:7,padding:'2px 2px 8px'}}>
+            {(comp === 'all' ? adherence.rows : adherence.rows.filter(r => r.name === comp)).map(r => (
+              <div key={r.id} style={{display:'grid',gridTemplateColumns:'minmax(0,112px) 1fr 44px',gap:10,alignItems:'center'}}>
+                <span style={{fontSize:12.5,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}} title={r.name}>{r.name}</span>
+                <div style={{height:10,borderRadius:5,background:'var(--fill-2)',overflow:'hidden'}} role="img" aria-label={`${r.name}: ${r.got} of ${r.exp} doses, ${r.pct} percent`}><div style={{width:r.pct+'%',height:'100%',borderRadius:5,background: adhColor(r.pct)}}/></div>
+                <span className="mono" style={{fontSize:12,fontWeight:700,textAlign:'right',color: adhColor(r.pct)}}>{r.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       {groups.length === 0 ? (
         <div style={{textAlign:'center',padding:'50px 20px',color:LG.dim}}>
           <div style={{fontSize:50,opacity:0.4,marginBottom:12}}>🗒</div>
@@ -3209,7 +3835,7 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
                 <div style={{width:28,height:28,borderRadius:9,background:rt.color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+rt.color+'40',flexShrink:0,opacity:l.skipped?0.5:1}}><RouteIcon route={route} color={rt.color} s={15}/></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13.5,fontWeight:600,color:l.skipped?'var(--text-dim)':'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nameOf(l)}</div>
-                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{timeStr(l)}{l.doseMl != null ? ` · ${(l.doseMl*100).toFixed(1)}u` : ''}{l.backfilled ? ' · ↩ back-dated' : ''}{l.needsReview ? ' · ⚑' : ''}{l.notes && !l.backfilled ? ` · ${l.notes}` : ''}</div>
+                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{timeStr(l)}{l.doseMl != null ? ` · ${(l.doseMl*100).toFixed(1)}u` : ''}{l.site ? ` · ${l.site}` : ''}{l.backfilled ? ' · ↩ back-dated' : ''}{l.needsReview ? ' · ⚑' : ''}{l.notes && !l.backfilled ? ` · ${l.notes}` : ''}</div>
                 </div>
                 <span className="mono" style={{fontSize:13,fontWeight:700,color:l.skipped?'var(--warn)':'var(--accent)',whiteSpace:'nowrap'}}>{doseStr(l)}</span>
               </button>
@@ -3296,8 +3922,8 @@ function LabView({ vials }) {
     <div style={{paddingBottom:40}}>
       <div style={{margin:'8px 0 14px'}}><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search compounds..." className="input"/></div>
       <div style={{display:'flex',gap:6,overflowX:'auto',marginBottom:16,paddingBottom:4}} className="hide-scrollbar">
-        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(227,200,134,0.15)':'rgba(255,255,255,0.04)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
-        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(227,200,134,0.15)':'rgba(255,255,255,0.04)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
+        <button onClick={() => setFilter('All')} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter==='All'?'rgba(227,200,134,0.15)':'var(--fill-1)',color:filter==='All'?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>All ({PEPTIDE_DB.length})</button>
+        {CATEGORIES.map(c => { const n = PEPTIDE_DB.filter(p => p.category === c).length; return <button key={c} onClick={() => setFilter(c)} style={{padding:'8px 14px',borderRadius:100,border:'1px solid var(--border)',background:filter===c?'rgba(227,200,134,0.15)':'var(--fill-1)',color:filter===c?'var(--accent-2)':'var(--text-dim)',fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>{c} ({n})</button>; })}
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {filtered.map(p => {
@@ -3391,7 +4017,7 @@ function MathView() {
         <Field label="Compound"><select value={preset} onChange={e => apply(e.target.value)} className="input"><option value="">— Pick a peptide —</option>{CATEGORIES.map(c => <optgroup key={c} label={c}>{PEPTIDE_DB.filter(p => p.category === c && p.reconstitution.typicalVialMg > 0).map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}</optgroup>)}</select></Field>
         
         {components.length > 0 && (
-          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
+          <div style={{background:'var(--fill-1)',border:'1px solid var(--border)',padding:12,borderRadius:14,marginBottom:14}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--text-dim)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>🧪 Blend Components</div>
             {components.map((c, i) => {
               const compMcgPerMl = (c.mg * 1000) / parseFloat(ml || 1);
@@ -3423,7 +4049,7 @@ function MathView() {
         
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
           {components.length === 0 && <Field label="Vial (mg)"><input type="number" step="0.1" value={mg} onChange={e => setMg(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>}
-          {components.length > 0 && <div><label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Total mg</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{totalMg.toFixed(2)}</div></div>}
+          {components.length > 0 && <div><label style={{fontSize:12,color:'var(--text-dim)',fontWeight:600,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Total mg</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'var(--fill-1)',color:'var(--text-dim)'}}>{totalMg.toFixed(2)}</div></div>}
           <Field label="BAC (mL)"><input type="number" step="0.1" value={ml} onChange={e => setMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>
         </div>
         <Field label="Dose (mcg of total blend)"><input type="number" value={dose} onChange={e => setDose(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></Field>

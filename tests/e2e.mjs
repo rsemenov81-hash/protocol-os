@@ -187,8 +187,9 @@ try {
   const tomorrowDue = t2.timeline[2].schedule.days.includes(dow(tomorrow));
   const tCardTomorrow = page.getByRole('button', { name: /Testosterone Cyp/ }).first();
   check('future: testosterone shown tomorrow only if MWF says so', (await tCardTomorrow.count() === 1) === tomorrowDue, 'due=' + tomorrowDue);
-  const anyCard = page.locator('.card.card-future').first();
-  check('future: cards render in future state', await anyCard.count() >= 1);
+  // rows of a future day carry the 'fut' disc (the old grid used .card-future); the row body opens the plan-only sheet
+  const anyCard = page.locator('.blk-row:has(.blk-disc.fut) .blk-main').first();
+  check('future: cards render in future state', await page.locator('.blk-disc.fut').count() >= 1);
   await anyCard.click();
   await page.getByText(/Scheduled for/).waitFor();
   check('future: plan-only sheet (no Log button, Close only)', await page.getByRole('button', { name: /^Log/ }).count() === 0 && await page.getByRole('button', { name: 'Close', exact: true }).count() >= 1);
