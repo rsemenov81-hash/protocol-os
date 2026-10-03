@@ -2,7 +2,7 @@
 // a failed cross-origin call (the /sync Worker) is never answered with the cached page, and a
 // navigation on a weak signal falls back to the cached app after 3 s instead of hanging blank.
 // It also receives Web Push reminders from the sync Worker (push / notificationclick, at the bottom).
-const CACHE = 'protocol-os-v17';
+const CACHE = 'protocol-os-v18';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'

@@ -1,6 +1,10 @@
 import { pushStatus, enableReminders, updateReminders, disableReminders, sendTestReminder, listenForOpenBlock, defaultReminderSettings, getSavedReminders } from './push.js';
 
-const { useState, useEffect, useRef, useMemo, useCallback } = React;
+const { useState, useEffect, useRef, useMemo, useCallback, useContext } = React;
+// Sheet confirm bar slot: a sheet's footer is portaled next to .sheet-body (a flex sibling below it), so the
+// scrolling content always ends above the bar instead of under it (sticky-in-scroller was offset by the
+// scroller's padding on iOS and hid the last rows).
+const SheetFootContext = React.createContext(null);
 const { LayoutDashboard, Package, Beaker, Clock, Calculator, BookOpen, Bot,
   CheckCircle, AlertTriangle, Plus, Edit2, Trash2, X, Download, Upload,
   Search, ShieldAlert, ArrowRight, Check, Activity, Info, Zap, Target,
@@ -1336,6 +1340,7 @@ function App() {
   const [sheet, setSheet] = useState({ content: null, open: false, closing: false, settled: false });
   const sheetTimer = useRef(null);
   const sheetRef = useRef(null);       // C5 a11y: sheet element, focused on open
+  const [footSlot, setFootSlot] = useState(null); // the .sheet-foot-slot node, once mounted (portal target for a sheet's confirm bar)
   const prevFocusRef = useRef(null);   // C5 a11y: element to restore focus to on close
 
   useEffect(() => {
@@ -1888,7 +1893,8 @@ function App() {
             }}>
             <button className="sheet-grab" onClick={closeModal} aria-label="Close"><i/></button>
             <button onClick={closeModal} aria-label="Close" style={{position:'absolute',top:8,right:14,zIndex:6,background:'var(--fill-3)',border:'none',borderRadius:100,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-dim)',cursor:'pointer'}}><X size={16}/></button>
-            <div className="sheet-body">{sheet.content}</div>
+            <div className="sheet-body"><SheetFootContext.Provider value={footSlot}>{sheet.content}</SheetFootContext.Provider></div>
+            <div className="sheet-foot-slot" ref={setFootSlot}/>
           </div>
         </div>
       )}
@@ -2730,6 +2736,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
       const [f, setF] = useState(f0);
       const [unitsText, setUnitsText] = useState(null); // raw text while typing in the units field (formatting happens on blur, not per keystroke)
       const rm = useReducedMotion();                    // D6 live reduced-motion gate
+      const footSlot = useContext(SheetFootContext);     // confirm bar renders below the scroller, never over it
       const [committing, setCommitting] = useState(false); // D6 plunger-depress commit in flight
       const liveRef = useRef(true);                     // false once GateDialog swaps this Modal out
       useEffect(() => () => { liveRef.current = false; }, []);
@@ -2807,6 +2814,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
       const logVerb = pastDay ? 'Log for ' + fmtDk(dateKey) : 'Log';
       const [planOpen, setPlanOpen] = useState(!!planOnly); // plan tools live behind a disclosure; the dose comes first
       const submit = () => {
+        if (committing) return;                      // the bar sits outside the frozen sheet body: one commit at a time
         const d = parseFloat(f.doseMcg);
         if (!(d > 0)) return showToast('Enter a dose above zero', 'error');
         const tv = vials.find(v => v.id === f.vialId);
@@ -2900,6 +2908,26 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
             return { id: cid, name: sub ? sub.name : cid, icon: sub ? sub.icon : '💊', pct: Math.round(frac*100), mcgInShot: drawMl * compMcgPerMl };
           })
         : null;
+      // Confirm bar — the label restates the commitment; onClick={submit} is the gate-wired path. Rendered into the
+      // sheet frame's foot slot (a flex sibling below .sheet-body), so the end of the form is never under it.
+      const foot = planOnly ? (
+            <div className="sheet-foot">
+              <button className="btn btn-ghost" style={{flex:1,minHeight:48,borderRadius:14}} onClick={closeModal}>Close</button>
+            </div>
+          ) : (
+          <div className="sheet-foot" style={committing ? {pointerEvents:'none'} : undefined}>
+            {existingLog
+              ? <button className="btn btn-danger" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={undoLog}>Undo</button>
+              : isPrn(proto)
+                ? <button className="btn btn-ghost" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={closeModal}>Cancel</button>
+                : <button className="btn btn-ghost" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={() => { closeModal(); skipDose(proto); }}>Skip</button>}
+            <button className="btn btn-primary" onClick={submit} disabled={editRecon} style={{flex:1,minHeight:52,fontSize:16,borderRadius:14}}>
+              {existingLog ? <>Save · <span className="mono">{hasConc && !isOral ? `${units}u` : fmtAdmDose(dNow)}</span></>
+                : hasConc && !isOral ? <>{logVerb} <span className="mono">{units}u</span> · <span className="mono">{fmtAdmDose(dNow)}</span></>
+                : <>{logVerb} <span className="mono">{fmtAdmDose(dNow)}</span></>}
+            </button>
+          </div>
+          );
       return (
         <div style={committing ? {pointerEvents:'none'} : undefined}>
           <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
@@ -3039,25 +3067,7 @@ function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onO
                 onFinish={() => finishCycle(proto)} onResume={() => resumeCycle(proto)}/>
             </div>
           </details>
-          {/* D5 confirm bar — the label restates the commitment; onClick={submit} is the gate-wired path. */}
-          {planOnly ? (
-            <div className="sheet-foot">
-              <button className="btn btn-ghost" style={{flex:1,minHeight:48,borderRadius:14}} onClick={closeModal}>Close</button>
-            </div>
-          ) : (
-          <div className="sheet-foot">
-            {existingLog
-              ? <button className="btn btn-danger" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={undoLog}>Undo</button>
-              : isPrn(proto)
-                ? <button className="btn btn-ghost" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={closeModal}>Cancel</button>
-                : <button className="btn btn-ghost" style={{minHeight:48,padding:'0 18px',borderRadius:14}} onClick={() => { closeModal(); skipDose(proto); }}>Skip</button>}
-            <button className="btn btn-primary" onClick={submit} disabled={editRecon} style={{flex:1,minHeight:52,fontSize:16,borderRadius:14}}>
-              {existingLog ? <>Save · <span className="mono">{hasConc && !isOral ? `${units}u` : fmtAdmDose(dNow)}</span></>
-                : hasConc && !isOral ? <>{logVerb} <span className="mono">{units}u</span> · <span className="mono">{fmtAdmDose(dNow)}</span></>
-                : <>{logVerb} <span className="mono">{fmtAdmDose(dNow)}</span></>}
-            </button>
-          </div>
-          )}
+          {footSlot ? ReactDOM.createPortal(foot, footSlot) : null}
         </div>
       );
     };
