@@ -1,3 +1,4 @@
+import { pushStatus, enableReminders, updateReminders, disableReminders, sendTestReminder, listenForOpenBlock, defaultReminderSettings, getSavedReminders } from './push.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 const { LayoutDashboard, Package, Beaker, Clock, Calculator, BookOpen, Bot,
@@ -1396,6 +1397,7 @@ function App() {
   const pullTries = React.useRef(0);         // launch-pull retries (2 s, 8 s, 30 s)
   const syncBase = React.useRef(null);       // snapshot of the last synced state: diffed to stamp updatedAt and to write delete markers
   const [syncQueued, setSyncQueued] = useState(false); // a push failed and is waiting for retry/reconnect
+  const [proposalsPending, setProposalsPending] = useState(0); // Claude's pending plan suggestions (worker 1.6+)
   const metaRef = useRef(meta); metaRef.current = meta;
 
   // ONE shared cloud record for every profile: the whole store travels under ?profile=all, so a profile
@@ -1423,6 +1425,7 @@ function App() {
       const r = await fetch(cloudEndpoint(), { method: 'GET', headers: authHeaders() });
       if (!r.ok) throw new Error('GET ' + r.status);
       const d = await r.json();
+      if (d && typeof d._proposalsPending === 'number') setProposalsPending(d._proposalsPending); // Claude's pending suggestions ride along with every pull
       // Rev comes from the BODY (_rev): Cloudflare rewrites ETags to weak (W/"n") when it
       // compresses responses, which poisoned If-Match and 409'd every push from Safari.
       if (d && d._rev != null) cloudRev.current = String(d._rev);
@@ -1718,6 +1721,50 @@ function App() {
       onSave={(u,t)=>{ saveSyncConfig(u,t); closeModal(); if (pullAfter) setTimeout(()=>cloudPull(true),300); }}
       onClose={closeModal}/>
   );
+  // ── Restore from a backup (cloud daily snapshots, Worker 1.5+, or the local pre-import backup) ──
+  const restoreFrom = (blob, label) => {
+    try { localStorage.setItem('protocol_os_backup', JSON.stringify({ at: new Date().toISOString(), protocols: protocolsRef.current, vials: vialsRef.current, logs: logsRef.current, meta: metaRef.current })); } catch (e) {}
+    // Everything restored is stamped now and local delete markers are cleared, so the restore wins the next merge.
+    const now = nowIso(); const stamp = (arr) => arr.map(o => (o && o.id != null) ? { ...o, updatedAt: now } : o);
+    const s = remoteOf(blob); const meta = { ...(s.meta || {}), tombstones: { logs: {}, protocols: {}, vials: {} } };
+    applyState(withToday({ protocols: stamp(s.protocols), vials: stamp(s.vials), logs: stamp(s.logs), meta }));
+    syncBase.current = null; lastPushRef.current = '';
+    showToast('Restored the ' + label);
+    if (syncReady) setTimeout(() => cloudPush(true, true), 50);
+  };
+  const openRestore = () => {
+    let lb = null; try { lb = JSON.parse(localStorage.getItem('protocol_os_backup') || 'null'); } catch (e) {}
+    openModal(<RestoreSheet syncUrl={syncUrl} token={syncToken} localBackup={lb} onClose={closeModal}
+      onRestore={(blob, label) => confirmModal('Restore?', `Replace this phone's data with the ${label}? Entries made after it will be gone; the current data is saved as the local backup first.`, () => restoreFrom(blob, label), 'Restore')}/>);
+  };
+  // ── Claude's proposals: suggested dated changes that do nothing until approved here ──
+  const resolveProposal = async (pr, status) => {
+    if (status === 'approved') {
+      const p = protocolsRef.current.find(x => x.id === pr.protocolId);
+      if (!p) { showToast('That compound is no longer in the plan', 'error'); return false; }
+      const todayDk = todayLocal();
+      const from = (pr.effectiveFrom && dkValid(pr.effectiveFrom)) ? pr.effectiveFrom : todayDk;
+      const ch = pr.change || {}; const fields = {};
+      if (ch.schedule) fields.schedule = normSched(ch.schedule, from);
+      if (ch.doseMcg > 0) { fields.doseMcg = ch.doseMcg; fields.doseUnit = ch.doseUnit || p.doseUnit || null; }
+      let np = p;
+      if (Object.keys(fields).length) np = canonicalizeDose(applyRevision(np, from, fields, todayDk));
+      if (ch.endDate && dkValid(ch.endDate)) np = finishProto(np, ch.endDate, todayDk);
+      setProtocols(prev => prev.map(x => x.id === p.id ? np : x));
+    }
+    try {
+      const r = await fetch(`${syncUrl.replace(/\/+$/, '')}/proposals/${encodeURIComponent(pr.id)}`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ status }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    } catch (e) { showToast('Could not record that in the cloud: ' + (e.message || e), 'error'); }
+    setProposalsPending(n => Math.max(0, n - 1));
+    showToast(status === 'approved' ? `Applied · ${pr.peptideName}` : `Dismissed · ${pr.peptideName}`);
+    return true;
+  };
+  const openReminders = () => openModal(<RemindersSheet syncUrl={syncUrl} token={syncToken} profile={activeProfile} syncReady={!!syncReady} onClose={closeModal} onSetupSync={() => openSyncConfigModal(true)} showToast={showToast}/>);
+  // A tapped reminder lands on its day and the Today tab (the service worker posts open-block, or the launch URL carries it).
+  useEffect(() => listenForOpenBlock((data) => { if (data && data.date) { const t = dkParse(data.date); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } } setActiveTab('protocol'); }), []);
+  const openProposals = () => openModal(<ProposalsSheet syncUrl={syncUrl} token={syncToken} profile={activeProfile} onClose={closeModal} onResolve={resolveProposal}/>);
+
   const openDataSyncModal = () => openModal(
     <div>
       <h3 style={{margin:'0 0 12px',fontSize:17,fontWeight:700}}>{'Data & sync'}</h3>
@@ -1728,6 +1775,10 @@ function App() {
       <div style={{display:'flex',gap:8,marginBottom:10}}>
         <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryCSV();}}>History CSV</button>
         <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryJSON();}}>History JSON</button>
+      </div>
+      <div style={{display:'flex',gap:8,marginBottom:10}}>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={openReminders}>Reminders…</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={openRestore}>Restore a backup…</button>
       </div>
       {syncReady
         ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>Edit cloud sync settings</button>
@@ -1750,13 +1801,13 @@ function App() {
           if (!pulledOnce.current || syncStatus === 'error') { cloudPull(true).then(() => cloudPush(false, true)); }
           else if (syncQueued) { cloudPush(true, true); } else { cloudPull(true); }
         }}
-        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} textScale={textScale} setTextScale={setTextScale}/>
+        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} onOpenReminders={openReminders} textScale={textScale} setTextScale={setTextScale}/>
       <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
       {storageFull && <div role="alert" className="storage-banner"><span>Storage is full. New entries are kept in memory only until space is freed.</span><button onClick={exportData}>Export now</button></div>}
       {!isToday && activeTab === 'protocol' && <div style={{position:'relative',zIndex:2,maxWidth:480,margin:'0 auto',padding:'10px 18px 0'}}><button className="viewing-pill" onClick={() => setViewDate(new Date())}>Viewing {fmtDk(dateKey)} · Back to today</button></div>}
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
-          {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
+          {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} proposalsPending={proposalsPending} onOpenProposals={openProposals} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
           {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON}
             onJump={(dk, protocolId, logId) => { const t = dkParse(dk); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } setJumpTo({ dateKey: dk, protocolId, logId }); setActiveTab('protocol'); }}/>}
         </div>
@@ -1860,7 +1911,7 @@ function DateButton({ viewDate, setViewDate }) {
   );
 }
 
-function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
   const scales = [['1', 'Normal'], ['1.15', 'Larger'], ['1.3', 'Largest']];
   const scaleLabel = (scales.find(s => s[0] === String(textScale)) || scales[0])[1];
   const nextScale = () => { const i = scales.findIndex(s => s[0] === String(textScale)); setTextScale(scales[(i + 1) % scales.length][0]); };
@@ -1885,6 +1936,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
               );
             })}
             <div className="menu-hair"/>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenReminders && onOpenReminders(); }}><span style={{flex:1,fontSize:15}}>Reminders…</span></button>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenLibrary && onOpenLibrary(); }}><span style={{flex:1,fontSize:15}}>Library…</span></button>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenCalculator && onOpenCalculator(); }}><span style={{flex:1,fontSize:15}}>Reconstitution calculator…</span></button>
             <button role="menuitem" className="menu-row" onClick={nextScale} aria-label={'Text size: ' + scaleLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Text size</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{scaleLabel}</span></button>
@@ -1901,7 +1953,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
   );
 }
 
-function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = React.useRef(null);
   useEffect(() => {
@@ -1934,7 +1986,7 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
             <span className="hdr-title num">{titleLabel}<span className="mini mono num">{logged}/{scheduled}</span></span>
           </div>
           <button className={'sync-cap num ' + syncState} aria-label={syncAria} onClick={onSyncTap}>{syncLabel}</button>
-          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} textScale={textScale} setTextScale={setTextScale}/>
+          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} onOpenReminders={onOpenReminders} textScale={textScale} setTextScale={setTextScale}/>
         </div>
       </header>
       <div className="hdr-large">
@@ -1965,6 +2017,151 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
       </div>
       <div ref={sentinelRef} style={{height:1}} aria-hidden="true"/>
     </>
+  );
+}
+
+// Reminders: one notification per time block through the Worker's cron + Web Push. On iPhone this works once the
+// app is on the Home Screen (iOS 16.4+); the notification opens the block, it cannot carry Log buttons.
+function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSync, showToast }) {
+  const saved = getSavedReminders();
+  const [status, setStatus] = useState('checking');
+  const [settings, setSettings] = useState(() => ({ ...defaultReminderSettings(), ...((saved && saved.settings) || {}) }));
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const refresh = () => pushStatus().then(setStatus).catch(() => setStatus('unsupported'));
+  useEffect(() => { refresh(); }, []);
+  const blocks = [['am', 'Morning'], ['pre', 'Pre-workout'], ['pm', 'Evening']];
+  const setBlock = (k, on) => setSettings(s => ({ ...s, blocks: { ...s.blocks, [k]: on } }));
+  const setTime = (k, v) => setSettings(s => ({ ...s, times: { ...s.times, [k]: v } }));
+  const run = async (fn, okText) => {
+    setBusy(true); setMsg(null);
+    const r = await fn();
+    setBusy(false);
+    if (r && r.ok) { setMsg({ ok: true, t: okText }); showToast && showToast(okText); } else { setMsg({ ok: false, t: (r && r.error) || 'Did not work' }); }
+    refresh();
+  };
+  const Toggle = ({ on, onChange, label }) => <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} style={{width:46,height:28,borderRadius:14,border:'none',background: on ? 'var(--success)' : 'rgba(255,255,255,.18)',position:'relative',cursor:'pointer',flexShrink:0}}><span style={{position:'absolute',top:3,left: on ? 21 : 3,width:22,height:22,borderRadius:'50%',background:'#fff',transition:'left .15s'}}/></button>;
+  const form = (
+    <div className="blk" style={{marginBottom:12}}>
+      {blocks.map(([k, label]) => (
+        <div key={k} className="blk-row" style={{gap:10,minHeight:54,padding:'4px 2px'}}>
+          <span style={{flex:1,fontSize:14,fontWeight:700}}>{label}</span>
+          <input type="time" aria-label={label + ' reminder time'} value={(settings.times || {})[k] || ''} onChange={e => setTime(k, e.target.value)} className="input" style={{width:112,padding:'8px 10px',fontFamily:'var(--mono)'}} disabled={!(settings.blocks || {})[k]}/>
+          <Toggle on={!!(settings.blocks || {})[k]} onChange={v => setBlock(k, v)} label={label + ' reminders'}/>
+        </div>
+      ))}
+      <div className="blk-row" style={{gap:10,minHeight:54,padding:'4px 2px'}}>
+        <span style={{flex:1,fontSize:14,fontWeight:700}}>Nudge if still due</span>
+        <select aria-label="Nudge delay" value={String(settings.nudgeMinutes || 0)} onChange={e => setSettings(s => ({ ...s, nudgeMinutes: parseInt(e.target.value) || 0 }))} className="input" style={{width:140,padding:'8px 10px'}}>
+          <option value="0">Off</option><option value="30">after 30 min</option><option value="60">after 1 h</option><option value="120">after 2 h</option>
+        </select>
+      </div>
+    </div>
+  );
+  let body;
+  if (!syncReady) body = <><p style={{fontSize:13,color:'var(--text-dim)',lineHeight:1.45}}>Reminders are sent by the same cloud Worker that syncs your data. Set up cloud sync first.</p><button className="btn btn-primary" style={{width:'100%'}} onClick={onSetupSync}>Set up cloud sync</button></>;
+  else if (status === 'checking') body = <p style={{fontSize:13,color:'var(--text-dim)'}}>Checking this device…</p>;
+  else if (status === 'unsupported') body = <p style={{fontSize:13,color:'var(--text-dim)',lineHeight:1.45}}>This browser cannot receive notifications. On iPhone use Safari and add the app to the Home Screen; on a computer use Chrome, Edge or Safari 16 or newer.</p>;
+  else if (status === 'needs-install') body = <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,lineHeight:1.5}}><b>Almost there.</b> On iPhone, notifications work once Protocol OS is on the Home Screen: tap <b>Share</b> → <b>Add to Home Screen</b>, open it from the new icon, then come back here and turn reminders on.</div>;
+  else if (status === 'denied') body = <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,lineHeight:1.5}}>Notifications are blocked for this app. Allow them in <b>Settings → Notifications → Protocol OS</b>, then return here.</div>;
+  else body = (
+    <>
+      {form}
+      {status === 'subscribed' ? (
+        <>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+            <button className="btn btn-primary" disabled={busy} onClick={() => run(() => updateReminders({ syncUrl, token, profile, settings }), 'Reminder settings saved')}>Save</button>
+            <button className="btn btn-ghost" disabled={busy} onClick={() => run(() => sendTestReminder({ syncUrl, token, profile }), 'Test sent — it should arrive in a few seconds')}>Send a test</button>
+          </div>
+          <button className="btn btn-ghost" style={{width:'100%',color:'var(--warn)'}} disabled={busy} onClick={() => run(() => disableReminders({ syncUrl, token }), 'Reminders turned off on this device')}>Turn off on this device</button>
+        </>
+      ) : (
+        <button className="btn btn-primary" style={{width:'100%'}} disabled={busy} onClick={() => run(() => enableReminders({ syncUrl, token, profile, settings }), 'Reminders are on')}>Turn on reminders</button>
+      )}
+      <p style={{margin:'10px 2px 0',fontSize:11.5,lineHeight:1.45,color:'var(--text-faint)'}}>One notification per block for {profile}, only while doses are still unlogged. Tapping it opens that block. Times follow this device's clock.</p>
+    </>
+  );
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Reminders</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,color:'var(--text-dim)'}}>{status === 'subscribed' ? 'On for this device.' : 'Off on this device.'}</p>
+      {msg && <div role="status" style={{fontSize:12.5,marginBottom:10,color: msg.ok ? 'var(--success)' : 'var(--danger)'}}>{msg.t}</div>}
+      {body}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Restore: the cloud keeps one snapshot per day (30 days); the app keeps one local backup before an import or restore.
+function RestoreSheet({ syncUrl, token, localBackup, onRestore, onClose }) {
+  const [list, setList] = useState(null); const [err, setErr] = useState(null); const [sel, setSel] = useState(null); const [blob, setBlob] = useState(null); const [busy, setBusy] = useState(false);
+  const base = (syncUrl || '').replace(/\/+$/, ''); const hdr = { 'Authorization': 'Bearer ' + token };
+  useEffect(() => {
+    if (!syncUrl || !token) { setList([]); return; }
+    fetch(`${base}/sync?profile=all&snapshots=1`, { headers: hdr }).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+      .then(d => setList(Array.isArray(d.snapshots) ? d.snapshots : [])).catch(e => { setErr(e.message || String(e)); setList([]); });
+  }, []);
+  const pick = async (key) => {
+    setSel(key); setBlob(null); setBusy(true); setErr(null);
+    try { if (key === 'local') setBlob(localBackup); else { const r = await fetch(`${base}/sync?profile=all&snapshot=${encodeURIComponent(key)}`, { headers: hdr }); if (!r.ok) throw new Error('HTTP ' + r.status); setBlob(await r.json()); } }
+    catch (e) { setErr(e.message || String(e)); }
+    setBusy(false);
+  };
+  const counts = (b) => { const P = Array.isArray(b.protocols) ? b.protocols : [], L = Array.isArray(b.logs) ? b.logs : [], V = Array.isArray(b.vials) ? b.vials : []; const byP = {}; P.forEach(p => { const k = p.profile || '?'; byP[k] = (byP[k] || 0) + 1; }); return `${P.length} protocols (${Object.entries(byP).map(([k, v]) => k + ' ' + v).join(', ') || 'none'}) · ${L.length} log entries · ${V.length} vials`; };
+  const Row = ({ k, name, sub }) => <div className="blk-row"><button className="blk-main" aria-pressed={sel === k} onClick={() => pick(k)} style={sel === k ? { background: 'rgba(227,200,134,.08)' } : undefined}><span className="blk-text"><span className="blk-name">{name}</span><span className="blk-dose mono">{sub}</span></span><span className="plan-chev" aria-hidden="true">›</span></button></div>;
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Restore from a backup</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,lineHeight:1.45,color:'var(--text-dim)'}}>The cloud keeps one snapshot per day for 30 days. Restoring replaces what is on this phone with that snapshot and syncs it back up. The current data is saved as the local backup first.</p>
+      {err && <div role="alert" style={{color:'var(--danger)',fontSize:12.5,marginBottom:10}}>Could not reach the cloud: {err}</div>}
+      <div className="blk" style={{marginBottom:12}}>
+        {localBackup && <Row k="local" name="Local backup" sub={'saved ' + new Date(localBackup.at).toLocaleString() + ' · before the last import or restore'}/>}
+        {list === null ? <div style={{padding:12,fontSize:13,color:'var(--text-dim)'}}>Loading snapshots…</div>
+          : (list.length === 0 && !localBackup) ? <div style={{padding:12,fontSize:13,color:'var(--text-dim)'}}>No backups yet. The cloud writes one after the first sync of each day (Worker 1.5 or newer).</div>
+          : list.map(dk => <Row key={dk} k={dk} name={fmtDk(dk)} sub={'cloud snapshot · ' + dk}/>)}
+      </div>
+      {sel && (busy ? <div style={{fontSize:13,color:'var(--text-dim)'}}>Loading…</div> : blob ? (
+        <div className="lg" style={{borderRadius:14,padding:'12px 14px'}}>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:4}}>{sel === 'local' ? 'Local backup' : fmtDk(sel)}</div>
+          <div style={{fontSize:12.5,color:'var(--text-dim)',marginBottom:12}}>{counts(blob)}</div>
+          <button className="btn btn-primary" style={{width:'100%'}} onClick={() => onRestore(blob, sel === 'local' ? 'local backup' : 'snapshot of ' + fmtDk(sel))}>Restore this</button>
+        </div>) : null)}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Claude's proposals: Claude can suggest a dated change through the Worker; nothing changes until it is approved here.
+function ProposalsSheet({ syncUrl, token, profile, onClose, onResolve }) {
+  const [list, setList] = useState(null); const [err, setErr] = useState(null); const [busyId, setBusyId] = useState(null);
+  const base = (syncUrl || '').replace(/\/+$/, '');
+  useEffect(() => {
+    if (!syncUrl || !token) { setList([]); return; }
+    fetch(`${base}/proposals?profile=${encodeURIComponent(profile)}`, { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+      .then(d => setList(Array.isArray(d.proposals) ? d.proposals : [])).catch(e => { setErr(e.message || String(e)); setList([]); });
+  }, []);
+  const describe = (pr) => { const ch = pr.change || {}; const bits = []; if (ch.doseMcg > 0) bits.push('dose ' + fmtDoseAny(ch.doseMcg, ch.doseUnit || null)); if (ch.schedule) bits.push(schedLabel(normSched(ch.schedule, pr.effectiveFrom))); if (ch.endDate) bits.push('ends ' + fmtDk(ch.endDate)); if (ch.note) bits.push(ch.note); return bits.join(' · ') || 'no change fields'; };
+  const act = async (pr, status) => { setBusyId(pr.id); const ok = await onResolve(pr, status); setBusyId(null); if (ok) setList(prev => prev.map(x => x.id === pr.id ? { ...x, status } : x)); };
+  const pending = (list || []).filter(p => p.status === 'pending'); const done = (list || []).filter(p => p.status !== 'pending');
+  return (
+    <div>
+      <h3 style={{margin:'0 0 4px',fontSize:19,fontWeight:700}}>Claude suggests</h3>
+      <p style={{margin:'0 0 14px',fontSize:13,lineHeight:1.45,color:'var(--text-dim)'}}>Suggestions arrive here from Claude. Approving applies a dated plan change you can see in the compound's plan history; nothing is ever applied on its own.</p>
+      {err && <div role="alert" style={{color:'var(--danger)',fontSize:12.5,marginBottom:10}}>Could not reach the cloud: {err}</div>}
+      {list === null ? <div style={{fontSize:13,color:'var(--text-dim)'}}>Loading…</div> : pending.length === 0 ? <div className="lg" style={{borderRadius:14,padding:14,fontSize:13,color:'var(--text-dim)'}}>Nothing waiting for {profile}.</div> : pending.map(pr => (
+        <div key={pr.id} className="lg" style={{borderRadius:16,padding:'12px 14px',marginBottom:10}}>
+          <div style={{fontSize:15,fontWeight:700}}>{pr.peptideName}</div>
+          <div className="mono" style={{fontSize:12.5,color:'var(--accent)',margin:'3px 0 6px'}}>{describe(pr)}{pr.effectiveFrom ? ` · from ${fmtDk(pr.effectiveFrom)}` : ''}</div>
+          {pr.rationale && <div style={{fontSize:13,lineHeight:1.45,color:'var(--text-2)',marginBottom:10}}>{pr.rationale}</div>}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <button className="btn btn-ghost" disabled={busyId === pr.id} onClick={() => act(pr, 'dismissed')}>Dismiss</button>
+            <button className="btn btn-primary" disabled={busyId === pr.id} onClick={() => act(pr, 'approved')}>Approve</button>
+          </div>
+        </div>
+      ))}
+      {done.length > 0 && <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:6}}>{done.length} earlier suggestion{done.length === 1 ? '' : 's'} already answered.</div>}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onClose}>Close</button>
+    </div>
   );
 }
 
@@ -2015,7 +2212,7 @@ function FirstRun({ activeProfile, onPick, onLibrary }) {
   );
 }
 
-function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
+function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onOpenProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
   const [routeFilter, setRouteFilter] = useState('all');
   const [flashId, setFlashId] = useState(null);  // D6 check-off cascade: which card celebrates its fresh log
   const todayDk = todayLocal();
@@ -2223,6 +2420,16 @@ function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, is
         </div>
       );
     };
+    // Heads-up: what needs attention in the next two weeks (supply, cycles ending, dated changes)
+    const alerts = [];
+    live.forEach(p => {
+      const name = p.route === 'pen' ? penLabelOf(p) : p.peptideName;
+      const s = supplyFor(p); if (s && s.dosesLeft <= 3) alerts.push({ k: 'supply', t: `${name}: ${s.dosesLeft} dose${s.dosesLeft === 1 ? '' : 's'} left${s.runOut ? ' · runs out ' + fmtDk(s.runOut) : ''}`, p });
+      const e = endOf(p); if (dkValid(e) && e >= todayDk && dkDiff(e, todayDk) <= 7) alerts.push({ k: 'end', t: `${name} ends ${fmtDk(e)}`, p });
+      const nr = nextRevision(p, todayDk); if (nr && dkDiff(nr.from, todayDk) <= 14) alerts.push({ k: 'change', t: `${name}: ${schedLabel(nr.schedule, true)} · ${fmtDoseAny(nr.doseMcg, nr.doseUnit)} from ${fmtDk(nr.from)}`, p });
+    });
+    const adhAll = live.reduce((acc, p) => { const a = adherenceFor(p, 30); acc.exp += a.exp; acc.got += a.got; return acc; }, { exp: 0, got: 0 });
+    const adhPct = adhAll.exp ? Math.round(adhAll.got / adhAll.exp * 100) : null;
     return (
       <div style={{paddingBottom:40}} className="anim-fade-in">
         <div style={{display:'flex',gap:8,marginBottom:14}}>
@@ -2231,6 +2438,26 @@ function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, is
           <button className="btn btn-ghost" onClick={openLibrary}>Library</button>
           <button className="btn btn-ghost" onClick={openCalculator} aria-label="Reconstitution calculator">Calc</button>
         </div>
+        {proposalsPending > 0 && (
+          <button className="lg" onClick={onOpenProposals} style={{width:'100%',textAlign:'left',borderRadius:18,padding:'12px 14px',marginBottom:14,display:'flex',alignItems:'center',gap:12,cursor:'pointer',border:'1px solid rgba(227,200,134,.35)'}}>
+            <span className="blk-disc" aria-hidden="true"><Bot size={15} color="var(--accent)"/></span>
+            <span style={{flex:1,minWidth:0}}><span style={{display:'block',fontSize:14,fontWeight:700}}>Claude suggests {proposalsPending} change{proposalsPending === 1 ? '' : 's'}</span><span style={{display:'block',fontSize:12,color:'var(--text-dim)'}}>Review, then approve or dismiss.</span></span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
+        )}
+        {(alerts.length > 0 || adhPct != null) && (
+          <section className="blk" aria-label="Heads-up" style={{marginBottom:14}}>
+            <div className="blk-hd"><span className="blk-title">Heads-up</span><span className="blk-hint">next two weeks</span>{adhPct != null && <span className="blk-count mono" style={{color: adhPct >= 90 ? 'var(--success)' : adhPct >= 70 ? 'var(--accent)' : 'var(--warn)'}}>{adhPct}% · 30 days</span>}</div>
+            {alerts.length === 0 && <div style={{padding:'6px 4px 10px',fontSize:13,color:'var(--text-dim)'}}>Nothing running low or changing soon.</div>}
+            {alerts.map((a, i) => (
+              <div key={i} className="blk-row"><button className="blk-main" style={{minHeight:46}} onClick={() => openCompound(a.p)}>
+                <span className="blk-disc" aria-hidden="true" style={{width:22,height:22,borderColor: a.k === 'supply' ? 'var(--warn)' : 'var(--border)',background: a.k === 'supply' ? 'rgba(247,140,58,.14)' : 'rgba(255,255,255,.05)'}}><span style={{fontSize:11,color: a.k === 'supply' ? 'var(--warn)' : 'var(--text-dim)'}}>{a.k === 'supply' ? '!' : a.k === 'end' ? '⏹' : '↗'}</span></span>
+                <span className="blk-text"><span className="blk-dose" style={{fontSize:13,color:'var(--text)'}}>{a.t}</span></span>
+                <span className="plan-chev" aria-hidden="true">›</span>
+              </button></div>
+            ))}
+          </section>
+        )}
         {live.length === 0 ? <FirstRun activeProfile={activeProfile} onPick={(id) => addProtocol(id)} onLibrary={openLibrary}/> : (
           <section className="blk plan" aria-label="Current plan">
             <div className="blk-hd"><span className="blk-title">Current plan</span><span className="blk-count mono">{live.length}</span></div>
@@ -3091,6 +3318,13 @@ function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, is
             ); })}
             {expiredProtos.length > 3 && <div style={{fontSize:11, color:'var(--text-faint)', paddingTop:6}}>+{expiredProtos.length - 3} more</div>}
           </div>
+        )}
+        {proposalsPending > 0 && (
+          <button className="lg" onClick={onOpenProposals} style={{width:'100%',textAlign:'left',borderRadius:18,padding:'12px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:12,cursor:'pointer',border:'1px solid rgba(227,200,134,.35)'}}>
+            <span className="blk-disc" aria-hidden="true"><Bot size={15} color="var(--accent)"/></span>
+            <span style={{flex:1,minWidth:0}}><span style={{display:'block',fontSize:14,fontWeight:700}}>Claude suggests {proposalsPending} change{proposalsPending === 1 ? '' : 's'}</span><span style={{display:'block',fontSize:12,color:'var(--text-dim)'}}>Review, then approve or dismiss. Nothing is applied on its own.</span></span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
         )}
         {/* route filter chips */}
         <div style={{display:'flex', gap:7, marginBottom:16}}>

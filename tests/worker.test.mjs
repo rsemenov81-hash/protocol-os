@@ -1,10 +1,10 @@
-// Tests for protocol-sync-worker.js (v1.5.0). Plain Node 22: `node --test tests/worker.test.mjs`.
+// Tests for protocol-sync-worker.js (v1.6.0; the v1.5.0 contract). Plain Node 22: `node --test tests/worker.test.mjs`.
 // No dependencies: a Map-backed fake KV, a fake ctx, and node:test's Date mock for frozen clocks.
 import { test, describe, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../protocol-sync-worker.js';
 
-const VERSION = '1.5.0';
+const VERSION = '1.6.0';
 const BASE = 'https://protocol-sync.example.workers.dev';
 const APP_ORIGIN = 'https://rsemenov81-hash.github.io';
 
@@ -112,7 +112,7 @@ async function seedProfile(env, profile, blob, rev = 1) {
 
 // =====================================================================================
 describe('version', () => {
-  test('health, initialize and get_protocol all report 1.5.0', async () => {
+  test('health, initialize and get_protocol all report the worker version', async () => {
     const env = mkEnv(), ctx = fakeCtx();
     const h = await (await call(env, ctx, '/health')).json();
     assert.equal(h.version, VERSION);
@@ -453,7 +453,7 @@ describe('auth: Bearer header preferred over ?token', () => {
     const h = await call(env, ctx, '/mcp?profile=Roman', { method: 'POST', headers: { Authorization: 'Bearer r' }, body: { jsonrpc: '2.0', id: 2, method: 'tools/list' } });
     assert.equal(h.status, 200);
     const tools = (await h.json()).result.tools.map((t) => t.name).sort();
-    assert.deepEqual(tools, ['get_adherence', 'get_logs_for_date', 'get_protocol', 'get_today']);
+    assert.deepEqual(tools, ['get_adherence', 'get_logs_for_date', 'get_proposals', 'get_protocol', 'get_today', 'propose_change']);
   });
 });
 

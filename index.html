@@ -714,6 +714,344 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
 <div id="root"></div>
 <script>/* Protocol OS app — compiled from src/app by tools/build.mjs; edit the source, not this file */
 (() => {
+  // src/app/push.js
+  var PUSH_STORAGE_KEY = "protocol_os_push";
+  var SW_URL = "./sw.js";
+  var REQUEST_TIMEOUT_MS = 15e3;
+  var SW_READY_TIMEOUT_MS = 1e4;
+  function defaultReminderSettings() {
+    return { blocks: { am: true, pre: true, pm: true }, times: { am: "08:00", pre: "06:00", pm: "19:00" }, nudgeMinutes: 30 };
+  }
+  var TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+  function normalizeReminderSettings(s) {
+    const d = defaultReminderSettings();
+    const src = s && typeof s === "object" ? s : {};
+    const blocks = {}, times = {};
+    for (const k of ["am", "pre", "pm"]) {
+      blocks[k] = src.blocks && k in src.blocks ? !!src.blocks[k] : d.blocks[k];
+      const t = src.times && typeof src.times[k] === "string" ? src.times[k].trim() : "";
+      times[k] = TIME_RE.test(t) ? t : d.times[k];
+    }
+    const n = Number(src.nudgeMinutes);
+    const nudgeMinutes = Number.isFinite(n) && n >= 0 ? Math.round(n) : d.nudgeMinutes;
+    return { blocks, times, nudgeMinutes };
+  }
+  function urlBase64ToUint8Array(s) {
+    const str = String(s == null ? "" : s).trim().replace(/=+$/, "");
+    const padding = "=".repeat((4 - str.length % 4) % 4);
+    const base64 = (str + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = atob(base64);
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  var nav = () => typeof navigator !== "undefined" ? navigator : void 0;
+  var ua = () => {
+    const n = nav();
+    return n && n.userAgent || "";
+  };
+  function isIOS() {
+    const n = nav();
+    return /iP(hone|ad|od)/.test(ua()) || /Macintosh/.test(ua()) && !!n && (n.maxTouchPoints || 0) > 1;
+  }
+  function isStandalone() {
+    try {
+      const n = nav();
+      if (n && n.standalone === true) return true;
+      if (typeof matchMedia === "function") {
+        const m = matchMedia("(display-mode: standalone)");
+        if (m && m.matches) return true;
+      }
+    } catch (e) {
+    }
+    return false;
+  }
+  function needsInstall() {
+    return isIOS() && !isStandalone();
+  }
+  function isPushSupported() {
+    try {
+      const n = nav();
+      return !!(n && n.serviceWorker && typeof PushManager !== "undefined" && typeof Notification !== "undefined");
+    } catch (e) {
+      return false;
+    }
+  }
+  function permission() {
+    try {
+      return typeof Notification !== "undefined" && Notification.permission || "default";
+    } catch (e) {
+      return "default";
+    }
+  }
+  function requestPermission() {
+    return new Promise((resolve) => {
+      try {
+        const p = Notification.requestPermission((r) => resolve(r || permission()));
+        if (p && typeof p.then === "function") p.then((r) => resolve(r || permission()), () => resolve(permission()));
+      } catch (e) {
+        resolve(permission());
+      }
+    });
+  }
+  function getSavedReminders() {
+    try {
+      if (typeof localStorage === "undefined") return null;
+      const raw = localStorage.getItem(PUSH_STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : null;
+      return v && typeof v === "object" ? v : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function saveLocal(rec) {
+    try {
+      if (typeof localStorage !== "undefined") localStorage.setItem(PUSH_STORAGE_KEY, JSON.stringify(rec));
+    } catch (e) {
+    }
+  }
+  function clearLocal() {
+    try {
+      if (typeof localStorage !== "undefined") localStorage.removeItem(PUSH_STORAGE_KEY);
+    } catch (e) {
+    }
+  }
+  async function getRegistration() {
+    const n = nav();
+    if (!n || !n.serviceWorker) return null;
+    try {
+      const sw = n.serviceWorker;
+      return (typeof sw.getRegistration === "function" ? await sw.getRegistration() : null) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+  async function readyRegistration() {
+    const n = nav();
+    if (!n || !n.serviceWorker) return null;
+    const sw = n.serviceWorker;
+    let reg = await getRegistration();
+    if (!reg && typeof sw.register === "function") {
+      try {
+        reg = await sw.register(SW_URL);
+      } catch (e) {
+        return null;
+      }
+    }
+    if (!reg) return null;
+    if (!reg.active && sw.ready && typeof sw.ready.then === "function") {
+      const ready = await Promise.race([sw.ready.catch(() => null), new Promise((res) => setTimeout(() => res(null), SW_READY_TIMEOUT_MS))]);
+      if (ready) reg = ready;
+    }
+    return reg;
+  }
+  async function currentSubscription(reg) {
+    try {
+      return reg && reg.pushManager ? await reg.pushManager.getSubscription() || null : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function subscriptionJSON(sub) {
+    if (sub && typeof sub.toJSON === "function") return sub.toJSON();
+    return { endpoint: sub && sub.endpoint, expirationTime: sub && sub.expirationTime || null, keys: sub && sub.keys || {} };
+  }
+  function sameKey(sub, keyBytes) {
+    try {
+      const cur = sub && sub.options && sub.options.applicationServerKey;
+      if (!cur) return true;
+      const a = new Uint8Array(cur instanceof ArrayBuffer ? cur : cur.buffer ? cur.buffer.slice(cur.byteOffset, cur.byteOffset + cur.byteLength) : cur);
+      if (a.length !== keyBytes.length) return false;
+      for (let i = 0; i < a.length; i++) if (a[i] !== keyBytes[i]) return false;
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+  async function api(syncUrl, token, method, path, body) {
+    const base = String(syncUrl || "").trim().replace(/\/+$/, "");
+    if (!base || !token) return { ok: false, httpStatus: 0, error: "Cloud sync is not set up (URL and token)", data: null };
+    const init = { method, headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" } };
+    if (body !== void 0) init.body = JSON.stringify(body);
+    try {
+      if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") init.signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    } catch (e) {
+    }
+    try {
+      const res = await fetch(base + path, init);
+      let data = null;
+      try {
+        const text = await res.text();
+        data = text ? JSON.parse(text) : null;
+      } catch (e) {
+        data = null;
+      }
+      if (!res.ok) return { ok: false, httpStatus: res.status, error: data && (data.error || data.message) || "HTTP " + res.status, data };
+      return { ok: true, httpStatus: res.status, error: void 0, data };
+    } catch (e) {
+      return { ok: false, httpStatus: 0, error: e && e.name === "TimeoutError" ? "Request timed out" : e && e.message || String(e), data: null };
+    }
+  }
+  function timeZone() {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    } catch (e) {
+      return "";
+    }
+  }
+  function describeDevice() {
+    const u = ua();
+    const n = nav();
+    const os = /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) || /Macintosh/.test(u) && n && (n.maxTouchPoints || 0) > 1 ? "iPad" : /Android/.test(u) ? "Android" : /Macintosh/.test(u) ? "Mac" : /Windows/.test(u) ? "Windows" : /Linux/.test(u) ? "Linux" : "Device";
+    const browser = /Edg\//.test(u) ? "Edge" : /OPR\//.test(u) ? "Opera" : /Firefox\//.test(u) ? "Firefox" : /Chrome\//.test(u) ? "Chrome" : /Safari\//.test(u) ? "Safari" : "browser";
+    return `${os} · ${browser}${isStandalone() ? " (app)" : ""}`;
+  }
+  function subscribeBody(profile, sub, settings) {
+    return { profile: String(profile || ""), subscription: subscriptionJSON(sub), settings: normalizeReminderSettings(settings), tz: timeZone(), device: describeDevice() };
+  }
+  async function pushStatus() {
+    if (needsInstall()) return "needs-install";
+    if (!isPushSupported()) return "unsupported";
+    if (permission() === "denied") return "denied";
+    const reg = await getRegistration();
+    if (!reg) return "off";
+    return await currentSubscription(reg) ? "subscribed" : "off";
+  }
+  async function enableReminders({ syncUrl, token, profile, settings } = {}) {
+    if (needsInstall()) return { ok: false, status: "needs-install", error: "Add Protocol OS to your Home Screen first (Share → Add to Home Screen), then turn reminders on from the app icon." };
+    if (!isPushSupported()) return { ok: false, status: "unsupported", error: "This browser cannot receive push notifications." };
+    if (!profile) return { ok: false, status: await pushStatus(), error: "No profile selected." };
+    let perm = permission();
+    if (perm === "default") perm = await requestPermission();
+    if (perm !== "granted") return { ok: false, status: perm === "denied" ? "denied" : "off", error: perm === "denied" ? "Notifications are blocked for Protocol OS in this browser." : "Notification permission was not granted." };
+    const cfg = await api(syncUrl, token, "GET", "/push/config");
+    if (!cfg.ok) return { ok: false, status: await pushStatus(), error: "Could not reach the sync Worker: " + cfg.error };
+    const publicKey = cfg.data && cfg.data.publicKey;
+    if (!publicKey || cfg.data.enabled === false) return { ok: false, status: await pushStatus(), error: "Reminders are not enabled on the sync Worker (no VAPID key)." };
+    let keyBytes;
+    try {
+      keyBytes = urlBase64ToUint8Array(publicKey);
+    } catch (e) {
+      keyBytes = null;
+    }
+    if (!keyBytes || keyBytes.length !== 65) return { ok: false, status: await pushStatus(), error: "The Worker returned an invalid push key." };
+    const reg = await readyRegistration();
+    if (!reg || !reg.pushManager) return { ok: false, status: "unsupported", error: "The service worker is not running; reload the app and try again." };
+    let sub = await currentSubscription(reg);
+    let fresh = false;
+    if (sub && !sameKey(sub, keyBytes)) {
+      try {
+        await sub.unsubscribe();
+      } catch (e) {
+      }
+      sub = null;
+    }
+    if (!sub) {
+      try {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes });
+        fresh = true;
+      } catch (e) {
+        const denied = e && (e.name === "NotAllowedError" || permission() === "denied");
+        return { ok: false, status: denied ? "denied" : "off", error: "Could not subscribe: " + (e && e.message || String(e)) };
+      }
+    }
+    const res = await api(syncUrl, token, "POST", "/push/subscribe", subscribeBody(profile, sub, settings));
+    if (!res.ok) {
+      if (fresh) {
+        try {
+          await sub.unsubscribe();
+        } catch (e) {
+        }
+      }
+      clearLocal();
+      return { ok: false, status: fresh ? "off" : await pushStatus(), error: "The sync Worker refused the subscription: " + res.error };
+    }
+    const id = res.data && res.data.id;
+    saveLocal({ endpoint: sub.endpoint, profile, settings: normalizeReminderSettings(settings), at: (/* @__PURE__ */ new Date()).toISOString(), id });
+    return { ok: true, status: "subscribed", id };
+  }
+  async function updateReminders({ syncUrl, token, profile, settings } = {}) {
+    if (!isPushSupported()) return { ok: false, status: await pushStatus(), error: "This browser cannot receive push notifications." };
+    const reg = await getRegistration();
+    const sub = await currentSubscription(reg);
+    if (!sub) {
+      clearLocal();
+      return { ok: false, status: await pushStatus(), error: "Reminders are off on this device; turn them on first." };
+    }
+    const saved = getSavedReminders();
+    const who = profile || saved && saved.profile;
+    if (!who) return { ok: false, status: "subscribed", error: "No profile selected." };
+    const res = await api(syncUrl, token, "POST", "/push/subscribe", subscribeBody(who, sub, settings));
+    if (!res.ok) return { ok: false, status: "subscribed", error: "The sync Worker refused the update: " + res.error };
+    const id = res.data && res.data.id || saved && saved.id;
+    saveLocal({ endpoint: sub.endpoint, profile: who, settings: normalizeReminderSettings(settings), at: (/* @__PURE__ */ new Date()).toISOString(), id });
+    return { ok: true, status: "subscribed", id };
+  }
+  async function disableReminders({ syncUrl, token } = {}) {
+    const saved = getSavedReminders();
+    const reg = await getRegistration();
+    const sub = await currentSubscription(reg);
+    const endpoint = sub && sub.endpoint || saved && saved.endpoint || null;
+    let unsubError = null;
+    if (sub) {
+      try {
+        await sub.unsubscribe();
+      } catch (e) {
+        unsubError = e && e.message || String(e);
+      }
+    }
+    let warning;
+    if (endpoint) {
+      const res = await api(syncUrl, token, "DELETE", "/push/subscribe", { endpoint });
+      if (!res.ok) warning = "The sync Worker could not be told: " + res.error;
+    }
+    clearLocal();
+    if (unsubError) return { ok: false, status: await pushStatus(), error: "Could not unsubscribe this browser: " + unsubError, warning };
+    const out = { ok: true, status: "off" };
+    if (warning) out.warning = warning;
+    return out;
+  }
+  async function sendTestReminder({ syncUrl, token, profile } = {}) {
+    if (!profile) return { ok: false, status: await pushStatus(), error: "No profile selected." };
+    const res = await api(syncUrl, token, "POST", "/push/test", { profile });
+    const status = await pushStatus();
+    if (!res.ok) return { ok: false, status, error: "Test reminder failed: " + res.error };
+    return { ok: true, status, result: res.data };
+  }
+  function listenForOpenBlock(handler) {
+    if (typeof handler !== "function") return () => {
+    };
+    const n = nav();
+    const sw = n && n.serviceWorker;
+    let onMsg = null;
+    if (sw && typeof sw.addEventListener === "function") {
+      onMsg = (e) => {
+        const m = e && e.data;
+        if (m && m.type === "open-block") handler(m.data || {}, e);
+      };
+      sw.addEventListener("message", onMsg);
+    }
+    try {
+      if (typeof location !== "undefined" && location.search) {
+        const q = new URLSearchParams(location.search);
+        if (q.has("block")) {
+          const data = { profile: q.get("profile") || void 0, block: q.get("block"), date: q.get("date") || void 0, url: location.href, launched: true };
+          if (typeof history !== "undefined" && typeof history.replaceState === "function") {
+            try {
+              history.replaceState(null, "", location.pathname + location.hash);
+            } catch (e) {
+            }
+          }
+          Promise.resolve().then(() => handler(data, null));
+        }
+      }
+    } catch (e) {
+    }
+    return () => {
+      if (onMsg && sw && typeof sw.removeEventListener === "function") sw.removeEventListener("message", onMsg);
+    };
+  }
+
   // src/app/main.jsx
   var { useState, useEffect, useRef, useMemo, useCallback } = React;
   var {
@@ -2136,6 +2474,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const pullTries = React.useRef(0);
     const syncBase = React.useRef(null);
     const [syncQueued, setSyncQueued] = useState(false);
+    const [proposalsPending, setProposalsPending] = useState(0);
     const metaRef = useRef(meta);
     metaRef.current = meta;
     const cloudEndpoint = () => `${syncUrl.replace(/\/+$/, "")}/sync?profile=all`;
@@ -2166,6 +2505,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         const r = await fetch(cloudEndpoint(), { method: "GET", headers: authHeaders() });
         if (!r.ok) throw new Error("GET " + r.status);
         const d = await r.json();
+        if (d && typeof d._proposalsPending === "number") setProposalsPending(d._proposalsPending);
         if (d && d._rev != null) cloudRev.current = String(d._rev);
         else {
           const etag = r.headers.get("ETag");
@@ -2545,6 +2885,81 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         }
       )
     );
+    const restoreFrom = (blob, label) => {
+      try {
+        localStorage.setItem("protocol_os_backup", JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), protocols: protocolsRef.current, vials: vialsRef.current, logs: logsRef.current, meta: metaRef.current }));
+      } catch (e) {
+      }
+      const now = nowIso();
+      const stamp = (arr) => arr.map((o) => o && o.id != null ? { ...o, updatedAt: now } : o);
+      const s = remoteOf(blob);
+      const meta2 = { ...s.meta || {}, tombstones: { logs: {}, protocols: {}, vials: {} } };
+      applyState(withToday({ protocols: stamp(s.protocols), vials: stamp(s.vials), logs: stamp(s.logs), meta: meta2 }));
+      syncBase.current = null;
+      lastPushRef.current = "";
+      showToast("Restored the " + label);
+      if (syncReady) setTimeout(() => cloudPush(true, true), 50);
+    };
+    const openRestore = () => {
+      let lb = null;
+      try {
+        lb = JSON.parse(localStorage.getItem("protocol_os_backup") || "null");
+      } catch (e) {
+      }
+      openModal(/* @__PURE__ */ React.createElement(
+        RestoreSheet,
+        {
+          syncUrl,
+          token: syncToken,
+          localBackup: lb,
+          onClose: closeModal,
+          onRestore: (blob, label) => confirmModal("Restore?", `Replace this phone's data with the ${label}? Entries made after it will be gone; the current data is saved as the local backup first.`, () => restoreFrom(blob, label), "Restore")
+        }
+      ));
+    };
+    const resolveProposal = async (pr, status) => {
+      if (status === "approved") {
+        const p = protocolsRef.current.find((x) => x.id === pr.protocolId);
+        if (!p) {
+          showToast("That compound is no longer in the plan", "error");
+          return false;
+        }
+        const todayDk = todayLocal();
+        const from = pr.effectiveFrom && dkValid(pr.effectiveFrom) ? pr.effectiveFrom : todayDk;
+        const ch = pr.change || {};
+        const fields = {};
+        if (ch.schedule) fields.schedule = normSched(ch.schedule, from);
+        if (ch.doseMcg > 0) {
+          fields.doseMcg = ch.doseMcg;
+          fields.doseUnit = ch.doseUnit || p.doseUnit || null;
+        }
+        let np = p;
+        if (Object.keys(fields).length) np = canonicalizeDose(applyRevision(np, from, fields, todayDk));
+        if (ch.endDate && dkValid(ch.endDate)) np = finishProto(np, ch.endDate, todayDk);
+        setProtocols((prev) => prev.map((x) => x.id === p.id ? np : x));
+      }
+      try {
+        const r = await fetch(`${syncUrl.replace(/\/+$/, "")}/proposals/${encodeURIComponent(pr.id)}`, { method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() }, body: JSON.stringify({ status }) });
+        if (!r.ok) throw new Error("HTTP " + r.status);
+      } catch (e) {
+        showToast("Could not record that in the cloud: " + (e.message || e), "error");
+      }
+      setProposalsPending((n) => Math.max(0, n - 1));
+      showToast(status === "approved" ? `Applied · ${pr.peptideName}` : `Dismissed · ${pr.peptideName}`);
+      return true;
+    };
+    const openReminders = () => openModal(/* @__PURE__ */ React.createElement(RemindersSheet, { syncUrl, token: syncToken, profile: activeProfile, syncReady: !!syncReady, onClose: closeModal, onSetupSync: () => openSyncConfigModal(true), showToast }));
+    useEffect(() => listenForOpenBlock((data) => {
+      if (data && data.date) {
+        const t = dkParse(data.date);
+        if (!isNaN(t)) {
+          const d = new Date(t);
+          setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+        }
+      }
+      setActiveTab("protocol");
+    }), []);
+    const openProposals = () => openModal(/* @__PURE__ */ React.createElement(ProposalsSheet, { syncUrl, token: syncToken, profile: activeProfile, onClose: closeModal, onResolve: resolveProposal }));
     const openDataSyncModal = () => openModal(
       /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 12px", fontSize: 17, fontWeight: 700 } }, "Data & sync"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
         exportData();
@@ -2552,7 +2967,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         exportHistoryCSV();
       } }, "History CSV"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
         exportHistoryJSON();
-      } }, "History JSON")), syncReady ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(false) }, "Edit cloud sync settings") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(true) }, "Set up cloud sync"))
+      } }, "History JSON")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: openReminders }, "Reminders…"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: openRestore }, "Restore a backup…")), syncReady ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(false) }, "Edit cloud sync settings") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(true) }, "Set up cloud sync"))
     );
     return /* @__PURE__ */ React.createElement("div", { style: { position: "relative", minHeight: "100vh" } }, /* @__PURE__ */ React.createElement("div", { className: "ambient" }), /* @__PURE__ */ React.createElement("div", { ...sheet.content ? { inert: "" } : {} }, /* @__PURE__ */ React.createElement(
       AppHeader,
@@ -2582,10 +2997,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         onOpenDataSync: openDataSyncModal,
         onOpenLibrary: openLibrary,
         onOpenCalculator: openCalculator,
+        onOpenReminders: openReminders,
         textScale,
         setTextScale
       }
-    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, (activeTab === "protocol" || activeTab === "plan") && /* @__PURE__ */ React.createElement(ProtocolView, { mode: activeTab === "plan" ? "plan" : "today", openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, (activeTab === "protocol" || activeTab === "plan") && /* @__PURE__ */ React.createElement(ProtocolView, { mode: activeTab === "plan" ? "plan" : "today", openLibrary, openCalculator, proposalsPending, onOpenProposals: openProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
       HistoryView,
       {
         logs,
@@ -2688,7 +3104,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       document.body
     ));
   }
-  function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+  function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
     const scales = [["1", "Normal"], ["1.15", "Larger"], ["1.3", "Largest"]];
     const scaleLabel = (scales.find((s) => s[0] === String(textScale)) || scales[0])[1];
     const nextScale = () => {
@@ -2706,6 +3122,9 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         } }, /* @__PURE__ */ React.createElement("span", { className: "avatar sm", "aria-hidden": "true" }, p.charAt(0)), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15, fontWeight: isOn ? 700 : 500 } }, p), /* @__PURE__ */ React.createElement("span", { className: "mono num", style: { fontSize: 11, color: "var(--text-dim)" } }, count), isOn && /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "var(--accent)", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("path", { d: "M5 13l4.5 4.5L19 8" })));
       }), /* @__PURE__ */ React.createElement("div", { className: "menu-hair" }), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
         setOpen(false);
+        onOpenReminders && onOpenReminders();
+      } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Reminders…")), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
+        setOpen(false);
         onOpenLibrary && onOpenLibrary();
       } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Library…")), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
         setOpen(false);
@@ -2717,7 +3136,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       document.body
     ));
   }
-  function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+  function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }) {
     const [scrolled, setScrolled] = useState(false);
     const sentinelRef = React.useRef(null);
     useEffect(() => {
@@ -2734,7 +3153,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const syncState = !syncReady ? "setup" : syncStatus === "pushing" || syncStatus === "pulling" ? "syncing" : syncStatus === "error" ? "error" : syncQueued ? "queued" : "ok";
     const syncLabel = { setup: "Set up sync", syncing: "↻ syncing…", error: "sync failed — retry", queued: "● queued", ok: "✓ synced" }[syncState];
     const syncAria = { setup: "Cloud sync not configured. Set up sync", syncing: "Cloud sync in progress", error: "Cloud sync failed. Tap to retry", queued: "Changes queued, waiting to sync. Tap to sync now", ok: "Synced to cloud. Tap to refresh" }[syncState];
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, titleLabel, /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }))), /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, titleLabel, /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale }))), /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: d.key,
@@ -2747,6 +3166,124 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       /* @__PURE__ */ React.createElement("span", { className: "dw", "aria-hidden": "true" }, d.letter),
       /* @__PURE__ */ React.createElement("span", { className: "dot" + (d.allLogged ? " done" : d.hasSched ? "" : " none"), "aria-hidden": "true" })
     )))), /* @__PURE__ */ React.createElement("div", { ref: sentinelRef, style: { height: 1 }, "aria-hidden": "true" }));
+  }
+  function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSync, showToast }) {
+    const saved = getSavedReminders();
+    const [status, setStatus] = useState("checking");
+    const [settings, setSettings] = useState(() => ({ ...defaultReminderSettings(), ...saved && saved.settings || {} }));
+    const [busy, setBusy] = useState(false);
+    const [msg, setMsg] = useState(null);
+    const refresh = () => pushStatus().then(setStatus).catch(() => setStatus("unsupported"));
+    useEffect(() => {
+      refresh();
+    }, []);
+    const blocks = [["am", "Morning"], ["pre", "Pre-workout"], ["pm", "Evening"]];
+    const setBlock = (k, on) => setSettings((s) => ({ ...s, blocks: { ...s.blocks, [k]: on } }));
+    const setTime = (k, v) => setSettings((s) => ({ ...s, times: { ...s.times, [k]: v } }));
+    const run = async (fn, okText) => {
+      setBusy(true);
+      setMsg(null);
+      const r = await fn();
+      setBusy(false);
+      if (r && r.ok) {
+        setMsg({ ok: true, t: okText });
+        showToast && showToast(okText);
+      } else {
+        setMsg({ ok: false, t: r && r.error || "Did not work" });
+      }
+      refresh();
+    };
+    const Toggle = ({ on, onChange, label }) => /* @__PURE__ */ React.createElement("button", { type: "button", role: "switch", "aria-checked": on, "aria-label": label, onClick: () => onChange(!on), style: { width: 46, height: 28, borderRadius: 14, border: "none", background: on ? "var(--success)" : "rgba(255,255,255,.18)", position: "relative", cursor: "pointer", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { position: "absolute", top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", transition: "left .15s" } }));
+    const form = /* @__PURE__ */ React.createElement("div", { className: "blk", style: { marginBottom: 12 } }, blocks.map(([k, label]) => /* @__PURE__ */ React.createElement("div", { key: k, className: "blk-row", style: { gap: 10, minHeight: 54, padding: "4px 2px" } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 14, fontWeight: 700 } }, label), /* @__PURE__ */ React.createElement("input", { type: "time", "aria-label": label + " reminder time", value: (settings.times || {})[k] || "", onChange: (e) => setTime(k, e.target.value), className: "input", style: { width: 112, padding: "8px 10px", fontFamily: "var(--mono)" }, disabled: !(settings.blocks || {})[k] }), /* @__PURE__ */ React.createElement(Toggle, { on: !!(settings.blocks || {})[k], onChange: (v) => setBlock(k, v), label: label + " reminders" }))), /* @__PURE__ */ React.createElement("div", { className: "blk-row", style: { gap: 10, minHeight: 54, padding: "4px 2px" } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 14, fontWeight: 700 } }, "Nudge if still due"), /* @__PURE__ */ React.createElement("select", { "aria-label": "Nudge delay", value: String(settings.nudgeMinutes || 0), onChange: (e) => setSettings((s) => ({ ...s, nudgeMinutes: parseInt(e.target.value) || 0 })), className: "input", style: { width: 140, padding: "8px 10px" } }, /* @__PURE__ */ React.createElement("option", { value: "0" }, "Off"), /* @__PURE__ */ React.createElement("option", { value: "30" }, "after 30 min"), /* @__PURE__ */ React.createElement("option", { value: "60" }, "after 1 h"), /* @__PURE__ */ React.createElement("option", { value: "120" }, "after 2 h"))));
+    let body;
+    if (!syncReady) body = /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { style: { fontSize: 13, color: "var(--text-dim)", lineHeight: 1.45 } }, "Reminders are sent by the same cloud Worker that syncs your data. Set up cloud sync first."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { width: "100%" }, onClick: onSetupSync }, "Set up cloud sync"));
+    else if (status === "checking") body = /* @__PURE__ */ React.createElement("p", { style: { fontSize: 13, color: "var(--text-dim)" } }, "Checking this device…");
+    else if (status === "unsupported") body = /* @__PURE__ */ React.createElement("p", { style: { fontSize: 13, color: "var(--text-dim)", lineHeight: 1.45 } }, "This browser cannot receive notifications. On iPhone use Safari and add the app to the Home Screen; on a computer use Chrome, Edge or Safari 16 or newer.");
+    else if (status === "needs-install") body = /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: 14, fontSize: 13, lineHeight: 1.5 } }, /* @__PURE__ */ React.createElement("b", null, "Almost there."), " On iPhone, notifications work once Protocol OS is on the Home Screen: tap ", /* @__PURE__ */ React.createElement("b", null, "Share"), " → ", /* @__PURE__ */ React.createElement("b", null, "Add to Home Screen"), ", open it from the new icon, then come back here and turn reminders on.");
+    else if (status === "denied") body = /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: 14, fontSize: 13, lineHeight: 1.5 } }, "Notifications are blocked for this app. Allow them in ", /* @__PURE__ */ React.createElement("b", null, "Settings → Notifications → Protocol OS"), ", then return here.");
+    else body = /* @__PURE__ */ React.createElement(React.Fragment, null, form, status === "subscribed" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", disabled: busy, onClick: () => run(() => updateReminders({ syncUrl, token, profile, settings }), "Reminder settings saved") }, "Save"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", disabled: busy, onClick: () => run(() => sendTestReminder({ syncUrl, token, profile }), "Test sent — it should arrive in a few seconds") }, "Send a test")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", color: "var(--warn)" }, disabled: busy, onClick: () => run(() => disableReminders({ syncUrl, token }), "Reminders turned off on this device") }, "Turn off on this device")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { width: "100%" }, disabled: busy, onClick: () => run(() => enableReminders({ syncUrl, token, profile, settings }), "Reminders are on") }, "Turn on reminders"), /* @__PURE__ */ React.createElement("p", { style: { margin: "10px 2px 0", fontSize: 11.5, lineHeight: 1.45, color: "var(--text-faint)" } }, "One notification per block for ", profile, ", only while doses are still unlogged. Tapping it opens that block. Times follow this device's clock."));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 19, fontWeight: 700 } }, "Reminders"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, color: "var(--text-dim)" } }, status === "subscribed" ? "On for this device." : "Off on this device."), msg && /* @__PURE__ */ React.createElement("div", { role: "status", style: { fontSize: 12.5, marginBottom: 10, color: msg.ok ? "var(--success)" : "var(--danger)" } }, msg.t), body, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onClose }, "Close"));
+  }
+  function RestoreSheet({ syncUrl, token, localBackup, onRestore, onClose }) {
+    const [list, setList] = useState(null);
+    const [err, setErr] = useState(null);
+    const [sel, setSel] = useState(null);
+    const [blob, setBlob] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const base = (syncUrl || "").replace(/\/+$/, "");
+    const hdr = { "Authorization": "Bearer " + token };
+    useEffect(() => {
+      if (!syncUrl || !token) {
+        setList([]);
+        return;
+      }
+      fetch(`${base}/sync?profile=all&snapshots=1`, { headers: hdr }).then((r) => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then((d) => setList(Array.isArray(d.snapshots) ? d.snapshots : [])).catch((e) => {
+        setErr(e.message || String(e));
+        setList([]);
+      });
+    }, []);
+    const pick = async (key) => {
+      setSel(key);
+      setBlob(null);
+      setBusy(true);
+      setErr(null);
+      try {
+        if (key === "local") setBlob(localBackup);
+        else {
+          const r = await fetch(`${base}/sync?profile=all&snapshot=${encodeURIComponent(key)}`, { headers: hdr });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          setBlob(await r.json());
+        }
+      } catch (e) {
+        setErr(e.message || String(e));
+      }
+      setBusy(false);
+    };
+    const counts = (b) => {
+      const P = Array.isArray(b.protocols) ? b.protocols : [], L = Array.isArray(b.logs) ? b.logs : [], V = Array.isArray(b.vials) ? b.vials : [];
+      const byP = {};
+      P.forEach((p) => {
+        const k = p.profile || "?";
+        byP[k] = (byP[k] || 0) + 1;
+      });
+      return `${P.length} protocols (${Object.entries(byP).map(([k, v]) => k + " " + v).join(", ") || "none"}) · ${L.length} log entries · ${V.length} vials`;
+    };
+    const Row = ({ k, name, sub }) => /* @__PURE__ */ React.createElement("div", { className: "blk-row" }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", "aria-pressed": sel === k, onClick: () => pick(k), style: sel === k ? { background: "rgba(227,200,134,.08)" } : void 0 }, /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, name), /* @__PURE__ */ React.createElement("span", { className: "blk-dose mono" }, sub)), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›")));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 19, fontWeight: 700 } }, "Restore from a backup"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, lineHeight: 1.45, color: "var(--text-dim)" } }, "The cloud keeps one snapshot per day for 30 days. Restoring replaces what is on this phone with that snapshot and syncs it back up. The current data is saved as the local backup first."), err && /* @__PURE__ */ React.createElement("div", { role: "alert", style: { color: "var(--danger)", fontSize: 12.5, marginBottom: 10 } }, "Could not reach the cloud: ", err), /* @__PURE__ */ React.createElement("div", { className: "blk", style: { marginBottom: 12 } }, localBackup && /* @__PURE__ */ React.createElement(Row, { k: "local", name: "Local backup", sub: "saved " + new Date(localBackup.at).toLocaleString() + " · before the last import or restore" }), list === null ? /* @__PURE__ */ React.createElement("div", { style: { padding: 12, fontSize: 13, color: "var(--text-dim)" } }, "Loading snapshots…") : list.length === 0 && !localBackup ? /* @__PURE__ */ React.createElement("div", { style: { padding: 12, fontSize: 13, color: "var(--text-dim)" } }, "No backups yet. The cloud writes one after the first sync of each day (Worker 1.5 or newer).") : list.map((dk) => /* @__PURE__ */ React.createElement(Row, { key: dk, k: dk, name: fmtDk(dk), sub: "cloud snapshot · " + dk }))), sel && (busy ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--text-dim)" } }, "Loading…") : blob ? /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, marginBottom: 4 } }, sel === "local" ? "Local backup" : fmtDk(sel)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: "var(--text-dim)", marginBottom: 12 } }, counts(blob)), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { width: "100%" }, onClick: () => onRestore(blob, sel === "local" ? "local backup" : "snapshot of " + fmtDk(sel)) }, "Restore this")) : null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onClose }, "Close"));
+  }
+  function ProposalsSheet({ syncUrl, token, profile, onClose, onResolve }) {
+    const [list, setList] = useState(null);
+    const [err, setErr] = useState(null);
+    const [busyId, setBusyId] = useState(null);
+    const base = (syncUrl || "").replace(/\/+$/, "");
+    useEffect(() => {
+      if (!syncUrl || !token) {
+        setList([]);
+        return;
+      }
+      fetch(`${base}/proposals?profile=${encodeURIComponent(profile)}`, { headers: { "Authorization": "Bearer " + token } }).then((r) => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then((d) => setList(Array.isArray(d.proposals) ? d.proposals : [])).catch((e) => {
+        setErr(e.message || String(e));
+        setList([]);
+      });
+    }, []);
+    const describe = (pr) => {
+      const ch = pr.change || {};
+      const bits = [];
+      if (ch.doseMcg > 0) bits.push("dose " + fmtDoseAny(ch.doseMcg, ch.doseUnit || null));
+      if (ch.schedule) bits.push(schedLabel(normSched(ch.schedule, pr.effectiveFrom)));
+      if (ch.endDate) bits.push("ends " + fmtDk(ch.endDate));
+      if (ch.note) bits.push(ch.note);
+      return bits.join(" · ") || "no change fields";
+    };
+    const act = async (pr, status) => {
+      setBusyId(pr.id);
+      const ok = await onResolve(pr, status);
+      setBusyId(null);
+      if (ok) setList((prev) => prev.map((x) => x.id === pr.id ? { ...x, status } : x));
+    };
+    const pending = (list || []).filter((p) => p.status === "pending");
+    const done = (list || []).filter((p) => p.status !== "pending");
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 19, fontWeight: 700 } }, "Claude suggests"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, lineHeight: 1.45, color: "var(--text-dim)" } }, "Suggestions arrive here from Claude. Approving applies a dated plan change you can see in the compound's plan history; nothing is ever applied on its own."), err && /* @__PURE__ */ React.createElement("div", { role: "alert", style: { color: "var(--danger)", fontSize: 12.5, marginBottom: 10 } }, "Could not reach the cloud: ", err), list === null ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--text-dim)" } }, "Loading…") : pending.length === 0 ? /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: 14, fontSize: 13, color: "var(--text-dim)" } }, "Nothing waiting for ", profile, ".") : pending.map((pr) => /* @__PURE__ */ React.createElement("div", { key: pr.id, className: "lg", style: { borderRadius: 16, padding: "12px 14px", marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700 } }, pr.peptideName), /* @__PURE__ */ React.createElement("div", { className: "mono", style: { fontSize: 12.5, color: "var(--accent)", margin: "3px 0 6px" } }, describe(pr), pr.effectiveFrom ? ` · from ${fmtDk(pr.effectiveFrom)}` : ""), pr.rationale && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, lineHeight: 1.45, color: "var(--text-2)", marginBottom: 10 } }, pr.rationale), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", disabled: busyId === pr.id, onClick: () => act(pr, "dismissed") }, "Dismiss"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", disabled: busyId === pr.id, onClick: () => act(pr, "approved") }, "Approve")))), done.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--text-faint)", marginTop: 6 } }, done.length, " earlier suggestion", done.length === 1 ? "" : "s", " already answered."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onClose }, "Close"));
   }
   function FirstRun({ activeProfile, onPick, onLibrary }) {
     const groups = [
@@ -2772,7 +3309,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const cur = buckets.find((b) => b.label === open);
     return /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 2px 14px" } }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num", style: { marginBottom: 6 } }, "STEP 1 OF 2 · ABOUT A MINUTE"), /* @__PURE__ */ React.createElement("h3", { style: { margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.15 } }, "What is ", activeProfile, " taking right now?"), /* @__PURE__ */ React.createElement("p", { style: { margin: "8px 0 0", fontSize: 14, lineHeight: 1.45, color: "var(--text-dim)" } }, "Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 12 } }, buckets.map((b) => /* @__PURE__ */ React.createElement("button", { key: b.label, onClick: () => setOpen(b.label), "aria-pressed": b.label === open, style: { minHeight: 40, padding: "0 13px", borderRadius: 100, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: "1px solid " + (b.label === open ? "rgba(227,200,134,.5)" : "var(--border)"), background: b.label === open ? "rgba(227,200,134,.14)" : "rgba(255,255,255,.04)", color: b.label === open ? "var(--accent)" : "var(--text-2)" } }, b.label))), cur && /* @__PURE__ */ React.createElement("section", { className: "blk", "aria-label": cur.label }, cur.items.map((p, i) => /* @__PURE__ */ React.createElement("div", { key: p.id, className: "blk-row", style: i === 0 ? { borderTop: "none" } : void 0 }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: () => onPick(p.id) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { fontSize: 15, borderColor: "var(--border)", background: "rgba(255,255,255,.05)" } }, p.icon), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, p.name), /* @__PURE__ */ React.createElement("span", { className: "blk-dose" }, p.protocol && p.protocol.route || "", p.protocol && p.protocol.doseRange ? " · " + p.protocol.doseRange : "", p.protocol && p.protocol.timing ? " · " + p.protocol.timing : "")), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›"))))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onLibrary }, "Search the whole library"));
   }
-  function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
+  function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onOpenProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
     const [routeFilter, setRouteFilter] = useState("all");
     const [flashId, setFlashId] = useState(null);
     const todayDk = todayLocal();
@@ -2999,7 +3536,24 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         if (dkValid(e)) bits.push((e < todayDk ? "ended " : "ends ") + fmtDk(e));
         return /* @__PURE__ */ React.createElement("div", { key: p.id, className: "blk-row" }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: () => openCompound(p) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { borderColor: rt.color + "66", background: rt.color + "18" } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 14 })), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, p.route === "pen" ? penLabelOf(p) : p.peptideName), /* @__PURE__ */ React.createElement("span", { className: "blk-dose mono" }, bits.join(" · "), sup ? /* @__PURE__ */ React.createElement("span", { className: sup.dosesLeft <= 3 ? "blk-sub warn" : "" }, " · " + sup.dosesLeft + " left") : null)), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›")));
       };
-      return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 }, className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { flex: 1 }, onClick: () => addProtocol() }, "+ Add compound"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: () => managePen(null), "aria-label": "Create a mix (up to 4 compounds)" }, "Mix"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openLibrary }, "Library"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openCalculator, "aria-label": "Reconstitution calculator" }, "Calc")), live.length === 0 ? /* @__PURE__ */ React.createElement(FirstRun, { activeProfile, onPick: (id) => addProtocol(id), onLibrary: openLibrary }) : /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Current plan" }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title" }, "Current plan"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono" }, live.length)), live.map(row)), finished.length > 0 && /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Finished", style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title", style: { color: "var(--text-dim)" } }, "Finished"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono", style: { color: "var(--text-dim)" } }, finished.length)), finished.map(row)));
+      const alerts = [];
+      live.forEach((p) => {
+        const name = p.route === "pen" ? penLabelOf(p) : p.peptideName;
+        const s = supplyFor(p);
+        if (s && s.dosesLeft <= 3) alerts.push({ k: "supply", t: `${name}: ${s.dosesLeft} dose${s.dosesLeft === 1 ? "" : "s"} left${s.runOut ? " · runs out " + fmtDk(s.runOut) : ""}`, p });
+        const e = endOf(p);
+        if (dkValid(e) && e >= todayDk && dkDiff(e, todayDk) <= 7) alerts.push({ k: "end", t: `${name} ends ${fmtDk(e)}`, p });
+        const nr = nextRevision(p, todayDk);
+        if (nr && dkDiff(nr.from, todayDk) <= 14) alerts.push({ k: "change", t: `${name}: ${schedLabel(nr.schedule, true)} · ${fmtDoseAny(nr.doseMcg, nr.doseUnit)} from ${fmtDk(nr.from)}`, p });
+      });
+      const adhAll = live.reduce((acc, p) => {
+        const a = adherenceFor(p, 30);
+        acc.exp += a.exp;
+        acc.got += a.got;
+        return acc;
+      }, { exp: 0, got: 0 });
+      const adhPct = adhAll.exp ? Math.round(adhAll.got / adhAll.exp * 100) : null;
+      return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 }, className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { flex: 1 }, onClick: () => addProtocol() }, "+ Add compound"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: () => managePen(null), "aria-label": "Create a mix (up to 4 compounds)" }, "Mix"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openLibrary }, "Library"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openCalculator, "aria-label": "Reconstitution calculator" }, "Calc")), proposalsPending > 0 && /* @__PURE__ */ React.createElement("button", { className: "lg", onClick: onOpenProposals, style: { width: "100%", textAlign: "left", borderRadius: 18, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12, cursor: "pointer", border: "1px solid rgba(227,200,134,.35)" } }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement(Bot, { size: 15, color: "var(--accent)" })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "block", fontSize: 14, fontWeight: 700 } }, "Claude suggests ", proposalsPending, " change", proposalsPending === 1 ? "" : "s"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", fontSize: 12, color: "var(--text-dim)" } }, "Review, then approve or dismiss.")), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›")), (alerts.length > 0 || adhPct != null) && /* @__PURE__ */ React.createElement("section", { className: "blk", "aria-label": "Heads-up", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title" }, "Heads-up"), /* @__PURE__ */ React.createElement("span", { className: "blk-hint" }, "next two weeks"), adhPct != null && /* @__PURE__ */ React.createElement("span", { className: "blk-count mono", style: { color: adhPct >= 90 ? "var(--success)" : adhPct >= 70 ? "var(--accent)" : "var(--warn)" } }, adhPct, "% · 30 days")), alerts.length === 0 && /* @__PURE__ */ React.createElement("div", { style: { padding: "6px 4px 10px", fontSize: 13, color: "var(--text-dim)" } }, "Nothing running low or changing soon."), alerts.map((a, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "blk-row" }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", style: { minHeight: 46 }, onClick: () => openCompound(a.p) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { width: 22, height: 22, borderColor: a.k === "supply" ? "var(--warn)" : "var(--border)", background: a.k === "supply" ? "rgba(247,140,58,.14)" : "rgba(255,255,255,.05)" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: a.k === "supply" ? "var(--warn)" : "var(--text-dim)" } }, a.k === "supply" ? "!" : a.k === "end" ? "⏹" : "↗")), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-dose", style: { fontSize: 13, color: "var(--text)" } }, a.t)), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›"))))), live.length === 0 ? /* @__PURE__ */ React.createElement(FirstRun, { activeProfile, onPick: (id) => addProtocol(id), onLibrary: openLibrary }) : /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Current plan" }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title" }, "Current plan"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono" }, live.length)), live.map(row)), finished.length > 0 && /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Finished", style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title", style: { color: "var(--text-dim)" } }, "Finished"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono", style: { color: "var(--text-dim)" } }, finished.length)), finished.map(row)));
     };
     const vialForQuick = (p) => {
       const ids = new Set(getEquivalentIds(p.peptideId));
@@ -3687,7 +4241,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         },
         "Finish"
       ));
-    }), expiredProtos.length > 3 && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--text-faint)", paddingTop: 6 } }, "+", expiredProtos.length - 3, " more")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 7, marginBottom: 16 } }, filters.map(([k, label, col]) => {
+    }), expiredProtos.length > 3 && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--text-faint)", paddingTop: 6 } }, "+", expiredProtos.length - 3, " more")), proposalsPending > 0 && /* @__PURE__ */ React.createElement("button", { className: "lg", onClick: onOpenProposals, style: { width: "100%", textAlign: "left", borderRadius: 18, padding: "12px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, cursor: "pointer", border: "1px solid rgba(227,200,134,.35)" } }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement(Bot, { size: 15, color: "var(--accent)" })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "block", fontSize: 14, fontWeight: 700 } }, "Claude suggests ", proposalsPending, " change", proposalsPending === 1 ? "" : "s"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", fontSize: 12, color: "var(--text-dim)" } }, "Review, then approve or dismiss. Nothing is applied on its own.")), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 7, marginBottom: 16 } }, filters.map(([k, label, col]) => {
       const active = routeFilter === k;
       const cnt = routeCounts[k];
       return /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => setRouteFilter(k), style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 4px", borderRadius: 13, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "1px solid " + (active ? col + "55" : LG.hair), background: active ? col + "1f" : "rgba(255,255,255,.04)", color: active ? col : LG.dim } }, label, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 11.5, fontWeight: 700, color: active ? col : LG.dim2 } }, cnt));
