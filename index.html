@@ -9,9 +9,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Protocol OS">
 <meta name="theme-color" content="#0e2820">
+<link rel="manifest" href="./manifest.webmanifest">
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d231b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23e3c886'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d231b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23e3c886'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -421,7 +422,7 @@ details > summary{list-style:none;cursor:pointer}
 .input::placeholder{color:rgba(255,255,255,.40)}
 
 /* ── buttons ── */
-.btn{padding:9px 14px;border-radius:12px;font-weight:600;border:none;cursor:pointer;font-size:13px;
+.btn{padding:9px 14px;min-height:44px;border-radius:12px;font-weight:600;border:none;cursor:pointer;font-size:13px;
   text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;
   transition:transform var(--mt-tap) var(--me-out),opacity var(--mt-fast);
   backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
@@ -666,6 +667,47 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
 .plan-dis-c{color:var(--accent-2);font-weight:700;font-size:11.5px;white-space:nowrap}
 .plan-dis[open] summary{border-bottom:1px solid var(--border)}
 .plan-dis-body{padding:12px 12px 0}
+
+/* ── Today blocks (Oct 2026 redesign, screen 1) ─────────────────────────────── */
+.blk{position:relative;isolation:isolate;border-radius:20px;background:var(--glass);border:1px solid var(--border);padding:10px 12px 6px}
+.blk-hd{display:flex;align-items:baseline;gap:8px;padding:2px 4px 6px}
+.blk-title{font-size:14px;font-weight:800;letter-spacing:.02em}
+.blk-hint{font-size:11.5px;color:var(--text-dim)}
+.blk-count{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--accent)}
+.blk-row{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border-light)}
+.blk-hd + .blk-row{border-top:none}
+.blk-main{flex:1;min-width:0;display:flex;align-items:center;gap:11px;min-height:56px;padding:8px 2px;background:transparent;border:none;color:var(--text);text-align:left;cursor:pointer;border-radius:12px}
+.blk-main:active{background:rgba(255,255,255,.04)}
+.blk-disc{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;border:1.6px solid var(--accent);background:rgba(227,200,134,.10);position:relative}
+.blk-disc.done{background:var(--success);border:none}
+.blk-disc.skip{border-color:var(--warn);background:rgba(247,140,58,.14)}
+.blk-disc.exp{border-color:var(--warn);background:rgba(247,140,58,.08)}
+.blk-disc.fut{border-color:var(--text-ghost);background:transparent}
+.blk-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.blk-name{font-size:15px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.is-logged .blk-name,.is-skipped .blk-name{color:var(--text-dim);font-weight:600}
+.blk-dose{font-size:12px;color:var(--text-dim);line-height:1.35}
+.blk-sub.ok{color:var(--success)}.blk-sub.warn{color:var(--warn)}
+.blk-row.glow .blk-disc{box-shadow:0 0 0 4px rgba(227,200,134,.14)}
+.pill-log{flex-shrink:0;min-height:40px;min-width:64px;padding:0 14px;border-radius:12px;border:1px solid rgba(227,200,134,.45);background:rgba(227,200,134,.12);color:var(--accent);font-weight:700;font-size:13px;cursor:pointer}
+.pill-log:active{filter:brightness(1.1)}
+.pill-log.ghost{border-color:var(--border);background:rgba(255,255,255,.05);color:var(--text-2)}
+.blk-time{flex-shrink:0;font-size:12px;color:var(--success);padding-right:4px}
+.blk-foot{padding:10px 0 6px}
+.blk-all{width:100%;min-height:50px;border-radius:14px;font-size:15px}
+
+/* ── Plan tab, compound page, first run, text size ───────────────────────────── */
+#root{zoom:var(--ts,1)}
+.plan-chev{flex-shrink:0;font-size:22px;line-height:1;color:var(--text-faint);padding:0 6px 2px}
+.cp-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.cp-stat{border-radius:14px;background:var(--bg-card-2);border:1px solid var(--border);padding:10px 10px 9px;min-width:0}
+.cp-v{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-k{font-size:11px;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-strip{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;margin:0 2px 14px}
+.cp-cell{display:block;height:10px;border-radius:3px;background:rgba(255,255,255,.07)}
+.cp-cell.logged{background:var(--success)}.cp-cell.skipped{background:var(--warn)}.cp-cell.missed{background:rgba(255,107,107,.55)}.cp-cell.due{background:rgba(227,200,134,.6)}.cp-cell.future{background:rgba(255,255,255,.04);border:1px dashed var(--text-ghost)}
+.toast button{min-height:44px}
+.pill-nav-item{min-height:44px}
 </style>
 </head>
 <body>
@@ -1617,6 +1659,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   function NavIcon({ id, color }) {
     const p = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
     if (id === "protocol") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("rect", { x: "3", y: "4", width: "18", height: "17", rx: "3" }), /* @__PURE__ */ React.createElement("path", { d: "M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4" }));
+    if (id === "plan") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("rect", { x: "5", y: "3", width: "14", height: "18", rx: "2" }), /* @__PURE__ */ React.createElement("path", { d: "M9 8h6M9 12h6M9 16h4" }));
     if (id === "lab") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("path", { d: "M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3" }));
     if (id === "history") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("path", { d: "M4 6h16M4 12h9M4 18h6" }), /* @__PURE__ */ React.createElement("circle", { cx: "17.5", cy: "16.5", r: "3.6" }), /* @__PURE__ */ React.createElement("path", { d: "M17.5 14.6v1.9l1.3.9" }));
     return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("rect", { x: "4", y: "4", width: "16", height: "16", rx: "3" }), /* @__PURE__ */ React.createElement("path", { d: "M8 9h3M14 9h2M14 14.5h2M9 13v3M7.9 17.1l2.2-2.2M10.1 17.1l-2.2-2.2" }));
@@ -1771,7 +1814,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     if (proto._tlFrom) bits.push("since " + fmtDk(proto._tlFrom));
     if (next) bits.push("changes " + fmtDk(next.from) + " → " + schedLabel(next.schedule, true));
     if (ended) bits.push((endDk < today ? "ended " : "ends ") + fmtDk(endDk));
-    return /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 16, padding: "12px 14px", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.08em" } }, "Plan · ", isToday ? "today" : fmtDk(dateKey)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: "var(--text)", marginTop: 4 } }, schedLabel(s), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono", style: { color: "var(--accent)" } }, fmtDoseAny(proto.doseMcg, proto.doseUnit))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--text-dim)", marginTop: 3 } }, bits.join(" · ")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: onChange }, "✎ Change from ", isToday ? "today" : fmtDk(dateKey)), ended ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12, color: "var(--success)" }, onClick: onResume }, "↻ Resume") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12, color: "var(--warn)" }, onClick: onFinish }, "⏹ Finish cycle")));
+    return /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 16, padding: "12px 14px", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.08em" } }, "Plan · ", isToday ? "today" : fmtDk(dateKey)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: "var(--text)", marginTop: 4 } }, schedLabel(s), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono", style: { color: "var(--accent)" } }, fmtDoseAny(proto.doseMcg, proto.doseUnit))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--text-dim)", marginTop: 3 } }, bits.join(" · ")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: onChange }, "Change from ", isToday ? "today" : fmtDk(dateKey)), ended ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12, color: "var(--success)" }, onClick: onResume }, "Resume") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12, color: "var(--warn)" }, onClick: onFinish }, "Finish cycle")));
   }
   function compoundFingerprint(p) {
     if (!p) return "";
@@ -2070,6 +2113,17 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     useEffect(() => {
       persist("protocol_os_active_profile", activeProfile);
     }, [activeProfile]);
+    const [textScale, setTextScale] = useState(() => {
+      try {
+        return localStorage.getItem("protocol_os_text_scale") || "1";
+      } catch (e) {
+        return "1";
+      }
+    });
+    useEffect(() => {
+      document.documentElement.style.setProperty("--ts", textScale);
+      persist("protocol_os_text_scale", textScale);
+    }, [textScale]);
     const [syncUrl, setSyncUrl] = useState(() => localStorage.getItem("protocol_os_sync_url") || "");
     const [syncToken, setSyncToken] = useState(() => localStorage.getItem("protocol_os_sync_token") || "");
     const [syncStatus, setSyncStatus] = useState("idle");
@@ -2283,7 +2337,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
         return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
-      const rows = [["Date", "Time", "Compound", "Dose", "Unit", "Syringe units", "mL", "Status", "Notes", "Profile", "Entry id"]];
+      const rows = [["Date", "Time", "Compound", "Dose", "Unit", "Syringe units", "mL", "Status", "Site", "Notes", "Profile", "Entry id"]];
       list.forEach((l) => {
         const dt = new Date(l.datetime);
         const isIUx = l.doseUnit === "IU";
@@ -2302,6 +2356,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           u,
           l.doseMl != null ? l.doseMl : "",
           status,
+          l.site || "",
           l.notes || "",
           l.profile || activeProfile,
           l.id || ""
@@ -2413,7 +2468,18 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     useEffect(() => {
       if (!sheet.content) return;
       const onKey = (e) => {
-        if (e.key === "Escape") closeModal();
+        if (e.key === "Escape") return closeModal();
+        if (e.key !== "Tab" || !sheetRef.current) return;
+        const f = Array.from(sheetRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter((el) => !el.disabled && el.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === sheetRef.current)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       };
       window.addEventListener("keydown", onKey);
       return () => window.removeEventListener("keydown", onKey);
@@ -2462,6 +2528,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       setActiveProfile(p);
       showToast("Now viewing " + p);
     };
+    const openLibrary = () => openModal(/* @__PURE__ */ React.createElement(LabView, { vials }));
+    const openCalculator = () => openModal(/* @__PURE__ */ React.createElement(MathView, null));
     const openSyncConfigModal = (pullAfter) => openModal(
       /* @__PURE__ */ React.createElement(
         SyncConfig,
@@ -2480,13 +2548,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const openDataSyncModal = () => openModal(
       /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 12px", fontSize: 17, fontWeight: 700 } }, "Data & sync"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
         exportData();
-      } }, "⬆️ Export file"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => importInputRef.current && importInputRef.current.click() }, "⬇️ Import file")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
+      } }, "Export file"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => importInputRef.current && importInputRef.current.click() }, "Import file")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
         exportHistoryCSV();
-      } }, "📊 History CSV"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
+      } }, "History CSV"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1 }, onClick: () => {
         exportHistoryJSON();
-      } }, "🧾 History JSON")), syncReady ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(false) }, "⚙️ Edit cloud sync settings") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(true) }, "🔗 Set up cloud sync"))
+      } }, "History JSON")), syncReady ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(false) }, "Edit cloud sync settings") : /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", fontSize: 12 }, onClick: () => openSyncConfigModal(true) }, "Set up cloud sync"))
     );
-    return /* @__PURE__ */ React.createElement("div", { style: { position: "relative", minHeight: "100vh" } }, /* @__PURE__ */ React.createElement("div", { className: "ambient" }), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { style: { position: "relative", minHeight: "100vh" } }, /* @__PURE__ */ React.createElement("div", { className: "ambient" }), /* @__PURE__ */ React.createElement("div", { ...sheet.content ? { inert: "" } : {} }, /* @__PURE__ */ React.createElement(
       AppHeader,
       {
         viewDate,
@@ -2511,9 +2579,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
             cloudPull(true);
           }
         },
-        onOpenDataSync: openDataSyncModal
+        onOpenDataSync: openDataSyncModal,
+        onOpenLibrary: openLibrary,
+        onOpenCalculator: openCalculator,
+        textScale,
+        setTextScale
       }
-    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, activeTab === "protocol" && /* @__PURE__ */ React.createElement(ProtocolView, { viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, (activeTab === "protocol" || activeTab === "plan") && /* @__PURE__ */ React.createElement(ProtocolView, { mode: activeTab === "plan" ? "plan" : "today", openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
       HistoryView,
       {
         logs,
@@ -2537,7 +2609,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           setActiveTab("protocol");
         }
       }
-    ), activeTab === "lab" && /* @__PURE__ */ React.createElement(LabView, { vials }), activeTab === "math" && /* @__PURE__ */ React.createElement(MathView, null))), /* @__PURE__ */ React.createElement("div", { className: "pill-nav-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "pill-nav" }, [["protocol", "Protocol"], ["history", "History"], ["lab", "Lab"], ["math", "Math"]].map(([id, label]) => /* @__PURE__ */ React.createElement("button", { key: id, onClick: () => setActiveTab(id), className: `pill-nav-item ${activeTab === id ? "active" : ""}` }, /* @__PURE__ */ React.createElement(NavIcon, { id, color: activeTab === id ? "var(--accent)" : "var(--text-faint)" }), /* @__PURE__ */ React.createElement("span", null, label))))), toast && /* @__PURE__ */ React.createElement("div", { role: "status", "aria-live": "polite", style: { position: "fixed", bottom: "calc(100px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 200 }, className: "anim-slide-up" }, /* @__PURE__ */ React.createElement("div", { className: "glass-strong", style: { borderRadius: 100, padding: "12px 18px", display: "flex", gap: 10, alignItems: "center", boxShadow: "0 12px 32px rgba(0,0,0,0.4)" } }, toast.type === "error" ? /* @__PURE__ */ React.createElement(AlertTriangle, { size: 18, color: "#FF453A" }) : /* @__PURE__ */ React.createElement(CheckCircle, { size: 18, color: "#30D158" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, fontWeight: 500 } }, toast.message), toast.undoFn && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    ))), /* @__PURE__ */ React.createElement("div", { className: "pill-nav-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "pill-nav" }, [["protocol", "Today"], ["plan", "Plan"], ["history", "History"]].map(([id, label]) => /* @__PURE__ */ React.createElement("button", { key: id, onClick: () => setActiveTab(id), className: `pill-nav-item ${activeTab === id ? "active" : ""}` }, /* @__PURE__ */ React.createElement(NavIcon, { id, color: activeTab === id ? "var(--accent)" : "var(--text-faint)" }), /* @__PURE__ */ React.createElement("span", null, label)))))), toast && /* @__PURE__ */ React.createElement("div", { role: "status", "aria-live": "polite", style: { position: "fixed", bottom: "calc(100px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 200 }, className: "anim-slide-up" }, /* @__PURE__ */ React.createElement("div", { className: "glass-strong", style: { borderRadius: 100, padding: "12px 18px", display: "flex", gap: 10, alignItems: "center", boxShadow: "0 12px 32px rgba(0,0,0,0.4)" } }, toast.type === "error" ? /* @__PURE__ */ React.createElement(AlertTriangle, { size: 18, color: "#FF453A" }) : /* @__PURE__ */ React.createElement(CheckCircle, { size: 18, color: "#30D158" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, fontWeight: 500 } }, toast.message), toast.undoFn && /* @__PURE__ */ React.createElement("button", { onClick: () => {
       toast.undoFn();
       setToast(null);
     }, style: { marginLeft: 6, fontSize: 12, fontWeight: 700, color: "var(--accent-2)", background: "rgba(227,200,134,0.15)", border: "1px solid rgba(227,200,134,0.3)", borderRadius: 100, padding: "6px 12px", cursor: "pointer" } }, "Undo"))), sheet.content && /* @__PURE__ */ React.createElement("div", { className: "sheet-wrap" }, /* @__PURE__ */ React.createElement(
@@ -2576,6 +2648,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   }
   function DateButton({ viewDate, setViewDate }) {
     const [open, setOpen] = useState(false);
+    useEffect(() => {
+      if (!open) return;
+      const k = (e) => {
+        if (e.key === "Escape") setOpen(false);
+      };
+      window.addEventListener("keydown", k);
+      return () => window.removeEventListener("keydown", k);
+    }, [open]);
     const [calMonth, setCalMonth] = useState(() => new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
     const today = /* @__PURE__ */ new Date();
     const sel = viewDate;
@@ -2608,7 +2688,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       document.body
     ));
   }
-  function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync }) {
+  function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+    const scales = [["1", "Normal"], ["1.15", "Larger"], ["1.3", "Largest"]];
+    const scaleLabel = (scales.find((s) => s[0] === String(textScale)) || scales[0])[1];
+    const nextScale = () => {
+      const i = scales.findIndex((s) => s[0] === String(textScale));
+      setTextScale(scales[(i + 1) % scales.length][0]);
+    };
     const [open, setOpen] = useState(false);
     return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "avatar", "aria-label": "Profile: " + activeProfile + ". Open profile menu", "aria-haspopup": "menu", "aria-expanded": open, onClick: () => setOpen(!open) }, (activeProfile || "?").charAt(0)), open && ReactDOM.createPortal(
       /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { onClick: () => setOpen(false), style: { position: "fixed", inset: 0, zIndex: 190 } }), /* @__PURE__ */ React.createElement("div", { className: "glass-strong anim-slide-up", role: "menu", "aria-label": "Profiles and data", style: { position: "fixed", top: "calc(env(safe-area-inset-top, 0px) + 56px)", right: 12, zIndex: 195, width: 220, borderRadius: 14, padding: 6, boxShadow: "0 20px 50px rgba(0,0,0,0.6)" } }, PROFILES.map((p) => {
@@ -2620,12 +2706,18 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         } }, /* @__PURE__ */ React.createElement("span", { className: "avatar sm", "aria-hidden": "true" }, p.charAt(0)), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15, fontWeight: isOn ? 700 : 500 } }, p), /* @__PURE__ */ React.createElement("span", { className: "mono num", style: { fontSize: 11, color: "var(--text-dim)" } }, count), isOn && /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "var(--accent)", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("path", { d: "M5 13l4.5 4.5L19 8" })));
       }), /* @__PURE__ */ React.createElement("div", { className: "menu-hair" }), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
         setOpen(false);
+        onOpenLibrary && onOpenLibrary();
+      } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Library…")), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
+        setOpen(false);
+        onOpenCalculator && onOpenCalculator();
+      } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Reconstitution calculator…")), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: nextScale, "aria-label": "Text size: " + scaleLabel + ". Tap to change" }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Text size"), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 12, color: "var(--accent)" } }, scaleLabel)), /* @__PURE__ */ React.createElement("div", { className: "menu-hair" }), /* @__PURE__ */ React.createElement("button", { role: "menuitem", className: "menu-row", onClick: () => {
+        setOpen(false);
         onOpenDataSync();
       } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 15 } }, "Data & sync…"), /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "var(--text-faint)", strokeWidth: "2", strokeLinecap: "round", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("path", { d: "M9 5l7 7-7 7" }))))),
       document.body
     ));
   }
-  function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync }) {
+  function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
     const [scrolled, setScrolled] = useState(false);
     const sentinelRef = React.useRef(null);
     useEffect(() => {
@@ -2642,7 +2734,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const syncState = !syncReady ? "setup" : syncStatus === "pushing" || syncStatus === "pulling" ? "syncing" : syncStatus === "error" ? "error" : syncQueued ? "queued" : "ok";
     const syncLabel = { setup: "Set up sync", syncing: "↻ syncing…", error: "sync failed — retry", queued: "● queued", ok: "✓ synced" }[syncState];
     const syncAria = { setup: "Cloud sync not configured. Set up sync", syncing: "Cloud sync in progress", error: "Cloud sync failed. Tap to retry", queued: "Changes queued, waiting to sync. Tap to sync now", ok: "Synced to cloud. Tap to refresh" }[syncState];
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, titleLabel, /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync }))), /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, titleLabel, /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }))), /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: d.key,
@@ -2656,7 +2748,31 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       /* @__PURE__ */ React.createElement("span", { className: "dot" + (d.allLogged ? " done" : d.hasSched ? "" : " none"), "aria-hidden": "true" })
     )))), /* @__PURE__ */ React.createElement("div", { ref: sentinelRef, style: { height: 1 }, "aria-hidden": "true" }));
   }
-  function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
+  function FirstRun({ activeProfile, onPick, onLibrary }) {
+    const groups = [
+      ["TRT & hormones", /anabolic|hormone|testosterone|trt|estrogen|aromatase|thyroid|sexual/i],
+      ["Growth hormone & peptides", /\bgh\b|ghrh|secretagogue|igf|growth/i],
+      ["Healing & recovery", /heal|repair|recovery|tissue|joint|injur/i],
+      ["Sleep & focus", /sleep|cognitive|nootropic|mood|focus|neuro/i],
+      ["Weight & metabolic", /glp|weight|metabolic|fat|appetite|insulin/i],
+      ["Longevity & other", /./]
+    ];
+    const used = /* @__PURE__ */ new Set();
+    const lead = ["testosterone", "testosterone-cypionate", "testosterone-enanthate", "hcg", "anastrozole", "enclomiphene", "ipamorelin", "cjc1295-no-dac", "tesamorelin", "bpc157", "tb500", "dsip", "semaglutide", "tirzepatide", "retatrutide"];
+    const rank = (p) => {
+      const i = lead.indexOf(p.id);
+      return i < 0 ? 99 : i;
+    };
+    const buckets = groups.map(([label, re]) => {
+      const items = PEPTIDE_DB.filter((p) => !used.has(p.id) && re.test(p.category || "")).sort((a, b) => rank(a) - rank(b)).slice(0, 8);
+      items.forEach((p) => used.add(p.id));
+      return { label, items };
+    }).filter((b) => b.items.length);
+    const [open, setOpen] = useState(buckets.length ? buckets[0].label : null);
+    const cur = buckets.find((b) => b.label === open);
+    return /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 2px 14px" } }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num", style: { marginBottom: 6 } }, "STEP 1 OF 2 · ABOUT A MINUTE"), /* @__PURE__ */ React.createElement("h3", { style: { margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.15 } }, "What is ", activeProfile, " taking right now?"), /* @__PURE__ */ React.createElement("p", { style: { margin: "8px 0 0", fontSize: 14, lineHeight: 1.45, color: "var(--text-dim)" } }, "Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 12 } }, buckets.map((b) => /* @__PURE__ */ React.createElement("button", { key: b.label, onClick: () => setOpen(b.label), "aria-pressed": b.label === open, style: { minHeight: 40, padding: "0 13px", borderRadius: 100, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: "1px solid " + (b.label === open ? "rgba(227,200,134,.5)" : "var(--border)"), background: b.label === open ? "rgba(227,200,134,.14)" : "rgba(255,255,255,.04)", color: b.label === open ? "var(--accent)" : "var(--text-2)" } }, b.label))), cur && /* @__PURE__ */ React.createElement("section", { className: "blk", "aria-label": cur.label }, cur.items.map((p, i) => /* @__PURE__ */ React.createElement("div", { key: p.id, className: "blk-row", style: i === 0 ? { borderTop: "none" } : void 0 }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: () => onPick(p.id) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { fontSize: 15, borderColor: "var(--border)", background: "rgba(255,255,255,.05)" } }, p.icon), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, p.name), /* @__PURE__ */ React.createElement("span", { className: "blk-dose" }, p.protocol && p.protocol.route || "", p.protocol && p.protocol.doseRange ? " · " + p.protocol.doseRange : "", p.protocol && p.protocol.timing ? " · " + p.protocol.timing : "")), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›"))))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onLibrary }, "Search the whole library"));
+  }
+  function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
     const [routeFilter, setRouteFilter] = useState("all");
     const [flashId, setFlashId] = useState(null);
     const todayDk = todayLocal();
@@ -2760,6 +2876,216 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         return [nv, ...prev];
       });
     };
+    const baseOf = (p) => baseMine.find((b) => b.id === p.id) || p;
+    const vialOf = (p) => {
+      if (p.route === "pen") return (vials || []).find((x) => x.id === p.penVialId) || null;
+      const ids = new Set(getEquivalentIds(p.peptideId));
+      const cands = (vials || []).filter((v) => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile));
+      return cands.find((v) => (v.mcgPerMl || 0) > 0) || cands[0] || null;
+    };
+    const loggedOn = (p, dk) => logs.some((l) => l.protocolId === p.id && (l.datetime || "").slice(0, 10) === dk && !l.skipped);
+    const supplyFor = (p0) => {
+      const p = baseOf(p0);
+      const v = vialOf(p);
+      if (!v || typeof v.remainingMcg !== "number" || !(p.doseMcg > 0) || !(v.totalMcg > 0)) return null;
+      const dosesLeft = Math.max(0, Math.floor(v.remainingMcg / p.doseMcg + 1e-9));
+      let runOut = null;
+      if (!isPrn(p)) {
+        let n = 0;
+        for (let i = loggedOn(p, todayDk) ? 1 : 0; i <= 400; i++) {
+          const dk = dkAdd(todayDk, i);
+          if (!activeOn(p, dk)) continue;
+          if (dueOn(protoAt(p, dk), dk)) {
+            n++;
+            if (n > dosesLeft) {
+              runOut = dk;
+              break;
+            }
+          }
+        }
+      }
+      return { vial: v, dosesLeft, runOut, pct: Math.max(0, Math.min(1, v.remainingMcg / v.totalMcg)) };
+    };
+    const nextDoseFor = (p0) => {
+      const p = baseOf(p0);
+      if (isPrn(p)) return null;
+      for (let i = 0; i <= 60; i++) {
+        const dk = dkAdd(todayDk, i);
+        if (!activeOn(p, dk)) continue;
+        if (dueOn(protoAt(p, dk), dk)) {
+          if (i === 0 && loggedOn(p, dk)) continue;
+          return dk;
+        }
+      }
+      return null;
+    };
+    const adherenceFor = (p0, days) => {
+      const p = baseOf(p0);
+      let exp = 0, got = 0;
+      if (!isPrn(p)) for (let i = 0; i < days; i++) {
+        const dk = dkAdd(todayDk, -i);
+        if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue;
+        exp++;
+        if (loggedOn(p, dk)) got++;
+      }
+      return { exp, got, pct: exp ? Math.round(got / exp * 100) : null };
+    };
+    const dayStatus = (p0, dk) => {
+      const p = baseOf(p0);
+      const ls = logs.filter((l) => l.protocolId === p.id && (l.datetime || "").slice(0, 10) === dk);
+      if (ls.some((l) => !l.skipped)) return "logged";
+      if (ls.length) return "skipped";
+      if (isPrn(p) || !activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) return "none";
+      return dk > todayDk ? "future" : dk === todayDk ? "due" : "missed";
+    };
+    const SITES = ["L abdomen", "R abdomen", "L thigh", "R thigh", "L glute", "R glute", "L delt", "R delt"];
+    const nextSiteFor = (p) => {
+      const ids = new Set(getEquivalentIds(p.peptideId));
+      let last = null;
+      for (const l of logs) {
+        if (l.skipped || !l.site || !ids.has(l.peptideId)) continue;
+        if (!last || (l.datetime || "") > (last.datetime || "")) last = l;
+      }
+      return SITES[(SITES.indexOf(last ? last.site : "") + 1) % SITES.length];
+    };
+    const openCompound = (base0) => {
+      const base = baseOf(base0);
+      const p = protoAt(base, todayDk);
+      const v = vialOf(base);
+      const route = base.route === "pen" ? "inj" : routeOf(p, v);
+      const rt = ROUTE_META[route] || ROUTE_META.inj;
+      const sup = supplyFor(base);
+      const adh = adherenceFor(base, 30);
+      const next = nextDoseFor(base);
+      const startDk = dkOf(base.startDate);
+      const endDk = dkOf(base.endDate);
+      const ended = dkValid(endDk);
+      const dayN = dkValid(startDk) && base.cycleDays > 0 && !isPrn(p) ? dkDiff(todayDk, startDk) + 1 : null;
+      const strip = Array.from({ length: 14 }, (_, i) => {
+        const dk = dkAdd(todayDk, i - 13);
+        return { dk, s: dayStatus(base, dk) };
+      });
+      const tl = timelineSorted(base.timeline || []);
+      const title = base.route === "pen" ? penLabelOf(base) : base.peptideName;
+      const Body = () => {
+        const [more, setMore] = useState(false);
+        return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 44, height: 44, borderRadius: 13, background: rt.color + "24", display: "grid", placeItems: "center", boxShadow: "inset 0 0 0 1px " + rt.color + "40", flexShrink: 0 } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 22 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("h3", { style: { margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.15, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } }, title), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--text-dim)", marginTop: 2 } }, base.profile, " · ", schedLabel(p.schedule), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono", style: { color: "var(--accent)" } }, fmtDoseAny(p.doseMcg, p.doseUnit)))), /* @__PURE__ */ React.createElement("button", { onClick: () => {
+          closeModal();
+          editProtocol(base);
+        }, "aria-label": "Edit protocol", className: "lg", style: { width: 44, height: 44, borderRadius: "50%", display: "grid", placeItems: "center", padding: 0, cursor: "pointer", flexShrink: 0 } }, /* @__PURE__ */ React.createElement(Edit2, { size: 16, color: "var(--text-dim)" }))), /* @__PURE__ */ React.createElement("div", { className: "cp-stats" }, /* @__PURE__ */ React.createElement("div", { className: "cp-stat" }, /* @__PURE__ */ React.createElement("div", { className: "cp-v" }, ended ? endDk < todayDk ? "Ended" : "Ends" : dayN ? `Day ${dayN}` : dkValid(startDk) ? fmtDk(startDk) : "—"), /* @__PURE__ */ React.createElement("div", { className: "cp-k" }, ended ? fmtDk(endDk) : dayN ? `of ${base.cycleDays}` : "since")), /* @__PURE__ */ React.createElement("div", { className: "cp-stat" }, /* @__PURE__ */ React.createElement("div", { className: "cp-v" }, adh.pct == null ? "—" : adh.pct + "%"), /* @__PURE__ */ React.createElement("div", { className: "cp-k" }, adh.exp ? `${adh.got}/${adh.exp} doses · 30 d` : "nothing due yet")), /* @__PURE__ */ React.createElement("div", { className: "cp-stat" }, /* @__PURE__ */ React.createElement("div", { className: "cp-v" }, next ? next === todayDk ? "Today" : next === dkAdd(todayDk, 1) ? "Tomorrow" : fmtDk(next) : isPrn(p) ? "As needed" : "—"), /* @__PURE__ */ React.createElement("div", { className: "cp-k" }, "next dose"))), /* @__PURE__ */ React.createElement("div", { className: "cp-strip", role: "img", "aria-label": "Last 14 days: " + strip.filter((c) => c.s === "logged").length + " logged, " + strip.filter((c) => c.s === "missed").length + " missed" }, strip.map((c) => /* @__PURE__ */ React.createElement("span", { key: c.dk, className: "cp-cell " + c.s, title: fmtDk(c.dk) + " · " + c.s }))), /* @__PURE__ */ React.createElement(PlanCard, { proto: p, dateKey: todayDk, onChange: () => {
+          closeModal();
+          editProtocol(base, { applyFrom: todayDk });
+        }, onFinish: () => finishCycle(p), onResume: () => resumeCycle(p) }), tl.length > 1 && /* @__PURE__ */ React.createElement(TimelineList, { timeline: base.timeline }), sup ? /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: "12px 14px", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700 } }, "Supply · ", sup.vial.peptideName), /* @__PURE__ */ React.createElement("div", { className: "mono", style: { fontSize: 12.5, fontWeight: 700, color: sup.dosesLeft <= 3 ? "var(--warn)" : "var(--text-2)" } }, sup.dosesLeft, " dose", sup.dosesLeft === 1 ? "" : "s", " left")), /* @__PURE__ */ React.createElement("div", { style: { height: 6, borderRadius: 3, background: "rgba(255,255,255,.08)", overflow: "hidden", margin: "8px 0 6px" } }, /* @__PURE__ */ React.createElement("div", { style: { width: sup.pct * 100 + "%", height: "100%", background: sup.dosesLeft <= 3 ? "var(--warn)" : "var(--success)" } })), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--text-dim)" } }, sup.runOut ? `Runs out around ${fmtDk(sup.runOut)}` : "Covers the visible plan", sup.vial.reconstitutedAt ? ` · opened ${fmtDk(String(sup.vial.reconstitutedAt).slice(0, 10))}` : "")) : route === "inj" && !isPrn(p) ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: "var(--text-dim)", margin: "0 2px 14px" } }, "No supply figure yet. Set the vial's reconstitution in the log sheet to get doses left and a run-out date.") : null, /* @__PURE__ */ React.createElement("details", { className: "plan-dis", open: more, onToggle: (e) => setMore(e.target.open) }, /* @__PURE__ */ React.createElement("summary", null, /* @__PURE__ */ React.createElement("span", { className: "plan-dis-t" }, "More"), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-s" }, "Delete this compound from the plan"), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-c" }, more ? "Hide" : "Show")), /* @__PURE__ */ React.createElement("div", { className: "plan-dis-body", style: { paddingBottom: 12 } }, /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 10px", fontSize: 12.5, color: "var(--text-dim)" } }, "Deleting removes it from every day of the plan. Logged entries stay in History. To stop it on a date instead, use Finish cycle above."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-danger", style: { width: "100%" }, onClick: () => confirmModal("Delete protocol?", `Delete ${title} from ${activeProfile}'s plan? Logged entries stay in History.`, () => {
+          setProtocols((prev) => prev.filter((x) => x.id !== base.id));
+          showToast("Deleted " + title);
+        }, "Delete") }, "Delete ", title))));
+      };
+      openModal(/* @__PURE__ */ React.createElement(Body, null));
+    };
+    const renderPlan = () => {
+      const endOf = (p) => dkOf(p.endDate);
+      const finished = baseMine.filter((p) => dkValid(endOf(p)) && endOf(p) < todayDk);
+      const live = baseMine.filter((p) => !finished.includes(p) && (p.active !== false || dkValid(endOf(p))));
+      const row = (p) => {
+        const v = vialOf(p);
+        const route = p.route === "pen" ? "inj" : routeOf(p, v);
+        const rt = ROUTE_META[route] || ROUTE_META.inj;
+        const sup = supplyFor(p);
+        const next = nextDoseFor(p);
+        const pd = protoAt(p, todayDk);
+        const e = endOf(p);
+        const bits = [schedLabel(pd.schedule, true), fmtDoseAny(pd.doseMcg, pd.doseUnit)];
+        if (next) bits.push("next " + (next === todayDk ? "today" : next === dkAdd(todayDk, 1) ? "tomorrow" : fmtDk(next)));
+        if (dkValid(e)) bits.push((e < todayDk ? "ended " : "ends ") + fmtDk(e));
+        return /* @__PURE__ */ React.createElement("div", { key: p.id, className: "blk-row" }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: () => openCompound(p) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { borderColor: rt.color + "66", background: rt.color + "18" } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 14 })), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, p.route === "pen" ? penLabelOf(p) : p.peptideName), /* @__PURE__ */ React.createElement("span", { className: "blk-dose mono" }, bits.join(" · "), sup ? /* @__PURE__ */ React.createElement("span", { className: sup.dosesLeft <= 3 ? "blk-sub warn" : "" }, " · " + sup.dosesLeft + " left") : null)), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›")));
+      };
+      return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 }, className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { flex: 1 }, onClick: () => addProtocol() }, "+ Add compound"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: () => managePen(null), "aria-label": "Create a mix (up to 4 compounds)" }, "Mix"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openLibrary }, "Library"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: openCalculator, "aria-label": "Reconstitution calculator" }, "Calc")), live.length === 0 ? /* @__PURE__ */ React.createElement(FirstRun, { activeProfile, onPick: (id) => addProtocol(id), onLibrary: openLibrary }) : /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Current plan" }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title" }, "Current plan"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono" }, live.length)), live.map(row)), finished.length > 0 && /* @__PURE__ */ React.createElement("section", { className: "blk plan", "aria-label": "Finished", style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title", style: { color: "var(--text-dim)" } }, "Finished"), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono", style: { color: "var(--text-dim)" } }, finished.length)), finished.map(row)));
+    };
+    const vialForQuick = (p) => {
+      const ids = new Set(getEquivalentIds(p.peptideId));
+      const cands = (vials || []).filter((v) => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile));
+      return cands.find((v) => (v.mcgPerMl || 0) > 0) || cands[0] || null;
+    };
+    const lastDoseFor = (p) => {
+      let best = null;
+      for (const l of logs) {
+        if (l.skipped || l.protocolId !== p.id) continue;
+        if (!best || (l.datetime || "") > (best.datetime || "")) best = l;
+      }
+      return best;
+    };
+    const slotHourOf = (p) => {
+      const tod = ((p.schedule || {}).timeOfDay || "").toLowerCase();
+      if (/pre|work/.test(tod)) return 6;
+      if (/bed|night/.test(tod)) return 22;
+      if (/eve|pm/.test(tod)) return 19;
+      if (/noon|mid/.test(tod)) return 12;
+      return 8;
+    };
+    const defaultDatetime = (p, dk) => {
+      const h = slotHourOf(p);
+      const now = /* @__PURE__ */ new Date();
+      let dt;
+      if (dk === todayLocal() && Math.abs(now.getHours() + now.getMinutes() / 60 - h) <= 3) dt = now;
+      else {
+        const t = dkParse(dk);
+        const u = new Date(isNaN(t) ? Date.now() : t);
+        dt = new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), h, 0, 0);
+      }
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+    };
+    const quickPlan = (p) => {
+      if (isFuture || isPrn(p) || p.route === "pen") return null;
+      const vial = vialForQuick(p);
+      const route = routeOf(p, vial);
+      const conc = vial && vial.mcgPerMl > 0 ? vial.mcgPerMl : 0;
+      if (route === "inj" && !conc) return null;
+      const last = lastDoseFor(p);
+      if (last && Math.abs((parseFloat(last.doseMcg) || 0) - p.doseMcg) > 1e-6) return null;
+      const verdict = runDoseGate(p, p.doseMcg, { isScheduledCheckoff: true, doseUnit: p.doseUnit && p.doseUnit !== "mcg" ? p.doseUnit : null }, logs);
+      if (verdict.decision !== "PASS") return null;
+      const iu = isIUVial(vial) || p.doseUnit === "IU";
+      const unitTag = conc && !iu ? {} : iu ? { doseUnit: "IU", doseValue: p.doseMcg } : p.doseUnit === "mg" ? { doseUnit: "mg", doseValue: p.doseMcg / 1e3 } : p.doseUnit === "g" ? { doseUnit: "g", doseValue: p.doseMcg / 1e6 } : {};
+      return { vial, conc, iu, unitTag, doseMl: conc ? Math.round(p.doseMcg / conc * 1e3) / 1e3 : null };
+    };
+    const quickLabel = (p, plan) => (plan.conc && !plan.iu ? `${Math.round(p.doseMcg / plan.conc * 1e3) / 10}u · ` : "") + fmtDoseAny(p.doseMcg, plan.iu ? "IU" : p.doseUnit);
+    const buildQuickLog = (p, plan) => ({ id: uid(), peptide: p.peptideName, peptideId: p.peptideId, vialId: plan.vial ? plan.vial.id : null, protocolId: p.id, profile: p.profile, datetime: defaultDatetime(p, dateKey), doseMcg: p.doseMcg, ...plan.unitTag, doseMl: plan.doseMl, notes: "", site: routeOf(p, plan.vial) === "inj" ? nextSiteFor(p) : null });
+    const commitQuick = (entries) => {
+      const byVial = {};
+      entries.forEach((e) => {
+        if (!e.plan.vial) return;
+        const v = byVial[e.plan.vial.id] || (byVial[e.plan.vial.id] = { mcg: 0, lastDose: e.log.datetime, prevLast: e.plan.vial.lastDose || null });
+        v.mcg += e.log.doseMcg;
+        if (e.log.datetime > v.lastDose) v.lastDose = e.log.datetime;
+      });
+      setLogs((prev) => [...entries.map((e) => e.log), ...prev]);
+      setVials((prev) => prev.map((x) => byVial[x.id] ? { ...x, lastDose: byVial[x.id].lastDose, ...typeof x.remainingMcg === "number" ? { remainingMcg: Math.max(0, x.remainingMcg - byVial[x.id].mcg) } : {} } : x));
+      const ids = new Set(entries.map((e) => e.log.id));
+      return () => {
+        setLogs((prev) => prev.filter((l) => !ids.has(l.id)));
+        setVials((prev) => prev.map((x) => byVial[x.id] ? { ...x, lastDose: byVial[x.id].prevLast, ...typeof x.remainingMcg === "number" ? { remainingMcg: x.remainingMcg + byVial[x.id].mcg } : {} } : x));
+      };
+    };
+    const quickLog = (p) => {
+      const plan = quickPlan(p);
+      if (!plan) return administer(p, null);
+      const log = buildQuickLog(p, plan);
+      setFlashId(p.id);
+      setTimeout(() => setFlashId(null), 1600);
+      const undo = commitQuick([{ p, plan, log }]);
+      showToast(`✓ ${p.profile} · ${quickLabel(p, plan)} ${p.peptideName}`, "success", undo);
+    };
+    const logRemaining = (list) => {
+      const ready = list.map((p) => ({ p, plan: quickPlan(p) })).filter((e) => e.plan);
+      if (!ready.length) return;
+      const lines = ready.map((e) => `${e.p.peptideName} · ${quickLabel(e.p, e.plan)}`).join("; ");
+      confirmModal(`Log ${ready.length} doses as planned?`, lines + ". Each one can be opened and changed afterwards; Undo on the toast removes all of them.", () => {
+        const entries = ready.map((e) => ({ ...e, log: buildQuickLog(e.p, e.plan) }));
+        const undo = commitQuick(entries);
+        showToast(`✓ Logged ${entries.length} doses`, "success", undo);
+      }, `Log ${ready.length}`);
+    };
     const administer = (proto, existingLog = null) => {
       const protoPep = findPep(proto.peptideId);
       const _ids = new Set(getEquivalentIds(proto.peptideId));
@@ -2769,11 +3095,9 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const vial = myVials[0];
       const mcgPerMl0 = vial && vial.mcgPerMl || 0;
       const defaultMl = mcgPerMl0 ? proto.doseMcg / mcgPerMl0 : 0;
-      const dt = new Date(viewDate);
-      const _now = /* @__PURE__ */ new Date();
-      dt.setHours(_now.getHours(), _now.getMinutes(), 0);
-      dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
-      let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : "", doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ""), notes: existingLog.notes || "" } : { datetime: dt.toISOString().slice(0, 16), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : "", doseMcg: proto.doseMcg, vialId: vial ? vial.id : "", notes: "" };
+      const suggestedSite = nextSiteFor(proto);
+      const sup = supplyFor(proto);
+      let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : "", doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ""), notes: existingLog.notes || "", site: existingLog.site || "" } : { datetime: defaultDatetime(proto, dateKey), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : "", doseMcg: proto.doseMcg, vialId: vial ? vial.id : "", notes: "", site: suggestedSite };
       const Modal = () => {
         const [f, setF] = useState(f0);
         const [unitsText, setUnitsText] = useState(null);
@@ -2860,7 +3184,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
             const doCommit = () => {
               const reviewTag = needsReview ? { needsReview: true } : {};
               if (existingLog) {
-                const updatedLog = { ...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes };
+                const updatedLog = { ...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes, site: adminRoute === "inj" ? f.site || null : null };
                 if (d > 0 && updatedLog.skipped) delete updatedLog.skipped;
                 const prevDoseMcg = existingLog.skipped ? 0 : parseFloat(existingLog.doseMcg) || 0;
                 const sameVial = tv && existingLog.vialId === tv.id;
@@ -2876,7 +3200,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
                   setFlashId(proto.id);
                   setTimeout(() => setFlashId(null), 1600);
                 }
-                const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes };
+                const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes, site: adminRoute === "inj" ? f.site || null : null };
                 setLogs((prev) => [log, ...prev]);
                 const prevLastDose = tv ? tv.lastDose || null : null;
                 if (tv) setVials((prev) => prev.map((x) => x.id === tv.id ? { ...x, ...reconPatch && reconPatch.id === x.id ? reconPatch : {}, lastDose: f.datetime, ...typeof x.remainingMcg === "number" ? { remainingMcg: Math.max(0, x.remainingMcg - d) } : {} } : x));
@@ -2939,10 +3263,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           setUnits(frac * barMax);
         };
         const setQuickTime = (h) => {
-          const dt2 = new Date(viewDate);
-          dt2.setHours(h, 0, 0);
-          dt2.setMinutes(dt2.getMinutes() - dt2.getTimezoneOffset());
-          setF({ ...f, datetime: dt2.toISOString().slice(0, 16) });
+          const dt = new Date(viewDate);
+          if (h == null) {
+            const n = /* @__PURE__ */ new Date();
+            dt.setHours(n.getHours(), n.getMinutes(), 0);
+          } else dt.setHours(h, 0, 0);
+          dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+          setF({ ...f, datetime: dt.toISOString().slice(0, 16) });
         };
         const vialPep = targetVial ? findPep(targetVial.peptideId) : null;
         const drawMl = parseFloat(f.doseMl) || 0;
@@ -3037,13 +3364,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         })(), /* @__PURE__ */ React.createElement(Field, { label: `Dose (${admUnit})` }, /* @__PURE__ */ React.createElement("input", { type: "number", min: "0", inputMode: "decimal", value: admDisp, onChange: (e) => {
           if (parseFloat(e.target.value) < 0) return;
           setMcg(admFactor === 1 ? e.target.value : Math.round((parseFloat(e.target.value) || 0) * admFactor));
-        }, className: "input" }))) : null, /* @__PURE__ */ React.createElement(Field, { label: "Date & Time" }, /* @__PURE__ */ React.createElement("input", { type: "datetime-local", value: f.datetime, onChange: (e) => setF({ ...f, datetime: e.target.value }), className: "input" }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" } }, [["Morning", 8], ["Pre-WO", 6], ["Noon", 12], ["Evening", 19], ["Bedtime", 22]].map(([l, h]) => /* @__PURE__ */ React.createElement("button", { key: l, onClick: () => setQuickTime(h), style: { background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", borderRadius: 100, padding: "6px 14px", minHeight: 44, fontSize: 12, color: "var(--text-dim)", cursor: "pointer", fontWeight: 600 } }, l)))), myVials.length > 1 && /* @__PURE__ */ React.createElement(Field, { label: "Source Vial" }, /* @__PURE__ */ React.createElement("select", { value: f.vialId, onChange: (e) => onVialChange(e.target.value), className: "input" }, myVials.map((v) => /* @__PURE__ */ React.createElement("option", { key: v.id, value: v.id }, v.peptideName, (v.mcgPerMl || 0) > 0 ? ` · ${isIUVial(v) ? Math.round(v.mcgPerMl).toLocaleString() + " IU/mL" : (v.mcgPerMl / 1e3).toFixed(2) + " mg/mL"}` : " · not reconstituted")))), myVials.length === 1 && targetVial && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 16, fontSize: 13, color: "var(--text-dim)", background: "var(--bg-card-2)", padding: 12, borderRadius: 12, border: "1px solid var(--border)" } }, "📦 ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--text)" } }, targetVial.peptideName), " · ", hasConc ? isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial * 1e3).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial` : targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : "not reconstituted"), targetVial && !isOral && mcgPerMl > 0 && !editRecon && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-dim)", margin: "-2px 2px 12px" } }, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: "SF Mono, monospace" } }, isIU ? (mcgPerMl / 100).toFixed(1) + " IU" : fmtMcg(mcgPerMl / 100), "/unit · ", targetVial.diluentMl, " mL ", isOilPep(proto.peptideId) ? "vial" : "BAC"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
+        }, className: "input" }))) : null, /* @__PURE__ */ React.createElement(Field, { label: "Date & Time" }, /* @__PURE__ */ React.createElement("input", { type: "datetime-local", "aria-label": "Date and time", value: f.datetime, onChange: (e) => setF({ ...f, datetime: e.target.value }), className: "input" }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" } }, [["Now", null], ["Morning", 8], ["Pre-WO", 6], ["Noon", 12], ["Evening", 19], ["Bedtime", 22]].map(([l, h]) => /* @__PURE__ */ React.createElement("button", { key: l, onClick: () => setQuickTime(h), style: { background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", borderRadius: 100, padding: "6px 14px", minHeight: 44, fontSize: 12, color: "var(--text-dim)", cursor: "pointer", fontWeight: 600 } }, l)))), adminRoute === "inj" && /* @__PURE__ */ React.createElement(Field, { label: "Injection site" }, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 6 } }, SITES.map((s) => /* @__PURE__ */ React.createElement("button", { key: s, type: "button", "aria-pressed": f.site === s, onClick: () => setF((p) => ({ ...p, site: p.site === s ? "" : s })), style: { minHeight: 40, padding: "0 4px", borderRadius: 11, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", border: "1px solid " + (f.site === s ? "rgba(227,200,134,.5)" : "var(--border)"), background: f.site === s ? "rgba(227,200,134,.14)" : "rgba(255,255,255,.04)", color: f.site === s ? "var(--accent)" : "var(--text-2)" } }, s))), !existingLog && suggestedSite && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--text-faint)", marginTop: 6 } }, "Next in rotation: ", suggestedSite)), /* @__PURE__ */ React.createElement(Field, { label: "Note" }, /* @__PURE__ */ React.createElement("input", { type: "text", "aria-label": "Note for this dose", placeholder: "Optional — new vial, slight sting, …", value: f.notes || "", onChange: (e) => setF({ ...f, notes: e.target.value }), className: "input" })), myVials.length > 1 && /* @__PURE__ */ React.createElement(Field, { label: "Source Vial" }, /* @__PURE__ */ React.createElement("select", { value: f.vialId, onChange: (e) => onVialChange(e.target.value), className: "input" }, myVials.map((v) => /* @__PURE__ */ React.createElement("option", { key: v.id, value: v.id }, v.peptideName, (v.mcgPerMl || 0) > 0 ? ` · ${isIUVial(v) ? Math.round(v.mcgPerMl).toLocaleString() + " IU/mL" : (v.mcgPerMl / 1e3).toFixed(2) + " mg/mL"}` : " · not reconstituted")))), myVials.length === 1 && targetVial && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 16, fontSize: 13, color: "var(--text-dim)", background: "var(--bg-card-2)", padding: 12, borderRadius: 12, border: "1px solid var(--border)" } }, /* @__PURE__ */ React.createElement("b", { style: { color: "var(--text)" } }, targetVial.peptideName), " · ", hasConc ? isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial * 1e3).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial` : targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : "not reconstituted"), sup && !isOral && !editRecon && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, margin: "-6px 2px 10px", color: sup.dosesLeft <= 3 ? "var(--warn)" : "var(--text-dim)" }, className: "mono" }, sup.dosesLeft, " dose", sup.dosesLeft === 1 ? "" : "s", " left in this vial", sup.runOut ? ` · runs out around ${fmtDk(sup.runOut)}` : ""), targetVial && !isOral && mcgPerMl > 0 && !editRecon && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-dim)", margin: "-2px 2px 12px" } }, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: "SF Mono, monospace" } }, isIU ? (mcgPerMl / 100).toFixed(1) + " IU" : fmtMcg(mcgPerMl / 100), "/unit · ", targetVial.diluentMl, " mL ", isOilPep(proto.peptideId) ? "vial" : "BAC"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
           setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : "");
           setEditRecon(true);
-        }, style: { flexShrink: 0, background: "var(--bg-card-2)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 11px", fontSize: 11, color: "var(--accent-2)", cursor: "pointer", fontWeight: 700 } }, "✎ Edit reconstitution")), !isOral && needsRecon && (proto.isBlend || String(proto.peptideId || "").indexOf("blend_") === 0) && !targetVial && /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,159,10,0.07)", border: "1px solid rgba(255,159,10,0.25)", padding: 14, borderRadius: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--text-2)", marginBottom: 10 } }, "This blend's vial record is missing — rebuild it in the blend editor so the per-component breakdown stays correct."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%" }, onClick: () => {
+        }, style: { flexShrink: 0, background: "var(--bg-card-2)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 11px", fontSize: 11, color: "var(--accent-2)", cursor: "pointer", fontWeight: 700 } }, "Edit reconstitution")), !isOral && needsRecon && (proto.isBlend || String(proto.peptideId || "").indexOf("blend_") === 0) && !targetVial && /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,159,10,0.07)", border: "1px solid rgba(255,159,10,0.25)", padding: 14, borderRadius: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--text-2)", marginBottom: 10 } }, "This blend's vial record is missing — rebuild it in the blend editor so the per-component breakdown stays correct."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%" }, onClick: () => {
           closeModal();
           editProtocol(proto);
-        } }, "✎ Edit blend")), !isOral && (needsRecon || editRecon) && !((proto.isBlend || String(proto.peptideId || "").indexOf("blend_") === 0) && !targetVial) && /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,159,10,0.07)", border: "1px solid rgba(255,159,10,0.25)", padding: 14, borderRadius: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, color: "var(--warn)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 } }, isOilPep(proto.peptideId) ? needsRecon ? "🧴 Set vial concentration" : "✎ Edit vial concentration" : needsRecon ? "🧪 Set reconstitution" : "✎ Edit reconstitution"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--text-dim)", marginBottom: 10 } }, isOilPep(proto.peptideId) ? "Pre-mixed oil — enter the total mg and the vial volume (e.g. 2000 mg in 10 mL) to dose by syringe units." : `Enter vial size and BAC water to dose this ${isIU ? "in IU" : "by syringe units"}.`, " ", needsRecon && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text-faint)" } }, "(or just log a dose above)")), (SOLVENT_OVERRIDE[proto.peptideId] || targetVial && (targetVial.penComponents || []).some((c) => SOLVENT_OVERRIDE[c.peptideId])) && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--rt-oral, #f78c3a)", background: "rgba(247,140,58,0.10)", border: "1px solid rgba(247,140,58,0.25)", borderRadius: 10, padding: "8px 10px", marginBottom: 10 } }, "💡 Preferred solvent for ", proto.peptideName, ": ", /* @__PURE__ */ React.createElement("b", null, SOLVENT_OVERRIDE[proto.peptideId] || solventFor(null, targetVial.penComponents)), " (not plain BAC)"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, targetVial && targetVial.penComponents && targetVial.penComponents.length ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, "Vial size (mg · blend)"), /* @__PURE__ */ React.createElement("div", { className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700, background: "rgba(255,255,255,0.04)", color: "var(--text-dim)" } }, reconMg || "—")) : /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, reconIsIU ? "Vial (IU)" : "Vial size (mg)"), /* @__PURE__ */ React.createElement("input", { type: "number", step: reconIsIU ? "1" : "0.1", value: reconIsIU ? reconMg !== "" ? Math.round(parseFloat(reconMg) * 1e3) : "" : reconMg, onChange: (e) => setReconMg(reconIsIU ? String((parseFloat(e.target.value) || 0) / 1e3) : e.target.value), className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700 } })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, isOilPep(proto.peptideId) ? "Vial volume (mL)" : "BAC water (mL)"), /* @__PURE__ */ React.createElement("input", { type: "number", step: "0.1", value: reconMl, onChange: (e) => setReconMl(e.target.value), className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700 } }))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "flex-end" } }, editRecon && /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: () => setEditRecon(false) }, "Cancel"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: saveRecon }, "Save reconstitution")))), /* @__PURE__ */ React.createElement("details", { className: "plan-dis", open: planOpen, onToggle: (e) => setPlanOpen(e.target.open) }, /* @__PURE__ */ React.createElement("summary", null, /* @__PURE__ */ React.createElement("span", { className: "plan-dis-t" }, "Plan"), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-s" }, schedLabel(proto.schedule, true), " · ", fmtAdmDose(proto.doseMcg), dkValid(dkOf(proto.endDate)) ? " · ends " + fmtDk(dkOf(proto.endDate)) : ""), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-c" }, planOpen ? "Hide" : "Change · Finish")), /* @__PURE__ */ React.createElement("div", { className: "plan-dis-body" }, /* @__PURE__ */ React.createElement(
+        } }, "Edit blend")), !isOral && (needsRecon || editRecon) && !((proto.isBlend || String(proto.peptideId || "").indexOf("blend_") === 0) && !targetVial) && /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,159,10,0.07)", border: "1px solid rgba(255,159,10,0.25)", padding: 14, borderRadius: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, color: "var(--warn)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 } }, isOilPep(proto.peptideId) ? needsRecon ? "Set vial concentration" : "Edit vial concentration" : needsRecon ? "Set reconstitution" : "Edit reconstitution"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--text-dim)", marginBottom: 10 } }, isOilPep(proto.peptideId) ? "Pre-mixed oil — enter the total mg and the vial volume (e.g. 2000 mg in 10 mL) to dose by syringe units." : `Enter vial size and BAC water to dose this ${isIU ? "in IU" : "by syringe units"}.`, " ", needsRecon && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text-faint)" } }, "(or just log a dose above)")), (SOLVENT_OVERRIDE[proto.peptideId] || targetVial && (targetVial.penComponents || []).some((c) => SOLVENT_OVERRIDE[c.peptideId])) && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: "var(--rt-oral, #f78c3a)", background: "rgba(247,140,58,0.10)", border: "1px solid rgba(247,140,58,0.25)", borderRadius: 10, padding: "8px 10px", marginBottom: 10 } }, "💡 Preferred solvent for ", proto.peptideName, ": ", /* @__PURE__ */ React.createElement("b", null, SOLVENT_OVERRIDE[proto.peptideId] || solventFor(null, targetVial.penComponents)), " (not plain BAC)"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, targetVial && targetVial.penComponents && targetVial.penComponents.length ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, "Vial size (mg · blend)"), /* @__PURE__ */ React.createElement("div", { className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700, background: "rgba(255,255,255,0.04)", color: "var(--text-dim)" } }, reconMg || "—")) : /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, reconIsIU ? "Vial (IU)" : "Vial size (mg)"), /* @__PURE__ */ React.createElement("input", { type: "number", "aria-label": reconIsIU ? "Vial size in IU" : "Vial size in mg", step: reconIsIU ? "1" : "0.1", value: reconIsIU ? reconMg !== "" ? Math.round(parseFloat(reconMg) * 1e3) : "" : reconMg, onChange: (e) => setReconMg(reconIsIU ? String((parseFloat(e.target.value) || 0) / 1e3) : e.target.value), className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700 } })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: { fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" } }, isOilPep(proto.peptideId) ? "Vial volume (mL)" : "BAC water (mL)"), /* @__PURE__ */ React.createElement("input", { type: "number", "aria-label": isOilPep(proto.peptideId) ? "Vial volume in mL" : "BAC water in mL", step: "0.1", value: reconMl, onChange: (e) => setReconMl(e.target.value), className: "input", style: { textAlign: "center", fontFamily: "SF Mono, monospace", fontWeight: 700 } }))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "flex-end" } }, editRecon && /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: () => setEditRecon(false) }, "Cancel"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: saveRecon }, "Save reconstitution")))), /* @__PURE__ */ React.createElement("details", { className: "plan-dis", open: planOpen, onToggle: (e) => setPlanOpen(e.target.open) }, /* @__PURE__ */ React.createElement("summary", null, /* @__PURE__ */ React.createElement("span", { className: "plan-dis-t" }, "Plan"), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-s" }, schedLabel(proto.schedule, true), " · ", fmtAdmDose(proto.doseMcg), dkValid(dkOf(proto.endDate)) ? " · ends " + fmtDk(dkOf(proto.endDate)) : ""), /* @__PURE__ */ React.createElement("span", { className: "plan-dis-c" }, planOpen ? "Hide" : "Change · Finish")), /* @__PURE__ */ React.createElement("div", { className: "plan-dis-body" }, /* @__PURE__ */ React.createElement(
           PlanCard,
           {
             proto,
@@ -3281,11 +3608,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       };
       openModal(/* @__PURE__ */ React.createElement(Modal, null));
     };
-    const addProtocol = () => {
+    const addProtocol = (presetId) => {
       let f0 = { peptideId: "", doseMcg: 0, sched: { days: ALL_DAYS.slice(), timeOfDay: "morning" }, cycleDays: 30, startDate: dateKey, route: "inj", oralUnitLabel: "mcg", doseUnit: "mcg", reconMg: "", reconMl: "", reconVialId: null };
       const Modal = () => {
         const [f, setF] = useState(f0);
         const pep = findPep(f.peptideId);
+        useEffect(() => {
+          if (presetId && !f.peptideId) apply(presetId);
+        }, []);
         const apply = (id) => {
           if (id === "__new_blend__") return manageBlend(null);
           const p = findPep(id);
@@ -3333,7 +3663,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       openModal(/* @__PURE__ */ React.createElement(Modal, null));
     };
     const filters = [["all", "All", "#e3c886"], ["inj", "Inject", ROUTE_META.inj.color], ["oral", "Oral", ROUTE_META.oral.color], ["nasal", "Nasal", ROUTE_META.nasal.color]];
-    return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 }, className: "anim-fade-in" }, myProtocols.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: LG.text } }, scheduledCount === 0 ? "Rest day" : dateKey < todayDk ? dueCount === 0 ? "All logged" : `${dueCount} not logged` : `${dueCount} ${dueCount === 1 ? "dose" : "doses"} due`), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: LG.dim, marginTop: 2 } }, loggedCount, " logged · ", scheduledCount, " scheduled ", dateKey === todayDk ? "today" : "on " + fmtDk(dateKey))), /* @__PURE__ */ React.createElement("button", { onClick: () => managePen(null), className: "lg", title: "Create mix", "aria-label": "Create mix (up to 4 compounds)", style: { width: 42, height: 42, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer", fontSize: 18 } }, "🖊"), /* @__PURE__ */ React.createElement("button", { onClick: addProtocol, className: "lg", "aria-label": "Add protocol", style: { width: 42, height: 42, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer" } }, /* @__PURE__ */ React.createElement(Plus, { size: 19, color: "var(--accent)" }))), myProtocols.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "60px 20px", color: LG.dim } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 60, opacity: 0.4, marginBottom: 16 } }, "⚗️"), /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 6px", fontWeight: 600 } }, "No protocols yet"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 20px", fontSize: 14 } }, "Add a compound to start tracking ", activeProfile, "'s protocol"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: addProtocol }, "+ Add First Compound")) : /* @__PURE__ */ React.createElement(React.Fragment, null, expiredProtos.length > 0 && /* @__PURE__ */ React.createElement("div", { role: "region", "aria-label": "Cycles past end", className: "card banner-expired", style: { borderRadius: 18, padding: "12px 14px", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 4 } }, /* @__PURE__ */ React.createElement(AlertTriangle, { size: 14, color: "var(--warn)" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--warn)" } }, "Cycles past end")), expiredProtos.slice(0, 3).map((p) => {
+    if (mode === "plan") return renderPlan();
+    return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 }, className: "anim-fade-in" }, myProtocols.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: LG.text } }, scheduledCount === 0 ? "Rest day" : dateKey < todayDk ? dueCount === 0 ? "All logged" : `${dueCount} not logged` : `${dueCount} ${dueCount === 1 ? "dose" : "doses"} due`), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: LG.dim, marginTop: 2 } }, loggedCount, " logged · ", scheduledCount, " scheduled ", dateKey === todayDk ? "today" : "on " + fmtDk(dateKey))), /* @__PURE__ */ React.createElement("button", { onClick: () => managePen(null), className: "lg", title: "Create mix", "aria-label": "Create mix (up to 4 compounds)", style: { width: 44, height: 44, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer" } }, /* @__PURE__ */ React.createElement(Beaker, { size: 18, color: "var(--accent)" })), /* @__PURE__ */ React.createElement("button", { onClick: addProtocol, className: "lg", "aria-label": "Add protocol", style: { width: 42, height: 42, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer" } }, /* @__PURE__ */ React.createElement(Plus, { size: 19, color: "var(--accent)" }))), myProtocols.length === 0 ? /* @__PURE__ */ React.createElement(FirstRun, { activeProfile, onPick: (id) => addProtocol(id), onLibrary: openLibrary }) : /* @__PURE__ */ React.createElement(React.Fragment, null, expiredProtos.length > 0 && /* @__PURE__ */ React.createElement("div", { role: "region", "aria-label": "Cycles past end", className: "card banner-expired", style: { borderRadius: 18, padding: "12px 14px", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 4 } }, /* @__PURE__ */ React.createElement(AlertTriangle, { size: 14, color: "var(--warn)" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--warn)" } }, "Cycles past end")), expiredProtos.slice(0, 3).map((p) => {
       const n = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 864e5) + 1 - p.cycleDays;
       return /* @__PURE__ */ React.createElement("div", { key: p.id, style: { display: "flex", alignItems: "center", gap: 8, minHeight: 44 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, p.peptideName, " ", /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 11, color: "var(--warn)" } }, "+", n, "d")), /* @__PURE__ */ React.createElement(
         "button",
@@ -3360,52 +3691,58 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const active = routeFilter === k;
       const cnt = routeCounts[k];
       return /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => setRouteFilter(k), style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 4px", borderRadius: 13, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "1px solid " + (active ? col + "55" : LG.hair), background: active ? col + "1f" : "rgba(255,255,255,.04)", color: active ? col : LG.dim } }, label, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 11.5, fontWeight: 700, color: active ? col : LG.dim2 } }, cnt));
-    })), shownProtocols.length === 0 && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "40px 20px", color: LG.dim } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 50, opacity: 0.4, marginBottom: 12 } }, "😴"), /* @__PURE__ */ React.createElement("p", { style: { margin: 0, fontSize: 14 } }, activeProfile, "'s rest day. Nothing scheduled.")), blocks.map((b, bi) => byBlock[b.id].length > 0 && /* @__PURE__ */ React.createElement("div", { key: b.id, style: { marginTop: bi === 0 ? 0 : 20 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 9, padding: "0 4px 11px" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 700, letterSpacing: "0.03em", color: b.id === "prn" ? LG.amber : LG.text } }, b.label), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: LG.dim2, fontWeight: 500 } }, b.hint), /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 11, color: LG.dim2, marginLeft: "auto" } }, byBlock[b.id].length), /* @__PURE__ */ React.createElement("div", { style: { flex: "0 0 18px", height: 1, background: LG.hair } })), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 12 } }, byBlock[b.id].map((p) => {
-      const log = logs.find((l) => l.protocolId === p.id && (l.datetime || "").slice(0, 10) === dateKey);
-      const status = log ? log.skipped ? "skipped" : "logged" : "pending";
-      return /* @__PURE__ */ React.createElement(DoseCard, { key: p.id, proto: p, log, status, isFuture, vials, viewDateKey: dateKey, glow: p.id === glowId, celebrate: p.id === flashId && status === "logged", lastPrnLog: isPrn(p) ? lastPrnLogFor(p) : null, onAdminister: () => administer(p, log), onEdit: () => editProtocol(p) });
-    }))))));
-  }
-  function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit, glow, celebrate, lastPrnLog, viewDateKey }) {
-    if (proto.route === "pen") {
-      const pm = PEN_META[proto.penColor] || PEN_META.blue;
-      const penVial = (vials || []).find((v) => v.id === proto.penVialId);
-      const comps = penVial && penVial.penComponents || [];
-      const mcgPerUnit2 = penVial && penVial.mcgPerMl ? penVial.mcgPerMl / 100 : 0;
-      const dMcgP = log && log.doseMcg != null ? log.doseMcg : proto.doseMcg;
-      const units2 = mcgPerUnit2 ? dMcgP / mcgPerUnit2 : penVial && penVial.unitsPerDose || 0;
-      const isLoggedP = status === "logged";
-      const disabledP = isFuture && !isLoggedP;
-      const sP = proto.schedule || {};
-      const daysStrP = schedLabel(sP, true);
-      return /* @__PURE__ */ React.createElement(
-        "button",
+    })), shownProtocols.length === 0 && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "40px 20px", color: LG.dim } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 50, opacity: 0.4, marginBottom: 12 } }, "😴"), /* @__PURE__ */ React.createElement("p", { style: { margin: 0, fontSize: 14 } }, activeProfile, "'s rest day. Nothing scheduled.")), blocks.map((b, bi) => byBlock[b.id].length > 0 && (() => {
+      const items = byBlock[b.id].map((p) => {
+        const log = logs.find((l) => l.protocolId === p.id && (l.datetime || "").slice(0, 10) === dateKey);
+        const status = log ? log.skipped ? "skipped" : "logged" : "pending";
+        return { p, log, status };
+      });
+      const open = items.filter((it) => it.status === "pending" && !isPrn(it.p) && !isFuture && !cycleOverP(it.p)).map((it) => it.p);
+      const quickable = open.filter((p) => quickPlan(p));
+      return /* @__PURE__ */ React.createElement("section", { key: b.id, "aria-label": b.label, className: "blk", style: { marginTop: bi === 0 ? 0 : 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title", style: { color: b.id === "prn" ? LG.amber : LG.text } }, b.label), /* @__PURE__ */ React.createElement("span", { className: "blk-hint" }, b.hint), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono" }, b.id === "prn" ? items.length : isFuture ? `${items.length} scheduled` : `${open.length} of ${items.length} left`)), items.map((it) => /* @__PURE__ */ React.createElement(
+        DoseRow,
         {
-          onClick: onAdminister,
-          className: isLoggedP ? "card card-logged" : "card",
-          style: { textAlign: "left", borderRadius: 18, padding: "10px 11px", display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 0, opacity: disabledP ? 0.6 : 1, cursor: "pointer", borderLeft: "3px solid " + pm.color }
-        },
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { width: 14, height: 14, borderRadius: "50%", background: pm.color, boxShadow: "0 0 8px " + pm.color + "88", flexShrink: 0 } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", color: pm.color, textTransform: "uppercase" } }, penLabelOf(proto))), /* @__PURE__ */ React.createElement("div", { style: { width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", flexShrink: 0, background: isLoggedP ? LG.green : "rgba(227,200,134,.12)", border: isLoggedP ? "none" : "1.6px solid " + LG.accent } }, isLoggedP ? /* @__PURE__ */ React.createElement(Check, { size: 14, strokeWidth: 3, color: "#06231a" }) : /* @__PURE__ */ React.createElement(Plus, { size: 13, strokeWidth: 3, color: LG.accent }))),
-        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, fontWeight: 600, color: isLoggedP ? LG.dim : LG.text, lineHeight: 1.18, minHeight: 31, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } }, comps.map((c) => (c.name || "").split(" ")[0]).join(" + ") || "Empty pen"),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 4 } }, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 17, fontWeight: 700, color: isLoggedP ? "rgba(255,255,255,.78)" : LG.text } }, Math.round(units2 * 10) / 10), /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 11, color: LG.dim } }, "units"), /* @__PURE__ */ React.createElement("span", { style: { marginLeft: "auto", fontFamily: LG.mono, fontSize: 11, fontWeight: 600, color: pm.color, background: pm.color + "1c", border: "1px solid " + pm.color + "33", borderRadius: 7, padding: "2px 7px" } }, comps.length, "-mix")),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, paddingTop: 6, borderTop: "1px solid " + LG.hair } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: LG.dim, fontWeight: 500 } }, daysStrP), /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 9, color: LG.dim2 } }, "pen"))
-      );
-    }
+          key: it.p.id,
+          proto: it.p,
+          log: it.log,
+          status: it.status,
+          isFuture,
+          isPast: dateKey < todayDk,
+          vials,
+          viewDateKey: dateKey,
+          glow: it.p.id === glowId,
+          celebrate: it.p.id === flashId && it.status === "logged",
+          lastPrnLog: isPrn(it.p) ? lastPrnLogFor(it.p) : null,
+          quick: !!quickPlan(it.p),
+          supply: supplyFor(it.p),
+          onOpen: () => administer(it.p, it.log),
+          onQuick: () => quickLog(it.p),
+          onUndoSkip: it.status === "skipped" ? () => {
+            const row = it.log;
+            setLogs((prev) => prev.filter((l) => l.id !== row.id));
+            showToast(`Skip undone · ${it.p.peptideName}`, "success", () => setLogs((prev) => prev.some((l) => l.id === row.id) ? prev : [row, ...prev]));
+          } : null
+        }
+      )), quickable.length >= 2 && /* @__PURE__ */ React.createElement("div", { className: "blk-foot" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary blk-all", onClick: () => logRemaining(open) }, "Log the ", quickable.length, " remaining as planned")));
+    })())));
+  }
+  function DoseRow({ proto, log, status, isFuture, isPast, vials, viewDateKey, glow, celebrate, lastPrnLog, quick, supply, onOpen, onQuick, onUndoSkip }) {
+    const isPen = proto.route === "pen";
+    const pm = isPen ? PEN_META[proto.penColor] || PEN_META.blue : null;
+    const penVial = isPen ? (vials || []).find((v) => v.id === proto.penVialId) : null;
     const sched = proto.schedule || {};
-    const daysStr = schedLabel(sched, true);
     const viewDk = viewDateKey || todayLocal();
     const startDk = dkOf(proto.startDate);
     const elapsed = dkValid(startDk) ? dkDiff(viewDk, startDk) : 0;
-    const day = Math.max(1, Math.min(elapsed + 1, proto.cycleDays || 1));
     const equivIds = new Set(getEquivalentIds(proto.peptideId));
-    const activeVial = (vials || []).find((v) => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl || 0) > 0) || (vials || []).find((v) => equivIds.has(v.peptideId) && v.active !== false);
-    const route = routeOf(proto, activeVial);
-    const rt = ROUTE_META[route];
+    const activeVial = isPen ? penVial : (vials || []).find((v) => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl || 0) > 0) || (vials || []).find((v) => equivIds.has(v.peptideId) && v.active !== false);
+    const route = isPen ? "inj" : routeOf(proto, activeVial);
+    const rt = ROUTE_META[route] || ROUTE_META.inj;
     const mcgPerUnit = activeVial && activeVial.mcgPerMl ? activeVial.mcgPerMl / 100 : 0;
     const dMcg = log && !log.skipped && log.doseMcg != null ? log.doseMcg : proto.doseMcg;
-    const units = mcgPerUnit ? dMcg / mcgPerUnit : null;
+    const units = mcgPerUnit ? dMcg / mcgPerUnit : isPen && penVial && penVial.unitsPerDose || null;
     const du0 = log && log.doseUnit || proto.doseUnit;
-    const isIU = du0 === "IU" || isIUVial(activeVial) || log && log.doseUnit === "IU";
+    const isIU = du0 === "IU" || isIUVial(activeVial);
     let dv, du;
     if (isIU) {
       dv = String(Math.round(log && log.doseValue != null ? log.doseValue : dMcg));
@@ -3420,20 +3757,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       dv = String(Math.round(dMcg));
       du = "mcg";
     }
-    const deliver = deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip;
-    const isLogged = status === "logged";
-    const isSkipped = status === "skipped";
+    const ml = log && log.doseMl != null ? log.doseMl : activeVial && activeVial.mcgPerMl ? dMcg / activeVial.mcgPerMl : null;
+    const deliver = !isPen && (route === "oral" || route === "nasal") ? deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip : null;
     const isPrnProto = isPrnSched(sched);
     const cycleOver = proto.cycleDays > 0 && !isPrnProto && !proto.endDate && elapsed + 1 > proto.cycleDays;
-    const state = isLogged ? "logged" : isSkipped ? "skipped" : cycleOver ? "expired" : isFuture ? "future" : isPrnProto ? "prn" : "due";
-    const cls = "card" + (state === "logged" ? " card-logged" : state === "skipped" ? " card-skipped" : state === "expired" ? " card-expired" : state === "future" ? " card-future" : state === "due" && glow ? " card-due-glow" : "");
-    const endDk = dkOf(proto.endDate);
-    const nextRev = nextRevision(proto, viewDk);
-    const hint = dkValid(endDk) && dkDiff(endDk, viewDk) <= 7 && dkDiff(endDk, viewDk) >= 0 ? "ends " + fmtDk(endDk) : nextRev && dkDiff(nextRev.from, viewDk) <= 14 ? schedLabel(nextRev.schedule, true) + " from " + fmtDk(nextRev.from) : null;
-    const meta = (proto.cycleDays > 0 && !isPrnProto ? `${daysStr} · ${day}/${proto.cycleDays}` : daysStr) + (hint ? " · " + hint : "");
-    const disabled = false;
-    const cel = !!celebrate && state === "logged";
-    const expiredBy = cycleOver ? elapsed + 1 - proto.cycleDays : 0;
+    const state = status === "logged" ? "logged" : status === "skipped" ? "skipped" : cycleOver ? "expired" : isFuture ? "future" : isPrnProto ? "prn" : isPast ? "missed" : "due";
     const logTime = (() => {
       if (!log || !log.datetime) return "";
       const d = new Date(log.datetime);
@@ -3451,36 +3779,15 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const n = Math.floor((Date.now() - d.getTime()) / 864e5);
       return n <= 0 ? "today" : n === 1 ? "1d ago" : n + "d ago";
     })();
-    const uDisp = units != null ? Math.round(units * 10) / 10 : null;
-    const nameCol = state === "logged" || state === "skipped" || state === "future" ? "var(--text-dim)" : LG.text;
-    const heroCol = state === "logged" ? "rgba(255,255,255,.78)" : state === "skipped" ? "rgba(255,255,255,.62)" : state === "expired" || state === "future" ? "var(--text-dim)" : units != null ? "var(--accent)" : LG.text;
-    const bylineCol = state === "future" || state === "expired" ? "var(--text-dim)" : "rgba(255,255,255,.78)";
-    const ringBg = state === "logged" ? LG.green : state === "skipped" ? "rgba(247,140,58,.18)" : state === "expired" ? "rgba(247,140,58,.10)" : state === "future" ? "transparent" : "rgba(227,200,134,.12)";
-    const ringBorder = state === "logged" ? "none" : state === "skipped" || state === "expired" ? "1.6px solid " + LG.amber : state === "future" ? "1.6px solid var(--text-ghost)" : "1.6px solid " + LG.accent;
-    return /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: () => {
-          if (!disabled) onAdminister();
-        },
-        className: cls,
-        style: { textAlign: "left", borderRadius: 18, padding: "10px 11px", display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 0, cursor: disabled ? "default" : "pointer" }
-      },
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { className: "rt-tile", style: { width: 25, height: 25, borderRadius: 8, background: rt.color + "24", display: "grid", placeItems: "center", boxShadow: "inset 0 0 0 1px " + rt.color + "40", flexShrink: 0 } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 15 })), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700, letterSpacing: "0.05em", color: rt.color, textTransform: "uppercase" } }, rt.label)), /* @__PURE__ */ React.createElement("div", { style: {
-        width: 26,
-        height: 26,
-        borderRadius: "50%",
-        display: "grid",
-        placeItems: "center",
-        flexShrink: 0,
-        position: "relative",
-        background: cel ? "rgba(227,200,134,.12)" : ringBg,
-        border: cel ? "1.6px solid " + LG.accent : ringBorder
-      } }, cel ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "cel-disc", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none" }, /* @__PURE__ */ React.createElement("path", { className: "cel-ck", d: "M7 13.5l3.8 3.8L19 9.5", stroke: "#06231a", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round" }))), /* @__PURE__ */ React.createElement("span", { className: "cel-rip", "aria-hidden": "true" })) : state === "logged" ? /* @__PURE__ */ React.createElement(Check, { size: 14, strokeWidth: 3, color: "#06231a" }) : state === "skipped" ? /* @__PURE__ */ React.createElement("span", { "aria-hidden": "true", style: { fontSize: 12, color: LG.amber } }, "⏭") : state === "expired" ? /* @__PURE__ */ React.createElement("span", { "aria-hidden": "true", style: { fontSize: 13, color: LG.amber } }, "↻") : /* @__PURE__ */ React.createElement(Plus, { size: 13, strokeWidth: 3, color: state === "future" ? "var(--text-ghost)" : LG.accent }))),
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13.5, fontWeight: 600, color: nameCol, lineHeight: 1.16, minHeight: 31, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } }, proto.peptideName),
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 4, minWidth: 0 } }, units != null ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 22, lineHeight: "26px", fontWeight: 700, color: heroCol } }, uDisp), /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 13, color: "var(--text-dim)" } }, "u"), /* @__PURE__ */ React.createElement("span", { style: { marginLeft: "auto", fontFamily: LG.mono, fontSize: 12, fontWeight: 600, color: bylineCol, whiteSpace: "nowrap" } }, dv, " ", du)) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 22, lineHeight: "26px", fontWeight: 700, color: heroCol } }, dv), /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 13, color: "var(--text-dim)" } }, du), (route === "oral" || route === "nasal") && /* @__PURE__ */ React.createElement("span", { style: { marginLeft: "auto", fontFamily: LG.mono, fontSize: 11, fontWeight: 600, color: rt.color, background: rt.color + "1c", border: "1px solid " + rt.color + "33", borderRadius: 7, padding: "2px 7px", whiteSpace: "nowrap" } }, deliver))),
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, paddingTop: 6, borderTop: "1px solid " + LG.hair } }, state === "logged" ? /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 12, fontWeight: 600, color: "var(--success)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, "Logged ", logTime) : state === "skipped" ? /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 12, fontWeight: 600, color: "var(--warn)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, "Skipped · tap to undo") : state === "expired" ? /* @__PURE__ */ React.createElement("span", { style: { fontFamily: LG.mono, fontSize: 12, fontWeight: 600, color: "var(--warn)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, "Cycle ended ", expiredBy, "d ago") : state === "future" ? /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "var(--text-dim)", fontWeight: 500, whiteSpace: "nowrap" } }, "Scheduled") : state === "prn" ? /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "var(--text-dim)", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, "PRN · last ", prnRel) : /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "var(--text-dim)", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, meta))
-    );
+    const endDk = dkOf(proto.endDate);
+    const nextRev = nextRevision(proto, viewDk);
+    const hint = dkValid(endDk) && dkDiff(endDk, viewDk) <= 7 && dkDiff(endDk, viewDk) >= 0 ? "ends " + fmtDk(endDk) : nextRev && dkDiff(nextRev.from, viewDk) <= 14 ? schedLabel(nextRev.schedule, true) + " from " + fmtDk(nextRev.from) : null;
+    const name = isPen ? penLabelOf(proto) + " · " + ((penVial && penVial.penComponents || []).map((c) => (c.name || "").split(" ")[0]).join(" + ") || "Empty pen") : proto.peptideName;
+    const doseLine = [units != null ? `${Math.round(units * 10) / 10} u` : null, isPen ? null : `${dv} ${du}`, ml != null && units != null ? `${(+ml).toFixed(ml < 0.1 ? 3 : 2)} mL` : null, deliver].filter(Boolean).join(" · ");
+    const sub = state === "logged" ? `Logged ${logTime}` : state === "skipped" ? "Skipped" : state === "expired" ? `Cycle ended ${elapsed + 1 - proto.cycleDays}d ago` : state === "future" ? "Scheduled" : state === "prn" ? `As needed · last ${prnRel}` : state === "missed" ? "Not logged" : hint || schedLabel(sched, true);
+    const cel = !!celebrate && state === "logged";
+    const disc = state === "logged" ? "done" : state === "skipped" ? "skip" : state === "expired" ? "exp" : state === "future" ? "fut" : "due";
+    return /* @__PURE__ */ React.createElement("div", { className: "blk-row" + (glow && state === "due" ? " glow" : "") + (state === "logged" ? " is-logged" : state === "skipped" ? " is-skipped" : "") }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: onOpen, style: isPen ? { boxShadow: "inset 3px 0 0 " + pm.color, paddingLeft: 10 } : void 0 }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc " + disc, "aria-hidden": "true" }, cel ? /* @__PURE__ */ React.createElement("span", { className: "cel-disc" }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none" }, /* @__PURE__ */ React.createElement("path", { className: "cel-ck", d: "M7 13.5l3.8 3.8L19 9.5", stroke: "#06231a", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round" }))) : state === "logged" ? /* @__PURE__ */ React.createElement(Check, { size: 14, strokeWidth: 3, color: "#06231a" }) : state === "skipped" ? /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: LG.amber } }, "⏭") : state === "expired" ? /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: LG.amber } }, "↻") : /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 13 })), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, name), /* @__PURE__ */ React.createElement("span", { className: "blk-dose mono" }, doseLine, doseLine && sub ? " · " : "", /* @__PURE__ */ React.createElement("span", { className: "blk-sub" + (state === "logged" ? " ok" : state === "skipped" || state === "expired" || state === "missed" ? " warn" : "") }, sub), supply && supply.dosesLeft <= 3 && state !== "logged" ? /* @__PURE__ */ React.createElement("span", { className: "blk-sub warn" }, ` · ${supply.dosesLeft} left`) : null))), state === "due" || state === "missed" ? /* @__PURE__ */ React.createElement("button", { className: "pill-log", "aria-label": quick ? "Log as planned" : "Open to log", title: proto.peptideName, onClick: onQuick }, quick ? "Log" : "Log…") : state === "prn" ? /* @__PURE__ */ React.createElement("button", { className: "pill-log ghost", "aria-label": "Log a dose", title: proto.peptideName, onClick: onOpen }, "Log") : state === "skipped" && onUndoSkip ? /* @__PURE__ */ React.createElement("button", { className: "pill-log ghost", "aria-label": "Undo skip", title: proto.peptideName, onClick: onUndoSkip }, "Undo") : null);
   }
   function GateDialog({ verdict, onConfirm, onCancel }) {
     const block = verdict.decision === "BLOCK";
@@ -3593,6 +3900,34 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const doses = filtered.filter((l) => !l.skipped).length;
     const compCount = new Set(filtered.filter((l) => !l.skipped).map(nameOf)).size;
     const dayCount = groups.filter((g) => g.items.some((l) => !l.skipped)).length;
+    const adherence = useMemo(() => {
+      const start = range === "all" || lo < "1000" ? dkAdd(today, -364) : lo;
+      const end = hi > today ? today : hi;
+      if (!dkValid(start) || !dkValid(end) || start > end) return { rows: [], exp: 0, got: 0, pct: null };
+      const nDays = Math.min(400, dkDiff(end, start) + 1);
+      const byProto = {};
+      mine.forEach((l) => {
+        if (!l.skipped) {
+          const dk = dkOf(l.datetime);
+          (byProto[l.protocolId] = byProto[l.protocolId] || /* @__PURE__ */ new Set()).add(dk);
+        }
+      });
+      const rows = [];
+      protocols.filter((p) => p.profile === activeProfile && !isPrnSched(p.schedule)).forEach((p) => {
+        let exp2 = 0, got2 = 0;
+        for (let i = 0; i < nDays; i++) {
+          const dk = dkAdd(end, -i);
+          if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue;
+          exp2++;
+          if (byProto[p.id] && byProto[p.id].has(dk)) got2++;
+        }
+        if (exp2) rows.push({ id: p.id, name: p.peptideName, exp: exp2, got: got2, pct: Math.round(got2 / exp2 * 100) });
+      });
+      rows.sort((a, b) => a.pct - b.pct || b.exp - a.exp);
+      const exp = rows.reduce((s, r) => s + r.exp, 0), got = rows.reduce((s, r) => s + r.got, 0);
+      return { rows, exp, got, pct: exp ? Math.round(got / exp * 100) : null };
+    }, [mine, protocols, activeProfile, lo, hi, range, today]);
+    const adhColor = (pct) => pct >= 90 ? "var(--success)" : pct >= 70 ? "var(--accent)" : "var(--warn)";
     const protoFor = (l) => protocols.find((p) => p.id === l.protocolId) || null;
     const routeFor = (l) => {
       const p = protoFor(l);
@@ -3666,10 +4001,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       }
     ));
     const stat = (n, label) => /* @__PURE__ */ React.createElement("div", { style: { flex: 1, textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { className: "mono", style: { fontSize: 22, fontWeight: 700, color: "var(--text)", lineHeight: 1 } }, n), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 9.5, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 4 } }, label));
-    return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 } }, /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 20, padding: "14px 16px", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: LG.text } }, "Logged data"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: LG.dim, marginTop: 2 } }, activeProfile, " · ", rangeLabel, comp !== "all" ? " · " + comp : "")), /* @__PURE__ */ React.createElement("button", { onClick: addBackdated, className: "lg", "aria-label": "Add back-dated entries", title: "Add back-dated entries", style: { width: 42, height: 42, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer", fontSize: 17 } }, "↩")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 14, paddingTop: 12, borderTop: "1px solid " + LG.hair } }, stat(doses, "doses"), stat(compCount, "compounds"), stat(dayCount, "days")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 12 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: () => exportCSV(filtered), disabled: !filtered.length }, "⬇ CSV · ", filtered.length), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: () => exportJSON(filtered), disabled: !filtered.length }, "⬇ JSON · ", filtered.length))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 } }, [["7", "7 days"], ["30", "30 days"], ["90", "90 days"], ["all", "All"], ["custom", "Custom"]].map(([k, l]) => /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => setRange(k), style: chipSt(range === k) }, l)), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowSkipped((s) => !s), style: chipSt(showSkipped, true) }, "Skipped ", showSkipped ? "shown" : "hidden")), range === "custom" && /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("input", { type: "date", value: from, onChange: (e) => setFrom(e.target.value), className: "input", "aria-label": "From" }), /* @__PURE__ */ React.createElement("input", { type: "date", value: to, onChange: (e) => setTo(e.target.value), className: "input", "aria-label": "To" })), /* @__PURE__ */ React.createElement("select", { value: comp, onChange: (e) => setComp(e.target.value), className: "input", style: { marginBottom: 16 }, "aria-label": "Compound filter" }, /* @__PURE__ */ React.createElement("option", { value: "all" }, "All compounds (", compounds.length, ")"), compounds.map(([n, c]) => /* @__PURE__ */ React.createElement("option", { key: n, value: n }, n, " · ", c))), groups.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "50px 20px", color: LG.dim } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 50, opacity: 0.4, marginBottom: 12 } }, "🗒"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 16px", fontSize: 14 } }, "Nothing logged for ", activeProfile, " in this range."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: addBackdated }, "↩ Add back-dated entries")) : paged.groups.map((g) => /* @__PURE__ */ React.createElement("div", { key: g.dk, style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 8, padding: "0 4px 8px" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 700, color: LG.text } }, dayTitle(g.dk)), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 11, color: LG.dim2 } }, g.items.filter((l) => !l.skipped).length, " ", g.items.filter((l) => !l.skipped).length === 1 ? "dose" : "doses"), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, height: 1, background: LG.hair, alignSelf: "center" } })), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "2px 12px" } }, g.items.map((l, i) => {
+    return /* @__PURE__ */ React.createElement("div", { style: { paddingBottom: 40 } }, /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 20, padding: "14px 16px", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: LG.text } }, "Logged data"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: LG.dim, marginTop: 2 } }, activeProfile, " · ", rangeLabel, comp !== "all" ? " · " + comp : "")), /* @__PURE__ */ React.createElement("button", { onClick: addBackdated, className: "lg", "aria-label": "Add back-dated entries", title: "Add back-dated entries", style: { width: 42, height: 42, borderRadius: 14, display: "grid", placeItems: "center", padding: 0, cursor: "pointer", fontSize: 17 } }, "↩")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 14, paddingTop: 12, borderTop: "1px solid " + LG.hair } }, stat(doses, "doses"), stat(compCount, "compounds"), stat(dayCount, "days")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 12 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: () => exportCSV(filtered), disabled: !filtered.length }, "⬇ CSV · ", filtered.length), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { flex: 1, minHeight: 40, fontSize: 12 }, onClick: () => exportJSON(filtered), disabled: !filtered.length }, "⬇ JSON · ", filtered.length))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 } }, [["7", "7 days"], ["30", "30 days"], ["90", "90 days"], ["all", "All"], ["custom", "Custom"]].map(([k, l]) => /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => setRange(k), style: chipSt(range === k) }, l)), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowSkipped((s) => !s), style: chipSt(showSkipped, true) }, "Skipped ", showSkipped ? "shown" : "hidden")), range === "custom" && /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("input", { type: "date", value: from, onChange: (e) => setFrom(e.target.value), className: "input", "aria-label": "From" }), /* @__PURE__ */ React.createElement("input", { type: "date", value: to, onChange: (e) => setTo(e.target.value), className: "input", "aria-label": "To" })), /* @__PURE__ */ React.createElement("select", { value: comp, onChange: (e) => setComp(e.target.value), className: "input", style: { marginBottom: 16 }, "aria-label": "Compound filter" }, /* @__PURE__ */ React.createElement("option", { value: "all" }, "All compounds (", compounds.length, ")"), compounds.map(([n, c]) => /* @__PURE__ */ React.createElement("option", { key: n, value: n }, n, " · ", c))), adherence.rows.length > 0 && /* @__PURE__ */ React.createElement("section", { className: "blk", "aria-label": "Adherence by compound", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { className: "blk-hd" }, /* @__PURE__ */ React.createElement("span", { className: "blk-title" }, "Adherence"), /* @__PURE__ */ React.createElement("span", { className: "blk-hint" }, rangeLabel), /* @__PURE__ */ React.createElement("span", { className: "blk-count mono", style: { color: adhColor(adherence.pct) } }, adherence.pct, "% · ", adherence.got, " of ", adherence.exp)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 7, padding: "2px 2px 8px" } }, (comp === "all" ? adherence.rows : adherence.rows.filter((r) => r.name === comp)).map((r) => /* @__PURE__ */ React.createElement("div", { key: r.id, style: { display: "grid", gridTemplateColumns: "minmax(0,112px) 1fr 44px", gap: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, title: r.name }, r.name), /* @__PURE__ */ React.createElement("div", { style: { height: 10, borderRadius: 5, background: "rgba(255,255,255,.07)", overflow: "hidden" }, role: "img", "aria-label": `${r.name}: ${r.got} of ${r.exp} doses, ${r.pct} percent` }, /* @__PURE__ */ React.createElement("div", { style: { width: r.pct + "%", height: "100%", borderRadius: 5, background: adhColor(r.pct) } })), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 12, fontWeight: 700, textAlign: "right", color: adhColor(r.pct) } }, r.pct, "%"))))), groups.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "50px 20px", color: LG.dim } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 50, opacity: 0.4, marginBottom: 12 } }, "🗒"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 16px", fontSize: 14 } }, "Nothing logged for ", activeProfile, " in this range."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: addBackdated }, "↩ Add back-dated entries")) : paged.groups.map((g) => /* @__PURE__ */ React.createElement("div", { key: g.dk, style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 8, padding: "0 4px 8px" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 700, color: LG.text } }, dayTitle(g.dk)), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 11, color: LG.dim2 } }, g.items.filter((l) => !l.skipped).length, " ", g.items.filter((l) => !l.skipped).length === 1 ? "dose" : "doses"), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, height: 1, background: LG.hair, alignSelf: "center" } })), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "2px 12px" } }, g.items.map((l, i) => {
       const route = routeFor(l);
       const rt = ROUTE_META[route] || ROUTE_META.inj;
-      return /* @__PURE__ */ React.createElement("button", { key: l.id || i, onClick: () => openRow(l), style: { display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 50, padding: "8px 0", border: "none", borderTop: i ? "1px solid var(--border-light)" : "none", background: "transparent", color: "var(--text)", textAlign: "left", cursor: "pointer" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 28, height: 28, borderRadius: 9, background: rt.color + "24", display: "grid", placeItems: "center", boxShadow: "inset 0 0 0 1px " + rt.color + "40", flexShrink: 0, opacity: l.skipped ? 0.5 : 1 } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 15 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13.5, fontWeight: 600, color: l.skipped ? "var(--text-dim)" : "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, nameOf(l)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--text-dim)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, timeStr(l), l.doseMl != null ? ` · ${(l.doseMl * 100).toFixed(1)}u` : "", l.backfilled ? " · ↩ back-dated" : "", l.needsReview ? " · ⚑" : "", l.notes && !l.backfilled ? ` · ${l.notes}` : "")), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 13, fontWeight: 700, color: l.skipped ? "var(--warn)" : "var(--accent)", whiteSpace: "nowrap" } }, doseStr(l)));
+      return /* @__PURE__ */ React.createElement("button", { key: l.id || i, onClick: () => openRow(l), style: { display: "flex", alignItems: "center", gap: 10, width: "100%", minHeight: 50, padding: "8px 0", border: "none", borderTop: i ? "1px solid var(--border-light)" : "none", background: "transparent", color: "var(--text)", textAlign: "left", cursor: "pointer" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 28, height: 28, borderRadius: 9, background: rt.color + "24", display: "grid", placeItems: "center", boxShadow: "inset 0 0 0 1px " + rt.color + "40", flexShrink: 0, opacity: l.skipped ? 0.5 : 1 } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 15 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13.5, fontWeight: 600, color: l.skipped ? "var(--text-dim)" : "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, nameOf(l)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--text-dim)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, timeStr(l), l.doseMl != null ? ` · ${(l.doseMl * 100).toFixed(1)}u` : "", l.site ? ` · ${l.site}` : "", l.backfilled ? " · ↩ back-dated" : "", l.needsReview ? " · ⚑" : "", l.notes && !l.backfilled ? ` · ${l.notes}` : "")), /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 13, fontWeight: 700, color: l.skipped ? "var(--warn)" : "var(--accent)", whiteSpace: "nowrap" } }, doseStr(l)));
     })))), paged.shown < filtered.length && /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", minHeight: 44, marginBottom: 10 }, onClick: () => setLimit((l) => l + 300) }, "Show earlier · ", filtered.length - paged.shown, " more"), comp !== "all" && filtered.length > 0 && /* @__PURE__ */ React.createElement("button", { className: "btn btn-danger", style: { width: "100%", marginTop: 6 }, onClick: removeShown }, "Delete these ", filtered.length, " entries · ", comp));
   }
   function BackdateSheet({ protocols, logs, vials, onSave, onClose }) {

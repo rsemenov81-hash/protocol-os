@@ -111,7 +111,7 @@ try {
   // ── 2. the P0: log, undo, stale cloud copy, profile switch, 409 merge → the undone dose stays gone ──
   const p0 = posts();
   await page.getByRole('button', { name: /Testosterone/ }).first().click();
-  await page.getByRole('button', { name: /^Log / }).click();
+  await page.locator('.sheet-foot').getByRole('button', { name: /^Log / }).click();
   await page.waitForTimeout(900); // plunger-depress commit animation
   const gate = page.getByRole('button', { name: /Log — flagged for review|Log anyway/ });
   if (await gate.count()) await gate.first().click();
@@ -125,7 +125,7 @@ try {
   { const rec = cloud.store.get('all'); const blob = JSON.parse(JSON.stringify(rec.blob)); blob.logs.unshift({ ...logged, updatedAt: undefined }); delete blob.meta.tombstones.logs[logged.id]; cloud.store.set('all', { rev: rec.rev + 1, blob }); }
   await switchProfile(page, 'Scott');
   await page.getByRole('button', { name: /SS-31/ }).first().click();
-  await page.getByRole('button', { name: /^Log / }).click();
+  await page.locator('.sheet-foot').getByRole('button', { name: /^Log / }).click();
   await page.waitForTimeout(300);
   const gate2 = page.getByRole('button', { name: /Log — flagged for review|Log anyway/ });
   if (await gate2.count()) await gate2.first().click();
@@ -143,7 +143,7 @@ try {
   const p3 = posts();
   cloud.failNextPost = true;
   await page.getByRole('button', { name: /DSIP/ }).first().click();
-  await page.getByRole('button', { name: /^Log / }).click();
+  await page.locator('.sheet-foot').getByRole('button', { name: /^Log / }).click();
   await page.waitForTimeout(300);
   const gate3 = page.getByRole('button', { name: /Log — flagged for review|Log anyway/ });
   if (await gate3.count()) await gate3.first().click();

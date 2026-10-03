@@ -896,6 +896,7 @@ function RouteIcon({ route, color, s=16 }) {
 function NavIcon({ id, color }) {
   const p = { width:22, height:22, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.8, strokeLinecap:'round', strokeLinejoin:'round' };
   if (id==='protocol') return <svg {...p}><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>;
+  if (id==='plan') return <svg {...p}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>;
   if (id==='lab') return <svg {...p}><path d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"/></svg>;
   if (id==='history') return <svg {...p}><path d="M4 6h16M4 12h9M4 18h6"/><circle cx="17.5" cy="16.5" r="3.6"/><path d="M17.5 14.6v1.9l1.3.9"/></svg>;
   return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h3M14 9h2M14 14.5h2M9 13v3M7.9 17.1l2.2-2.2M10.1 17.1l-2.2-2.2"/></svg>;
@@ -1153,10 +1154,10 @@ function PlanCard({ proto, dateKey, onChange, onFinish, onResume }) {
       <div style={{fontSize:15,fontWeight:700,color:'var(--text)',marginTop:4}}>{schedLabel(s)} · <span className="mono" style={{color:'var(--accent)'}}>{fmtDoseAny(proto.doseMcg, proto.doseUnit)}</span></div>
       <div style={{fontSize:11.5,color:'var(--text-dim)',marginTop:3}}>{bits.join(' · ')}</div>
       <div style={{display:'flex',gap:8,marginTop:10}}>
-        <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={onChange}>✎ Change from {isToday ? 'today' : fmtDk(dateKey)}</button>
+        <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12}} onClick={onChange}>Change from {isToday ? 'today' : fmtDk(dateKey)}</button>
         {ended
-          ? <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--success)'}} onClick={onResume}>↻ Resume</button>
-          : <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--warn)'}} onClick={onFinish}>⏹ Finish cycle</button>}
+          ? <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--success)'}} onClick={onResume}>Resume</button>
+          : <button className="btn btn-ghost" style={{flex:1,minHeight:40,fontSize:12,color:'var(--warn)'}} onClick={onFinish}>Finish cycle</button>}
       </div>
     </div>
   );
@@ -1378,6 +1379,9 @@ function App() {
   useEffect(() => { persist('protocol_os_vials', JSON.stringify(vials)); }, [vials]);
   useEffect(() => { persist('protocol_os_protocols', JSON.stringify(protocols)); }, [protocols]);
   useEffect(() => { persist('protocol_os_active_profile', activeProfile); }, [activeProfile]);
+  // Text size: a zoom token on the root (1 / 1.15 / 1.3), remembered per device.
+  const [textScale, setTextScale] = useState(() => { try { return localStorage.getItem('protocol_os_text_scale') || '1'; } catch (e) { return '1'; } });
+  useEffect(() => { document.documentElement.style.setProperty('--ts', textScale); persist('protocol_os_text_scale', textScale); }, [textScale]);
 
   // ── Cloud sync (Cloudflare Worker + KV): auto-sync everywhere, no files ──
   const [syncUrl, setSyncUrl] = useState(() => localStorage.getItem('protocol_os_sync_url') || '');
@@ -1552,7 +1556,7 @@ function App() {
   };
   const logsToCSV = (list) => {
     const esc = (s) => { s = (s == null ? '' : String(s)); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; /* a note starting with = + - @ must not become a formula in Excel/Numbers */ return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
-    const rows = [['Date','Time','Compound','Dose','Unit','Syringe units','mL','Status','Notes','Profile','Entry id']];
+    const rows = [['Date','Time','Compound','Dose','Unit','Syringe units','mL','Status','Site','Notes','Profile','Entry id']];
     list.forEach(l => {
       const dt = new Date(l.datetime);
       const isIUx = l.doseUnit === 'IU';
@@ -1563,7 +1567,7 @@ function App() {
       const u = l.doseMl != null ? (l.doseMl * 100).toFixed(1) : '';
       const status = l.skipped ? 'skipped' : (l.backfilled ? 'logged (back-dated)' : 'logged') + (l.needsReview ? ' · flagged' : '');
       rows.push([isNaN(dt) ? (l.datetime || '') : dt.toLocaleDateString('en-CA'), isNaN(dt) ? '' : dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-        l.peptide || l.peptideName || l.peptideId || '', dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', status, l.notes || '', l.profile || activeProfile, l.id || '']);
+        l.peptide || l.peptideName || l.peptideId || '', dose != null ? dose : '', unit, u, l.doseMl != null ? l.doseMl : '', status, l.site || '', l.notes || '', l.profile || activeProfile, l.id || '']);
     });
     return rows.map(r => r.map(esc).join(',')).join('\n');
   };
@@ -1654,7 +1658,15 @@ function App() {
   // C5 a11y: Escape dismisses the sheet while it is open.
   useEffect(() => {
     if (!sheet.content) return;
-    const onKey = (e) => { if (e.key === 'Escape') closeModal(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') return closeModal();
+      if (e.key !== 'Tab' || !sheetRef.current) return;   // keep keyboard focus inside the open sheet
+      const f = Array.from(sheetRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled && el.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === sheetRef.current)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [!!sheet.content]);
@@ -1698,6 +1710,9 @@ function App() {
       aria: d.toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}) };
   });
   const switchProfile = (p) => { if (p === activeProfile) return; setActiveProfile(p); showToast('Now viewing ' + p); };
+  // Library and the reconstitution calculator live in sheets now (Plan tab and profile menu), not in the tab bar.
+  const openLibrary = () => openModal(<LabView vials={vials}/>);
+  const openCalculator = () => openModal(<MathView/>);
   const openSyncConfigModal = (pullAfter) => openModal(
     <SyncConfig initialUrl={syncUrl} initialToken={syncToken}
       onSave={(u,t)=>{ saveSyncConfig(u,t); closeModal(); if (pullAfter) setTimeout(()=>cloudPull(true),300); }}
@@ -1707,22 +1722,23 @@ function App() {
     <div>
       <h3 style={{margin:'0 0 12px',fontSize:17,fontWeight:700}}>{'Data & sync'}</h3>
       <div style={{display:'flex',gap:8,marginBottom:10}}>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>⬆️ Export file</button>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>⬇️ Import file</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportData();}}>Export file</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>importInputRef.current&&importInputRef.current.click()}>Import file</button>
       </div>
       <div style={{display:'flex',gap:8,marginBottom:10}}>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryCSV();}}>📊 History CSV</button>
-        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryJSON();}}>🧾 History JSON</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryCSV();}}>History CSV</button>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={()=>{exportHistoryJSON();}}>History JSON</button>
       </div>
       {syncReady
-        ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>⚙️ Edit cloud sync settings</button>
-        : <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(true)}>🔗 Set up cloud sync</button>}
+        ? <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(false)}>Edit cloud sync settings</button>
+        : <button className="btn btn-ghost" style={{width:'100%',fontSize:12}} onClick={()=>openSyncConfigModal(true)}>Set up cloud sync</button>}
     </div>
   );
 
   return (
     <div style={{position:'relative',minHeight:'100vh'}}>
       <div className="ambient"/>
+      <div {...(sheet.content ? { inert: '' } : {})}>
       <AppHeader
         viewDate={viewDate} setViewDate={setViewDate} isToday={isToday}
         activeProfile={activeProfile} setActiveProfile={switchProfile} protocols={protocols}
@@ -1734,23 +1750,21 @@ function App() {
           if (!pulledOnce.current || syncStatus === 'error') { cloudPull(true).then(() => cloudPush(false, true)); }
           else if (syncQueued) { cloudPush(true, true); } else { cloudPull(true); }
         }}
-        onOpenDataSync={openDataSyncModal}/>
+        onOpenDataSync={openDataSyncModal} onOpenLibrary={openLibrary} onOpenCalculator={openCalculator} textScale={textScale} setTextScale={setTextScale}/>
       <input ref={importInputRef} type="file" accept="application/json,.json" style={{display:'none'}} onChange={handleImportFile}/>
       {storageFull && <div role="alert" className="storage-banner"><span>Storage is full. New entries are kept in memory only until space is freed.</span><button onClick={exportData}>Export now</button></div>}
       {!isToday && activeTab === 'protocol' && <div style={{position:'relative',zIndex:2,maxWidth:480,margin:'0 auto',padding:'10px 18px 0'}}><button className="viewing-pill" onClick={() => setViewDate(new Date())}>Viewing {fmtDk(dateKey)} · Back to today</button></div>}
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
-          {activeTab === 'protocol' && <ProtocolView viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
+          {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
           {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON}
             onJump={(dk, protocolId, logId) => { const t = dkParse(dk); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } setJumpTo({ dateKey: dk, protocolId, logId }); setActiveTab('protocol'); }}/>}
-          {activeTab === 'lab' && <LabView vials={vials}/>}
-          {activeTab === 'math' && <MathView/>}
         </div>
       </div>
 
       <div className="pill-nav-wrap">
         <div className="pill-nav">
-          {[['protocol','Protocol'],['history','History'],['lab','Lab'],['math','Math']].map(([id,label]) => (
+          {[['protocol','Today'],['plan','Plan'],['history','History']].map(([id,label]) => (
             <button key={id} onClick={() => setActiveTab(id)} className={`pill-nav-item ${activeTab===id?'active':''}`}>
               <NavIcon id={id} color={activeTab===id?'var(--accent)':'var(--text-faint)'}/><span>{label}</span>
             </button>
@@ -1758,6 +1772,7 @@ function App() {
         </div>
       </div>
 
+      </div>
       {toast && (
         <div role="status" aria-live="polite" style={{position:'fixed',bottom:'calc(100px + env(safe-area-inset-bottom))',left:'50%',transform:'translateX(-50%)',zIndex:200}} className="anim-slide-up">
           <div className="glass-strong" style={{borderRadius:100,padding:'12px 18px',display:'flex',gap:10,alignItems:'center',boxShadow:'0 12px 32px rgba(0,0,0,0.4)'}}>
@@ -1798,6 +1813,7 @@ function App() {
 
 function DateButton({ viewDate, setViewDate }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (!open) return; const k = (e) => { if (e.key === 'Escape') setOpen(false); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [open]);
   const [calMonth, setCalMonth] = useState(() => new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
   const today = new Date();
   const sel = viewDate;
@@ -1844,7 +1860,10 @@ function DateButton({ viewDate, setViewDate }) {
   );
 }
 
-function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync }) {
+function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
+  const scales = [['1', 'Normal'], ['1.15', 'Larger'], ['1.3', 'Largest']];
+  const scaleLabel = (scales.find(s => s[0] === String(textScale)) || scales[0])[1];
+  const nextScale = () => { const i = scales.findIndex(s => s[0] === String(textScale)); setTextScale(scales[(i + 1) % scales.length][0]); };
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -1866,6 +1885,10 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
               );
             })}
             <div className="menu-hair"/>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenLibrary && onOpenLibrary(); }}><span style={{flex:1,fontSize:15}}>Library…</span></button>
+            <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenCalculator && onOpenCalculator(); }}><span style={{flex:1,fontSize:15}}>Reconstitution calculator…</span></button>
+            <button role="menuitem" className="menu-row" onClick={nextScale} aria-label={'Text size: ' + scaleLabel + '. Tap to change'}><span style={{flex:1,fontSize:15}}>Text size</span><span className="mono" style={{fontSize:12,color:'var(--accent)'}}>{scaleLabel}</span></button>
+            <div className="menu-hair"/>
             <button role="menuitem" className="menu-row" onClick={() => { setOpen(false); onOpenDataSync(); }}>
               <span style={{flex:1,fontSize:15}}>{'Data & sync…'}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
@@ -1878,7 +1901,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
   );
 }
 
-function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync }) {
+function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, textScale, setTextScale }) {
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = React.useRef(null);
   useEffect(() => {
@@ -1911,7 +1934,7 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
             <span className="hdr-title num">{titleLabel}<span className="mini mono num">{logged}/{scheduled}</span></span>
           </div>
           <button className={'sync-cap num ' + syncState} aria-label={syncAria} onClick={onSyncTap}>{syncLabel}</button>
-          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync}/>
+          <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} textScale={textScale} setTextScale={setTextScale}/>
         </div>
       </header>
       <div className="hdr-large">
@@ -1945,7 +1968,54 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
   );
 }
 
-function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
+// First run / empty plan: pick a compound from plain-language groups; dose and days come on the next step.
+function FirstRun({ activeProfile, onPick, onLibrary }) {
+  const groups = [
+    ['TRT & hormones', /anabolic|hormone|testosterone|trt|estrogen|aromatase|thyroid|sexual/i],
+    ['Growth hormone & peptides', /\bgh\b|ghrh|secretagogue|igf|growth/i],
+    ['Healing & recovery', /heal|repair|recovery|tissue|joint|injur/i],
+    ['Sleep & focus', /sleep|cognitive|nootropic|mood|focus|neuro/i],
+    ['Weight & metabolic', /glp|weight|metabolic|fat|appetite|insulin/i],
+    ['Longevity & other', /./],
+  ];
+  const used = new Set();
+  const lead = ['testosterone', 'testosterone-cypionate', 'testosterone-enanthate', 'hcg', 'anastrozole', 'enclomiphene', 'ipamorelin', 'cjc1295-no-dac', 'tesamorelin', 'bpc157', 'tb500', 'dsip', 'semaglutide', 'tirzepatide', 'retatrutide'];
+  const rank = (p) => { const i = lead.indexOf(p.id); return i < 0 ? 99 : i; };
+  const buckets = groups.map(([label, re]) => { const items = PEPTIDE_DB.filter(p => !used.has(p.id) && re.test(p.category || '')).sort((a, b) => rank(a) - rank(b)).slice(0, 8); items.forEach(p => used.add(p.id)); return { label, items }; }).filter(b => b.items.length);
+  const [open, setOpen] = useState(buckets.length ? buckets[0].label : null);
+  const cur = buckets.find(b => b.label === open);
+  return (
+    <div className="anim-fade-in">
+      <div style={{padding:'10px 2px 14px'}}>
+        <div className="eyebrow num" style={{marginBottom:6}}>STEP 1 OF 2 · ABOUT A MINUTE</div>
+        <h3 style={{margin:0,fontSize:22,fontWeight:800,lineHeight:1.15}}>What is {activeProfile} taking right now?</h3>
+        <p style={{margin:'8px 0 0',fontSize:14,lineHeight:1.45,color:'var(--text-dim)'}}>Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.</p>
+      </div>
+      <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:12}}>
+        {buckets.map(b => <button key={b.label} onClick={() => setOpen(b.label)} aria-pressed={b.label === open} style={{minHeight:40,padding:'0 13px',borderRadius:100,fontSize:12.5,fontWeight:700,cursor:'pointer',border:'1px solid ' + (b.label === open ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: b.label === open ? 'rgba(227,200,134,.14)' : 'rgba(255,255,255,.04)',color: b.label === open ? 'var(--accent)' : 'var(--text-2)'}}>{b.label}</button>)}
+      </div>
+      {cur && (
+        <section className="blk" aria-label={cur.label}>
+          {cur.items.map((p, i) => (
+            <div key={p.id} className="blk-row" style={i === 0 ? {borderTop:'none'} : undefined}>
+              <button className="blk-main" onClick={() => onPick(p.id)}>
+                <span className="blk-disc" aria-hidden="true" style={{fontSize:15,borderColor:'var(--border)',background:'rgba(255,255,255,.05)'}}>{p.icon}</span>
+                <span className="blk-text">
+                  <span className="blk-name">{p.name}</span>
+                  <span className="blk-dose">{(p.protocol && p.protocol.route) || ''}{p.protocol && p.protocol.doseRange ? ' · ' + p.protocol.doseRange : ''}{p.protocol && p.protocol.timing ? ' · ' + p.protocol.timing : ''}</span>
+                </span>
+                <span className="plan-chev" aria-hidden="true">›</span>
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
+      <button className="btn btn-ghost" style={{width:'100%',marginTop:12}} onClick={onLibrary}>Search the whole library</button>
+    </div>
+  );
+}
+
+function ProtocolView({ mode, openLibrary, openCalculator, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
   const [routeFilter, setRouteFilter] = useState('all');
   const [flashId, setFlashId] = useState(null);  // D6 check-off cascade: which card celebrates its fresh log
   const todayDk = todayLocal();
@@ -2055,6 +2125,190 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     });
   };
 
+  // ── Plan tab + compound page helpers: supply, next dose, adherence, 14-day strip, site rotation ──
+  const baseOf = (p) => baseMine.find(b => b.id === p.id) || p;
+  const vialOf = (p) => { if (p.route === 'pen') return (vials || []).find(x => x.id === p.penVialId) || null; const ids = new Set(getEquivalentIds(p.peptideId)); const cands = (vials || []).filter(v => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile)); return cands.find(v => (v.mcgPerMl || 0) > 0) || cands[0] || null; };
+  const loggedOn = (p, dk) => logs.some(l => l.protocolId === p.id && (l.datetime || '').slice(0, 10) === dk && !l.skipped);
+  const supplyFor = (p0) => {
+    const p = baseOf(p0); const v = vialOf(p);
+    if (!v || typeof v.remainingMcg !== 'number' || !(p.doseMcg > 0) || !(v.totalMcg > 0)) return null;
+    const dosesLeft = Math.max(0, Math.floor(v.remainingMcg / p.doseMcg + 1e-9));
+    let runOut = null;
+    if (!isPrn(p)) { let n = 0; for (let i = loggedOn(p, todayDk) ? 1 : 0; i <= 400; i++) { const dk = dkAdd(todayDk, i); if (!activeOn(p, dk)) continue; if (dueOn(protoAt(p, dk), dk)) { n++; if (n > dosesLeft) { runOut = dk; break; } } } }
+    return { vial: v, dosesLeft, runOut, pct: Math.max(0, Math.min(1, v.remainingMcg / v.totalMcg)) };
+  };
+  const nextDoseFor = (p0) => { const p = baseOf(p0); if (isPrn(p)) return null; for (let i = 0; i <= 60; i++) { const dk = dkAdd(todayDk, i); if (!activeOn(p, dk)) continue; if (dueOn(protoAt(p, dk), dk)) { if (i === 0 && loggedOn(p, dk)) continue; return dk; } } return null; };
+  const adherenceFor = (p0, days) => { const p = baseOf(p0); let exp = 0, got = 0; if (!isPrn(p)) for (let i = 0; i < days; i++) { const dk = dkAdd(todayDk, -i); if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue; exp++; if (loggedOn(p, dk)) got++; } return { exp, got, pct: exp ? Math.round(got / exp * 100) : null }; };
+  const dayStatus = (p0, dk) => { const p = baseOf(p0); const ls = logs.filter(l => l.protocolId === p.id && (l.datetime || '').slice(0, 10) === dk); if (ls.some(l => !l.skipped)) return 'logged'; if (ls.length) return 'skipped'; if (isPrn(p) || !activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) return 'none'; return dk > todayDk ? 'future' : dk === todayDk ? 'due' : 'missed'; };
+  const SITES = ['L abdomen', 'R abdomen', 'L thigh', 'R thigh', 'L glute', 'R glute', 'L delt', 'R delt'];
+  // Rotation: the site after the one last used for this compound (any equivalent id), so a one-tap log never repeats a site.
+  const nextSiteFor = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); let last = null; for (const l of logs) { if (l.skipped || !l.site || !ids.has(l.peptideId)) continue; if (!last || (l.datetime || '') > (last.datetime || '')) last = l; } return SITES[(SITES.indexOf(last ? last.site : '') + 1) % SITES.length]; };
+
+  // ── Compound page: one place per compound for plan, history, supply and deletion ──
+  const openCompound = (base0) => {
+    const base = baseOf(base0);
+    const p = protoAt(base, todayDk);
+    const v = vialOf(base);
+    const route = base.route === 'pen' ? 'inj' : routeOf(p, v); const rt = ROUTE_META[route] || ROUTE_META.inj;
+    const sup = supplyFor(base); const adh = adherenceFor(base, 30); const next = nextDoseFor(base);
+    const startDk = dkOf(base.startDate); const endDk = dkOf(base.endDate); const ended = dkValid(endDk);
+    const dayN = (dkValid(startDk) && base.cycleDays > 0 && !isPrn(p)) ? dkDiff(todayDk, startDk) + 1 : null;
+    const strip = Array.from({ length: 14 }, (_, i) => { const dk = dkAdd(todayDk, i - 13); return { dk, s: dayStatus(base, dk) }; });
+    const tl = timelineSorted(base.timeline || []);
+    const title = base.route === 'pen' ? penLabelOf(base) : base.peptideName;
+    const Body = () => {
+      const [more, setMore] = useState(false);
+      return (
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <div style={{width:44,height:44,borderRadius:13,background:rt.color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+rt.color+'40',flexShrink:0}}><RouteIcon route={route} color={rt.color} s={22}/></div>
+            <div style={{flex:1,minWidth:0}}>
+              <h3 style={{margin:0,fontSize:20,fontWeight:800,lineHeight:1.15,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{title}</h3>
+              <div style={{fontSize:13,color:'var(--text-dim)',marginTop:2}}>{base.profile} · {schedLabel(p.schedule)} · <span className="mono" style={{color:'var(--accent)'}}>{fmtDoseAny(p.doseMcg, p.doseUnit)}</span></div>
+            </div>
+            <button onClick={() => { closeModal(); editProtocol(base); }} aria-label="Edit protocol" className="lg" style={{width:44,height:44,borderRadius:'50%',display:'grid',placeItems:'center',padding:0,cursor:'pointer',flexShrink:0}}><Edit2 size={16} color="var(--text-dim)"/></button>
+          </div>
+          <div className="cp-stats">
+            <div className="cp-stat"><div className="cp-v">{ended ? (endDk < todayDk ? 'Ended' : 'Ends') : dayN ? `Day ${dayN}` : dkValid(startDk) ? fmtDk(startDk) : '—'}</div><div className="cp-k">{ended ? fmtDk(endDk) : dayN ? `of ${base.cycleDays}` : 'since'}</div></div>
+            <div className="cp-stat"><div className="cp-v">{adh.pct == null ? '—' : adh.pct + '%'}</div><div className="cp-k">{adh.exp ? `${adh.got}/${adh.exp} doses · 30 d` : 'nothing due yet'}</div></div>
+            <div className="cp-stat"><div className="cp-v">{next ? (next === todayDk ? 'Today' : next === dkAdd(todayDk, 1) ? 'Tomorrow' : fmtDk(next)) : isPrn(p) ? 'As needed' : '—'}</div><div className="cp-k">next dose</div></div>
+          </div>
+          <div className="cp-strip" role="img" aria-label={'Last 14 days: ' + strip.filter(c => c.s === 'logged').length + ' logged, ' + strip.filter(c => c.s === 'missed').length + ' missed'}>{strip.map(c => <span key={c.dk} className={'cp-cell ' + c.s} title={fmtDk(c.dk) + ' · ' + c.s}/>)}</div>
+          <PlanCard proto={p} dateKey={todayDk} onChange={() => { closeModal(); editProtocol(base, { applyFrom: todayDk }); }} onFinish={() => finishCycle(p)} onResume={() => resumeCycle(p)}/>
+          {tl.length > 1 && <TimelineList timeline={base.timeline}/>}
+          {sup ? (
+            <div className="lg" style={{borderRadius:14,padding:'12px 14px',marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:8}}>
+                <div style={{fontSize:13,fontWeight:700}}>Supply · {sup.vial.peptideName}</div>
+                <div className="mono" style={{fontSize:12.5,fontWeight:700,color: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--text-2)'}}>{sup.dosesLeft} dose{sup.dosesLeft === 1 ? '' : 's'} left</div>
+              </div>
+              <div style={{height:6,borderRadius:3,background:'rgba(255,255,255,.08)',overflow:'hidden',margin:'8px 0 6px'}}><div style={{width:(sup.pct*100)+'%',height:'100%',background: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--success)'}}/></div>
+              <div style={{fontSize:11.5,color:'var(--text-dim)'}}>{sup.runOut ? `Runs out around ${fmtDk(sup.runOut)}` : 'Covers the visible plan'}{sup.vial.reconstitutedAt ? ` · opened ${fmtDk(String(sup.vial.reconstitutedAt).slice(0,10))}` : ''}</div>
+            </div>
+          ) : (route === 'inj' && !isPrn(p) ? <div style={{fontSize:12.5,color:'var(--text-dim)',margin:'0 2px 14px'}}>No supply figure yet. Set the vial's reconstitution in the log sheet to get doses left and a run-out date.</div> : null)}
+          <details className="plan-dis" open={more} onToggle={e => setMore(e.target.open)}>
+            <summary><span className="plan-dis-t">More</span><span className="plan-dis-s">Delete this compound from the plan</span><span className="plan-dis-c">{more ? 'Hide' : 'Show'}</span></summary>
+            <div className="plan-dis-body" style={{paddingBottom:12}}>
+              <p style={{margin:'0 0 10px',fontSize:12.5,color:'var(--text-dim)'}}>Deleting removes it from every day of the plan. Logged entries stay in History. To stop it on a date instead, use Finish cycle above.</p>
+              <button className="btn btn-danger" style={{width:'100%'}} onClick={() => confirmModal('Delete protocol?', `Delete ${title} from ${activeProfile}'s plan? Logged entries stay in History.`, () => { setProtocols(prev => prev.filter(x => x.id !== base.id)); showToast('Deleted ' + title); }, 'Delete')}>Delete {title}</button>
+            </div>
+          </details>
+        </div>
+      );
+    };
+    openModal(<Body/>);
+  };
+
+  // ── Plan tab: the profile's compounds, current and finished ──
+  const renderPlan = () => {
+    const endOf = (p) => dkOf(p.endDate);
+    const finished = baseMine.filter(p => dkValid(endOf(p)) && endOf(p) < todayDk);
+    const live = baseMine.filter(p => !finished.includes(p) && (p.active !== false || dkValid(endOf(p))));
+    const row = (p) => {
+      const v = vialOf(p); const route = p.route === 'pen' ? 'inj' : routeOf(p, v); const rt = ROUTE_META[route] || ROUTE_META.inj;
+      const sup = supplyFor(p); const next = nextDoseFor(p); const pd = protoAt(p, todayDk); const e = endOf(p);
+      const bits = [schedLabel(pd.schedule, true), fmtDoseAny(pd.doseMcg, pd.doseUnit)];
+      if (next) bits.push('next ' + (next === todayDk ? 'today' : next === dkAdd(todayDk, 1) ? 'tomorrow' : fmtDk(next)));
+      if (dkValid(e)) bits.push((e < todayDk ? 'ended ' : 'ends ') + fmtDk(e));
+      return (
+        <div key={p.id} className="blk-row">
+          <button className="blk-main" onClick={() => openCompound(p)}>
+            <span className="blk-disc" aria-hidden="true" style={{borderColor: rt.color + '66', background: rt.color + '18'}}><RouteIcon route={route} color={rt.color} s={14}/></span>
+            <span className="blk-text">
+              <span className="blk-name">{p.route === 'pen' ? penLabelOf(p) : p.peptideName}</span>
+              <span className="blk-dose mono">{bits.join(' · ')}{sup ? <span className={sup.dosesLeft <= 3 ? 'blk-sub warn' : ''}>{' · ' + sup.dosesLeft + ' left'}</span> : null}</span>
+            </span>
+            <span className="plan-chev" aria-hidden="true">›</span>
+          </button>
+        </div>
+      );
+    };
+    return (
+      <div style={{paddingBottom:40}} className="anim-fade-in">
+        <div style={{display:'flex',gap:8,marginBottom:14}}>
+          <button className="btn btn-primary" style={{flex:1}} onClick={() => addProtocol()}>+ Add compound</button>
+          <button className="btn btn-ghost" onClick={() => managePen(null)} aria-label="Create a mix (up to 4 compounds)">Mix</button>
+          <button className="btn btn-ghost" onClick={openLibrary}>Library</button>
+          <button className="btn btn-ghost" onClick={openCalculator} aria-label="Reconstitution calculator">Calc</button>
+        </div>
+        {live.length === 0 ? <FirstRun activeProfile={activeProfile} onPick={(id) => addProtocol(id)} onLibrary={openLibrary}/> : (
+          <section className="blk plan" aria-label="Current plan">
+            <div className="blk-hd"><span className="blk-title">Current plan</span><span className="blk-count mono">{live.length}</span></div>
+            {live.map(row)}
+          </section>
+        )}
+        {finished.length > 0 && (
+          <section className="blk plan" aria-label="Finished" style={{marginTop:14}}>
+            <div className="blk-hd"><span className="blk-title" style={{color:'var(--text-dim)'}}>Finished</span><span className="blk-count mono" style={{color:'var(--text-dim)'}}>{finished.length}</span></div>
+            {finished.map(row)}
+          </section>
+        )}
+      </div>
+    );
+  };
+
+  // ── Quick log: one tap on a row's Log pill logs the planned dose when the draw is unambiguous ──
+  // (a known syringe concentration or no syringe at all, the last dose equal to the plan, and the dose
+  // gate passing). Anything else opens the full sheet, so a one-tap log can never hide a changed draw.
+  const vialForQuick = (p) => { const ids = new Set(getEquivalentIds(p.peptideId)); const cands = (vials || []).filter(v => ids.has(v.peptideId) && v.active !== false && isItemVisibleToProfile(v, activeProfile)); return cands.find(v => (v.mcgPerMl || 0) > 0) || cands[0] || null; };
+  const lastDoseFor = (p) => { let best = null; for (const l of logs) { if (l.skipped || l.protocolId !== p.id) continue; if (!best || (l.datetime || '') > (best.datetime || '')) best = l; } return best; };
+  const slotHourOf = (p) => { const tod = ((p.schedule || {}).timeOfDay || '').toLowerCase(); if (/pre|work/.test(tod)) return 6; if (/bed|night/.test(tod)) return 22; if (/eve|pm/.test(tod)) return 19; if (/noon|mid/.test(tod)) return 12; return 8; };
+  // Default timestamp for a dose: the plan's slot on the viewed day, unless that is today and the clock
+  // is within 3 h of the slot (then the clock). A morning dose logged at 15:44 reads 8:00 am, not 3:44 pm.
+  const defaultDatetime = (p, dk) => {
+    const h = slotHourOf(p); const now = new Date(); let dt;
+    if (dk === todayLocal() && Math.abs(now.getHours() + now.getMinutes() / 60 - h) <= 3) dt = now;
+    else { const t = dkParse(dk); const u = new Date(isNaN(t) ? Date.now() : t); dt = new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), h, 0, 0); }
+    const pad = n => String(n).padStart(2, '0');
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  };
+  const quickPlan = (p) => {
+    if (isFuture || isPrn(p) || p.route === 'pen') return null;
+    const vial = vialForQuick(p);
+    const route = routeOf(p, vial);
+    const conc = vial && vial.mcgPerMl > 0 ? vial.mcgPerMl : 0;
+    if (route === 'inj' && !conc) return null;                                                       // syringe draw unknown → sheet
+    const last = lastDoseFor(p);
+    if (last && Math.abs((parseFloat(last.doseMcg) || 0) - p.doseMcg) > 1e-6) return null;         // last dose differed from the plan → sheet
+    const verdict = runDoseGate(p, p.doseMcg, { isScheduledCheckoff: true, doseUnit: (p.doseUnit && p.doseUnit !== 'mcg') ? p.doseUnit : null }, logs);
+    if (verdict.decision !== 'PASS') return null;                                                    // anything the gate wants to say is said in the sheet
+    const iu = isIUVial(vial) || p.doseUnit === 'IU';
+    const unitTag = (conc && !iu) ? {} : iu ? { doseUnit: 'IU', doseValue: p.doseMcg } : p.doseUnit === 'mg' ? { doseUnit: 'mg', doseValue: p.doseMcg / 1000 } : p.doseUnit === 'g' ? { doseUnit: 'g', doseValue: p.doseMcg / 1e6 } : {};
+    return { vial, conc, iu, unitTag, doseMl: conc ? Math.round((p.doseMcg / conc) * 1000) / 1000 : null };
+  };
+  const quickLabel = (p, plan) => (plan.conc && !plan.iu ? `${Math.round(p.doseMcg / plan.conc * 1000) / 10}u · ` : '') + fmtDoseAny(p.doseMcg, plan.iu ? 'IU' : p.doseUnit);
+  const buildQuickLog = (p, plan) => ({ id: uid(), peptide: p.peptideName, peptideId: p.peptideId, vialId: plan.vial ? plan.vial.id : null, protocolId: p.id, profile: p.profile, datetime: defaultDatetime(p, dateKey), doseMcg: p.doseMcg, ...plan.unitTag, doseMl: plan.doseMl, notes: '', site: routeOf(p, plan.vial) === 'inj' ? nextSiteFor(p) : null });
+  // One state write for any number of entries, one toast, one Undo that puts the vials back too.
+  const commitQuick = (entries) => {
+    const byVial = {};
+    entries.forEach(e => { if (!e.plan.vial) return; const v = byVial[e.plan.vial.id] || (byVial[e.plan.vial.id] = { mcg: 0, lastDose: e.log.datetime, prevLast: e.plan.vial.lastDose || null }); v.mcg += e.log.doseMcg; if (e.log.datetime > v.lastDose) v.lastDose = e.log.datetime; });
+    setLogs(prev => [...entries.map(e => e.log), ...prev]);
+    setVials(prev => prev.map(x => byVial[x.id] ? { ...x, lastDose: byVial[x.id].lastDose, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: Math.max(0, x.remainingMcg - byVial[x.id].mcg) } : {}) } : x));
+    const ids = new Set(entries.map(e => e.log.id));
+    return () => {
+      setLogs(prev => prev.filter(l => !ids.has(l.id)));
+      setVials(prev => prev.map(x => byVial[x.id] ? { ...x, lastDose: byVial[x.id].prevLast, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: x.remainingMcg + byVial[x.id].mcg } : {}) } : x));
+    };
+  };
+  const quickLog = (p) => {
+    const plan = quickPlan(p);
+    if (!plan) return administer(p, null);
+    const log = buildQuickLog(p, plan);
+    setFlashId(p.id); setTimeout(() => setFlashId(null), 1600);
+    const undo = commitQuick([{ p, plan, log }]);
+    showToast(`✓ ${p.profile} · ${quickLabel(p, plan)} ${p.peptideName}`, 'success', undo);
+  };
+  const logRemaining = (list) => {
+    const ready = list.map(p => ({ p, plan: quickPlan(p) })).filter(e => e.plan);
+    if (!ready.length) return;
+    const lines = ready.map(e => `${e.p.peptideName} · ${quickLabel(e.p, e.plan)}`).join('; ');
+    confirmModal(`Log ${ready.length} doses as planned?`, lines + '. Each one can be opened and changed afterwards; Undo on the toast removes all of them.', () => {
+      const entries = ready.map(e => ({ ...e, log: buildQuickLog(e.p, e.plan) }));
+      const undo = commitQuick(entries);
+      showToast(`✓ Logged ${entries.length} doses`, 'success', undo);
+    }, `Log ${ready.length}`);
+  };
+
   const administer = (proto, existingLog = null) => {
     const protoPep = findPep(proto.peptideId);
     const _ids = new Set(getEquivalentIds(proto.peptideId));
@@ -2067,8 +2321,9 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     const vial = myVials[0];
     const mcgPerMl0 = (vial && vial.mcgPerMl) || 0;
     const defaultMl = mcgPerMl0 ? proto.doseMcg / mcgPerMl0 : 0;
-    const dt = new Date(viewDate); const _now = new Date(); dt.setHours(_now.getHours(), _now.getMinutes(), 0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
-    let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : '', doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ''), notes: existingLog.notes || '' } : { datetime: dt.toISOString().slice(0,16), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: proto.doseMcg, vialId: vial ? vial.id : '', notes: '' };
+    const suggestedSite = nextSiteFor(proto);
+    const sup = supplyFor(proto);
+    let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : '', doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ''), notes: existingLog.notes || '', site: existingLog.site || '' } : { datetime: defaultDatetime(proto, dateKey), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : '', doseMcg: proto.doseMcg, vialId: vial ? vial.id : '', notes: '', site: suggestedSite };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const [unitsText, setUnitsText] = useState(null); // raw text while typing in the units field (formatting happens on blur, not per keystroke)
@@ -2168,7 +2423,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
         // Functional updaters + targeted undo: a cloud pull that lands while the sheet is open can
         // neither be clobbered by this write nor wiped by its Undo.
         if (existingLog) {
-          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes};
+          const updatedLog = {...existingLog, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, vialId: f.vialId || null, notes: f.notes, site: adminRoute === 'inj' ? (f.site || null) : null};
           if (d > 0 && updatedLog.skipped) delete updatedLog.skipped; // a skip edited into a real dose is a dose everywhere (tile, ring, History, Claude)
           const prevDoseMcg = existingLog.skipped ? 0 : (parseFloat(existingLog.doseMcg) || 0);
           const sameVial = tv && existingLog.vialId === tv.id;
@@ -2180,7 +2435,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           // D6 check-off cascade: new-log path only (never edits). Set right before the state
           // mutations so the card celebrates the same render it turns 'logged'.
           if (!rm) { setFlashId(proto.id); setTimeout(() => setFlashId(null), 1600); }
-          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes };
+          const log = { id: uid(), peptide: proto.peptideName, peptideId: proto.peptideId, vialId: f.vialId || null, protocolId: proto.id, profile: proto.profile, datetime: f.datetime, doseMcg: d, ...unitTag, ...reviewTag, doseMl: parseFloat(f.doseMl) || null, notes: f.notes, site: adminRoute === 'inj' ? (f.site || null) : null };
           setLogs(prev => [log, ...prev]);
           const prevLastDose = tv ? (tv.lastDose || null) : null;
           if (tv) setVials(prev => prev.map(x => x.id === tv.id ? { ...x, ...(reconPatch && reconPatch.id === x.id ? reconPatch : {}), lastDose: f.datetime, ...(typeof x.remainingMcg === 'number' ? { remainingMcg: Math.max(0, x.remainingMcg - d) } : {}) } : x));
@@ -2226,7 +2481,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
       const snapU = (u) => { setUnitsText(null); setUnits(Math.round((parseFloat(u) || 0) * 2) / 2); };            // 0.5u snap THROUGH setUnits -> stored mcg === displayed
       const stepU = (d) => { setUnitsText(null); setUnits(Math.min(300, Math.max(0, Math.round(((parseFloat(units) || 0) + d) * 10) / 10))); }; // existing stepper math
       const dragUnits = (e) => { const el = barrelRef.current; if (!el) return; const r = el.getBoundingClientRect(); const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); setUnitsText(null); setUnits(frac * barMax); };
-      const setQuickTime = (h) => { const dt = new Date(viewDate); dt.setHours(h,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset()); setF({...f, datetime: dt.toISOString().slice(0,16)}); };
+      const setQuickTime = (h) => { const dt = new Date(viewDate); if (h == null) { const n = new Date(); dt.setHours(n.getHours(), n.getMinutes(), 0); } else dt.setHours(h,0,0); dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset()); setF({...f, datetime: dt.toISOString().slice(0,16)}); };
       // "In this shot" — for blend vials, how much of EACH component the current draw delivers.
       const vialPep = targetVial ? findPep(targetVial.peptideId) : null;
       const drawMl = parseFloat(f.doseMl) || 0;
@@ -2328,31 +2583,43 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             </>
           ) : null}
           <Field label="Date & Time">
-            <input type="datetime-local" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
+            <input type="datetime-local" aria-label="Date and time" value={f.datetime} onChange={e => setF({...f, datetime: e.target.value})} className="input"/>
             <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
-              {[['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
+              {[['Now',null],['Morning',8],['Pre-WO',6],['Noon',12],['Evening',19],['Bedtime',22]].map(([l,h]) => <button key={l} onClick={() => setQuickTime(h)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid var(--border)',borderRadius:100,padding:'6px 14px',minHeight:44,fontSize:12,color:'var(--text-dim)',cursor:'pointer',fontWeight:600}}>{l}</button>)}
             </div>
           </Field>
+          {adminRoute === 'inj' && (
+            <Field label="Injection site">
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4, minmax(0,1fr))',gap:6}}>
+                {SITES.map(s => <button key={s} type="button" aria-pressed={f.site === s} onClick={() => setF(p => ({ ...p, site: p.site === s ? '' : s }))} style={{minHeight:40,padding:'0 4px',borderRadius:11,fontSize:12,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',border:'1px solid ' + (f.site === s ? 'rgba(227,200,134,.5)' : 'var(--border)'),background: f.site === s ? 'rgba(227,200,134,.14)' : 'rgba(255,255,255,.04)',color: f.site === s ? 'var(--accent)' : 'var(--text-2)'}}>{s}</button>)}
+              </div>
+              {!existingLog && suggestedSite && <div style={{fontSize:11.5,color:'var(--text-faint)',marginTop:6}}>Next in rotation: {suggestedSite}</div>}
+            </Field>
+          )}
+          <Field label="Note">
+            <input type="text" aria-label="Note for this dose" placeholder="Optional — new vial, slight sting, …" value={f.notes || ''} onChange={e => setF({...f, notes: e.target.value})} className="input"/>
+          </Field>
           {myVials.length > 1 && <Field label="Source Vial"><select value={f.vialId} onChange={e => onVialChange(e.target.value)} className="input">{myVials.map(v => <option key={v.id} value={v.id}>{v.peptideName}{(v.mcgPerMl||0) > 0 ? ` · ${isIUVial(v) ? Math.round(v.mcgPerMl).toLocaleString()+' IU/mL' : (v.mcgPerMl/1000).toFixed(2)+' mg/mL'}` : ' · not reconstituted'}</option>)}</select></Field>}
-          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}>📦 <b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? (isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial`) : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
-          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{isIU ? (mcgPerMl/100).toFixed(1) + ' IU' : fmtMcg(mcgPerMl/100)}/unit · {targetVial.diluentMl} mL {isOilPep(proto.peptideId) ? 'vial' : 'BAC'}</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>✎ Edit reconstitution</button></div>}
+          {myVials.length === 1 && targetVial && <div style={{marginBottom:16,fontSize:13,color:'var(--text-dim)',background:'var(--bg-card-2)',padding:12,borderRadius:12,border:'1px solid var(--border)'}}><b style={{color:'var(--text)'}}>{targetVial.peptideName}</b> · {hasConc ? (isIUVial(targetVial) ? `${Math.round(targetVial.mgPerVial*1000).toLocaleString()} IU vial` : `${targetVial.mgPerVial} mg vial`) : (targetVial.mgPerVial ? `${targetVial.mgPerVial} mg · not reconstituted` : 'not reconstituted')}</div>}
+          {sup && !isOral && !editRecon && <div style={{fontSize:12,margin:'-6px 2px 10px',color: sup.dosesLeft <= 3 ? 'var(--warn)' : 'var(--text-dim)'}} className="mono">{sup.dosesLeft} dose{sup.dosesLeft === 1 ? '' : 's'} left in this vial{sup.runOut ? ` · runs out around ${fmtDk(sup.runOut)}` : ''}</div>}
+          {targetVial && !isOral && mcgPerMl > 0 && !editRecon && <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,fontSize:11,color:'var(--text-dim)',margin:'-2px 2px 12px'}}><span style={{fontFamily:'SF Mono, monospace'}}>{isIU ? (mcgPerMl/100).toFixed(1) + ' IU' : fmtMcg(mcgPerMl/100)}/unit · {targetVial.diluentMl} mL {isOilPep(proto.peptideId) ? 'vial' : 'BAC'}</span><button onClick={() => { setReconMl(targetVial.diluentMl ? String(targetVial.diluentMl) : ''); setEditRecon(true); }} style={{flexShrink:0,background:'var(--bg-card-2)',border:'1px solid var(--border)',borderRadius:20,padding:'5px 11px',fontSize:11,color:'var(--accent-2)',cursor:'pointer',fontWeight:700}}>Edit reconstitution</button></div>}
           {!isOral && needsRecon && (proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
               <div style={{fontSize:12,color:'var(--text-2)',marginBottom:10}}>This blend's vial record is missing — rebuild it in the blend editor so the per-component breakdown stays correct.</div>
-              <button className="btn btn-ghost" style={{width:'100%'}} onClick={() => { closeModal(); editProtocol(proto); }}>✎ Edit blend</button>
+              <button className="btn btn-ghost" style={{width:'100%'}} onClick={() => { closeModal(); editProtocol(proto); }}>Edit blend</button>
             </div>
           )}
           {!isOral && (needsRecon || editRecon) && !((proto.isBlend || String(proto.peptideId || '').indexOf('blend_') === 0) && !targetVial) && (
             <div style={{background:'rgba(255,159,10,0.07)',border:'1px solid rgba(255,159,10,0.25)',padding:14,borderRadius:14,marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{isOilPep(proto.peptideId) ? (needsRecon ? '🧴 Set vial concentration' : '✎ Edit vial concentration') : (needsRecon ? '🧪 Set reconstitution' : '✎ Edit reconstitution')}</div>
+              <div style={{fontSize:11,fontWeight:800,color:'var(--warn)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>{isOilPep(proto.peptideId) ? (needsRecon ? 'Set vial concentration' : 'Edit vial concentration') : (needsRecon ? 'Set reconstitution' : 'Edit reconstitution')}</div>
               <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10}}>{isOilPep(proto.peptideId) ? 'Pre-mixed oil — enter the total mg and the vial volume (e.g. 2000 mg in 10 mL) to dose by syringe units.' : `Enter vial size and BAC water to dose this ${isIU ? 'in IU' : 'by syringe units'}.`} {needsRecon && <span style={{color:'var(--text-faint)'}}>(or just log a dose above)</span>}</div>
               {(SOLVENT_OVERRIDE[proto.peptideId] || (targetVial && (targetVial.penComponents || []).some(c => SOLVENT_OVERRIDE[c.peptideId]))) && <div style={{fontSize:11.5,color:'var(--rt-oral, #f78c3a)',background:'rgba(247,140,58,0.10)',border:'1px solid rgba(247,140,58,0.25)',borderRadius:10,padding:'8px 10px',marginBottom:10}}>💡 Preferred solvent for {proto.peptideName}: <b>{SOLVENT_OVERRIDE[proto.peptideId] || solventFor(null, targetVial.penComponents)}</b> (not plain BAC)</div>}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
                 {/* Blend vials: the total is the sum of the components — locked here (edit the blend itself via ✎ Edit protocol) so the concentration can never drift from what's actually in the vial. */}
                 {(targetVial && targetVial.penComponents && targetVial.penComponents.length)
                   ? <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>Vial size (mg · blend)</label><div className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700,background:'rgba(255,255,255,0.04)',color:'var(--text-dim)'}}>{reconMg || '—'}</div></div>
-                  : <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
-                <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isOilPep(proto.peptideId) ? 'Vial volume (mL)' : 'BAC water (mL)'}</label><input type="number" step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
+                  : <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{reconIsIU ? 'Vial (IU)' : 'Vial size (mg)'}</label><input type="number" aria-label={reconIsIU ? 'Vial size in IU' : 'Vial size in mg'} step={reconIsIU ? '1' : '0.1'} value={reconIsIU ? (reconMg !== '' ? Math.round(parseFloat(reconMg)*1000) : '') : reconMg} onChange={e => setReconMg(reconIsIU ? String((parseFloat(e.target.value)||0)/1000) : e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>}
+                <div><label style={{fontSize:11,color:'var(--text-faint)',textTransform:'uppercase',fontWeight:700,letterSpacing:'0.04em'}}>{isOilPep(proto.peptideId) ? 'Vial volume (mL)' : 'BAC water (mL)'}</label><input type="number" aria-label={isOilPep(proto.peptideId) ? 'Vial volume in mL' : 'BAC water in mL'} step="0.1" value={reconMl} onChange={e => setReconMl(e.target.value)} className="input" style={{textAlign:'center',fontFamily:'SF Mono, monospace',fontWeight:700}}/></div>
               </div>
               <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
                 {editRecon && <button className="btn btn-ghost" onClick={() => setEditRecon(false)}>Cancel</button>}
@@ -2715,12 +2982,13 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
     openModal(<Modal/>);
   };
 
-  const addProtocol = () => {
+  const addProtocol = (presetId) => {
     // Start = the viewed day, so adding while browsing a future (or past) day starts it there.
     let f0 = { peptideId: '', doseMcg: 0, sched: { days: ALL_DAYS.slice(), timeOfDay: 'morning' }, cycleDays: 30, startDate: dateKey, route: 'inj', oralUnitLabel: 'mcg', doseUnit: 'mcg', reconMg: '', reconMl: '', reconVialId: null };
     const Modal = () => {
       const [f, setF] = useState(f0);
       const pep = findPep(f.peptideId);
+      useEffect(() => { if (presetId && !f.peptideId) apply(presetId); /* eslint-disable-next-line */ }, []); // first-run flow lands here with a compound already picked
       const apply = (id) => {
         if (id === '__new_blend__') return manageBlend(null); // hands the sheet to the blend builder
         const p = findPep(id); if (!p) return;
@@ -2789,6 +3057,7 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
   };
 
   const filters = [['all','All','#e3c886'],['inj','Inject',ROUTE_META.inj.color],['oral','Oral',ROUTE_META.oral.color],['nasal','Nasal',ROUTE_META.nasal.color]];
+  if (mode === 'plan') return renderPlan();
   return (
     <div style={{paddingBottom:40}} className="anim-fade-in">
       {/* summary pill — text + actions only; the header ring owns adherence. Hidden for an empty profile (the empty state has its own call to action). */}
@@ -2797,17 +3066,12 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
           <div style={{fontSize:16, fontWeight:700, color:LG.text}}>{scheduledCount === 0 ? 'Rest day' : dateKey < todayDk ? (dueCount === 0 ? 'All logged' : `${dueCount} not logged`) : `${dueCount} ${dueCount===1?'dose':'doses'} due`}</div>
           <div style={{fontSize:12.5, color:LG.dim, marginTop:2}}>{loggedCount} logged · {scheduledCount} scheduled {dateKey === todayDk ? 'today' : 'on ' + fmtDk(dateKey)}</div>
         </div>
-        <button onClick={() => managePen(null)} className="lg" title="Create mix" aria-label="Create mix (up to 4 compounds)" style={{width:42, height:42, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer', fontSize:18}}>🖊</button>
+        <button onClick={() => managePen(null)} className="lg" title="Create mix" aria-label="Create mix (up to 4 compounds)" style={{width:44, height:44, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer'}}><Beaker size={18} color="var(--accent)"/></button>
         <button onClick={addProtocol} className="lg" aria-label="Add protocol" style={{width:42, height:42, borderRadius:14, display:'grid', placeItems:'center', padding:0, cursor:'pointer'}}><Plus size={19} color="var(--accent)"/></button>
       </div>}
 
       {myProtocols.length === 0 ? (
-        <div style={{textAlign:'center',padding:'60px 20px',color:LG.dim}}>
-          <div style={{fontSize:60,opacity:0.4,marginBottom:16}}>⚗️</div>
-          <h3 style={{margin:'0 0 6px',fontWeight:600}}>No protocols yet</h3>
-          <p style={{margin:'0 0 20px',fontSize:14}}>Add a compound to start tracking {activeProfile}'s protocol</p>
-          <button className="btn btn-primary" onClick={addProtocol}>+ Add First Compound</button>
-        </div>
+        <FirstRun activeProfile={activeProfile} onPick={(id) => addProtocol(id)} onLibrary={openLibrary}/>
       ) : (<>
         {/* C2 expired-cycle banner */}
         {expiredProtos.length > 0 && (
@@ -2842,177 +3106,96 @@ function ProtocolView({ viewDate, dateKey, isFuture, activeProfile, protocols, s
             <p style={{margin:0,fontSize:14}}>{activeProfile}'s rest day. Nothing scheduled.</p>
           </div>
         )}
-        {blocks.map((b, bi) => byBlock[b.id].length > 0 && (
-          <div key={b.id} style={{marginTop: bi===0?0:20}}>
-            <div style={{display:'flex', alignItems:'center', gap:9, padding:'0 4px 11px'}}>
-              <span style={{fontSize:13, fontWeight:700, letterSpacing:'0.03em', color: b.id==='prn'?LG.amber:LG.text}}>{b.label}</span>
-              <span style={{fontSize:11, color:LG.dim2, fontWeight:500}}>{b.hint}</span>
-              <span style={{fontFamily:LG.mono, fontSize:11, color:LG.dim2, marginLeft:'auto'}}>{byBlock[b.id].length}</span>
-              <div style={{flex:'0 0 18px', height:1, background:LG.hair}}/>
-            </div>
-            <div style={{display:'grid', gridTemplateColumns:'repeat(2, minmax(0,1fr))', gap:12}}>
-              {byBlock[b.id].map(p => {
-                const log = logs.find(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey);
-                const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending';
-                return <DoseCard key={p.id} proto={p} log={log} status={status} isFuture={isFuture} vials={vials} viewDateKey={dateKey} glow={p.id === glowId} celebrate={p.id === flashId && status === 'logged'} lastPrnLog={isPrn(p) ? lastPrnLogFor(p) : null} onAdminister={() => administer(p, log)} onEdit={() => editProtocol(p)}/>;
-              })}
-            </div>
-          </div>
-        ))}
+        {blocks.map((b, bi) => byBlock[b.id].length > 0 && (() => {
+          const items = byBlock[b.id].map(p => { const log = logs.find(l => l.protocolId === p.id && (l.datetime||'').slice(0,10) === dateKey); const status = log ? (log.skipped ? 'skipped' : 'logged') : 'pending'; return { p, log, status }; });
+          const open = items.filter(it => it.status === 'pending' && !isPrn(it.p) && !isFuture && !cycleOverP(it.p)).map(it => it.p);
+          const quickable = open.filter(p => quickPlan(p));
+          return (
+            <section key={b.id} aria-label={b.label} className="blk" style={{marginTop: bi===0?0:14}}>
+              <div className="blk-hd">
+                <span className="blk-title" style={{color: b.id==='prn'?LG.amber:LG.text}}>{b.label}</span>
+                <span className="blk-hint">{b.hint}</span>
+                <span className="blk-count mono">{b.id === 'prn' ? items.length : isFuture ? `${items.length} scheduled` : `${open.length} of ${items.length} left`}</span>
+              </div>
+              {items.map(it => <DoseRow key={it.p.id} proto={it.p} log={it.log} status={it.status} isFuture={isFuture} isPast={dateKey < todayDk} vials={vials} viewDateKey={dateKey}
+                glow={it.p.id === glowId} celebrate={it.p.id === flashId && it.status === 'logged'} lastPrnLog={isPrn(it.p) ? lastPrnLogFor(it.p) : null}
+                quick={!!quickPlan(it.p)} supply={supplyFor(it.p)} onOpen={() => administer(it.p, it.log)} onQuick={() => quickLog(it.p)}
+                onUndoSkip={it.status === 'skipped' ? () => { const row = it.log; setLogs(prev => prev.filter(l => l.id !== row.id)); showToast(`Skip undone · ${it.p.peptideName}`, 'success', () => setLogs(prev => prev.some(l => l.id === row.id) ? prev : [row, ...prev])); } : null}/>)}
+              {quickable.length >= 2 && (
+                <div className="blk-foot">
+                  <button className="btn btn-primary blk-all" onClick={() => logRemaining(open)}>Log the {quickable.length} remaining as planned</button>
+                </div>
+              )}
+            </section>
+          );
+        })())}
       </>)}
     </div>
   );
 }
 
-function DoseCard({ proto, log, status, isFuture, vials, onAdminister, onEdit, glow, celebrate, lastPrnLog, viewDateKey }) {
-  // ── Pen tile (multi-compound blend in a named pen) ──
-  if (proto.route === 'pen') {
-    const pm = PEN_META[proto.penColor] || PEN_META.blue;
-    const penVial = (vials || []).find(v => v.id === proto.penVialId);
-    const comps = (penVial && penVial.penComponents) || [];
-    const mcgPerUnit = penVial && penVial.mcgPerMl ? penVial.mcgPerMl / 100 : 0;
-    const dMcgP = (log && log.doseMcg != null) ? log.doseMcg : proto.doseMcg;
-    const units = mcgPerUnit ? (dMcgP / mcgPerUnit) : (penVial && penVial.unitsPerDose) || 0;
-    const isLoggedP = status === 'logged';
-    const disabledP = isFuture && !isLoggedP;
-    const sP = proto.schedule || {};
-    const daysStrP = schedLabel(sP, true);
-    return (
-      <button onClick={onAdminister} className={isLoggedP ? 'card card-logged' : 'card'}
-        style={{textAlign:'left', borderRadius:18, padding:'10px 11px', display:'flex', flexDirection:'column', gap:6, width:'100%', minWidth:0, opacity:disabledP?0.6:1, cursor:'pointer', borderLeft:'3px solid '+pm.color}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-          <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
-            <span style={{width:14, height:14, borderRadius:'50%', background:pm.color, boxShadow:'0 0 8px '+pm.color+'88', flexShrink:0}}/>
-            <span style={{fontSize:11, fontWeight:800, letterSpacing:'0.05em', color:pm.color, textTransform:'uppercase'}}>{penLabelOf(proto)}</span>
-          </div>
-          <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0, background:isLoggedP?LG.green:'rgba(227,200,134,.12)', border:isLoggedP?'none':'1.6px solid '+LG.accent}}>
-            {isLoggedP ? <Check size={14} strokeWidth={3} color="#06231a"/> : <Plus size={13} strokeWidth={3} color={LG.accent}/>}
-          </div>
-        </div>
-        <div style={{fontSize:12.5, fontWeight:600, color:isLoggedP?LG.dim:LG.text, lineHeight:1.18, minHeight:31, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'}}>{comps.map(c => (c.name||'').split(' ')[0]).join(' + ') || 'Empty pen'}</div>
-        <div style={{display:'flex', alignItems:'baseline', gap:4}}>
-          <span style={{fontFamily:LG.mono, fontSize:17, fontWeight:700, color:isLoggedP?'rgba(255,255,255,.78)':LG.text}}>{(Math.round(units*10)/10)}</span>
-          <span style={{fontFamily:LG.mono, fontSize:11, color:LG.dim}}>units</span>
-          <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:11, fontWeight:600, color:pm.color, background:pm.color+'1c', border:'1px solid '+pm.color+'33', borderRadius:7, padding:'2px 7px'}}>{comps.length}-mix</span>
-        </div>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, paddingTop:6, borderTop:'1px solid '+LG.hair}}>
-          <span style={{fontSize:12, color:LG.dim, fontWeight:500}}>{daysStrP}</span>
-          <span style={{fontFamily:LG.mono, fontSize:9, color:LG.dim2}}>pen</span>
-        </div>
-      </button>
-    );
-  }
+// One row of a time block. The row opens the sheet; the pill on the right logs the planned dose in
+// one tap when that is unambiguous (see quickPlan), otherwise it opens the sheet too.
+function DoseRow({ proto, log, status, isFuture, isPast, vials, viewDateKey, glow, celebrate, lastPrnLog, quick, supply, onOpen, onQuick, onUndoSkip }) {
+  const isPen = proto.route === 'pen';
+  const pm = isPen ? (PEN_META[proto.penColor] || PEN_META.blue) : null;
+  const penVial = isPen ? (vials || []).find(v => v.id === proto.penVialId) : null;
   const sched = proto.schedule || {};
-  const daysStr = schedLabel(sched, true);
-  // Cycle day counts from the VIEWED day, not from now, so browsing history reads correctly.
   const viewDk = viewDateKey || todayLocal();
   const startDk = dkOf(proto.startDate);
   const elapsed = dkValid(startDk) ? dkDiff(viewDk, startDk) : 0;
-  const day = Math.max(1, Math.min(elapsed + 1, proto.cycleDays || 1));
-
   const equivIds = new Set(getEquivalentIds(proto.peptideId));
-  const activeVial = (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl||0) > 0)
-                  || (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false);
-  const route = routeOf(proto, activeVial);
-  const rt = ROUTE_META[route];
+  const activeVial = isPen ? penVial : ((vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false && (v.mcgPerMl||0) > 0) || (vials || []).find(v => equivIds.has(v.peptideId) && v.active !== false));
+  const route = isPen ? 'inj' : routeOf(proto, activeVial);
+  const rt = ROUTE_META[route] || ROUTE_META.inj;
   const mcgPerUnit = activeVial && activeVial.mcgPerMl ? activeVial.mcgPerMl / 100 : 0;
-  const dMcg = (log && !log.skipped && log.doseMcg != null) ? log.doseMcg : proto.doseMcg; // a skip row carries 0; the tile keeps showing the plan
-  const units = mcgPerUnit ? (dMcg / mcgPerUnit) : null;
-
-  const du0 = (log && log.doseUnit) || proto.doseUnit; // explicit unit tag wins over magnitude
-  const isIU = du0 === 'IU' || isIUVial(activeVial) || (log && log.doseUnit === 'IU');
+  const dMcg = (log && !log.skipped && log.doseMcg != null) ? log.doseMcg : proto.doseMcg; // a skip row carries 0; the row keeps showing the plan
+  const units = mcgPerUnit ? dMcg / mcgPerUnit : ((isPen && penVial && penVial.unitsPerDose) || null);
+  const du0 = (log && log.doseUnit) || proto.doseUnit;
+  const isIU = du0 === 'IU' || isIUVial(activeVial);
   let dv, du;
   if (isIU) { dv = String(Math.round(log && log.doseValue != null ? log.doseValue : dMcg)); du = 'IU'; }
   else if (du0 === 'g') { dv = (dMcg/1e6).toFixed(2).replace(/\.?0+$/,''); du = 'g'; }
   else if (du0 === 'mg' || dMcg >= 1000) { dv = (dMcg/1000).toFixed(2).replace(/\.?0+$/,''); du = 'mg'; }
   else { dv = String(Math.round(dMcg)); du = 'mcg'; }
-
-  const deliver = deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip;
-
-  const isLogged = status === 'logged';
-  const isSkipped = status === 'skipped';
+  const ml = (log && log.doseMl != null) ? log.doseMl : (activeVial && activeVial.mcgPerMl ? dMcg / activeVial.mcgPerMl : null);
+  const deliver = (!isPen && (route === 'oral' || route === 'nasal')) ? deliveryFor({ ...proto, doseMcg: dMcg }, activeVial).chip : null;
   const isPrnProto = isPrnSched(sched);
   const cycleOver = (proto.cycleDays > 0) && !isPrnProto && !proto.endDate && (elapsed + 1 > proto.cycleDays);
-  // D4 state enum — precedence: logged > skipped > expired > future > prn > due.
-  // logged/skipped outrank expired so history stays honest.
-  const state = isLogged ? 'logged' : isSkipped ? 'skipped' : cycleOver ? 'expired' : isFuture ? 'future' : isPrnProto ? 'prn' : 'due';
-  const cls = 'card' + (
-    state === 'logged' ? ' card-logged' :
-    state === 'skipped' ? ' card-skipped' :
-    state === 'expired' ? ' card-expired' :
-    state === 'future' ? ' card-future' :
-    (state === 'due' && glow) ? ' card-due-glow' : '');
-  // Footer: schedule · cycle day, plus a short heads-up when the plan changes or ends soon.
+  // precedence: logged > skipped > expired > future > prn > missed (past day) > due
+  const state = status === 'logged' ? 'logged' : status === 'skipped' ? 'skipped' : cycleOver ? 'expired' : isFuture ? 'future' : isPrnProto ? 'prn' : isPast ? 'missed' : 'due';
+  const logTime = (() => { if (!log || !log.datetime) return ''; const d = new Date(log.datetime); if (isNaN(d.getTime())) return ''; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + m + ap; })();
+  const prnRel = (() => { if (!lastPrnLog || !lastPrnLog.datetime) return 'never'; const d = new Date(lastPrnLog.datetime); if (isNaN(d.getTime())) return 'never'; const n = Math.floor((Date.now() - d.getTime()) / 86400000); return n <= 0 ? 'today' : n === 1 ? '1d ago' : n + 'd ago'; })();
   const endDk = dkOf(proto.endDate);
   const nextRev = nextRevision(proto, viewDk);
   const hint = (dkValid(endDk) && dkDiff(endDk, viewDk) <= 7 && dkDiff(endDk, viewDk) >= 0) ? ('ends ' + fmtDk(endDk))
     : (nextRev && dkDiff(nextRev.from, viewDk) <= 14) ? (schedLabel(nextRev.schedule, true) + ' from ' + fmtDk(nextRev.from)) : null;
-  const meta = ((proto.cycleDays > 0 && !isPrnProto) ? `${daysStr} · ${day}/${proto.cycleDays}` : daysStr) + (hint ? ' · ' + hint : '');
-  const disabled = false; // future days open the sheet in plan mode (change / finish), logging stays blocked there
-  // D6 check-off cascade: while celebrating, the ring shows its former 'due' chrome and the
-  // green disc + hand-drawn check + ripple play over it (300ms base delay = after sheet exit).
+  const name = isPen ? (penLabelOf(proto) + ' · ' + ((((penVial && penVial.penComponents) || []).map(c => (c.name || '').split(' ')[0]).join(' + ')) || 'Empty pen')) : proto.peptideName;
+  const doseLine = [units != null ? `${Math.round(units * 10) / 10} u` : null, isPen ? null : `${dv} ${du}`, (ml != null && units != null) ? `${(+ml).toFixed(ml < 0.1 ? 3 : 2)} mL` : null, deliver].filter(Boolean).join(' · ');
+  const sub = state === 'logged' ? `Logged ${logTime}` : state === 'skipped' ? 'Skipped' : state === 'expired' ? `Cycle ended ${elapsed + 1 - proto.cycleDays}d ago`
+    : state === 'future' ? 'Scheduled' : state === 'prn' ? `As needed · last ${prnRel}` : state === 'missed' ? 'Not logged' : (hint || schedLabel(sched, true));
   const cel = !!celebrate && state === 'logged';
-
-  // per-state display bits
-  const expiredBy = cycleOver ? (elapsed + 1 - proto.cycleDays) : 0;
-  const logTime = (() => { if (!log || !log.datetime) return ''; const d = new Date(log.datetime); if (isNaN(d.getTime())) return ''; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + m + ap; })();
-  const prnRel = (() => { if (!lastPrnLog || !lastPrnLog.datetime) return 'never'; const d = new Date(lastPrnLog.datetime); if (isNaN(d.getTime())) return 'never'; const n = Math.floor((Date.now() - d.getTime()) / 86400000); return n <= 0 ? 'today' : n === 1 ? '1d ago' : n + 'd ago'; })();
-  const uDisp = units != null ? (Math.round(units * 10) / 10) : null;
-  // numerals never strike and never dim below rgba(255,255,255,.62); only the name may drop to text-dim
-  const nameCol = (state === 'logged' || state === 'skipped' || state === 'future') ? 'var(--text-dim)' : LG.text;
-  const heroCol = state === 'logged' ? 'rgba(255,255,255,.78)'
-    : state === 'skipped' ? 'rgba(255,255,255,.62)'
-    : (state === 'expired' || state === 'future') ? 'var(--text-dim)'
-    : (units != null ? 'var(--accent)' : LG.text);
-  const bylineCol = (state === 'future' || state === 'expired') ? 'var(--text-dim)' : 'rgba(255,255,255,.78)';
-  const ringBg = state === 'logged' ? LG.green : state === 'skipped' ? 'rgba(247,140,58,.18)' : state === 'expired' ? 'rgba(247,140,58,.10)' : state === 'future' ? 'transparent' : 'rgba(227,200,134,.12)';
-  const ringBorder = state === 'logged' ? 'none' : (state === 'skipped' || state === 'expired') ? ('1.6px solid ' + LG.amber) : state === 'future' ? '1.6px solid var(--text-ghost)' : ('1.6px solid ' + LG.accent);
-
+  const disc = state === 'logged' ? 'done' : state === 'skipped' ? 'skip' : state === 'expired' ? 'exp' : state === 'future' ? 'fut' : 'due';
   return (
-    <button onClick={() => { if (!disabled) onAdminister(); }} className={cls}
-      style={{textAlign:'left', borderRadius:18, padding:'10px 11px', display:'flex', flexDirection:'column', gap:6, width:'100%', minWidth:0, cursor:disabled?'default':'pointer'}}>
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-        <div style={{display:'flex', alignItems:'center', gap:6, minWidth:0}}>
-          <div className="rt-tile" style={{width:25, height:25, borderRadius:8, background:rt.color+'24', display:'grid', placeItems:'center', boxShadow:'inset 0 0 0 1px '+rt.color+'40', flexShrink:0}}>
-            <RouteIcon route={route} color={rt.color} s={15}/>
-          </div>
-          <span style={{fontSize:11, fontWeight:700, letterSpacing:'0.05em', color:rt.color, textTransform:'uppercase'}}>{rt.label}</span>
-        </div>
-        <div style={{width:26, height:26, borderRadius:'50%', display:'grid', placeItems:'center', flexShrink:0, position:'relative',
-          background: cel ? 'rgba(227,200,134,.12)' : ringBg, border: cel ? ('1.6px solid ' + LG.accent) : ringBorder}}>
-          {cel ? (<>
-            <span className="cel-disc" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="#06231a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </span>
-            <span className="cel-rip" aria-hidden="true"/>
-          </>)
-           : state === 'logged' ? <Check size={14} strokeWidth={3} color="#06231a"/>
-           : state === 'skipped' ? <span aria-hidden="true" style={{fontSize:12,color:LG.amber}}>⏭</span>
-           : state === 'expired' ? <span aria-hidden="true" style={{fontSize:13,color:LG.amber}}>↻</span>
-           : <Plus size={13} strokeWidth={3} color={state === 'future' ? 'var(--text-ghost)' : LG.accent}/>}
-        </div>
-      </div>
-      <div style={{fontSize:13.5, fontWeight:600, color:nameCol, lineHeight:1.16, minHeight:31, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'}}>{proto.peptideName}</div>
-      <div style={{display:'flex', alignItems:'baseline', gap:4, minWidth:0}}>
-        {units != null ? (<>
-          <span style={{fontFamily:LG.mono, fontSize:22, lineHeight:'26px', fontWeight:700, color:heroCol}}>{uDisp}</span>
-          <span style={{fontFamily:LG.mono, fontSize:13, color:'var(--text-dim)'}}>u</span>
-          <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:12, fontWeight:600, color:bylineCol, whiteSpace:'nowrap'}}>{dv} {du}</span>
-        </>) : (<>
-          <span style={{fontFamily:LG.mono, fontSize:22, lineHeight:'26px', fontWeight:700, color:heroCol}}>{dv}</span>
-          <span style={{fontFamily:LG.mono, fontSize:13, color:'var(--text-dim)'}}>{du}</span>
-          {(route === 'oral' || route === 'nasal') && <span style={{marginLeft:'auto', fontFamily:LG.mono, fontSize:11, fontWeight:600, color:rt.color, background:rt.color+'1c', border:'1px solid '+rt.color+'33', borderRadius:7, padding:'2px 7px', whiteSpace:'nowrap'}}>{deliver}</span>}
-        </>)}
-      </div>
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, paddingTop:6, borderTop:'1px solid '+LG.hair}}>
-        {state === 'logged' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--success)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Logged {logTime}</span>
-         : state === 'skipped' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--warn)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Skipped · tap to undo</span>
-         : state === 'expired' ? <span style={{fontFamily:LG.mono, fontSize:12, fontWeight:600, color:'var(--warn)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Cycle ended {expiredBy}d ago</span>
-         : state === 'future' ? <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap'}}>Scheduled</span>
-         : state === 'prn' ? <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>PRN · last {prnRel}</span>
-         : <span style={{fontSize:12, color:'var(--text-dim)', fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{meta}</span>}
-      </div>
-    </button>
+    <div className={'blk-row' + (glow && state === 'due' ? ' glow' : '') + (state === 'logged' ? ' is-logged' : state === 'skipped' ? ' is-skipped' : '')}>
+      <button className="blk-main" onClick={onOpen} style={isPen ? { boxShadow: 'inset 3px 0 0 ' + pm.color, paddingLeft: 10 } : undefined}>
+        <span className={'blk-disc ' + disc} aria-hidden="true">
+          {cel ? <span className="cel-disc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path className="cel-ck" d="M7 13.5l3.8 3.8L19 9.5" stroke="#06231a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            : state === 'logged' ? <Check size={14} strokeWidth={3} color="#06231a"/>
+            : state === 'skipped' ? <span style={{fontSize:12,color:LG.amber}}>⏭</span>
+            : state === 'expired' ? <span style={{fontSize:13,color:LG.amber}}>↻</span>
+            : <RouteIcon route={route} color={rt.color} s={13}/>}
+        </span>
+        <span className="blk-text">
+          <span className="blk-name">{name}</span>
+          <span className="blk-dose mono">{doseLine}{doseLine && sub ? ' · ' : ''}<span className={'blk-sub' + (state === 'logged' ? ' ok' : (state === 'skipped' || state === 'expired' || state === 'missed') ? ' warn' : '')}>{sub}</span>{supply && supply.dosesLeft <= 3 && state !== 'logged' ? <span className="blk-sub warn">{` · ${supply.dosesLeft} left`}</span> : null}</span>
+        </span>
+      </button>
+      {(state === 'due' || state === 'missed') ? <button className="pill-log" aria-label={quick ? 'Log as planned' : 'Open to log'} title={proto.peptideName} onClick={onQuick}>{quick ? 'Log' : 'Log…'}</button>
+       : state === 'prn' ? <button className="pill-log ghost" aria-label="Log a dose" title={proto.peptideName} onClick={onOpen}>Log</button>
+       : (state === 'skipped' && onUndoSkip) ? <button className="pill-log ghost" aria-label="Undo skip" title={proto.peptideName} onClick={onUndoSkip}>Undo</button>
+       : null}
+    </div>
   );
 }
 
@@ -3119,6 +3302,25 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
   const doses = filtered.filter(l => !l.skipped).length;
   const compCount = new Set(filtered.filter(l => !l.skipped).map(nameOf)).size;
   const dayCount = groups.filter(g => g.items.some(l => !l.skipped)).length;
+  // Adherence by compound over the selected range: scheduled days only (as-needed compounds excluded),
+  // capped at 400 days so the all-time range stays cheap. Same engine rules as Today and the Worker.
+  const adherence = useMemo(() => {
+    const start = (range === 'all' || lo < '1000') ? dkAdd(today, -364) : lo;
+    const end = hi > today ? today : hi;
+    if (!dkValid(start) || !dkValid(end) || start > end) return { rows: [], exp: 0, got: 0, pct: null };
+    const nDays = Math.min(400, dkDiff(end, start) + 1);
+    const byProto = {}; mine.forEach(l => { if (!l.skipped) { const dk = dkOf(l.datetime); (byProto[l.protocolId] = byProto[l.protocolId] || new Set()).add(dk); } });
+    const rows = [];
+    protocols.filter(p => p.profile === activeProfile && !isPrnSched(p.schedule)).forEach(p => {
+      let exp = 0, got = 0;
+      for (let i = 0; i < nDays; i++) { const dk = dkAdd(end, -i); if (!activeOn(p, dk) || !dueOn(protoAt(p, dk), dk)) continue; exp++; if (byProto[p.id] && byProto[p.id].has(dk)) got++; }
+      if (exp) rows.push({ id: p.id, name: p.peptideName, exp, got, pct: Math.round(got / exp * 100) });
+    });
+    rows.sort((a, b) => a.pct - b.pct || b.exp - a.exp);
+    const exp = rows.reduce((s, r) => s + r.exp, 0), got = rows.reduce((s, r) => s + r.got, 0);
+    return { rows, exp, got, pct: exp ? Math.round(got / exp * 100) : null };
+  }, [mine, protocols, activeProfile, lo, hi, range, today]);
+  const adhColor = (pct) => pct >= 90 ? 'var(--success)' : pct >= 70 ? 'var(--accent)' : 'var(--warn)';
   const protoFor = (l) => protocols.find(p => p.id === l.protocolId) || null;
   const routeFor = (l) => { const p = protoFor(l); const v = l.vialId ? vials.find(x => x.id === l.vialId) : null; if (p && p.route === 'pen') return 'inj'; return p ? routeOf(p, v) : (v && v.formType === 'oral' ? 'oral' : 'inj'); };
   const doseStr = (l) => { if (l.skipped) return 'skipped'; if (l.doseUnit) return fmtDoseAny(l.doseMcg, l.doseUnit); const p = protoFor(l); return fmtDoseAny(l.doseMcg, (p && p.doseUnit) || null); };
@@ -3190,6 +3392,20 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
         <option value="all">All compounds ({compounds.length})</option>
         {compounds.map(([n, c]) => <option key={n} value={n}>{n} · {c}</option>)}
       </select>
+      {adherence.rows.length > 0 && (
+        <section className="blk" aria-label="Adherence by compound" style={{marginBottom:14}}>
+          <div className="blk-hd"><span className="blk-title">Adherence</span><span className="blk-hint">{rangeLabel}</span><span className="blk-count mono" style={{color: adhColor(adherence.pct)}}>{adherence.pct}% · {adherence.got} of {adherence.exp}</span></div>
+          <div style={{display:'flex',flexDirection:'column',gap:7,padding:'2px 2px 8px'}}>
+            {(comp === 'all' ? adherence.rows : adherence.rows.filter(r => r.name === comp)).map(r => (
+              <div key={r.id} style={{display:'grid',gridTemplateColumns:'minmax(0,112px) 1fr 44px',gap:10,alignItems:'center'}}>
+                <span style={{fontSize:12.5,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}} title={r.name}>{r.name}</span>
+                <div style={{height:10,borderRadius:5,background:'rgba(255,255,255,.07)',overflow:'hidden'}} role="img" aria-label={`${r.name}: ${r.got} of ${r.exp} doses, ${r.pct} percent`}><div style={{width:r.pct+'%',height:'100%',borderRadius:5,background: adhColor(r.pct)}}/></div>
+                <span className="mono" style={{fontSize:12,fontWeight:700,textAlign:'right',color: adhColor(r.pct)}}>{r.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       {groups.length === 0 ? (
         <div style={{textAlign:'center',padding:'50px 20px',color:LG.dim}}>
           <div style={{fontSize:50,opacity:0.4,marginBottom:12}}>🗒</div>
@@ -3209,7 +3425,7 @@ function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal
                 <div style={{width:28,height:28,borderRadius:9,background:rt.color+'24',display:'grid',placeItems:'center',boxShadow:'inset 0 0 0 1px '+rt.color+'40',flexShrink:0,opacity:l.skipped?0.5:1}}><RouteIcon route={route} color={rt.color} s={15}/></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13.5,fontWeight:600,color:l.skipped?'var(--text-dim)':'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nameOf(l)}</div>
-                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{timeStr(l)}{l.doseMl != null ? ` · ${(l.doseMl*100).toFixed(1)}u` : ''}{l.backfilled ? ' · ↩ back-dated' : ''}{l.needsReview ? ' · ⚑' : ''}{l.notes && !l.backfilled ? ` · ${l.notes}` : ''}</div>
+                  <div style={{fontSize:11,color:'var(--text-dim)',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{timeStr(l)}{l.doseMl != null ? ` · ${(l.doseMl*100).toFixed(1)}u` : ''}{l.site ? ` · ${l.site}` : ''}{l.backfilled ? ' · ↩ back-dated' : ''}{l.needsReview ? ' · ⚑' : ''}{l.notes && !l.backfilled ? ` · ${l.notes}` : ''}</div>
                 </div>
                 <span className="mono" style={{fontSize:13,fontWeight:700,color:l.skipped?'var(--warn)':'var(--accent)',whiteSpace:'nowrap'}}>{doseStr(l)}</span>
               </button>
