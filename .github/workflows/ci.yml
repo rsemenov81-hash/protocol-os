@@ -1,0 +1,75 @@
+# Protocol OS — CI
+#
+# Runs on every push (any branch) and on pull requests:
+#   npm ci                                  install esbuild + the pinned Playwright package (no browsers yet)
+#   npm run check                           index.html must be exactly what `npm run build` produces from src/
+#   npm test                                schedule-engine unit tests (node:test, no browser)
+#   npx playwright install --with-deps chromium
+#   npm run e2e                             headless walkthrough of the built index.html (tests/e2e.mjs)
+# On failure the e2e output directory (.playwright/: screenshots + the downloaded CSV) is uploaded as an artifact.
+#
+# ── Pages deployment (not wired here yet) ────────────────────────────────────────────────────────
+# GitHub Pages currently deploys straight from the main branch, so a red commit on main still goes
+# live. To deploy only on green:
+#   1. Repo Settings → Pages → "Build and deployment" → Source: switch from "Deploy from a branch"
+#      to "GitHub Actions".
+#   2. Add a second job to this workflow, e.g. `deploy`, with `needs: ci`,
+#      `if: github.ref == 'refs/heads/main' && github.event_name == 'push'`,
+#      `permissions: { pages: write, id-token: write }`, `environment: github-pages`, and steps
+#      `actions/configure-pages`, `actions/upload-pages-artifact` (path: the repo root, since
+#      index.html, sw.js and the worker file live there) and `actions/deploy-pages`.
+#   3. Optionally protect main so the `ci` check is required before merging.
+# The job is deliberately not added yet: switching the Pages source is a repo setting the owner has
+# to flip first, and until then an Actions deploy job would silently do nothing.
+#
+# Action tags: v4 is used throughout; bump freely, nothing here depends on a specific minor.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: check · test · e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: index.html matches the build
+        run: npm run check
+
+      - name: Unit tests (schedule engine)
+        run: npm test
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end walkthrough
+        run: npm run e2e
+
+      - name: Upload e2e screenshots and downloads
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output
+          path: .playwright/
+          if-no-files-found: ignore
+          retention-days: 14
