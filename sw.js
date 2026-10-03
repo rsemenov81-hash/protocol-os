@@ -1,5 +1,7 @@
-// Protocol OS Service Worker — network-first so updates always pick up
-const CACHE = 'protocol-os-v15';
+// Protocol OS Service Worker — network-first so updates always pick up, with two guards:
+// a failed cross-origin call (the /sync Worker) is never answered with the cached page, and a
+// navigation on a weak signal falls back to the cached app after 3 s instead of hanging blank.
+const CACHE = 'protocol-os-v16';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
@@ -18,14 +20,21 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  // Network-first: try fresh, fall back to cache
-  e.respondWith(
-    fetch(e.request).then(resp => {
-      if (resp && resp.ok && resp.type === 'basic') {
-        const clone = resp.clone();
-        caches.open(CACHE).then(cache => cache.put(e.request, clone));
-      }
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) return; // cross-origin (sync Worker, fonts): straight to the network, failures stay failures
+  const isNav = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  e.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const net = fetch(e.request).then(resp => {
+      if (resp && resp.ok && resp.type === 'basic') cache.put(e.request, resp.clone());
       return resp;
-    }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
-  );
+    });
+    if (!isNav) return net.catch(() => cache.match(e.request));
+    const timeout = new Promise(res => setTimeout(() => res(null), 3000));
+    const first = await Promise.race([net.catch(() => null), timeout]);
+    if (first) return first;
+    const cached = (await cache.match(e.request)) || (await cache.match('./index.html'));
+    if (cached) { net.catch(() => {}); return cached; }
+    return net;
+  })());
 });
