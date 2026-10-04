@@ -53,16 +53,20 @@ describe('auth and health', () => {
 });
 
 describe('Kris seed protocol', () => {
-  test('an empty KV serves the four compounds at rev 1', async () => {
+  test('an empty KV serves the five compounds at rev 1', async () => {
     const s = await state();
     assert.equal(s._rev, 1);
-    assert.deepEqual(s.compounds.map(c => c.name), ['Retatrutide', 'HCG', 'KLOW', 'Nandrolone']);
+    assert.deepEqual(s.compounds.map(c => c.name), ['Retatrutide', 'HCG', 'KLOW', 'Nandrolone', 'Testosterone Cypionate']);
     assert.deepEqual(s.logs, []);
   });
   test('doses, days and syringe strengths', async () => {
     const by = Object.fromEntries((await state()).compounds.map(c => [c.name, c]));
     // same formula as the app's concOf(): mcg per U-100 unit
-    const conc = (c) => c.unit === 'IU' ? c.vialAmount / (c.bacMl * 100) : (c.vialAmount * 1000) / (c.bacMl * 100);
+    const conc = (c) => {
+      if (c.vialAmount > 0 && c.bacMl > 0) return c.unit === 'IU' ? c.vialAmount / (c.bacMl * 100) : (c.vialAmount * 1000) / (c.bacMl * 100);
+      return Number(c.mcgPerUnit) || 0;
+    };
+    const units = (c) => Math.round((c.doseMcg / conc(c)) * 10) / 10;
 
     const reta = by.Retatrutide;
     assert.deepEqual(reta.schedule.days, [6]);
@@ -73,14 +77,23 @@ describe('Kris seed protocol', () => {
     assert.equal(by.HCG.unit, 'IU');
     assert.equal(by.HCG.doseMcg, 250);
     assert.deepEqual(by.HCG.schedule.days, [2, 6]);
+    assert.equal(conc(by.HCG), 50); // 10,000 IU in 2 mL
+    assert.equal(units(by.HCG), 5);
 
     const klow = by.KLOW;
     assert.deepEqual(klow.schedule.days, [0, 1, 2, 3, 4, 5, 6]);
-    assert.equal(Math.round((klow.doseMcg / conc(klow)) * 10) / 10, 10); // 10 units from the 80 mg / 3 mL cartridge
+    assert.equal(klow.doseMcg, 2400); // same as Trey
+    assert.equal(units(klow), 9); // 9 units from the 80 mg / 3 mL cartridge
     assert.equal(klow.ingredients.reduce((a, i) => a + i.mg, 0), 80);
 
     assert.equal(by.Nandrolone.doseMcg, 100000);
     assert.deepEqual(by.Nandrolone.schedule.days, [6]);
+    assert.equal(units(by.Nandrolone), 33.3); // 300 mg/mL
+
+    const test = by['Testosterone Cypionate'];
+    assert.deepEqual(test.schedule.days, [2, 6]);
+    assert.equal(conc(test), 2500); // 250 mg/mL
+    assert.equal(units(test), 30); // 0.3 mL = 75 mg
   });
 });
 
@@ -99,7 +112,7 @@ describe('admin writes', () => {
   test('Kris cannot change the protocol', async () => {
     const r = await call('/admin', { method: 'POST', token: 'kris-code', body: { baseRev: 1, compounds: [] } });
     assert.equal(r.status, 403);
-    assert.equal((await state()).compounds.length, 4);
+    assert.equal((await state()).compounds.length, 5);
   });
   test('malformed lists are refused', async () => {
     const r = await call('/admin', { method: 'POST', token: 'roman-code', body: { baseRev: 1, compounds: [{ name: 'no id' }] } });

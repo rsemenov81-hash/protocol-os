@@ -43,7 +43,7 @@ Pick long codes that are hard to guess, and make the two different. Click **Depl
 
 - Open `https://kris-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
 - Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Saturday the
-  Today tab shows Retatrutide, HCG, Nandrolone and KLOW.
+  Today tab shows all five compounds.
 - Send Kris the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps **Share → Add to Home Screen**,
   and it appears as **Kris** with a blue dot icon.
 
@@ -54,9 +54,10 @@ The worker starts with this protocol the first time it runs. After that, edit it
 | Compound | Dose | Days | Draw |
 | --- | --- | --- | --- |
 | Retatrutide | 2 mg | Saturday | 10 mg vial + 2 mL BAC = 50 mcg per unit, so 40 units (0.4 mL). One vial lasts 5 weeks. |
-| HCG | 250 IU | Tuesday, Saturday | Logged by IU. Add the vial size and water in the app to get syringe units. |
-| KLOW | 2.67 mg | Daily, evening | 80 mg in a 3 mL pen cartridge = 26.7 mg/mL, so 10 units (0.1 mL). One cartridge lasts 30 days. |
-| Nandrolone | 100 mg | Saturday | Logged by mg. Add the strength (mg/mL) in the app to get syringe units. |
+| HCG | 250 IU | Tuesday, Saturday | 10,000 IU vial + 2 mL BAC = 50 IU per unit, so 5 units (0.05 mL). |
+| Testosterone Cypionate | 75 mg | Tuesday, Saturday | 250 mg/mL oil = 2.5 mg per unit, so 30 units (0.3 mL). |
+| Nandrolone | 100 mg | Saturday | 300 mg/mL oil = 3 mg per unit, so 33.3 units (0.33 mL). |
+| KLOW | 2.4 mg | Daily, evening | 80 mg in a 3 mL pen cartridge = 26.7 mg/mL, so 9 units (0.09 mL). One cartridge lasts 33 days. |
 
 ## Codes and safety
 
