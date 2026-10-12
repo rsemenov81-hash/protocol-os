@@ -14,6 +14,7 @@ through a Cloudflare Worker and read access for Claude through that Worker's MCP
 | `sw.js` | Service worker (network-first, cached fallback for navigations). |
 | `protocol-sync-worker.js`, `WORKER-PATCH.md` | The Cloudflare Worker (sync + MCP) and its copy-and-paste deploy guide. |
 | `trey/`, `jamal/`, `kris/` | Simplified two-person apps (Roman as admin, the client logs doses), each a single hand-written `index.html` on its own Cloudflare Worker. `kris/worker.js` and `kris/DEPLOY.md` are Kris's worker and its setup steps. |
+| `scott/` | The same two-person app for Scott, plus Supplements and Meds tabs and push reminders (`sw.js`, manifest, icons; the worker's cron sends them). `scott/worker.js` and `scott/DEPLOY.md` are his worker and its setup steps. |
 | `tests/` | Unit tests (`node --test`), the browser walkthrough and the cloud-sync scenarios (Playwright). See `tests/README.md`. |
 
 ## Working on it
