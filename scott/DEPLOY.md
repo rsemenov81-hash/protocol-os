@@ -56,6 +56,7 @@ has to turn reminders on again.
   start empty: add them on **Supps** and **Meds**.
 - Send Scott the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps
   **Share → Add to Home Screen**, and it appears as **Scott** with a violet dot icon.
+- Supplement stacks: open the import link Roman was given (see *Supplement stacks* below).
 - Reminders: in the Home Screen app, tap the **bell** at the top, pick a morning and evening time, then
   **Turn on** and allow notifications. **Test** sends one straight away. On iPhone this only works from the
   Home Screen app, not from a Safari tab (an Apple rule).
@@ -74,6 +75,18 @@ The worker starts with this protocol the first time it runs. After that, edit it
 If the worker was already set up and opened before this protocol was added, it is still empty only until
 someone saves something; paste the new `worker.js` and it loads this list on the next sync. Once anything has
 been saved, add the compounds in the app instead.
+
+## Supplement stacks
+
+The **Supps** tab shows two stacks, **Morning stack** (10:00 AM) and **Night stack** (9:30 PM). Tap a stack to
+see what is in it, and tap an item for how much to take, every ingredient with its amount, what it is for and
+its benefits. Stacks are not logged: each stack gets one "time to take it" reminder a day at its time, on every
+phone with reminders on. The times live in `STACKS` at the top of `worker.js`.
+
+Scott's stack contents are deliberately **not** in this repository, because the repository is public and the
+list includes prescriptions. Roman loads them once with an import link (`…/scott/#import=…`): open it, sign in
+with the `ADMIN_CODE` if asked, and tap **Load**. Loading replaces the stacks and leaves injections and meds alone.
+After that, edit or add items in the app (pencil → **Edit**, or **+ Add to … stack**).
 
 ## How reminders behave
 

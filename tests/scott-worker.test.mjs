@@ -212,6 +212,25 @@ describe('push reminders', () => {
     await subscribe(sub, { times: { am: '', pm: '23:55' } });
     assert.equal((await runReminders(env, at('2026-10-13T00:05'))).sent, 1, '23:55 Monday, seen from 00:05 Tuesday');
   });
+  test('supplement stacks: one "time to take it" push at 10:00 and 21:30, never part of a dose block', async () => {
+    const stackItem = (id, stack, name) => ({ id, stack, kind: 'supp', name, serving: '1 capsule', ingredients: [], active: true });
+    await setCompounds([VITD, stackItem('s1', 'am', 'Creatine'), stackItem('s2', 'am', 'Omega-3'), { ...stackItem('s3', 'am', 'Old one'), active: false }]);
+    assert.deepEqual((await state()).stacks.map(x => [x.id, x.time]), [['am', '10:00'], ['pm', '21:30']]);
+    const sub = await genSubscriber('https://push.example/stack');
+    await subscribe(sub);
+
+    assert.equal((await runReminders(env, at('2026-10-12T08:05'))).sent, 1);
+    assert.equal((await decrypt(sent[0].init.body, sub)).body, '1 due: Vitamin D3 5,000 IU. Tap to log.', 'stack items stay out of the dose block');
+
+    assert.equal((await runReminders(env, at('2026-10-12T10:00'))).sent, 1);
+    const msg = await decrypt(sent[1].init.body, sub);
+    assert.equal(msg.title, 'Morning stack');
+    assert.equal(msg.body, 'Time to take it — 2 items: Creatine, Omega-3.');
+    assert.equal(msg.data.tab, 'supps');
+    assert.equal((await runReminders(env, at('2026-10-12T10:10'))).sent, 0, 'once a day');
+
+    assert.equal((await runReminders(env, at('2026-10-12T21:35'))).sent, 0, 'the night stack is empty: nothing to send');
+  });
   test('a 410 from the push service drops the device; test and unsubscribe work by endpoint', async () => {
     await setCompounds([VITD]);
     const sub = await genSubscriber('https://push.example/gone');

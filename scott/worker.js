@@ -14,9 +14,13 @@
 // Compounds carry a `kind`: 'inject' (or missing) for the syringe doses, 'supp' for supplements and
 // 'med' for medications. Supplements and meds are logged by a tap ("taken"): no dose number, no gate.
 //
+// Supplement stacks: compounds with `stack: 'am' | 'pm'` belong to the morning or night stack (see STACKS).
+// They are not logged; each stack gets one "time to take it" reminder a day at its fixed time.
+//
 // Reminders: a Cron Trigger (*/15 * * * *) runs `scheduled`. For every subscribed device, when its
 // morning or evening time (or time + nudge) falls in the last 15 minutes of its own time zone, it sends
-// one push listing that block's items still unlogged today. Nothing due, nothing sent.
+// one push listing that block's items still unlogged today. Nothing due, nothing sent. Stack reminders
+// go out the same way at each stack's time.
 // The VAPID keypair is generated on first use and kept in KV, so there are no push secrets to paste.
 //
 // Two access codes, both stored as worker secrets (never in this file):
@@ -25,7 +29,7 @@
 // The dose gate is enforced here too, not only in the app: an injection at 5× or more of the set dose is refused.
 //
 // KV binding: SCOTT_KV. Keys: "state" (the whole record), "vapid" (push keypair), "subs" (devices),
-// "sent:<device>:<date>:<block>" (2-day markers so a reminder goes out once).
+// "sent:<device>:<date>:<block | block:n | stack-am | stack-pm>" (2-day markers so a reminder goes out once).
 
 const VERSION = '1.0.0';
 const STATE_KEY = 'state';
@@ -35,6 +39,9 @@ const TZ = 'America/New_York';
 const WINDOW_SEC = 15 * 60;
 const VAPID_SUBJECT = 'https://rsemenov81-hash.github.io/protocol-os/scott/';
 const BLOCK_TITLE = { am: 'Morning protocol', pm: 'Evening protocol' };
+// Scott's two supplement stacks: one reminder each at a fixed time (the device's time zone), no logging.
+// Items join a stack through their `stack` field ('am' | 'pm'); Roman loads them with the app's import link.
+const STACKS = [{ id: 'am', name: 'Morning stack', time: '10:00' }, { id: 'pm', name: 'Night stack', time: '21:30' }];
 const MAX_SUBS = 20;
 
 // Scott's protocol as of 2026-10-13. Days: 0 = Sun … 6 = Sat. Doses are in mcg (mg × 1000) except HCG, which is in IU.
@@ -323,7 +330,7 @@ const dowOf = (dk) => new Date(dk + 'T12:00:00Z').getUTCDay();
 const addDays = (dk, n) => new Date(Date.parse(dk + 'T12:00:00Z') + n * 86400000).toISOString().slice(0, 10);
 function dueFor(s, dk, block) {
   const dow = dowOf(dk);
-  return s.compounds.filter(c => c.active !== false && blockOf(c) === block
+  return s.compounds.filter(c => c.active !== false && !c.stack && blockOf(c) === block
     && ((c.schedule && c.schedule.days) || [0, 1, 2, 3, 4, 5, 6]).includes(dow)
     && !s.logs.some(l => l.compoundId === c.id && (l.datetime || '').slice(0, 10) === dk));
 }
@@ -334,39 +341,64 @@ function localNow(now, tz) {
 }
 const fmtMg = (n) => n >= 1000 ? `${+(n / 1000).toFixed(2)} mg` : `${Math.round(n)} mcg`;
 const doseText = (c) => isPill(c) ? (c.dose || '') : c.unit === 'IU' ? `${Math.round(c.doseMcg).toLocaleString('en-US')} IU` : (c.doseMcg ? fmtMg(c.doseMcg) : '');
+const hmSec = (hm) => Number(hm.slice(0, 2)) * 3600 + Number(hm.slice(3, 5)) * 60;
 const tabOf = (c) => c.kind === 'supp' ? 'supps' : c.kind === 'med' ? 'meds' : 'protocol';
+
+// The reminders one device gets: each dose block at its own time (plus the nudge), and each supplement
+// stack once at the stack's fixed time. build(dk) returns the push, or null when nothing is due.
+function slotsFor(rec, s) {
+  const out = [];
+  for (const block of ['am', 'pm']) {
+    if (!HM.test(rec.times[block] || '')) continue;
+    const base = hmSec(rec.times[block]);
+    const due = (dk) => dueFor(s(), dk, block);
+    const push = (nudge) => (dk) => {
+      const items = due(dk);
+      if (!items.length) return null;
+      const list = items.map(c => [c.name, doseText(c)].filter(Boolean).join(' ')).join(', ');
+      return {
+        title: (nudge ? 'Still due: ' : '') + BLOCK_TITLE[block],
+        body: `${items.length} ${nudge ? 'still ' : ''}due: ${list}. Tap to log.`,
+        data: { tab: tabOf(items[0]), tag: `${dk}-${block}` },
+      };
+    };
+    out.push({ at: base, key: block, build: push(false) });
+    if (rec.nudge > 0) out.push({ at: base + rec.nudge * 60, key: block + ':n', build: push(true) });
+  }
+  // supplement stacks are not logged, so this is a plain "time to take it" with what is in the stack
+  for (const st of STACKS) out.push({ at: hmSec(st.time), key: 'stack-' + st.id, build: (dk) => {
+    const items = s().compounds.filter(c => c.stack === st.id && c.active !== false);
+    return items.length ? {
+      title: st.name,
+      body: `Time to take it — ${items.length} item${items.length === 1 ? '' : 's'}: ${items.map(c => c.name).join(', ')}.`,
+      data: { tab: 'supps', tag: `${dk}-stack-${st.id}` },
+    } : null;
+  } });
+  return out;
+}
 
 async function runReminders(env, now) {
   const out = { sent: 0, failed: 0 };
   const subs = await getSubs(env);
-  let s = null, dropped = false;
+  let state = null, dropped = false;
+  const s = () => state;
   for (const rec of Object.values(subs)) {
     const { dk: today, sec } = localNow(now, validTz(rec.tz) ? rec.tz : TZ);
-    for (const block of ['am', 'pm']) {
-      if (!HM.test(rec.times[block] || '')) continue;
-      const base = Number(rec.times[block].slice(0, 2)) * 3600 + Number(rec.times[block].slice(3)) * 60;
-      const checks = [[base, false]];
-      if (rec.nudge > 0) checks.push([base + rec.nudge * 60, true]);
-      for (const [at, nudge] of checks) {
-        // did `at` fall in the last WINDOW_SEC (today, or just before midnight)? → which day the block belongs to
-        const d = ((sec - at % 86400) % 86400 + 86400) % 86400;
-        if (d >= WINDOW_SEC) continue;
-        const dk = addDays(today, (sec < at % 86400 ? -1 : 0) - Math.floor(at / 86400));
-        const mark = `sent:${rec.id}:${dk}:${block}${nudge ? ':n' : ''}`;
-        if (await env.SCOTT_KV.get(mark)) continue;
-        s = s || await load(env);
-        const due = dueFor(s, dk, block);
-        if (!due.length) continue;
-        await env.SCOTT_KV.put(mark, '1', { expirationTtl: 2 * 86400 });
-        const list = due.map(c => [c.name, doseText(c)].filter(Boolean).join(' ')).join(', ');
-        const r = await sendPush(env, rec.subscription, {
-          title: (nudge ? 'Still due: ' : '') + BLOCK_TITLE[block],
-          body: `${due.length} ${nudge ? 'still ' : ''}due: ${list}. Tap to log.`,
-          data: { tab: tabOf(due[0]), tag: `${dk}-${block}` },
-        }).catch(() => ({ ok: false }));
-        if (r.ok) out.sent++; else out.failed++;
-        if (r.gone) { delete subs[rec.id]; dropped = true; }
-      }
+    for (const { at, key, build } of slotsFor(rec, s)) {
+      if (dropped && !subs[rec.id]) break;
+      // did `at` fall in the last WINDOW_SEC (today, or just before midnight)? → which day it belongs to
+      const d = ((sec - at % 86400) % 86400 + 86400) % 86400;
+      if (d >= WINDOW_SEC) continue;
+      const dk = addDays(today, (sec < at % 86400 ? -1 : 0) - Math.floor(at / 86400));
+      const mark = `sent:${rec.id}:${dk}:${key}`;
+      if (await env.SCOTT_KV.get(mark)) continue;
+      state = state || await load(env);
+      const payload = build(dk);
+      if (!payload) continue;
+      await env.SCOTT_KV.put(mark, '1', { expirationTtl: 2 * 86400 });
+      const r = await sendPush(env, rec.subscription, payload).catch(() => ({ ok: false }));
+      if (r.ok) out.sent++; else out.failed++;
+      if (r.gone) { delete subs[rec.id]; dropped = true; }
     }
   }
   if (dropped) await putSubs(env, subs);
@@ -387,7 +419,7 @@ export default {
     try {
       if (url.pathname === '/state' && req.method === 'GET') {
         const s = await load(env);
-        return json(req, 200, { role, ...s });
+        return json(req, 200, { role, ...s, stacks: STACKS });
       }
       if (url.pathname === '/admin' && req.method === 'POST') return await handleAdmin(req, env, role);
       if (url.pathname === '/log' && req.method === 'POST') return await handleLog(req, env, role);

@@ -175,6 +175,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .iconbtn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid var(--hair);color:var(--ink3);position:relative}
 .iconbtn::after{content:'';position:absolute;inset:-6px}
 .iconbtn.on{color:var(--accent);border-color:rgba(227,200,134,.4)}
+.stk > summary,.it > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px}
+.stk > summary::-webkit-details-marker,.it > summary::-webkit-details-marker{display:none}
+.stk > summary{padding:16px 16px 16px 18px}
+.stk > summary > svg:last-child,.it > summary > svg:last-child{flex-shrink:0;transition:transform 200ms var(--me-out)}
+.stk[open] > summary > svg:last-child,.it[open] > summary > svg:last-child{transform:rotate(90deg)}
+.stk-body{padding:0 12px 14px;display:flex;flex-direction:column;gap:8px}
+.it{border-radius:14px;background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.07)}
+.it > summary{padding:12px 14px;min-height:56px}
+.it-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px;font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.ing{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;font-size:12.5px;line-height:1.35}
+.ing .a{font-family:var(--mono);color:var(--accent);text-align:right}
 .bench{border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
 .pill{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:7px;padding:3px 8px}
 .pill.cyan{color:var(--accent);background:rgba(227,200,134,.14);border:1px solid rgba(227,200,134,.3)}
@@ -208,11 +219,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 /* ════════ config + state ════════ */
 const API = 'https://scott-protocol.rsemenov81.workers.dev';
 // which kind of item each checklist tab lists (compounds without a kind are the injections)
-const TAB_KIND = { protocol: 'inject', supps: 'supp', meds: 'med' };
+const TAB_KIND = { protocol: 'inject', meds: 'med' };
 const S = {
   token: localStorage.getItem('scott_token') || '',
   role: null,
-  data: { compounds: [], logs: [], labs: [], scans: [], _rev: 0 },
+  data: { compounds: [], logs: [], labs: [], scans: [], stacks: [], _rev: 0 },
+  open: new Set(), // what is expanded on the Supps tab: 'stack:am', 'item:<id>' (survives re-renders)
   tab: (t => ['protocol','supps','meds','library','labs','progress'].includes(t) ? t : 'protocol')(new URLSearchParams(location.search).get('tab')), // a reminder tap opens ?tab=…
   viewDate: new Date(),
   pinnedDate: false, // true once the user navigates the week strip; cleared when they return to today
@@ -324,8 +336,9 @@ async function pull(silent) {
   try {
     const d = await api('/state');
     S.role = d.role;
-    S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], _rev: d._rev||0 };
+    S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], _rev: d._rev||0 };
     S.sync = 'ok'; S.loaded = true;
+    setTimeout(maybeImport);
   } catch (e) {
     S.sync = 'error';
     if (e.auth) { S.token = ''; localStorage.removeItem('scott_token'); }
@@ -361,7 +374,8 @@ const dueOn = (c, date) => {
   if (days.length === 0) return false;
   return days.includes(date.getDay());
 };
-const kindOf = (c) => c.kind === 'supp' || c.kind === 'med' ? c.kind : 'inject';
+// stack items (supplements and meds taken as one morning or night stack) live only on the Supps tab
+const kindOf = (c) => c.stack ? 'stack' : c.kind === 'supp' || c.kind === 'med' ? c.kind : 'inject';
 const tabItems = () => S.data.compounds.filter(c => kindOf(c) === (TAB_KIND[S.tab] || 'inject'));
 const clock = (dt) => new Date(dt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}).toLowerCase().replace(' ','');
 const countTxt = (list, k) => { const d = list.filter(c => logFor(c, k)).length, n = list.length; return d === n ? 'ALL ' + n + ' LOGGED' : d + ' OF ' + n + ' LOGGED'; };
@@ -543,9 +557,50 @@ function protocolView() {
   return headerHTML(title, weekHTML()) + `<div style="padding:4px 16px 0" class="fade">${body}</div>`;
 }
 
-/* ════════ Supplements and Meds: a tap-to-take checklist per block ════════ */
-const PILL = { supp: { label: 'Supplements', noun: 'supplement', id: 's_', eg: '5,000 IU · 1 softgel' },
-               med:  { label: 'Meds', noun: 'medication', id: 'm_', eg: '500 mg · 1 tablet with food' } };
+/* ════════ Supplements: the morning and night stacks — not logged, one reminder each ════════ */
+const KIND_TAG = { med: ['Rx', 'cyan'], research: ['Research', 'amber'] };
+const clockOf = (hm) => new Date(`2000-01-01T${hm}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+// <details> does the expanding; S.open remembers it across the background re-renders
+document.addEventListener('toggle', (e) => {
+  const k = e.target.dataset && e.target.dataset.open;
+  if (k) e.target.open ? S.open.add(k) : S.open.delete(k);
+}, true);
+const openAttr = (k) => S.open.has(k) ? 'open' : '';
+function stackItemHTML(c) {
+  const tag = KIND_TAG[c.kind];
+  const sec = (label, inner) => `<div><span class="lbl" style="margin:0 0 4px">${label}</span>${inner}</div>`;
+  return `<details class="it" data-open="item:${esc(c.id)}" ${openAttr('item:' + c.id)}>
+    <summary><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+      <span style="font-family:var(--serif);font-size:17px;line-height:20px;font-weight:600">${esc(c.name)}</span>
+      <span class="mono" style="font-size:11.5px;color:var(--ink3)">${esc([c.brand, c.serving].filter(Boolean).join(' · '))}</span></span>
+      ${tag ? `<span class="pill ${tag[1]}">${tag[0]}</span>` : ''}${I.chev}</summary>
+    <div class="it-body">
+      ${c.serving ? sec('Take', esc(c.serving)) : ''}
+      ${(c.ingredients || []).length ? sec('In each serving', `<div class="ing">${c.ingredients.map(i => `<span>${esc(i.name)}</span><span class="a">${esc(i.amount)}</span>`).join('')}</div>`) : ''}
+      ${c.purpose ? sec('What it’s for', esc(c.purpose)) : ''}
+      ${(c.benefits || []).length ? `<div style="display:flex;flex-direction:column;gap:5px">${c.benefits.map(b =>
+        `<div style="display:flex;align-items:center;gap:8px">${I.check('#5fdc97', 13)}${esc(b)}</div>`).join('')}</div>` : ''}
+      ${c.note ? `<div style="font-size:12.5px;line-height:1.45;color:var(--warn)">${esc(c.note)}</div>` : ''}
+      ${S.role === 'admin' ? `<button class="btn-ghost" style="height:40px;font-size:13px;align-self:flex-start" data-act="editstack" data-id="${esc(c.id)}">Edit</button>` : ''}
+    </div></details>`;
+}
+function stacksView() {
+  const body = (S.data.stacks || []).map(st => {
+    const items = S.data.compounds.filter(c => c.stack === st.id && c.active !== false);
+    return `<details class="card stk" data-open="stack:${st.id}" ${openAttr('stack:' + st.id)}>
+      <summary><span style="flex:1;min-width:0"><span class="big-title" style="display:block;font-size:27px;line-height:32px">${esc(st.name)}</span>
+        <span class="mono" style="font-size:12px;color:var(--ink3)">${clockOf(st.time)} · ${items.length} item${items.length === 1 ? '' : 's'}</span></span>${I.chev}</summary>
+      <div class="stk-body">${items.map(stackItemHTML).join('') ||
+        `<div class="fine" style="padding:6px 0">${S.role === 'admin' ? 'Nothing in this stack yet.' : 'Roman hasn’t filled this stack yet.'}</div>`}
+        ${S.role === 'admin' ? `<button class="btn-ghost" style="height:44px;font-size:13px" data-act="addstack" data-stack="${st.id}">+ Add to ${esc(st.name.toLowerCase())}</button>` : ''}
+      </div></details>`;
+  }).join('');
+  return headerHTML('Supplements', `<div class="sub" style="margin-top:4px">Tap a stack to see what’s in it, and an item for its dose and what it does. One reminder each — nothing to log.</div>`) +
+    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${body}</div>`;
+}
+
+/* ════════ Meds: a tap-to-take checklist per block ════════ */
+const PILL = { med: { label: 'Meds', noun: 'medication', id: 'm_', eg: '500 mg · 1 tablet with food' } };
 function pillsView(kind) {
   const P = PILL[kind], k = dkey(S.viewDate);
   const items = S.data.compounds.filter(c => c.active !== false && kindOf(c) === kind);
@@ -744,7 +799,7 @@ function render() {
   const app = $('#app');
   if (!S.token) { app.innerHTML = setupView(); return; }
   if (!S.loaded) { app.innerHTML = `<div class="hdr"><span class="mark">PROTOCOL</span></div><div class="fine" style="margin-top:80px">Loading…</div>`; return; }
-  const v = { protocol: protocolView, supps: () => pillsView('supp'), meds: () => pillsView('med'), library: libraryView, labs: labsView, progress: progressView }[S.tab];
+  const v = { protocol: protocolView, supps: stacksView, meds: () => pillsView('med'), library: libraryView, labs: labsView, progress: progressView }[S.tab];
   app.innerHTML = v() + tabbarHTML();
 }
 
@@ -868,6 +923,7 @@ function openDose(c) {
         $('#plg', sh).setAttribute('x', Math.min(252, 9.5 + fill - 2));
       } else {
         conv.textContent = fmtAmt(mcg, c.unit);
+        if (!fromInput) dv.value = c.unit === 'IU' ? mcg : (showMg ? mcg / 1000 : mcg);
       }
       const mix = $('#shotmix', sh);
       if (mix && (c.ingredients || []).length) {
@@ -1087,6 +1143,77 @@ function pillForm(kind, c) {
   });
 }
 
+function stackForm(stackId, c) {
+  const isNew = !c;
+  c = c || { id: 'st_' + uid(), stack: stackId, kind: 'supp', name: '', brand: '', serving: '', ingredients: [], purpose: '', benefits: [], note: '', active: true };
+  const lines = (a) => esc((a || []).join('\n'));
+  openSheet(`
+  <div class="sheet-body">
+    <div style="font-size:22px;font-weight:700">${isNew ? 'Add to stack' : 'Edit ' + esc(c.name)}</div>
+    <div><span class="lbl">Name</span><input class="well" id="k-name" value="${esc(c.name)}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">Brand</span><input class="well" id="k-brand" value="${esc(c.brand || '')}"></div>
+      <div><span class="lbl">Type</span><select class="well" id="k-kind">
+        ${[['supp', 'Supplement'], ['med', 'Prescription'], ['research', 'Research']].map(([v, l]) => `<option value="${v}" ${c.kind === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">Take</span><input class="well" id="k-serv" value="${esc(c.serving || '')}" placeholder="2 capsules"></div>
+      <div><span class="lbl">Stack</span><select class="well" id="k-stack">
+        ${(S.data.stacks || []).map(st => `<option value="${st.id}" ${c.stack === st.id ? 'selected' : ''}>${esc(st.name)}</option>`).join('')}</select></div>
+    </div>
+    <div><span class="lbl">In each serving — one per line as "Name: amount"</span>
+      <textarea class="well mono" id="k-ing" rows="4" placeholder="Vitamin D3: 25 mcg">${esc((c.ingredients || []).map(i => i.name + ': ' + i.amount).join('\n'))}</textarea></div>
+    <div><span class="lbl">What it's for</span><textarea class="well" id="k-purp" rows="3">${esc(c.purpose || '')}</textarea></div>
+    <div><span class="lbl">Benefits — one per line</span><textarea class="well" id="k-ben" rows="3">${lines(c.benefits)}</textarea></div>
+    <div><span class="lbl">Note (how to take, cautions)</span><input class="well" id="k-note" value="${esc(c.note || '')}"></div>
+  </div>
+  <div class="sheet-foot">
+    ${isNew ? `<button class="btn-ghost" id="k-cancel">Cancel</button>` : `<button class="btn-ghost" id="k-del" style="color:var(--err)">Remove</button>`}
+    <button class="btn-primary" id="k-save" style="flex:1">Save</button>
+  </div>`, (sh) => {
+    const v = (id) => $('#' + id, sh).value.trim();
+    const kc = $('#k-cancel', sh); if (kc) kc.onclick = closeSheet;
+    const kd = $('#k-del', sh); if (kd) kd.onclick = async () => {
+      if (await adminWrite({ compounds: S.data.compounds.filter(x => x.id !== c.id) }, `Removed ${c.name}`)) closeSheet();
+    };
+    $('#k-save', sh).onclick = async () => {
+      const btn = $('#k-save', sh); if (btn.disabled) return;
+      if (!v('k-name')) return toast('Name it first');
+      btn.disabled = true;
+      const upd = { ...c, name: v('k-name'), brand: v('k-brand'), kind: v('k-kind'), serving: v('k-serv'), stack: v('k-stack'),
+        ingredients: v('k-ing').split('\n').map(l => { const i = l.indexOf(':'); return i > 0 ? { name: l.slice(0, i).trim(), amount: l.slice(i + 1).trim() } : null; }).filter(Boolean),
+        purpose: v('k-purp'), benefits: v('k-ben').split('\n').map(b => b.trim()).filter(Boolean), note: v('k-note') };
+      const next = isNew ? [...S.data.compounds, upd] : S.data.compounds.map(x => x.id === c.id ? upd : x);
+      if (await adminWrite({ compounds: next }, isNew ? `Added ${upd.name}` : 'Saved')) closeSheet(); else btn.disabled = false;
+    };
+  });
+}
+
+// One-time import link, #import=<base64url JSON {items}>: how Roman loads Scott's stacks without the list
+// ever sitting in this public repo. A URL fragment is never sent to a server.
+async function maybeImport() {
+  const m = /^#import=([A-Za-z0-9_-]+)$/.exec(location.hash);
+  if (!m || !S.loaded) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  if (S.role !== 'admin') return toast('Open the import link signed in with the admin code');
+  let items = null;
+  try { items = JSON.parse(new TextDecoder().decode(b64uBytes(m[1]))).items; } catch {}
+  const ids = new Set((S.data.stacks || []).map(st => st.id));
+  if (!Array.isArray(items) || !items.length || items.some(x => !x || !x.id || !x.name || !ids.has(x.stack))) return toast('That import link is damaged');
+  const am = items.filter(x => x.stack === 'am').length;
+  openSheet(`<div class="sheet-body"><div style="font-size:22px;font-weight:700">Load supplement stacks</div>
+    <div style="font-size:14px;line-height:1.5;color:var(--ink2)">${am} morning and ${items.length - am} night items. This replaces everything in the stacks now; injections and meds are not touched.</div></div>
+    <div class="sheet-foot"><button class="btn-ghost" id="i-no">Cancel</button><button class="btn-primary" id="i-yes" style="flex:1">Load ${items.length} items</button></div>`, (sh) => {
+    $('#i-no', sh).onclick = closeSheet;
+    $('#i-yes', sh).onclick = async () => {
+      $('#i-yes', sh).disabled = true;
+      if (await adminWrite({ compounds: [...S.data.compounds.filter(c => !c.stack), ...items] }, 'Stacks loaded')) { closeSheet(); S.tab = 'supps'; render(); }
+      else $('#i-yes', sh).disabled = false;
+    };
+  });
+}
+window.addEventListener('hashchange', maybeImport);
+
 /* ════════ reminders: Web Push from the worker's cron, like Protocol OS ════════ */
 const PUSH_KEY = 'scott_push';
 const pushPrefs = () => { try { return JSON.parse(localStorage.getItem(PUSH_KEY)); } catch { return null; } };
@@ -1132,7 +1259,7 @@ async function openReminders() {
     unsupported: 'This browser can’t show notifications. Open the app in Safari on iPhone, or Chrome.',
     denied: 'Notifications are blocked for this app. Allow them in <b>Settings → Notifications → Scott</b>, then come back.',
     on: 'Reminders are on for this device.',
-    off: 'Get a notification when a morning or evening block still has something to log — injections, supplements and meds.',
+    off: 'Get a notification when a morning or evening block still has something to log, plus one reminder for each supplement stack.',
   }[st];
   const can = st === 'on' || st === 'off';
   openSheet(`
@@ -1142,7 +1269,7 @@ async function openReminders() {
     ${can ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><span class="lbl">Morning</span><input class="well mono" type="time" id="r-am" value="${esc(p.times.am)}"></div>
       <div><span class="lbl">Evening</span><input class="well mono" type="time" id="r-pm" value="${esc(p.times.pm)}"></div></div>
-    <div class="fine" style="text-align:left">Clear a time to skip that block. A reminder lists only what is still unlogged — nothing due, no notification.</div>
+    <div class="fine" style="text-align:left">Morning and Evening cover injections and meds: a reminder lists only what is still unlogged, and you can clear a time to skip it.${(S.data.stacks || []).length ? ` Supplement stacks remind once a day: ${S.data.stacks.map(x => x.name.toLowerCase() + ' at ' + clockOf(x.time)).join(', ')}.` : ''}</div>
     <div><span class="lbl">Still not logged? Remind again after</span><div class="chiprow" id="r-nudge">
       ${[[0,'Off'],[30,'30 min'],[60,'1 hour']].map(([v, l]) => `<button class="chip ${p.nudge === v ? 'sel' : ''}" data-v="${v}">${l}</button>`).join('')}</div></div>` : ''}
   </div>
@@ -1263,6 +1390,8 @@ document.addEventListener('click', async (e) => {
   else if (act === 'editpill') { e.stopPropagation(); const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) pillForm(kindOf(c), c); }
   else if (act === 'addpill') pillForm(el.dataset.kind, null);
   else if (act === 'reminders') openReminders();
+  else if (act === 'addstack') stackForm(el.dataset.stack, null);
+  else if (act === 'editstack') { const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) stackForm(c.stack, c); }
   else if (act === 'addlab') labForm();
   else if (act === 'addscan') scanForm();
   else if (act === 'connect') {
@@ -1273,10 +1402,11 @@ document.addEventListener('click', async (e) => {
       const d = await api('/state');
       localStorage.setItem('scott_token', tok);
       S.role = d.role;
-      S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], _rev: d._rev||0 };
+      S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], _rev: d._rev||0 };
       S.loaded = true; S.sync = 'ok';
       render();
       toast(d.role === 'admin' ? 'Connected as Roman (admin)' : 'Connected as Scott');
+      maybeImport();
     } catch (err) {
       S.token = '';
       const se = $('#seterr'); if (se) se.textContent = err.message || 'That code didn’t work.';
