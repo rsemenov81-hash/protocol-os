@@ -98,10 +98,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .ring{width:28px;height:28px;border-radius:50%;border:1.6px solid var(--accent);background:rgba(227,200,134,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
 .ring::after{content:'';position:absolute;inset:-8px}
 .dose .nm{font-family:var(--serif);font-size:17px;line-height:19px;font-weight:600;min-height:38px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.dose .hero{display:flex;align-items:baseline;gap:4px}
+.dose .hero{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px}
 .dose .hv{font-family:var(--mono);font-size:22px;line-height:26px;font-weight:700;color:var(--accent)}
 .dose .hu{font-family:var(--mono);font-size:13px;color:var(--ink3)}
-.dose .by{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink2)}
+.dose .by{margin-left:auto;white-space:nowrap;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink2)}
 .dose .ft{margin-top:auto;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:6px}
 .dose .mt{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card.glow{background:linear-gradient(180deg,rgba(227,200,134,.08),rgba(227,200,134,.015) 55%),var(--sheen),var(--plate);
@@ -370,6 +370,7 @@ const lastLog = (c) => S.data.logs.filter(l => l.compoundId === c.id).sort((a,b)
 
 /* ════════ icons ════════ */
 const I = {
+  pill: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e3c886" stroke-width="1.8" stroke-linecap="round"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7z"/><path d="m8.5 8.5 7 7"/></svg>',
   inject: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e3c886" stroke-width="1.8" stroke-linecap="round"><path d="M18 3l3 3M16 5l3 3"/><path d="M17.5 6.5L9 15l-1.5 4.5L3 21l1.5-4.5L13 8"/><path d="M11 10l3 3"/></svg>',
   plus: (c) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   check: (c,s) => `<svg width="${s||15}" height="${s||15}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
@@ -495,14 +496,14 @@ function doseCardHTML(c, glow) {
     : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
   return `<button class="card dose press ${state} ${glow && !log ? 'glow' : ''}" data-act="opendose" data-id="${esc(c.id)}">
     <div class="r1">
-      <span style="display:flex;align-items:center;gap:6px"><span class="rt">${I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
+      <span style="display:flex;align-items:center;gap:6px"><span class="rt">${/oral/i.test(c.category || '') ? I.pill : I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
       <span style="display:flex;gap:6px;align-items:center">
         ${S.role === 'admin' ? `<span class="ring" style="border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.05)" data-act="editcomp" data-id="${esc(c.id)}" role="button" aria-label="Edit ${esc(c.name)}">${I.pencil}</span>` : ''}
         <span class="ring ${log && c.id === flashId ? 'pop' : ''}">${log ? I.check('#06231a') : I.plus('#e3c886')}${log && c.id === flashId ? '<span class="rip"></span>' : ''}</span>
       </span>
     </div>
     <div class="nm">${esc(c.name)}</div>
-    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit)}${units != null ? ' · ' + mlOf(units) : ''}</span></div>
+    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${units != null ? fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit) + ' · ' + mlOf(units) : ''}</span></div>
     <div class="ft"><span class="mt">${meta}</span></div>
   </button>`;
 }
@@ -795,7 +796,7 @@ function openDose(c) {
       <div style="font-size:13px;color:var(--ink3);margin-top:3px">${esc(c.timing || 'Daily')} · Roman recommends <span class="mono" style="color:var(--ink2)">${fmtAmt(rec, c.unit)}</span></div>
     </div>
     <div class="card" style="border-radius:16px;padding:14px 14px 12px">
-      <div class="lbl" style="margin:0 0 6px">The Draw</div>
+      <div class="lbl" style="margin:0 0 6px">${draw ? 'The Draw' : 'Dose'}</div>
       <div style="display:flex;align-items:baseline;gap:6px">
         <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (showMg ? (mcg/1000) : mcg))}" aria-label="Dose">
         <span style="font-size:16px;color:var(--ink3)">${draw ? 'units' : (c.unit === 'IU' ? 'IU' : (showMg ? 'mg' : 'mcg'))}</span>

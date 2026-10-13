@@ -53,14 +53,57 @@ const TEST = { id: 'tc', name: 'Testosterone Cypionate', doseMcg: 75000, mcgPerU
 const PRN = { id: 'prn', kind: 'supp', name: 'Melatonin', dose: '3 mg', timing: 'Nightly', schedule: { days: [] } };
 
 describe('protocol and logs', () => {
-  test('codes, roles and an empty seed', async () => {
+  test('codes and roles', async () => {
     assert.equal((await call('/health', { token: '' })).status, 200);
     assert.equal((await call('/state', { token: 'nope' })).status, 401);
-    const s = await state('scott-code');
-    assert.equal(s.role, 'member');
-    assert.equal(s._rev, 1);
-    assert.deepEqual(s.compounds, []);
+    assert.equal((await state('scott-code')).role, 'member');
     assert.equal((await state('roman-code')).role, 'admin');
+  });
+  test("an empty KV serves Scott's four compounds at rev 1", async () => {
+    const s = await state('scott-code');
+    assert.equal(s._rev, 1);
+    assert.deepEqual(s.compounds.map(c => c.name), ['Testosterone Cypionate', 'Nandrolone Decanoate', 'HCG', 'Anavar']);
+    assert.ok(s.compounds.every(c => !c.kind && c.active), 'all four sit on the Protocol tab');
+    assert.deepEqual(s.logs, []);
+  });
+  test('seed doses, days and syringe draws', async () => {
+    const by = Object.fromEntries((await state()).compounds.map(c => [c.name, c]));
+    // the app's concOf(): strength per U-100 syringe unit
+    const conc = (c) => c.vialAmount > 0 && c.bacMl > 0
+      ? (c.unit === 'IU' ? c.vialAmount / (c.bacMl * 100) : (c.vialAmount * 1000) / (c.bacMl * 100))
+      : Number(c.mcgPerUnit) || 0;
+    const draw = (c) => ({ units: Math.round((c.doseMcg / conc(c)) * 10) / 10, mL: c.doseMcg / conc(c) / 100 });
+
+    const t = by['Testosterone Cypionate'];
+    assert.deepEqual(t.schedule.days, [1, 5]); // Mon, Fri
+    assert.equal(t.doseMcg, 75000);
+    assert.equal(conc(t), 2500); // 250 mg/mL
+    assert.deepEqual(draw(t), { units: 30, mL: 0.3 });
+
+    const n = by['Nandrolone Decanoate'];
+    assert.deepEqual(n.schedule.days, [1, 5]);
+    assert.equal(n.doseMcg, 50000);
+    assert.equal(conc(n), 3000); // 300 mg/mL
+    assert.equal(draw(n).units, 16.7);
+    assert.ok(Math.abs(draw(n).mL - 1 / 6) < 1e-9, '50 mg / 300 mg/mL = 0.1667 mL');
+
+    const h = by.HCG;
+    assert.equal(h.unit, 'IU');
+    assert.deepEqual(h.schedule.days, [2, 6]); // Tue, Sat
+    assert.equal(h.doseMcg, 500);
+    assert.equal(conc(h), 50); // 10,000 IU in 2 mL
+    assert.deepEqual(draw(h), { units: 10, mL: 0.1 });
+
+    const a = by.Anavar;
+    assert.deepEqual(a.schedule.days, [0, 1, 2, 3, 4, 5, 6]);
+    assert.equal(a.doseMcg, 10000);
+    assert.equal(conc(a), 0, 'oral: no syringe draw');
+  });
+  test('the seed passes the dose gate at its own doses', async () => {
+    for (const c of (await state()).compounds) {
+      const r = await call('/log', { method: 'POST', body: { log: { compoundId: c.id, datetime: '2026-10-12T08:00', doseMcg: c.doseMcg } } });
+      assert.equal(r.status, 200, c.name);
+    }
   });
   test('only Roman edits the protocol', async () => {
     const r = await call('/admin', { method: 'POST', body: { baseRev: 1, compounds: [VITD] } });

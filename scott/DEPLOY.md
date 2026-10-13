@@ -51,13 +51,29 @@ has to turn reminders on again.
 ## 6. Check it
 
 - Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
-- Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**. The protocol starts
-  empty: add injections on **Protocol**, supplements on **Supps**, medications on **Meds**.
+- Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Monday the
+  Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar. Supplements and medications
+  start empty: add them on **Supps** and **Meds**.
 - Send Scott the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps
   **Share → Add to Home Screen**, and it appears as **Scott** with a violet dot icon.
 - Reminders: in the Home Screen app, tap the **bell** at the top, pick a morning and evening time, then
   **Turn on** and allow notifications. **Test** sends one straight away. On iPhone this only works from the
   Home Screen app, not from a Safari tab (an Apple rule).
+
+## What is preloaded
+
+The worker starts with this protocol the first time it runs. After that, edit it in the app with the pencil on each card.
+
+| Compound | Dose | Days | Draw |
+| --- | --- | --- | --- |
+| Testosterone Cypionate | 75 mg | Monday, Friday | 250 mg/mL oil = 2.5 mg per unit, so 30 units (0.3 mL). 150 mg a week; a 10 mL vial lasts about 16 weeks. |
+| Nandrolone Decanoate | 50 mg | Monday, Friday | 300 mg/mL oil = 3 mg per unit, so 16.7 units (0.17 mL). 100 mg a week; a 10 mL vial lasts 30 weeks. |
+| HCG | 500 IU | Tuesday, Saturday | 10,000 IU vial + 2 mL BAC = 50 IU per unit, so 10 units (0.1 mL). 1,000 IU a week; one vial is 20 shots. |
+| Anavar | 10 mg | Daily | Oral tablet, no syringe. Logs by amount. |
+
+If the worker was already set up and opened before this protocol was added, it is still empty only until
+someone saves something; paste the new `worker.js` and it loads this list on the next sync. Once anything has
+been saved, add the compounds in the app instead.
 
 ## How reminders behave
 

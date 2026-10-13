@@ -37,8 +37,48 @@ const VAPID_SUBJECT = 'https://rsemenov81-hash.github.io/protocol-os/scott/';
 const BLOCK_TITLE = { am: 'Morning protocol', pm: 'Evening protocol' };
 const MAX_SUBS = 20;
 
-// Scott's protocol starts empty: Roman builds it in the app (pencil on each card, Add buttons on each tab).
-const SEED = { _rev: 1, compounds: [], logs: [], labs: [], scans: [] };
+// Scott's protocol as of 2026-10-13. Days: 0 = Sun … 6 = Sat. Doses are in mcg (mg × 1000) except HCG, which is in IU.
+// vialAmount + bacMl give the syringe-unit strength the app draws with (U-100: 100 units = 1 mL); the oils use
+// the vial's total mg in its mL. Supplements and meds start empty: Roman adds them on their tabs.
+const SEED = {
+  _rev: 1,
+  compounds: [
+    {
+      id: 'c_test', name: 'Testosterone Cypionate', category: 'Hormone', timing: 'Morning', active: true,
+      // an oil, not reconstituted: a 10 mL vial at 250 mg/mL (2,500 mg) = 2.5 mg per unit
+      unit: 'mcg', doseMcg: 75000, vialAmount: 2500, bacMl: 10, mcgPerUnit: 2500, ingredients: [],
+      schedule: { days: [1, 5] },
+      purpose: 'The primary male hormone in a long-acting oil. Taken Monday and Friday. At 250 mg/mL, 0.3 mL = 30 units = 75 mg, so 150 mg a week. A 10 mL vial lasts about 16 weeks.',
+      benefits: ['Energy and drive', 'Keeps muscle', 'Mood and recovery'],
+    },
+    {
+      id: 'c_nand', name: 'Nandrolone Decanoate', category: 'Hormone', timing: 'Morning', active: true,
+      // an oil: a 10 mL vial at 300 mg/mL (3,000 mg) = 3 mg per unit
+      unit: 'mcg', doseMcg: 50000, vialAmount: 3000, bacMl: 10, mcgPerUnit: 3000, ingredients: [],
+      schedule: { days: [1, 5] },
+      purpose: 'An anabolic hormone injected Monday and Friday. Supports muscle, joint comfort and recovery from training. Long-acting, so the level stays steady between shots. At 300 mg/mL, 50 mg = 16.7 units (0.17 mL), so 100 mg a week.',
+      benefits: ['Joint comfort', 'Muscle and strength', 'Recovery between sessions'],
+    },
+    {
+      id: 'c_hcg', name: 'HCG', category: 'Hormone', timing: 'Morning', active: true,
+      unit: 'IU', doseMcg: 500, vialAmount: 10000, bacMl: 2, mcgPerUnit: 50, ingredients: [],
+      schedule: { days: [2, 6] },
+      purpose: 'Signals the testes to keep working while on testosterone. Preserves their size, natural function and fertility. Taken Tuesday and Saturday. A 10,000 IU vial in 2 mL makes 500 IU = 10 units (0.1 mL).',
+      benefits: ['Preserves fertility', 'Keeps natural production going', 'Supports testicular size'],
+    },
+    {
+      id: 'c_anavar', name: 'Anavar', category: 'Oral', timing: 'Morning', active: true,
+      // a tablet: no syringe, so no per-unit strength; it logs by amount
+      unit: 'mcg', doseMcg: 10000, vialAmount: 0, bacMl: 0, mcgPerUnit: 0, ingredients: [],
+      schedule: { days: [0, 1, 2, 3, 4, 5, 6] },
+      purpose: 'Oxandrolone, an oral anabolic taken by mouth every day. Supports lean muscle and strength with little water retention. It is processed by the liver and can lower HDL cholesterol, so liver markers and lipids belong on each blood panel.',
+      benefits: ['Lean muscle', 'Strength', 'Little water retention'],
+    },
+  ],
+  logs: [],
+  labs: [],
+  scans: [],
+};
 
 const isPill = (c) => c.kind === 'supp' || c.kind === 'med';
 
@@ -150,7 +190,7 @@ async function handleLog(req, env, role) {
   const id = typeof log.id === 'string' && log.id ? log.id.slice(0, 64) : Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const existing = s.logs.find(l => l.id === id);
   if (existing && role !== 'admin' && existing.by && existing.by !== role) return fail(req, 403, 'Logged by Roman — ask him to change it');
-  const units = Number(log.units);
+  const units = log.units == null ? NaN : Number(log.units); // null (an oral, no syringe) stays null, not 0
   const entry = {
     id, compoundId: c.id, datetime: log.datetime.slice(0, 16),
     doseMcg: pill ? null : Math.round(dose),
