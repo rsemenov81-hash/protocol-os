@@ -4,8 +4,20 @@ The app is `scott/index.html`. GitHub Pages serves it at
 **https://rsemenov81-hash.github.io/protocol-os/scott/** once this branch is merged to `main`.
 
 It talks to its own Cloudflare Worker, `scott-protocol`, at `https://scott-protocol.rsemenov81.workers.dev`.
-That worker does not exist yet. These steps create it. It takes about five minutes, all in the
-Cloudflare dashboard in Chrome.
+The `scott-protocol` Worker and its KV namespace were observed in the live account on
+October 14, 2026. The steps below are a setup/recovery reference; do not recreate the
+existing resources. The frontend changes in this review do not require a Worker deployment.
+
+## Frontend design update (October 14, 2026)
+
+`index.html` loads `refinement.css` and `assets/forest-light.jpg` from this folder. Deploy
+them together through the existing GitHub Pages `main` branch pipeline. To revert the
+design and UI fixes, revert the frontend change commit; Worker state and dose rules are
+not changed by it. `sw.js` has no fetch handler, so it does not cache the previous layout.
+
+The decorative background was generated with Higgsfield (`gpt_image_2_5`, job
+`28a4af52-41e7-4ea6-94a0-4a4157218639`) from an abstract forest/gold brief. No profile,
+protocol, access code, screenshot, or health data was sent to Higgsfield.
 
 ## 1. Create the storage
 

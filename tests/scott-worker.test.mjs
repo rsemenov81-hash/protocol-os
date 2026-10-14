@@ -231,6 +231,20 @@ describe('push reminders', () => {
 
     assert.equal((await runReminders(env, at('2026-10-12T21:35'))).sent, 0, 'the night stack is empty: nothing to send');
   });
+  test('stack-only subscription sends morning and night exactly once without dose reminders or nudges', async () => {
+    await setCompounds([VITD, { id:'am-stack',stack:'am',kind:'supp',name:'Example AM' }, { id:'pm-stack',stack:'pm',kind:'supp',name:'Example PM' }]);
+    const sub=await genSubscriber('https://push.example/stacks-only');
+    await subscribe(sub,{times:{am:'',pm:''},nudge:0});
+    assert.equal((await runReminders(env,at('2026-10-12T08:05'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T10:05'))).sent,1);
+    assert.equal((await decrypt(sent[0].init.body,sub)).title,'Morning stack');
+    assert.equal((await runReminders(env,at('2026-10-12T10:10'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T20:05'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T21:35'))).sent,1);
+    assert.equal((await decrypt(sent[1].init.body,sub)).title,'Night stack');
+    assert.equal((await runReminders(env,at('2026-10-12T21:40'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T22:05'))).sent,0);
+  });
   test('a 410 from the push service drops the device; test and unsubscribe work by endpoint', async () => {
     await setCompounds([VITD]);
     const sub = await genSubscriber('https://push.example/gone');
