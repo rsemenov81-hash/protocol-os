@@ -619,8 +619,15 @@ function pillsView(kind) {
       <span class="c">${id === 'prn' ? 'PRN' : countTxt(byBlock[id], k)}</span></div>
     <div style="display:flex;flex-direction:column;gap:10px">${byBlock[id].map(row).join('')}</div>` : '';
   let body = sect('am', 'Morning') + sect('pm', 'Evening') + sect('prn', 'As Needed');
-  if (!items.length) body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? `No ${P.noun}s yet — add the first one below.` : `${P.label} Roman adds will appear here.`}</div>`;
+  // meds that live in a supplement stack show here too, read-only: the stack's one reminder covers them
+  const stacked = (S.data.stacks || []).map(st => {
+    const xs = S.data.compounds.filter(c => c.stack === st.id && c.kind === kind && c.active !== false);
+    return xs.length ? `<div class="sect"><span class="t">In ${esc(st.name.toLowerCase())}</span><span class="r"></span><span class="c">${clockOf(st.time)}</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${xs.map(stackItemHTML).join('')}</div>` : '';
+  }).join('');
+  if (!items.length) body = stacked ? '' : `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? `No ${P.noun}s yet — add the first one below.` : `${P.label} Roman adds will appear here.`}</div>`;
   else if (!body) body = `<div class="fine" style="margin-top:28px">Nothing scheduled this day.</div>`;
+  body += stacked;
   if (S.role === 'admin') {
     body += `<button class="btn-primary" style="margin-top:18px" data-act="addpill" data-kind="${kind}">${I.plus('#04211b')} Add ${P.noun}</button>`;
     const inactive = S.data.compounds.filter(c => c.active === false && kindOf(c) === kind);
@@ -1189,7 +1196,7 @@ function stackForm(stackId, c) {
   });
 }
 
-// One-time import link, #import=<base64url JSON {items}>: how Roman loads Scott's stacks without the list
+// One-time import link, #import=<base64url gzip JSON {items}>: how Roman loads Scott's stacks without the list
 // ever sitting in this public repo. A URL fragment is never sent to a server.
 async function maybeImport() {
   const m = /^#import=([A-Za-z0-9_-]+)$/.exec(location.hash);
@@ -1197,9 +1204,12 @@ async function maybeImport() {
   history.replaceState(null, '', location.pathname + location.search);
   if (S.role !== 'admin') return toast('Open the import link signed in with the admin code');
   let items = null;
-  try { items = JSON.parse(new TextDecoder().decode(b64uBytes(m[1]))).items; } catch {}
+  try { items = (await new Response(new Blob([b64uBytes(m[1])]).stream().pipeThrough(new DecompressionStream('gzip'))).json()).items; } catch {}
   const ids = new Set((S.data.stacks || []).map(st => st.id));
   if (!Array.isArray(items) || !items.length || items.some(x => !x || !x.id || !x.name || !ids.has(x.stack))) return toast('That import link is damaged');
+  const load = () => adminWrite({ compounds: [...S.data.compounds.filter(c => !c.stack), ...items] }, 'Stacks loaded');
+  // empty stacks load straight away; replacing stacks that already have items asks first
+  if (!S.data.compounds.some(c => c.stack)) { if (await load()) { S.tab = 'supps'; render(); } return; }
   const am = items.filter(x => x.stack === 'am').length;
   openSheet(`<div class="sheet-body"><div style="font-size:22px;font-weight:700">Load supplement stacks</div>
     <div style="font-size:14px;line-height:1.5;color:var(--ink2)">${am} morning and ${items.length - am} night items. This replaces everything in the stacks now; injections and meds are not touched.</div></div>
@@ -1207,7 +1217,7 @@ async function maybeImport() {
     $('#i-no', sh).onclick = closeSheet;
     $('#i-yes', sh).onclick = async () => {
       $('#i-yes', sh).disabled = true;
-      if (await adminWrite({ compounds: [...S.data.compounds.filter(c => !c.stack), ...items] }, 'Stacks loaded')) { closeSheet(); S.tab = 'supps'; render(); }
+      if (await load()) { closeSheet(); S.tab = 'supps'; render(); }
       else $('#i-yes', sh).disabled = false;
     };
   });
