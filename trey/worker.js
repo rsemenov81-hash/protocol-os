@@ -9,6 +9,7 @@
 //   POST /push/subscribe   → { subscription, times: {am, pm}, nudge, tz }   adds or updates this device
 //   POST /push/unsubscribe → { endpoint }
 //   POST /push/test        → { endpoint }   sends one test notification to that device
+//   POST /push/status      → { endpoint }   confirms this device is registered on the server
 //   GET  /health           → { ok, version }   (no code needed)
 //
 // Compounds carry a `kind`: 'inject' (or missing) for the syringe doses, 'supp' for supplements and
@@ -17,7 +18,7 @@
 // Supplement stacks: compounds with `stack: 'am' | 'pm'` belong to the morning or night stack (see STACKS).
 // They are not logged; each stack gets one "time to take it" reminder a day at its fixed time.
 //
-// Reminders: a Cron Trigger (*/15 * * * *) runs `scheduled`. For every subscribed device, when its
+// Reminders: a Cron Trigger (* * * * *) runs `scheduled`. For every subscribed device, when its
 // morning or evening time (or time + nudge) falls in the last 15 minutes of its own time zone, it sends
 // one push listing that block's items still unlogged today. Nothing due, nothing sent. Stack reminders
 // go out the same way at each stack's time.
@@ -31,7 +32,7 @@
 // KV binding: TREY_KV. Keys: "trey:state" (the whole record), "vapid" (push keypair), "subs" (devices),
 // "sent:<device>:<date>:<block | block:n | stack-am | stack-pm>" (2-day markers so a reminder goes out once).
 
-const VERSION = '2.0.0';
+const VERSION = '2.0.1';
 const STATE_KEY = 'trey:state';
 const ALLOWED_ORIGINS = ['https://rsemenov81-hash.github.io'];
 const MAX_LOGS = 5000;
@@ -271,6 +272,10 @@ async function handlePush(req, env, role, path) {
   if (!id) return fail(req, 400, 'endpoint is required');
   const subs = await getSubs(env);
 
+  if (path === '/push/status') {
+    const rec = subs[id];
+    return json(req, 200, rec ? { registered: true, times: rec.times, nudge: rec.nudge, tz: rec.tz } : { registered: false });
+  }
   if (path === '/push/unsubscribe') {
     const removed = !!subs[id];
     delete subs[id];
@@ -307,7 +312,7 @@ function localNow(now, tz) {
   return { dk: `${p.year}-${p.month}-${p.day}`, sec: Number(p.hour) * 3600 + Number(p.minute) * 60 + Number(p.second) };
 }
 const fmtMg = (n) => n >= 1000 ? `${+(n / 1000).toFixed(2)} mg` : `${Math.round(n)} mcg`;
-const doseText = (c) => isPill(c) ? (c.dose || '') : c.unit === 'IU' ? `${Math.round(c.doseMcg).toLocaleString('en-US')} IU` : (c.doseMcg ? fmtMg(c.doseMcg) : '');
+const doseText = (c) => isPill(c) ? (c.dose || '') : c.unit === 'IU' ? `${Number(c.doseMcg).toLocaleString('en-US', { maximumFractionDigits: 6 })} IU` : (c.doseMcg ? fmtMg(c.doseMcg) : '');
 const hmSec = (hm) => Number(hm.slice(0, 2)) * 3600 + Number(hm.slice(3, 5)) * 60;
 const tabOf = (c) => c.kind === 'supp' ? 'supps' : c.kind === 'med' ? 'meds' : 'protocol';
 
@@ -362,9 +367,11 @@ async function runReminders(env, now) {
       state = state || await load(env);
       const payload = build(dk);
       if (!payload) continue;
-      await env.TREY_KV.put(mark, '1', { expirationTtl: 2 * 86400 });
       const r = await sendPush(env, rec.subscription, payload).catch(() => ({ ok: false }));
-      if (r.ok) out.sent++; else out.failed++;
+      if (r.ok) {
+        await env.TREY_KV.put(mark, '1', { expirationTtl: 2 * 86400 });
+        out.sent++;
+      } else out.failed++;
       if (r.gone) { delete subs[rec.id]; dropped = true; }
     }
   }
@@ -406,9 +413,11 @@ export default {
       return fail(req, 500, 'Server error: ' + (e && e.message || e));
     }
   },
-  // Cron Trigger */15 * * * * (Settings → Triggers): send the reminders whose time fell in the last 15 minutes.
+  // Run every minute. The 15-minute window allows retrying transient failures, while sent markers deduplicate accepted pushes.
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runReminders(env, new Date()));
+    ctx.waitUntil(runReminders(env, new Date(event.scheduledTime || Date.now())).then(result => {
+      console.log(JSON.stringify({ event: 'trey-reminder-pass', ...result }));
+    }));
   },
 };
 export { runReminders };

@@ -306,6 +306,21 @@ async function runBrowser(name, engine) {
       await page.getByRole('button', { name: 'Review logged dose for Fractional IU fixture', exact: true }).waitFor();
       assert.equal(state.logs.find(log => log.compoundId === 'fractional').doseMcg, 2.5);
       check('empty stacks, no phantom routine, and fractional IU logging');
+
+      await page.getByRole('button', {name:'Reminders', exact:true}).click();
+      await page.locator('#sheet').waitFor();
+      if (await page.locator('#r-save').count()) {
+        await page.getByLabel('Morning', {exact:true}).fill('');
+        await page.getByLabel('Evening', {exact:true}).fill('');
+        await page.locator('#r-save').click();
+        await page.getByText('Choose a morning or evening reminder time first.', {exact:true}).waitFor();
+        assert.equal(await page.locator('#sheet').isVisible(),true);
+        assert.equal(apiCalls.some(call=>call.endsWith('/api/push/subscribe')),false);
+      } else {
+        assert.match(await page.locator('#sheet').innerText(),/can’t show notifications|Home Screen app|Notifications are blocked/);
+      }
+      await page.getByRole('button',{name:'Close',exact:true}).click();
+      check('reminder setup validates times or explains browser support');
     }
 
     failState = true;
