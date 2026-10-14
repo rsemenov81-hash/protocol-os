@@ -72,6 +72,9 @@ jobs:
       - name: Trey browser regression suite
         run: npm run e2e:trey
 
+      - name: Jamal browser regression suite
+        run: npm run e2e:jamal
+
       - name: Upload e2e screenshots and downloads
         if: failure()
         uses: actions/upload-artifact@v4
