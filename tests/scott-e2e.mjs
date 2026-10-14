@@ -234,6 +234,7 @@ async function runBrowser(name, engine) {
     await opener.press('Enter');
     const dialog = page.getByRole('dialog', { name: 'Protocol details' });
     await dialog.waitFor();
+    await page.waitForFunction(() => document.querySelector('#sheet').classList.contains('open'));
     assert.equal(await page.locator('#navigation').evaluate(el => el.inert), true);
     for (const invalid of ['', '0', '-1', 'invalid', '1e999']) {
       await page.getByLabel('Dose', { exact: true }).fill(invalid);

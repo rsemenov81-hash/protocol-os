@@ -921,7 +921,7 @@ function openSheet(html, onmount) {
     if (label?.classList.contains('lbl')) field.setAttribute('aria-label', label.textContent.trim());
   });
   sc.classList.add('on');
-  requestAnimationFrame(() => requestAnimationFrame(() => { if (!sh.inert) { sh.classList.add('open'); sh.focus(); } }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { if (!sh.inert) { sh.classList.add('open'); if (!sh.contains(document.activeElement)) sh.focus(); } }));
   sheetTimer = setTimeout(() => sh.classList.add('settled'), 460);
   if (onmount) onmount(sh);
 }
