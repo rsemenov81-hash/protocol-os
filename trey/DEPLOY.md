@@ -9,7 +9,7 @@ private document archive and optional push reminders while retaining Trey's
 change codes, or seed Scott's regimen. An empty namespace stays empty.
 
 Deploy the Worker before the Pages frontend. Preserve existing secrets and
-state; add a `*/15 * * * *` cron to run reminder checks. No notifications are
+state; add a `* * * * *` cron to run reminder checks every minute. No notifications are
 sent without a subscribed device, and empty stacks never send reminders.
 On iPhone, notifications require the Home Screen app and permission on that
 phone. Device delivery must be tested separately from backend/browser tests.
