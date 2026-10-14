@@ -31,7 +31,7 @@
 // KV binding: SCOTT_KV. Keys: "state" (the whole record), "vapid" (push keypair), "subs" (devices),
 // "sent:<device>:<date>:<block | block:n | stack-am | stack-pm>" (2-day markers so a reminder goes out once).
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const STATE_KEY = 'state';
 const ALLOWED_ORIGINS = ['https://rsemenov81-hash.github.io'];
 const MAX_LOGS = 5000;
@@ -420,6 +420,16 @@ export default {
       if (url.pathname === '/state' && req.method === 'GET') {
         const s = await load(env);
         return json(req, 200, { role, ...s, stacks: STACKS });
+      }
+      // Originals are private KV objects, never public Pages assets or URLs with a code.
+      if (url.pathname === '/document' && req.method === 'GET') {
+        const id = url.searchParams.get('id') || '';
+        if (!/^doc_[a-f0-9]{20}$/.test(id)) return fail(req, 400, 'Invalid document');
+        const raw = await env.SCOTT_KV.get('document:' + id);
+        if (!raw) return fail(req, 404, 'Document not found');
+        const file = JSON.parse(raw);
+        if (!['application/pdf', 'text/csv'].includes(file.mime) || typeof file.base64 !== 'string' || typeof file.name !== 'string') return fail(req, 500, 'Document unavailable');
+        return json(req, 200, { name: file.name, mime: file.mime, base64: file.base64, sha256: file.sha256 });
       }
       if (url.pathname === '/admin' && req.method === 'POST') return await handleAdmin(req, env, role);
       if (url.pathname === '/log' && req.method === 'POST') return await handleLog(req, env, role);

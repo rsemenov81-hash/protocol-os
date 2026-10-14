@@ -6,7 +6,8 @@ The app is `scott/index.html`. GitHub Pages serves it at
 It talks to its own Cloudflare Worker, `scott-protocol`, at `https://scott-protocol.rsemenov81.workers.dev`.
 The `scott-protocol` Worker and its KV namespace were observed in the live account on
 October 14, 2026. The steps below are a setup/recovery reference; do not recreate the
-existing resources. The frontend changes in this review do not require a Worker deployment.
+existing resources. The private record archive requires Worker version 1.1.0 or later;
+deploy the Worker before the frontend.
 
 ## Frontend design update (October 14, 2026)
 
@@ -18,6 +19,30 @@ not changed by it. `sw.js` has no fetch handler, so it does not cache the previo
 The decorative background was generated with Higgsfield (`gpt_image_2_5`, job
 `28a4af52-41e7-4ea6-94a0-4a4157218639`) from an abstract forest/gold brief. No profile,
 protocol, access code, screenshot, or health data was sent to Higgsfield.
+
+## Motion and private record archive (October 14, 2026)
+
+`motion.js` loads the 120 KB H.264 background after page load/idle. Reduced motion,
+data saving and slow connections use the still background. The pause preference persists,
+and playback stops while the document is hidden. The original five-second visual was made
+with Higgsfield, job `dd17e098-6d7b-4d33-922d-bf355372ce3b`, from the generic forest artwork.
+
+Deploy `worker.js` version 1.1.0 to the existing Worker, preserving `SCOTT_KV`, both access
+secrets, VAPID data, subscriptions, and the existing cron. The authenticated `GET /document?id=…`
+route returns an original PDF or CSV from `document:doc_<20 hex characters>` in KV. Each
+object contains `name`, `mime`, `base64`, and `sha256`; the response is never cached. Keep
+originals and imports out of this public repository. No credential belongs in a URL.
+
+Blood records may include `sources` and marker-level `sourceId`, `reference`, `flag`, and
+`note`. Keep text and bounded results as strings; trend only numeric values with matching
+marker name and unit. Historical values printed in later reports keep their original draw
+date, without borrowing a later reference interval. Prefer final reports over partial reports
+for values, while retaining both originals. Scans preserve `measuredAt` for same-day readings,
+`metrics` for every supplied field, and `source` for the original CSV.
+
+Before replacing state, save a private backup, re-read and check its revision, merge by
+stable record IDs, and preserve dose logs. Upload and checksum originals before publishing
+their references. Validate the imported state and each original through the authenticated API.
 
 ## 1. Create the storage
 
@@ -62,7 +87,7 @@ has to turn reminders on again.
 
 ## 6. Check it
 
-- Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
+- Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.1.0"}`.
 - Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Monday the
   Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar.
 - Load the supplement stacks: open the import link Roman was given (see *Supplement stacks* below). The

@@ -260,3 +260,26 @@ describe('push reminders', () => {
     assert.equal((await call('/push/test', { method: 'POST', body: { endpoint: sub.subscription.endpoint } })).status, 404);
   });
 });
+
+describe('private original documents', () => {
+  test('requires authentication before looking up any document', async () => {
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa',{token:''})).status,401);
+  });
+  test('rejects arbitrary KV keys and reports missing files', async () => {
+    for(const id of ['state','vapid','../state','doc_invalid']) assert.equal((await call('/document?id='+id)).status,400);
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa')).status,404);
+  });
+  test('both authorized roles receive exact originals with private caching', async () => {
+    const file={name:'Example.pdf',mime:'application/pdf',base64:btoa('%PDF-1.7 fixture'),sha256:'example'};
+    await env.SCOTT_KV.put('document:doc_aaaaaaaaaaaaaaaaaaaa',JSON.stringify(file));
+    for(const token of ['scott-code','roman-code']) {
+      const req=new Request(BASE+'/document?id=doc_aaaaaaaaaaaaaaaaaaaa',{headers:{Authorization:'Bearer '+token,Origin:'https://rsemenov81-hash.github.io'}});
+      const res=await worker.fetch(req,env); assert.equal(res.status,200); assert.equal(res.headers.get('Cache-Control'),'no-store');
+      assert.deepEqual(await res.json(),file);
+    }
+  });
+  test('disallows active content even inside an authenticated archive', async () => {
+    await env.SCOTT_KV.put('document:doc_aaaaaaaaaaaaaaaaaaaa',JSON.stringify({mime:'text/html',base64:'x',name:'x.html'}));
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa')).status,500);
+  });
+});
