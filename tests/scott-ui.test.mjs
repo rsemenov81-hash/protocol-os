@@ -209,3 +209,45 @@ test('failed document downloads restore the button and show a retryable error', 
   await a.run('downloadDocument(downloadButton)');
   assert.equal(a.ctx.downloadButton.disabled,false); assert.match(a.elements.get('#toast').innerHTML,/Document not found/);assert.doesNotMatch(a.elements.get('#toast').innerHTML,/downloaded/);
 });
+
+test('outside-range filtering preserves explicit flags, boundaries and missing references', () => {
+  const a=app();
+  for (const [marker, expected] of [
+    [{value:2,lo:1,hi:3},false],[{value:0,lo:1},true],[{value:3,hi:3},false],
+    [{value:'<0.7',flag:'L'},true],[{value:'Negative'},false],[{value:50},false],
+    [{value:4,lo:10,hi:1},false],[{value:2,lo:1,hi:3,flag:'N'},false]
+  ]) assert.equal(a.run(`outsideReportRange(${JSON.stringify(marker)})`), expected);
+  a.run(`S.labFilter='outside'; S.labQuery='example'; S.data.labs=[{date:'2026-01-01',markers:[{name:'Example low',value:0,lo:1},{name:'Example normal',value:2,lo:1,hi:3},{name:'Other low',value:0,lo:1}]}];`);
+  const view=a.run('labsView()');
+  assert.match(view,/1 of 3 results shown/);
+  assert.match(view,/data-marker="example low" data-outside="true" >/);
+  assert.match(view,/data-marker="example normal" data-outside="false" hidden/);
+  assert.match(view,/data-marker="other low" data-outside="true" hidden/);
+});
+
+test('scan comparisons default to previous measurement and retain an explicit earlier baseline', () => {
+  const a=app(); a.run(`S.role='member'; S.data.scans=[{id:'a',date:'2026-01-01',measuredAt:'2026-01-01T08:00:00',weightLb:180},{id:'b',date:'2026-01-01',measuredAt:'2026-01-01T18:00:00',weightLb:182},{id:'c',date:'2026-02-01',weightLb:185}];`);
+  let view=a.run('progressView()'); assert.match(view,/value="b" selected/); assert.match(view,/\+3\.0/);
+  a.run("S.compareId='a'"); view=a.run('progressView()'); assert.match(view,/value="a" selected/); assert.match(view,/\+5\.0/);
+  a.run("S.scanId='a'"); view=a.run('progressView()'); assert.doesNotMatch(view,/id="scan-baseline"|class="delta/); assert.match(view,/first measurement/);
+  a.run("S.scanId='b'; S.compareId='c'"); view=a.run('progressView()'); assert.match(view,/value="a" selected/); assert.match(view,/\+2\.0/);
+});
+
+test('medicines inside stacks do not show empty daily tracking controls', () => {
+  const a=app(); a.run(`S.tab='meds'; S.data.stacks=[{id:'am',name:'Morning stack',time:'10:00'}]; S.data.compounds=[{id:'m',name:'Example medicine',kind:'med',stack:'am',active:true}];`);
+  const view=a.run("pillsView('med')"); assert.match(view,/No separate check-in/); assert.doesNotMatch(view,/0 of 0 doses|Choose a day|Next routine/);
+});
+
+test('background refresh restores search focus and selection without scrolling', () => {
+  const a=app(); a.run("S.token='fixture'; S.loaded=true; S.tab='history';");
+  a.ctx.document.activeElement={id:'history-search',tagName:'INPUT',selectionStart:2,selectionEnd:4};
+  const field=a.ctx.document.querySelector('#history-search'); let focus,selection;
+  field.focus=options=>focus=options; field.setSelectionRange=(start,end)=>selection=[start,end];
+  a.run('render()'); assert.equal(focus.preventScroll,true); assert.deepEqual(selection,[2,4]);
+});
+
+test('expanded record archives and lab trends survive background rendering', () => {
+  const a=app(); a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'Example',unit:'U',value:2}]},{date:'2026-02-01',markers:[{name:'Example',unit:'U',value:3}]}]; S.open.add('lab-reports'); S.open.add('lab-trend:'+JSON.stringify(['Example','U'])); S.open.add('scan-metrics'); S.data.scans=[{id:'x',date:'2026-01-01',metrics:[{name:'Example',value:1}]}];`);
+  assert.match(a.run('labsView()'),/class="lab-trend"[^>]+ open>/);
+  assert.match(a.run('progressView()'),/data-open="scan-metrics" open/);
+});
