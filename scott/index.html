@@ -209,7 +209,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <link rel="stylesheet" href="refinement.css">
 </head>
 <body>
-<div class="ambient"></div>
+<div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/forest-light.jpg" tabindex="-1"></video></div>
+<button id="motion-toggle" class="motion-toggle" aria-label="Pause background" aria-pressed="false">Pause background</button>
+<script type="module" src="motion.js"></script>
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="app"></div>
 <div class="scrim" id="scrim"></div>
@@ -230,6 +232,7 @@ const S = {
   open: new Set(), // what is expanded on the Supps tab: 'stack:am', 'item:<id>' (survives re-renders)
   tab: (t => VALID_TABS.includes(t) ? t : 'protocol')(new URLSearchParams(location.search).get('tab')), // a reminder tap opens ?tab=…
   viewDate: new Date(),
+  labDate: '', labQuery: '', scanId: '',
   pinnedDate: false, // true once the user navigates the week strip; cleared when they return to today
   sync: 'idle', // idle | syncing | ok | error
   loaded: false,
@@ -311,7 +314,7 @@ const reconLine = (c) => (c.vialAmount > 0 && c.bacMl > 0)
 const nowLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
 const relDay = (iso) => { if (!iso) return 'never'; const k = String(iso).slice(0,10); const t = todayKey(); if (k === t) return 'today';
   const days = Math.round((new Date(t + 'T12:00') - new Date(k + 'T12:00'))/86400000); return days === 1 ? 'yesterday' : days + 'd ago'; };
-const fmtD = (iso) => iso ? new Date(iso + (iso.length === 10 ? 'T12:00' : '')).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '—';
+const fmtD = (iso) => iso ? new Date(iso + (iso.length === 10 ? 'T12:00' : '')).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) : '—';
 
 function toast(msg, undoFn) {
   const t = $('#toast');
@@ -440,11 +443,11 @@ function trendSVG(pts, decimals) {
   const dots = pts.map((p, i) => i === pts.length - 1
     ? `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="4.5" fill="#e3c886"/><circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="8" fill="none" stroke="rgba(227,200,134,.35)" stroke-width="2"/>`
     : `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3" fill="#e3c886" opacity=".5"/>`).join('');
-  const md = (d) => { const [y, m, dd] = d.split('-'); return `${Number(m)}/${Number(dd)}`; };
+  const md = (d) => { const [y, m, dd] = d.split('-'); return `${Number(m)}/${Number(dd)}/${y.slice(-2)}`; };
   const idxs = pts.length <= 4 ? pts.map((_, i) => i) : [0, Math.floor((pts.length - 1) / 3), Math.floor(2 * (pts.length - 1) / 3), pts.length - 1];
   const xl = [...new Set(idxs)].map(i =>
     `<text x="${X(i).toFixed(1)}" y="${H - 14}" fill="rgba(255,255,255,.51)" font-size="10" font-family="JetBrains Mono, ui-monospace, monospace" text-anchor="${i === 0 ? 'start' : i === pts.length - 1 ? 'end' : 'middle'}">${md(pts[i].d)}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%">
+  return `<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%" role="img" aria-label="${esc(pts.map(p => fmtD(p.d) + ': ' + p.v).join('; '))}">
     ${grid}<path d="${area}" fill="rgba(227,200,134,.10)"/>
     <path d="${line}" fill="none" stroke="#e3c886" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}${xl}</svg>`;
 }
@@ -704,25 +707,49 @@ function libraryView() {
     `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${cards}</div>`;
 }
 
+// Match both the assay and its unit so incompatible measurements never share a chart.
+const markerKey = m => JSON.stringify([m.name, m.unit || '']);
+function markerHistory(m) {
+  return [...S.data.labs].sort((a,b) => (a.date||'').localeCompare(b.date||''))
+    .flatMap(p => (p.markers || []).filter(x => markerKey(x) === markerKey(m) && hasNumber(x.value)).map(x => ({ d: p.date, v: Number(x.value) })));
+}
+function documentButton(source) {
+  return source && /^doc_[a-f0-9]{20}$/.test(source.id || '') ? `<button class="document-download" data-act="download-document" data-id="${esc(source.id)}"><span>${esc(source.name)}${source.status ? `<small>${esc(source.status)}</small>` : ''}</span><span aria-hidden="true">↓</span></button>` : '';
+}
+async function downloadDocument(button) {
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    const file = await api('/document?id=' + encodeURIComponent(button.dataset.id));
+    if (!['application/pdf', 'text/csv'].includes(file.mime)) throw new Error('Unsupported document');
+    const bytes = Uint8Array.from(atob(file.base64), c => c.charCodeAt(0));
+    const url = URL.createObjectURL(new Blob([bytes], { type: file.mime }));
+    const link = document.createElement('a');
+    link.href = url; link.download = file.name; document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast('Original file downloaded');
+  } catch (err) { toast(err.message || 'Couldn’t download. Try again.'); }
+  finally { button.disabled = false; }
+}
 function labsView() {
   const labs = [...S.data.labs].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   const latest = labs[0];
-  const markerSeries = (name) => [...S.data.labs].sort((a,b) => (a.date||'').localeCompare(b.date||''))
-    .map(p => { const mm = (p.markers||[]).find(x => x.name === name); return mm && hasNumber(mm.value) ? { d: p.date, v: Number(mm.value) } : null; })
-    .filter(Boolean);
-  // Union view: every marker ever measured, at its most recent value (dated when older).
+  const chosen = labs.find(p => p.date === S.labDate);
   const seen = new Map();
-  for (const p of labs) for (const m of (p.markers || [])) {
-    if (m && m.name && !seen.has(m.name)) seen.set(m.name, { m, date: p.date });
+  for (const p of chosen ? [chosen] : labs) for (const m of (p.markers || [])) {
+    if (m && m.name && !seen.has(markerKey(m))) seen.set(markerKey(m), { m, date: p.date });
   }
   let body = '';
   if (!latest) {
     body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first blood panel below.' : 'Blood panels Roman uploads will appear here.'}</div>`;
   } else {
-    body = [...seen.values()].map(({ m, date }) => {
+    const documents = new Map();
+    for (const p of chosen ? [chosen] : labs) for (const src of p.sources || []) documents.set(src.id, src);
+    body = `<div class="record-controls"><label class="lbl" for="lab-date">Results to show</label><select class="well" id="lab-date"><option value="">Latest value of each marker</option>${labs.map(p => `<option value="${esc(p.date)}" ${chosen === p ? 'selected' : ''}>${fmtD(p.date)} · ${(p.markers || []).length} ${(p.markers || []).length === 1 ? 'result' : 'results'}</option>`).join('')}</select><label class="lbl" for="lab-search">Find a marker</label><input class="well" id="lab-search" type="search" placeholder="Search blood results" value="${esc(S.labQuery)}"></div>`;
+    if (documents.size) body += `<details class="card record-archive"><summary>Original reports <span>${documents.size} files</span></summary><div>${[...documents.values()].map(documentButton).join('')}</div></details>`;
+    body += [...seen.values()].map(({ m, date }) => {
       const v = Number(m.value), hasValue = hasNumber(m.value);
-      const hasLo = hasNumber(m.lo);
-      const hasHi = hasNumber(m.hi);
+      const hasLo = hasNumber(m.lo), hasHi = hasNumber(m.hi);
       const lo = hasLo ? Number(m.lo) : 0, hi = hasHi ? Number(m.hi) : Math.max(v * 1.5, lo + 1);
       const hasReference = (hasLo || hasHi) && !(hasLo && hasHi && hi < lo);
       const span = (hi - lo) || 1, dispLo = lo - span * 0.3, dispSpan = span * 1.6;
@@ -731,45 +758,38 @@ function labsView() {
       const zR = hasHi ? Math.max(0, Math.min(100, ((hi - dispLo) / dispSpan) * 100)) : 100;
       const flagged = m.flag || (hasValue && hasReference && ((hasLo && v < lo) || (hasHi && v > hi)));
       const col = flagged ? 'var(--warn)' : hasValue && hasReference ? 'var(--ok)' : 'var(--ink3)';
-      const longNote = m.note && m.note.length > 42;
-      const verdict = (m.note && !longNote) ? esc(m.note) : flagged ? ((hasValue && hasReference && hasLo && v < lo) ? 'Below range' : (hasValue && hasReference && hasHi && v > hi) ? 'Above range' : 'Flagged') : !hasValue ? 'No numeric result' : !hasReference ? 'No reference range' : 'In range';
-      const cardBg = flagged ? 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(247,140,58,.08),rgba(247,140,58,.015) 55%),var(--sheen),var(--plate);border-color:rgba(247,140,58,.26)"'
-                            : 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"';
-      return `<div class="card" ${cardBg}>
-        <div style="display:flex;align-items:baseline;gap:8px">
-          <span style="flex:1;font-size:15px;font-weight:700">${esc(m.name)}${date !== latest.date ? ` <span class="mono" style="font-size:10px;font-weight:500;color:var(--ink4)">${fmtD(date)}</span>` : ''}</span>
-          <span class="mono" style="font-size:20px;font-weight:700">${esc(m.value)}</span>
-          <span class="mono" style="font-size:11px;color:var(--ink3)">${esc(m.unit || '')}</span>
-        </div>
-        ${hasValue && hasReference ? `<div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span>
-          <span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>` : ''}
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:10.5px;color:var(--ink4)">Range ${hasLo ? esc(m.lo) : '—'}–${hasHi ? esc(m.hi) : '—'}</span>
-          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${col};text-align:right;margin-left:12px">${flagged || !hasValue || !hasReference ? '' : I.check('#5fdc97', 12)}${verdict}</span>
-        </div>
-        ${longNote ? `<div style="font-size:11.5px;line-height:1.45;color:${flagged ? 'var(--warn)' : 'var(--ink3)'}">${esc(m.note)}</div>` : ''}
-        ${(() => { const tr = markerSeries(m.name); return tr.length >= 2 ? `<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,.08)">${trendSVG(tr, tr.every(p => Number.isInteger(p.v)) ? 0 : 1)}</div>` : ''; })()}</div>`;
+      const verdict = flagged ? (m.flag === 'L' || (hasValue && hasLo && v < lo) ? 'Below range' : m.flag === 'H' || (hasValue && hasHi && v > hi) ? 'Above range' : 'Flagged') : !hasValue ? 'Reported result' : !hasReference ? 'No reference range' : 'In range';
+      const reference = m.reference || (hasReference ? `${hasLo ? m.lo : '—'}–${hasHi ? m.hi : '—'}` : 'Not provided');
+      const tr = markerHistory(m);
+      return `<article class="card lab-result ${flagged ? 'lab-flagged' : ''}" data-marker="${esc(m.name.toLowerCase())}" ${m.name.toLowerCase().includes(S.labQuery.toLowerCase()) ? '' : 'hidden'}>
+        <div class="lab-heading"><h2>${esc(m.name)}</h2><time class="mono" datetime="${esc(date)}">${fmtD(date)}</time></div>
+        <div class="lab-value"><strong class="mono">${esc(m.value)}</strong><span class="mono">${esc(m.unit || '')}</span><span class="lab-verdict" style="color:${col}">${verdict}</span></div>
+        ${hasValue && hasReference ? `<div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span><span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>` : ''}
+        <div class="lab-reference">Lab reference: ${esc(reference)}</div>
+        ${m.note ? `<p class="lab-note">${esc(m.note)}</p>` : ''}
+        ${tr.length >= 2 ? `<details class="lab-trend"><summary>View trend · ${tr.length} results</summary>${trendSVG(tr, tr.every(p => Number.isInteger(p.v)) ? 0 : 1)}</details>` : ''}
+      </article>`;
     }).join('');
-
+    body += `<p class="fine" id="lab-no-results" ${[...seen.values()].some(({m}) => m.name.toLowerCase().includes(S.labQuery.toLowerCase())) ? 'hidden' : ''}>No matching markers. Try another name.</p>`;
   }
   if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:16px" data-act="addlab">${I.plus('#04211b')} Add blood panel</button>`;
-  else body += `<div class="fine" style="margin-top:14px">New panels are added by Roman.</div>`;
-  return headerHTML('Blood Work', latest ? `<div class="sub" style="margin-top:4px"><span class="mono" style="color:var(--ink2)">${labs.length}</span> panels · latest <span class="mono" style="color:var(--ink2)">${fmtD(latest.date)}</span> — each marker shows its newest value; charts track it across draws.</div>` : '') +
+  return headerHTML('Blood Work', latest ? `<div class="sub" style="margin-top:4px">${labs.length} collection dates · latest ${fmtD(latest.date)}<br>Explore results by date or download an original report.</div>` : '') +
     `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${body}</div>`;
 }
 
 function progressView() {
-  const scans = [...S.data.scans].sort((a,b) => (a.date||'').localeCompare(b.date||''));
-  const first = scans[0], last = scans[scans.length - 1];
+  const scans = [...S.data.scans].sort((a,b) => (a.measuredAt || a.date || '').localeCompare(b.measuredAt || b.date || ''));
+  const first = scans[0], newest = scans[scans.length - 1];
+  const last = scans.find(x => x.id && x.id === S.scanId) || newest;
   let body = '';
   if (!last) {
     body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first InBody scan below.' : 'InBody scans Roman uploads will appear here.'}</div>`;
   } else {
-    const dl = (v, goodDown) => {
+    body += `<div class="record-controls"><label class="lbl" for="scan-date">Measurement</label><select class="well" id="scan-date">${[...scans].reverse().map(x => `<option value="${esc(x.id || '')}" ${x === last ? 'selected' : ''}>${fmtD(x.date)}${x.measuredAt ? ' · ' + esc(x.measuredAt.slice(11,16)) : ''}</option>`).join('')}</select><p class="sub" style="margin-top:8px">Changes shown from the first measurement.</p></div>`;
+    const dl = (v) => {
       if (first === last || v == null || !Number.isFinite(v)) return '';
-      const good = goodDown ? v <= 0 : v >= 0;
       const arrow = v <= 0 ? '<path d="M12 5v14M5 12l7 7 7-7"/>' : '<path d="M12 19V5M5 12l7-7 7 7"/>';
-      return `<span class="delta ${good ? 'good' : 'warn'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${arrow}</svg>${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</span>`;
+      return `<span class="delta neutral"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${arrow}</svg>${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}</span>`;
     };
     const fmtv = (v) => hasNumber(v) ? esc(v) : '—';
     const tile = (label, v, unit, delta) => `<div class="card" style="border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
@@ -796,14 +816,16 @@ function progressView() {
         <span class="mono" style="font-size:10.5px;color:var(--ink4)">${fmtD(last.date)}</span></div>
       ${row('Soft lean mass', last.slmLb, 'lb')}
       ${row('Body fat mass', last.bfmLb, 'lb')}
-      ${row('Visceral fat level', last.vfl, hasNumber(last.vfl) ? (Number(last.vfl) <= 9 ? '· healthy' : '· high') : '')}
+      ${row('Visceral fat level', last.vfl, '')}
       ${row('Total body water', last.tbwLb, 'lb')}
       ${row('Basal metabolic rate', last.bmrKcal, 'kcal')}
     </div>`;
   }
+  if (last?.metrics?.length) body += `<details class="card record-archive" style="margin-top:12px"><summary>All measurements <span>${last.metrics.length} values</span></summary><dl class="scan-measurements">${last.metrics.map(m => `<div><dt>${esc(m.name)}</dt><dd class="mono">${esc(m.value)}</dd></div>`).join('')}</dl></details>`;
+  if (last?.source) body += `<div class="card" style="padding:4px 16px;margin-top:12px">${documentButton(last.source)}</div>`;
   if (S.role === 'admin') body += `<button class="btn-primary" style="margin-top:16px" data-act="addscan">${I.plus('#04211b')} Add InBody scan</button>`;
   else body += `<div class="fine" style="margin-top:14px">Scans are uploaded by Roman from the InBody H40.</div>`;
-  return headerHTML('Progress', last ? `<div class="sub" style="margin-top:4px">InBody H40 · last scan <span class="mono" style="color:var(--ink2)">${fmtD(last.date)}</span></div>` : '') +
+  return headerHTML('Progress', last ? `<div class="sub" style="margin-top:4px">${scans.length} InBody measurements · latest <span class="mono" style="color:var(--ink2)">${fmtD(newest.date)}</span></div>` : '') +
     `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:0" class="fade">${body}</div>`;
 }
 
@@ -1411,7 +1433,7 @@ function labForm() {
       const pf = (x) => { const f = parseFloat(x); return Number.isFinite(f) ? f : null; };
       const markers = [...sh.querySelectorAll('.mrow')].map(r => {
         const [n, v, u, lo, hi] = [...r.querySelectorAll('input')].map(i => i.value.trim());
-        return n && v ? { name: n, value: parseFloat(v), unit: u, lo: pf(lo), hi: pf(hi) } : null;
+        return n && v ? { name: n, value: /^[-+]?\d+(?:\.\d+)?$/.test(v) ? Number(v) : v, unit: u, lo: pf(lo), hi: pf(hi) } : null;
       }).filter(Boolean);
       if (!markers.length) { btn.disabled = false; return toast('Add at least one marker'); }
       const next = [...S.data.labs, { id: 'lab_' + uid(), date: $('#l-date', sh).value, markers }];
@@ -1478,6 +1500,7 @@ document.addEventListener('click', async (e) => {
   else if (act === 'reminders') openReminders();
   else if (act === 'addstack') stackForm(el.dataset.stack, null);
   else if (act === 'editstack') { const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) stackForm(c.stack, c); }
+  else if (act === 'download-document') downloadDocument(el);
   else if (act === 'addlab') labForm();
   else if (act === 'addscan') scanForm();
   else if (act === 'connect') {
@@ -1507,6 +1530,18 @@ document.addEventListener('click', (e) => {
   const p = e.target.closest('[data-act="editcomp"]');
   if (p) e.stopPropagation();
 }, true);
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'lab-date') { S.labDate = e.target.value; render(); $('#lab-date')?.focus(); }
+  if (e.target.id === 'scan-date') { S.scanId = e.target.value; render(); $('#scan-date')?.focus(); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'lab-search') return;
+  S.labQuery = e.target.value;
+  const cards = [...document.querySelectorAll('[data-marker]')];
+  cards.forEach(card => { card.hidden = !card.dataset.marker.includes(S.labQuery.toLowerCase()); });
+  const empty = $('#lab-no-results'); if (empty) empty.hidden = cards.some(card => !card.hidden);
+});
 
 /* ════════ boot ════════ */
 render();

@@ -155,7 +155,7 @@ test('blood results without a numeric value or reference bounds are not labeled 
   a.run("S.data.labs=[{date:'2026-01-01',markers:[{name:'No bounds',value:20},{name:'Text result',value:'Negative',lo:0,hi:1}]}];");
   const view=a.run('labsView()');
   assert.match(view,/No reference range/);
-  assert.match(view,/No numeric result/);
+  assert.match(view,/Reported result/);
   assert.doesNotMatch(view,/In range|NaN%/);
 });
 
@@ -163,4 +163,49 @@ test('a missing visceral-fat measure has no healthy label', () => {
   const a=app();
   a.run("S.data.scans=[{date:'2026-01-01',weightLb:180,vfl:null}];");
   assert.doesNotMatch(a.run('progressView()'),/· healthy/);
+});
+
+test('lab history separates units and excludes bounded or qualitative values from numeric trends', () => {
+  const a=app();
+  a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'Example',unit:'g/L',value:10}]},{date:'2026-02-01',markers:[{name:'Example',unit:'mg/L',value:20}]},{date:'2026-03-01',markers:[{name:'Example',unit:'g/L',value:'<5'}]}];`);
+  assert.equal(a.run("markerHistory({name:'Example',unit:'g/L'}).length"),1);
+  assert.equal(a.run("markerHistory({name:'Example',unit:'g/L'})[0].v"),10);
+  const view=a.run('labsView()'); assert.match(view,/&lt;5/); assert.match(view,/20/);
+});
+test('date selection shows historical values and only its source documents', () => {
+  const a=app();
+  a.run(`S.labDate='2026-01-01'; S.data.labs=[{date:'2026-01-01',markers:[{name:'Older marker',value:3,unit:'U'}],sources:[{id:'doc_aaaaaaaaaaaaaaaaaaaa',name:'Older.pdf'}]},{date:'2026-02-01',markers:[{name:'Newer marker',value:6,unit:'U'}],sources:[{id:'doc_bbbbbbbbbbbbbbbbbbbb',name:'Newer.pdf'}]}];`);
+  const view=a.run('labsView()'); assert.match(view,/Older marker/); assert.match(view,/Older.pdf/); assert.doesNotMatch(view,/Newer marker|Newer.pdf/);
+});
+test('same-day InBody scans are selectable independently with their full measurements', () => {
+  const a=app();
+  a.run(`S.scanId='early'; S.data.scans=[{id:'late',date:'2026-01-01',measuredAt:'2026-01-01T18:00:00',weightLb:182},{id:'early',date:'2026-01-01',measuredAt:'2026-01-01T08:00:00',weightLb:180,metrics:[{name:'Test metric',value:12}]}];`);
+  const view=a.run('progressView()'); assert.match(view,/08:00/); assert.match(view,/18:00/); assert.match(view,/Test metric/); assert.match(view,/value="early" selected/);
+});
+test('source document names and marker values are escaped', () => {
+  const a=app(); a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'<script>bad</script>',value:'<5'}]}];`);
+  assert.match(a.run('labsView()'),/&lt;script&gt;bad&lt;\/script&gt;/);
+  assert.equal(a.run("documentButton({id:'../../state',name:'Bad'})"),'');
+});
+
+test('document download uses authenticated API bytes and the original filename', async () => {
+  let clicked=false, blob, filename;
+  const a=app({fetch:async (_url, options)=>{
+    assert.equal(options.headers.Authorization,'Bearer fixture');
+    return new Response(JSON.stringify({name:'Original.pdf',mime:'application/pdf',base64:btoa('%PDF-1.7 example')}));
+  },timers:()=>0});
+  a.run("S.token='fixture'");
+  a.ctx.atob=atob; a.ctx.Blob=Blob;
+  a.ctx.URL={createObjectURL(value){blob=value;return 'blob:fixture';},revokeObjectURL(){}};
+  a.ctx.document.createElement=()=>({click(){clicked=true;filename=this.download;},remove(){}});
+  a.ctx.document.body.appendChild=()=>{};
+  a.ctx.downloadButton={dataset:{id:'doc_aaaaaaaaaaaaaaaaaaaa'},disabled:false};
+  await a.run('downloadDocument(downloadButton)');
+  assert.equal(clicked,true);assert.equal(filename,'Original.pdf');assert.equal(await blob.text(),'%PDF-1.7 example');assert.equal(blob.type,'application/pdf');assert.equal(a.ctx.downloadButton.disabled,false);
+});
+test('failed document downloads restore the button and show a retryable error', async () => {
+  const a=app({fetch:async()=>new Response(JSON.stringify({error:'Document not found'}),{status:404}),timers:()=>0});
+  a.ctx.downloadButton={dataset:{id:'doc_aaaaaaaaaaaaaaaaaaaa'},disabled:false};
+  await a.run('downloadDocument(downloadButton)');
+  assert.equal(a.ctx.downloadButton.disabled,false); assert.match(a.elements.get('#toast').innerHTML,/Document not found/);assert.doesNotMatch(a.elements.get('#toast').innerHTML,/downloaded/);
 });
