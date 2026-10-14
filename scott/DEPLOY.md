@@ -52,11 +52,11 @@ has to turn reminders on again.
 
 - Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
 - Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Monday the
-  Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar. Supplements and medications
-  start empty: add them on **Supps** and **Meds**.
+  Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar.
+- Load the supplement stacks: open the import link Roman was given and tap **Load** (see *Supplement stacks*
+  below). The **Meds** tab starts empty; add any daily med that is not part of a stack there.
 - Send Scott the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps
   **Share → Add to Home Screen**, and it appears as **Scott** with a violet dot icon.
-- Supplement stacks: open the import link Roman was given (see *Supplement stacks* below).
 - Reminders: in the Home Screen app, tap the **bell** at the top, pick a morning and evening time, then
   **Turn on** and allow notifications. **Test** sends one straight away. On iPhone this only works from the
   Home Screen app, not from a Safari tab (an Apple rule).
