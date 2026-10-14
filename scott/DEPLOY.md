@@ -53,8 +53,8 @@ has to turn reminders on again.
 - Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
 - Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Monday the
   Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar.
-- Load the supplement stacks: open the import link Roman was given and tap **Load** (see *Supplement stacks*
-  below). The **Meds** tab starts empty; add any daily med that is not part of a stack there.
+- Load the supplement stacks: open the import link Roman was given (see *Supplement stacks* below). The
+  **Meds** tab then lists the meds that are in his stacks; add any other daily med there.
 - Send Scott the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps
   **Share → Add to Home Screen**, and it appears as **Scott** with a violet dot icon.
 - Reminders: in the Home Screen app, tap the **bell** at the top, pick a morning and evening time, then
@@ -85,7 +85,8 @@ phone with reminders on. The times live in `STACKS` at the top of `worker.js`.
 
 Scott's stack contents are deliberately **not** in this repository, because the repository is public and the
 list includes prescriptions. Roman loads them once with an import link (`…/scott/#import=…`): open it, sign in
-with the `ADMIN_CODE` if asked, and tap **Load**. Loading replaces the stacks and leaves injections and meds alone.
+with the `ADMIN_CODE` if asked. Empty stacks load straight away; if the stacks already have items it asks
+first, then replaces them. Injections and meds outside the stacks are left alone.
 After that, edit or add items in the app (pencil → **Edit**, or **+ Add to … stack**).
 
 ## How reminders behave
