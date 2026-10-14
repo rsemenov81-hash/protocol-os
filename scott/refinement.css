@@ -56,3 +56,5 @@ button,a,input,select,textarea,summary{-webkit-tap-highlight-color:transparent}b
 .menu-row>span:first-child svg{stroke:currentColor}
 
 @media(min-width:700px){.scan-controls .lbl{margin-top:2px!important}}
+
+.connection-notice{display:flex;align-items:center;gap:12px;margin:8px 20px 14px;padding:14px 16px;background:#183845;border:1px solid #6c8990;border-radius:16px;font-size:13px;line-height:1.5;color:#edf1e7}.connection-notice span{flex:1}.connection-notice button{flex-shrink:0;min-width:68px}

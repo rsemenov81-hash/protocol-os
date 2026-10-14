@@ -206,7 +206,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   *{transition-duration:1ms !important;animation-duration:1ms !important}
 }
 </style>
-<link rel="stylesheet" href="refinement.css?v=f96deb339a6e">
+<link rel="stylesheet" href="refinement.css?v=c19b9b6720f3">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/water-poster.jpg" tabindex="-1"></video></div>
@@ -891,7 +891,7 @@ function render() {
   }
   if (!VALID_TABS.includes(S.tab)) S.tab = 'protocol';
   const v = { protocol: protocolView, supps: stacksView, meds: () => pillsView('med'), library: libraryView, labs: labsView, progress: progressView, more: moreView, history: historyView }[S.tab];
-  app.innerHTML = v(); nav.innerHTML = tabbarHTML(); nav.hidden = false;
+  app.innerHTML = (S.sync === 'error' ? '<div class="connection-notice" role="status"><span>Couldn’t refresh. Showing the last loaded records.</span><button class="btn-ghost" data-act="pull">Retry</button></div>' : '') + v(); nav.innerHTML = tabbarHTML(); nav.hidden = false;
   if (focus) { const field = $('#'+focus.id); if (field && field !== active) { field.focus({preventScroll:true}); if (typeof focus.start === 'number') { try { field.setSelectionRange(focus.start,focus.end); } catch {} } } }
 }
 

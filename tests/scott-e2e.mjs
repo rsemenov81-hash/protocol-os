@@ -285,6 +285,17 @@ async function runBrowser(name, engine) {
     check('logged dose can be removed and reconciles with the fixture');
 
     failState = true;
+    await page.setViewportSize({width:1440,height:1000});
+    await page.getByRole('button',{name:'Synced, tap to refresh',exact:true}).click();
+    await page.getByText('Couldn’t refresh. Showing the last loaded records.',{exact:true}).waitFor();
+    await page.setViewportSize({width:320,height:740});
+    await navGeometry(page,'loaded data during failed refresh');
+    assert.equal(await page.locator('.connection-notice').isVisible(),true);
+    failState = false;
+    await page.getByRole('button',{name:'Retry',exact:true}).click();
+    await countIs(page,'.connection-notice',0);
+    check('loaded records remain accessible with mobile refresh-error recovery');
+    failState = true;
     await page.reload();
     await page.getByRole('heading', { name: 'Couldn’t connect', exact: true }).waitFor();
     assert.equal(await page.getByRole('tab').count(), 0);

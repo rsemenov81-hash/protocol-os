@@ -251,3 +251,12 @@ test('expanded record archives and lab trends survive background rendering', () 
   assert.match(a.run('labsView()'),/class="lab-trend"[^>]+ open>/);
   assert.match(a.run('progressView()'),/data-open="scan-metrics" open/);
 });
+
+test('a failed refresh keeps loaded records and exposes a retry notice on every viewport', async () => {
+  const a=app({fetch:async()=>{throw new Error('offline')}});
+  a.run("S.token='fixture'; S.loaded=true; S.tab='supps'; S.data.stacks=[{id:'am',name:'Morning stack',time:'10:00'}];");
+  await a.run('pull(true)');
+  const view=a.elements.get('#app').innerHTML;
+  assert.match(view,/Showing the last loaded records/); assert.match(view,/data-act="pull"/); assert.match(view,/Morning stack/);
+  assert.equal(a.elements.get('#navigation').hidden,false);
+});
