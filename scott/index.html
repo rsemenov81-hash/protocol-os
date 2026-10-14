@@ -720,18 +720,19 @@ function labsView() {
     body = `<div class="fine" style="margin-top:40px">${S.role === 'admin' ? 'Add the first blood panel below.' : 'Blood panels Roman uploads will appear here.'}</div>`;
   } else {
     body = [...seen.values()].map(({ m, date }) => {
-      const v = Number(m.value);
-      const hasLo = m.lo != null && Number.isFinite(Number(m.lo));
-      const hasHi = m.hi != null && Number.isFinite(Number(m.hi)) && Number(m.hi) !== 0;
+      const v = Number(m.value), hasValue = hasNumber(m.value);
+      const hasLo = hasNumber(m.lo);
+      const hasHi = hasNumber(m.hi);
       const lo = hasLo ? Number(m.lo) : 0, hi = hasHi ? Number(m.hi) : Math.max(v * 1.5, lo + 1);
+      const hasReference = (hasLo || hasHi) && !(hasLo && hasHi && hi < lo);
       const span = (hi - lo) || 1, dispLo = lo - span * 0.3, dispSpan = span * 1.6;
       const pct = Math.max(3, Math.min(97, ((v - dispLo) / dispSpan) * 100));
       const zL = Math.max(0, Math.min(100, ((lo - dispLo) / dispSpan) * 100));
       const zR = hasHi ? Math.max(0, Math.min(100, ((hi - dispLo) / dispSpan) * 100)) : 100;
-      const flagged = m.flag || (hasLo && v < lo) || (hasHi && v > hi);
-      const col = flagged ? 'var(--warn)' : 'var(--ok)';
+      const flagged = m.flag || (hasValue && hasReference && ((hasLo && v < lo) || (hasHi && v > hi)));
+      const col = flagged ? 'var(--warn)' : hasValue && hasReference ? 'var(--ok)' : 'var(--ink3)';
       const longNote = m.note && m.note.length > 42;
-      const verdict = (m.note && !longNote) ? esc(m.note) : flagged ? ((hasLo && v < lo) ? 'Below range' : (hasHi && v > hi) ? 'Above range' : 'Flagged') : 'In range';
+      const verdict = (m.note && !longNote) ? esc(m.note) : flagged ? ((hasValue && hasReference && hasLo && v < lo) ? 'Below range' : (hasValue && hasReference && hasHi && v > hi) ? 'Above range' : 'Flagged') : !hasValue ? 'No numeric result' : !hasReference ? 'No reference range' : 'In range';
       const cardBg = flagged ? 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(247,140,58,.08),rgba(247,140,58,.015) 55%),var(--sheen),var(--plate);border-color:rgba(247,140,58,.26)"'
                             : 'style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"';
       return `<div class="card" ${cardBg}>
@@ -740,11 +741,11 @@ function labsView() {
           <span class="mono" style="font-size:20px;font-weight:700">${esc(m.value)}</span>
           <span class="mono" style="font-size:11px;color:var(--ink3)">${esc(m.unit || '')}</span>
         </div>
-        <div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span>
-          <span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>
+        ${hasValue && hasReference ? `<div class="rangetrack"><span class="zone" style="left:${zL}%;right:${100-zR}%"></span>
+          <span class="pt" style="left:calc(${pct}% - 6px);background:${col}"></span></div>` : ''}
         <div style="display:flex;align-items:center;justify-content:space-between">
           <span class="mono" style="font-size:10.5px;color:var(--ink4)">Range ${hasLo ? esc(m.lo) : '—'}–${hasHi ? esc(m.hi) : '—'}</span>
-          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${col};text-align:right;margin-left:12px">${flagged ? '' : I.check('#5fdc97', 12)}${verdict}</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${col};text-align:right;margin-left:12px">${flagged || !hasValue || !hasReference ? '' : I.check('#5fdc97', 12)}${verdict}</span>
         </div>
         ${longNote ? `<div style="font-size:11.5px;line-height:1.45;color:${flagged ? 'var(--warn)' : 'var(--ink3)'}">${esc(m.note)}</div>` : ''}
         ${(() => { const tr = markerSeries(m.name); return tr.length >= 2 ? `<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,.08)">${trendSVG(tr, tr.every(p => Number.isInteger(p.v)) ? 0 : 1)}</div>` : ''; })()}</div>`;
@@ -795,7 +796,7 @@ function progressView() {
         <span class="mono" style="font-size:10.5px;color:var(--ink4)">${fmtD(last.date)}</span></div>
       ${row('Soft lean mass', last.slmLb, 'lb')}
       ${row('Body fat mass', last.bfmLb, 'lb')}
-      ${row('Visceral fat level', last.vfl, (Number(last.vfl) <= 9 ? '· healthy' : '· high'))}
+      ${row('Visceral fat level', last.vfl, hasNumber(last.vfl) ? (Number(last.vfl) <= 9 ? '· healthy' : '· high') : '')}
       ${row('Total body water', last.tbwLb, 'lb')}
       ${row('Basal metabolic rate', last.bmrKcal, 'kcal')}
     </div>`;

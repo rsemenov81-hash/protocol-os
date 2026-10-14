@@ -149,3 +149,18 @@ test('unknown reminder tabs recover to PEDs instead of crashing render', () => {
   a.run("S.token='fixture'; S.loaded=true; S.tab='invalid'; render();");
   assert.equal(a.run('S.tab'),'protocol');
 });
+
+test('blood results without a numeric value or reference bounds are not labeled in range', () => {
+  const a=app();
+  a.run("S.data.labs=[{date:'2026-01-01',markers:[{name:'No bounds',value:20},{name:'Text result',value:'Negative',lo:0,hi:1}]}];");
+  const view=a.run('labsView()');
+  assert.match(view,/No reference range/);
+  assert.match(view,/No numeric result/);
+  assert.doesNotMatch(view,/In range|NaN%/);
+});
+
+test('a missing visceral-fat measure has no healthy label', () => {
+  const a=app();
+  a.run("S.data.scans=[{date:'2026-01-01',weightLb:180,vfl:null}];");
+  assert.doesNotMatch(a.run('progressView()'),/· healthy/);
+});
