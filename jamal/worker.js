@@ -120,6 +120,7 @@ async function handleAdmin(req, env, role) {
   const body = await readBody(req);
   if (!body) return fail(req, 400, 'Send a JSON body');
   const s = await load(env);
+  if (body.baseRev == null) return fail(req, 428, 'Reload before saving: baseRev is required');
   if (Number(body.baseRev) !== s._rev) return fail(req, 409, 'Someone saved first — reload and try again');
   let touched = false;
   for (const k of ['compounds', 'logs', 'labs', 'scans']) {
