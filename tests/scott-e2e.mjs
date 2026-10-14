@@ -9,8 +9,8 @@ import { chromium, webkit } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const client = process.env.PROTOCOL_CLIENT || 'scott';
-assert.ok(['scott', 'trey'].includes(client));
-const clientTitle = client === 'trey' ? 'Trey' : 'Scott';
+assert.ok(['scott', 'trey', 'jamal'].includes(client));
+const clientTitle = { scott: 'Scott', trey: 'Trey', jamal: 'Jamal' }[client];
 const scottRoot = resolve(root, client);
 const output = resolve(root, '.playwright', client);
 await mkdir(output, { recursive: true });
@@ -288,11 +288,12 @@ async function runBrowser(name, engine) {
     assert.equal(logWrites, 2);
     check('logged dose can be removed and reconciles with the fixture');
 
-    if (client === 'trey') {
+    if (client !== 'scott') {
       state.compounds = [{ id: 'fractional', name: 'Fractional IU fixture', active: true, unit: 'IU', doseMcg: 2.5, mcgPerUnit: 0.1, timing: 'Morning', schedule: { days: [0,1,2,3,4,5,6] } }];
       await page.reload();
       await tab(page, 'Today').waitFor();
       assert.equal(await page.locator('.next-routine').count(), 0, 'empty stacks do not show a fictitious next routine');
+      if (client === 'jamal') assert.match(await page.locator('#purpose-fractional').innerText(), /Review dose and timing/);
       await tab(page, 'Stacks').click();
       assert.equal(await page.locator('details.stk').count(), 2);
       assert.equal(await page.locator('details.it').count(), 0);
