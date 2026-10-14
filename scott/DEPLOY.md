@@ -11,18 +11,40 @@ deploy the Worker before the frontend.
 
 ## Frontend design update (October 14, 2026)
 
-`index.html` loads `refinement.css` and `assets/forest-light.jpg` from this folder. Deploy
-them together through the existing GitHub Pages `main` branch pipeline. To revert the
-design and UI fixes, revert the frontend change commit; Worker state and dose rules are
-not changed by it. `sw.js` has no fetch handler, so it does not cache the previous layout.
+Deploy `index.html`, `refinement.css`, `motion.js`, `insights.js` and `assets/` together
+through the existing GitHub Pages main-branch pipeline. The HTML uses content-versioned
+CSS/module URLs; update those versions when changing these files so returning devices
+receive matching code. The service worker has no fetch handler or page cache.
 
-The decorative background was generated with Higgsfield (`gpt_image_2_5`, job
-`28a4af52-41e7-4ea6-94a0-4a4157218639`) from an abstract forest/gold brief. No profile,
-protocol, access code, screenshot, or health data was sent to Higgsfield.
+The persistent shell contains five destinations: Today, Stacks, Labs, Progress and More.
+Navigation is a sibling of the changing page, so a short page or collapsing stack cannot
+remove its fixed-position host. More contains medication/library views, searchable real
+dose history, reminder preferences and private CSV exports. Exports are created on-device
+from authenticated data and exclude credentials and private download URLs.
+
+The two photo stack covers and six-second water loop were generated with Higgsfield from
+generic environment briefs. No profile, protocol, access code, screenshot or health data
+was sent to Higgsfield:
+
+- Morning photograph: `gpt_image_2_5`, job `5a288f7c-1b86-45d9-a04c-cb405694d4b2`.
+- Night photograph: `gpt_image_2_5`, job `05d31e23-195f-4188-8a05-39f558ee2185`.
+- Water motion: `seedance_2_5`, job `e0f649fe-846d-4b19-a507-3e935190fd6c`.
+
+Photo covers are WebP (75 KB and 39 KB). The silent H.264 loop is 706 KB, 960×540 at 24 fps,
+loaded after page load/idle. It pauses when hidden and honors the persistent pause choice,
+reduced motion, data saving and slow connections. The matching 37 KB still is the fallback.
+No backdrop blur or JavaScript per-frame animation is used. Performance measurements in
+Chrome emulation do not establish physical iPhone performance.
+
+Lab filters use source flags and existing numeric reference bounds; bounded/text results
+remain text. InBody comparisons identify both measurement dates/times and only offer earlier
+baselines. No new clinical interpretation or regimen change is introduced.
+
+To roll back the design, revert the frontend commit. Worker state and dose rules are separate.
 
 ## Motion and private record archive (October 14, 2026)
 
-`motion.js` loads the 120 KB H.264 background after page load/idle. Reduced motion,
+The original motion implementation loaded a 120 KB H.264 background after page load/idle; the redesigned assets above replace it. Reduced motion,
 data saving and slow connections use the still background. The pause preference persists,
 and playback stops while the document is hidden. The original five-second visual was made
 with Higgsfield, job `dd17e098-6d7b-4d33-922d-bf355372ce3b`, from the generic forest artwork.

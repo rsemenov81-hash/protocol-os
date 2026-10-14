@@ -4,8 +4,9 @@
 #   npm ci                                  install esbuild + the pinned Playwright package (no browsers yet)
 #   npm run check                           index.html must be exactly what `npm run build` produces from src/
 #   npm test                                schedule-engine unit tests (node:test, no browser)
-#   npx playwright install --with-deps chromium
+#   npx playwright install --with-deps chromium webkit
 #   npm run e2e                             headless walkthrough of the built index.html (tests/e2e.mjs)
+#   npm run e2e:scott                       Scott navigation, records, logs and real CSV downloads in Chromium/WebKit
 # On failure the e2e output directory (.playwright/: screenshots + the downloaded CSV) is uploaded as an artifact.
 #
 # ── Pages deployment (not wired here yet) ────────────────────────────────────────────────────────
@@ -59,11 +60,14 @@ jobs:
       - name: Unit tests (schedule engine)
         run: npm test
 
-      - name: Install Chromium for Playwright
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and WebKit for Playwright
+        run: npx playwright install --with-deps chromium webkit
 
       - name: End-to-end walkthrough
         run: npm run e2e
+
+      - name: Scott browser regression suite
+        run: npm run e2e:scott
 
       - name: Upload e2e screenshots and downloads
         if: failure()

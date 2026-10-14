@@ -16,7 +16,7 @@ function fixture({ reduced = false, saveData = false, speed = '4g', persisted = 
 
 test('deferred silent playback attaches one video source', async () => {
   const f=fixture(); assert.equal(f.video.src,''); f.begin(); await f.control.sync();
-  assert.match(f.video.src,/forest-motion.mp4$/); assert.equal(f.video.muted,true); assert.equal(f.video.paused,false);
+  assert.match(f.video.src,/water-motion.mp4$/); assert.equal(f.video.muted,true); assert.equal(f.video.paused,false);
 });
 test('reduced motion, data saver, slow network and saved pause prevent the download', async () => {
   for(const options of [{reduced:true},{saveData:true},{speed:'slow-2g'},{speed:'2g'},{persisted:true}]) {
