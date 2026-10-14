@@ -300,6 +300,7 @@ async function runBrowser(name, engine) {
       await tab(page, 'Today').click();
       await page.getByRole('button', { name: 'Review and log Fractional IU fixture', exact: true }).click();
       assert.equal(await page.getByLabel('Dose', { exact: true }).inputValue(), '25.0');
+      assert.match(await page.locator('#go').innerText(), /2\.5 IU/);
       await page.locator('#go').click();
       await page.getByRole('button', { name: 'Review logged dose for Fractional IU fixture', exact: true }).waitFor();
       assert.equal(state.logs.find(log => log.compoundId === 'fractional').doseMcg, 2.5);

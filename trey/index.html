@@ -300,7 +300,7 @@ const dkey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')
 const todayKey = () => dkey(new Date());
 const hasNumber = (v) => v != null && String(v).trim() !== '' && Number.isFinite(Number(v));
 const fmtMcg = (n) => { if (n == null || isNaN(n)) return '—'; if (n >= 1000) return (n/1000).toFixed(2).replace(/\.?0+$/,'') + ' mg'; return Math.round(n) + ' mcg'; };
-const fmtAmt = (n, unit) => unit === 'IU' ? (n == null || isNaN(n) ? '—' : Math.round(n).toLocaleString() + ' IU') : fmtMcg(n);
+const fmtAmt = (n, unit) => unit === 'IU' ? (n == null || isNaN(n) ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: 6 }) + ' IU') : fmtMcg(n);
 const unitLabel = (c) => (c && c.unit === 'IU') ? 'IU' : 'mcg';
 // effective per-unit concentration: stored number, or derived from reconstitution (vial + BAC)
 const mlOf = (u) => (u / 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + ' mL';
@@ -517,7 +517,7 @@ function doseCardHTML(c, glow) {
   const state = log ? 'logged' : '';
   const isIU = c.unit === 'IU';
   const amt = log ? log.doseMcg : c.doseMcg;
-  const heroV = units != null ? units : isIU ? Math.round(amt).toLocaleString() : (amt >= 1000 ? (amt/1000).toFixed(1).replace(/\.0$/,'') : Math.round(amt));
+  const heroV = units != null ? units : isIU ? Number(amt).toLocaleString(undefined, { maximumFractionDigits: 6 }) : (amt >= 1000 ? (amt/1000).toFixed(1).replace(/\.0$/,'') : Math.round(amt));
   const heroU = units != null ? 'units' : isIU ? 'IU' : (amt >= 1000 ? 'mg' : 'mcg');
   const meta = log
     ? `Logged ${clock(log.datetime)}`
@@ -1051,7 +1051,7 @@ function openDose(c) {
     const upd = (fromInput) => {
       if (draw) {
         units = Math.max(0, Math.min(maxU, units));
-        mcg = Math.round(units * conc);
+        mcg = Number((units * conc).toFixed(6));
         if (!fromInput) dv.value = units.toFixed(1);
         conv.textContent = `${fmtAmt(mcg, c.unit)} · ${mlOf(units)}`;
         const fill = Math.max(0, Math.min(W - 3, (units / maxU) * (W - 3)));
