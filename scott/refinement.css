@@ -1,6 +1,8 @@
 /* Scott · forest club. Layout and interaction polish; no protocol changes. */
 :root{--bg:#0b1c17;--plate:#142a22;--ink3:#b4c2ba;--ink4:#9eafa5;--ghost:#91a69a;--hair:rgba(201,222,209,.13)}
 html{scroll-padding-top:88px}
+input,select,textarea{min-width:0}
+.readout{font-size:40px!important}
 body{background:radial-gradient(ellipse at 85% 0,rgba(83,118,89,.12),transparent 55%),var(--bg)}
 #app{max-width:620px}
 .hdr{height:72px;padding:0 20px;background:rgba(11,28,23,.92);box-shadow:none;gap:12px}

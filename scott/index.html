@@ -1107,17 +1107,17 @@ function compForm(c) {
       <div><span class="lbl">Dose (<span id="f-ul">${c.unit === 'IU' ? 'IU' : 'mcg'}</span>)</span><input class="well mono" id="f-dose" inputmode="numeric" value="${esc(c.doseMcg)}"></div>
       <div><span class="lbl">Unit</span><select class="well" id="f-unit"><option ${c.unit !== 'IU' ? 'selected' : ''}>mcg</option><option ${c.unit === 'IU' ? 'selected' : ''}>IU</option></select></div>
     </div>
-    <div><span class="lbl">Reconstitution — so you remember the mix</span>
+    <div><span class="lbl">Vial contents &amp; volume</span>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <input class="well mono" id="f-vial" inputmode="decimal" value="${esc(c.vialAmount || '')}" placeholder="Vial (${c.unit === 'IU' ? 'IU' : 'mg'})" aria-label="Vial amount">
-        <input class="well mono" id="f-bac" inputmode="decimal" value="${esc(c.bacMl || '')}" placeholder="BAC water (mL)" aria-label="Bacteriostatic water in milliliters">
+        <input class="well mono" id="f-bac" inputmode="decimal" value="${esc(c.bacMl || '')}" placeholder="BAC water (mL)" aria-label="Solution or diluent volume in milliliters">
       </div>
       <div class="fine" id="f-calc" style="text-align:left;margin-top:6px"></div></div>
     <div><span class="lbl">Per-unit strength (auto from vial · manual if empty)</span><input class="well mono" id="f-conc" inputmode="decimal" value="${esc(c.mcgPerUnit)}" placeholder="0 = no syringe"></div>
     <div><span class="lbl">Blend ingredients — one per line as "Name: mg" (optional)</span>
       <textarea class="well mono" id="f-ing" rows="3" placeholder="GHK-Cu: 50">${esc((c.ingredients || []).map(i => i.name + ': ' + i.mg).join('\n'))}</textarea></div>
     <div><span class="lbl">Days</span><div class="days7" id="f-days">
-      ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}">${d}</button>`).join('')}</div>
+      ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}" aria-label="${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i]}" aria-pressed="${days.includes(i)}">${d}</button>`).join('')}</div>
       <div class="fine" style="text-align:left;margin-top:6px">No days selected = as-needed only.</div></div>
     <div><span class="lbl">What it does (shown in Library)</span><textarea class="well" id="f-purp" rows="3">${esc(c.purpose)}</textarea></div>
     <div><span class="lbl">Benefits — one per line</span><textarea class="well" id="f-ben" rows="3">${esc((c.benefits || []).join('\n'))}</textarea></div>
@@ -1136,7 +1136,7 @@ function compForm(c) {
         $('#f-purp', sh).value = lib.purpose; $('#f-ben', sh).value = lib.benefits.join('\n');
       }
     });
-    sh.querySelectorAll('.dtoggle').forEach(b => b.onclick = () => b.classList.toggle('on'));
+    sh.querySelectorAll('.dtoggle').forEach(b => b.onclick = () => b.setAttribute('aria-pressed', String(b.classList.toggle('on'))));
     const calc = () => {
       const unit = $('#f-unit', sh).value;
       $('#f-ul', sh).textContent = unit;
@@ -1146,7 +1146,7 @@ function compForm(c) {
         const per = unit === 'IU' ? v / (b * 100) : (v * 1000) / (b * 100);
         $('#f-conc', sh).value = Math.round(per * 100) / 100;
         $('#f-calc', sh).textContent = `= ${Math.round(per * 100) / 100} ${unit} per syringe unit (${b} mL = ${b * 100} units)`;
-      } else $('#f-calc', sh).textContent = 'Leave empty until you reconstitute — doses log by amount only.';
+      } else $('#f-calc', sh).textContent = 'Premixed oils: total vial amount and fill volume. Powders: vial amount and added diluent. Leave blank to log by dose only.';
     };
     ['f-unit','f-vial','f-bac'].forEach(id => $('#' + id, sh).addEventListener('input', calc));
     $('#f-unit', sh).addEventListener('change', calc);
@@ -1195,7 +1195,7 @@ function pillForm(kind, c) {
         ${['Morning','Evening','Nightly','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
     </div>
     <div><span class="lbl">Days</span><div class="days7">
-      ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}">${d}</button>`).join('')}</div>
+      ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}" aria-label="${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i]}" aria-pressed="${days.includes(i)}">${d}</button>`).join('')}</div>
       <div class="fine" style="text-align:left;margin-top:6px">No days selected = as-needed only.</div></div>
     <div><span class="lbl">What it's for · notes</span><textarea class="well" id="p-purp" rows="3">${esc(c.purpose || '')}</textarea></div>
   </div>
@@ -1204,7 +1204,7 @@ function pillForm(kind, c) {
     <button class="btn-primary" id="p-save" style="flex:1">Save</button>
   </div>`;
   openSheet(html, (sh) => {
-    sh.querySelectorAll('.dtoggle').forEach(b => b.onclick = () => b.classList.toggle('on'));
+    sh.querySelectorAll('.dtoggle').forEach(b => b.onclick = () => b.setAttribute('aria-pressed', String(b.classList.toggle('on'))));
     const pc = $('#p-cancel', sh); if (pc) pc.onclick = closeSheet;
     const pd = $('#p-deact', sh); if (pd) pd.onclick = async () => {
       const next = S.data.compounds.map(x => x.id === c.id ? { ...x, active: x.active === false } : x);
