@@ -61,7 +61,7 @@ const installCloud = async (ctx) => {
   });
 };
 const posts = () => cloud.calls.filter(c => c.m === 'POST').length;
-const waitFor = async (pred, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (pred()) return true; await new Promise(r => setTimeout(r, 100)); } return false; };
+const waitFor = async (pred, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await pred()) return true; await new Promise(r => setTimeout(r, 100)); } return false; };
 const newCtx = async (browser, seed) => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   await ctx.addInitScript((fx) => {
@@ -181,7 +181,7 @@ try {
   ctx = await newCtx(browser, FIXTURE); page = await ctx.newPage();
   await openApp(page);
   check('launch retry: a second GET follows the failed one within ~3 s', await waitFor(() => cloud.calls.filter(c => c.m === 'GET').length >= 2, 6000), JSON.stringify(cloud.calls));
-  check('launch retry: the capsule recovers to synced', await waitFor(async () => true, 100) && /synced/.test(await page.locator('.sync-cap').innerText()), await page.locator('.sync-cap').innerText());
+  check('launch retry: the capsule recovers to synced', await waitFor(async () => /synced/.test(await page.locator('.sync-cap').innerText())), await page.locator('.sync-cap').innerText());
   await ctx.close();
 
   // the scenario deliberately provokes one 409 and one dropped connection; anything else is a real error

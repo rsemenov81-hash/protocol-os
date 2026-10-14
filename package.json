@@ -10,7 +10,8 @@
     "test": "node --test \"tests/**/*.test.mjs\"",
     "e2e": "node tests/e2e.mjs && node tests/sync-e2e.mjs && node tests/screens-e2e.mjs",
     "e2e:scott": "node tests/scott-e2e.mjs",
-    "ci": "npm run check && npm test && npm run e2e && npm run e2e:scott"
+    "ci": "npm run check && npm test && npm run e2e && npm run e2e:scott && npm run e2e:trey",
+    "e2e:trey": "PROTOCOL_CLIENT=trey node tests/scott-e2e.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",

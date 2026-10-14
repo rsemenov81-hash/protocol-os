@@ -8,11 +8,14 @@ import { fileURLToPath } from 'node:url';
 import { chromium, webkit } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const scottRoot = resolve(root, 'scott');
-const output = resolve(root, '.playwright/scott');
+const client = process.env.PROTOCOL_CLIENT || 'scott';
+assert.ok(['scott', 'trey'].includes(client));
+const clientTitle = client === 'trey' ? 'Trey' : 'Scott';
+const scottRoot = resolve(root, client);
+const output = resolve(root, '.playwright', client);
 await mkdir(output, { recursive: true });
 const originalHTML = await readFile(resolve(scottRoot, 'index.html'), 'utf8');
-const apiDeclaration = "const API = 'https://scott-protocol.rsemenov81.workers.dev';";
+const apiDeclaration = `const API = 'https://${client}-protocol.rsemenov81.workers.dev';`;
 assert.ok(originalHTML.includes(apiDeclaration), 'fixture must replace the real API before serving the app');
 
 function freshFixture() {
@@ -75,8 +78,8 @@ const server = createServer(async (req, res) => {
       if (pathname === '/api/admin') return json(403, { error: 'Administrator access required' });
       return json(404, { error: 'Unknown fixture route' });
     }
-    if (!pathname.startsWith('/scott/')) { res.writeHead(404); return res.end(); }
-    const filename = resolve(scottRoot, '.' + decodeURIComponent(pathname.slice('/scott'.length)), pathname.endsWith('/') ? 'index.html' : '');
+    if (!pathname.startsWith(`/${client}/`)) { res.writeHead(404); return res.end(); }
+    const filename = resolve(scottRoot, '.' + decodeURIComponent(pathname.slice(('/' + client).length)), pathname.endsWith('/') ? 'index.html' : '');
     if (!filename.startsWith(scottRoot + sep)) { res.writeHead(403); return res.end(); }
     const content = filename === resolve(scottRoot, 'index.html')
       ? originalHTML.replace(apiDeclaration, `const API = '${origin}/api';`)
@@ -137,11 +140,11 @@ async function runBrowser(name, engine) {
   page.on('pageerror', error => errors.push(error.message));
   const check = (label) => { results.push(`${name}: ${label}`); console.log(`ok ${name}: ${label}`); };
   try {
-    await page.goto(`${origin}/scott/`);
+    await page.goto(`${origin}/${client}/`);
     await page.getByLabel('Access code', { exact: true }).fill('fixture-member');
     await page.getByRole('button', { name: 'Connect', exact: true }).click();
     await tab(page, 'Today').waitFor();
-    await page.waitForFunction(() => Boolean(window.ScottInsights));
+    await page.waitForFunction(name => Boolean(window[name]), clientTitle + 'Insights');
     assert.equal(await page.locator('[data-act="addcomp"], [data-act="addstack"], [data-act="addlab"], [data-act="addscan"]').count(), 0);
     check('member connects through the real sign-in form');
 
@@ -231,6 +234,7 @@ async function runBrowser(name, engine) {
     await opener.press('Enter');
     const dialog = page.getByRole('dialog', { name: 'Protocol details' });
     await dialog.waitFor();
+    await page.waitForFunction(() => document.querySelector('#sheet').classList.contains('open'));
     assert.equal(await page.locator('#navigation').evaluate(el => el.inert), true);
     for (const invalid of ['', '0', '-1', 'invalid', '1e999']) {
       await page.getByLabel('Dose', { exact: true }).fill(invalid);
@@ -262,7 +266,7 @@ async function runBrowser(name, engine) {
       const downloadEvent = page.waitForEvent('download');
       await page.locator(`[data-act="export-csv"][data-type="${type}"]`).click();
       const download = await downloadEvent;
-      assert.match(download.suggestedFilename(), new RegExp(`^scott-${type}-\\d{4}-\\d{2}-\\d{2}\\.csv$`));
+      assert.match(download.suggestedFilename(), new RegExp(`^${client}-${type}-\\d{4}-\\d{2}-\\d{2}\\.csv$`));
       assert.equal(await download.failure(), null);
       const filename = await download.path();
       assert.ok(filename, 'browser persisted the CSV download');
@@ -283,6 +287,26 @@ async function runBrowser(name, engine) {
     assert.equal(state.logs.length, 2);
     assert.equal(logWrites, 2);
     check('logged dose can be removed and reconciles with the fixture');
+
+    if (client === 'trey') {
+      state.compounds = [{ id: 'fractional', name: 'Fractional IU fixture', active: true, unit: 'IU', doseMcg: 2.5, mcgPerUnit: 0.1, timing: 'Morning', schedule: { days: [0,1,2,3,4,5,6] } }];
+      await page.reload();
+      await tab(page, 'Today').waitFor();
+      assert.equal(await page.locator('.next-routine').count(), 0, 'empty stacks do not show a fictitious next routine');
+      await tab(page, 'Stacks').click();
+      assert.equal(await page.locator('details.stk').count(), 2);
+      assert.equal(await page.locator('details.it').count(), 0);
+      for (const id of ['am','pm']) await page.locator(`details.stk[data-open="stack:${id}"] > summary`).click();
+      assert.equal(await page.getByText('Your stack will appear here once Roman adds it.', { exact: true }).count(), 2);
+      await tab(page, 'Today').click();
+      await page.getByRole('button', { name: 'Review and log Fractional IU fixture', exact: true }).click();
+      assert.equal(await page.getByLabel('Dose', { exact: true }).inputValue(), '25.0');
+      assert.match(await page.locator('#go').innerText(), /2\.5 IU/);
+      await page.locator('#go').click();
+      await page.getByRole('button', { name: 'Review logged dose for Fractional IU fixture', exact: true }).waitFor();
+      assert.equal(state.logs.find(log => log.compoundId === 'fractional').doseMcg, 2.5);
+      check('empty stacks, no phantom routine, and fractional IU logging');
+    }
 
     failState = true;
     await page.setViewportSize({width:1440,height:1000});
@@ -325,7 +349,7 @@ try {
   await runBrowser('chromium', chromium);
   await runBrowser('webkit', webkit);
   assert.deepEqual(serverErrors, [], 'fixture server had no unexpected errors');
-  console.log(`Scott browser regression suite: ${results.length} scenarios passed across Chromium and WebKit.`);
+  console.log(`${clientTitle} browser regression suite: ${results.length} scenarios passed across Chromium and WebKit.`);
 } finally {
   await new Promise(done => server.close(done));
 }
