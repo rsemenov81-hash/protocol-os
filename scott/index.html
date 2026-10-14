@@ -206,7 +206,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   *{transition-duration:1ms !important;animation-duration:1ms !important}
 }
 </style>
-<link rel="stylesheet" href="refinement.css?v=c19b9b6720f3">
+<link rel="stylesheet" href="refinement.css?v=4b1e4d2cff86">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/water-poster.jpg" tabindex="-1"></video></div>
@@ -522,7 +522,7 @@ function doseCardHTML(c, glow) {
   const meta = log
     ? `Logged ${clock(log.datetime)}`
     : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
-  return `<div class="card dose-wrap ${state} ${S.role === 'admin' ? 'has-edit' : ''} ${glow && !log ? 'glow' : ''}"><button class="dose press" data-act="opendose" data-id="${esc(c.id)}" aria-label="${log ? 'Review logged dose for' : 'Review and log'} ${esc(c.name)}">
+  return `<div class="card dose-wrap dose-photo ${/oral/i.test(c.category || '') ? 'photo-oral' : 'photo-vial'} ${state} ${S.role === 'admin' ? 'has-edit' : ''} ${glow && !log ? 'glow' : ''}"><button class="dose press" data-act="opendose" data-id="${esc(c.id)}" aria-label="${log ? 'Review logged dose for' : 'Review and log'} ${esc(c.name)}" ${c.purpose ? `aria-describedby="purpose-${esc(c.id)}"` : ''}>
     <div class="r1">
       <span style="display:flex;align-items:center;gap:6px"><span class="rt">${/oral/i.test(c.category || '') ? I.pill : I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
       <span style="display:flex;gap:6px;align-items:center">
@@ -530,6 +530,7 @@ function doseCardHTML(c, glow) {
       </span>
     </div>
     <div class="nm">${esc(c.name)}</div>
+    ${c.purpose ? `<div class="dose-purpose" id="purpose-${esc(c.id)}">${esc(c.purpose)}</div>` : ''}
     <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${units != null ? fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit) + ' · ' + mlOf(units) : ''}</span></div>
     <div class="ft"><span class="mt">${meta}</span><span class="dose-action">${log ? 'View log' : 'Review & log'} ↗</span></div>
   </button>${S.role === 'admin' ? `<button class="dose-edit" data-act="editcomp" data-id="${esc(c.id)}" aria-label="Edit ${esc(c.name)}">${I.pencil}</button>` : ''}</div>`;
@@ -588,7 +589,8 @@ function stackItemHTML(c) {
   return `<details class="it" data-open="item:${esc(c.id)}" ${openAttr('item:' + c.id)}>
     <summary><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
       <span style="font-family:var(--serif);font-size:17px;line-height:20px;font-weight:600">${esc(c.name)}</span>
-      <span class="mono" style="font-size:11.5px;color:var(--ink3)">${esc([c.brand, c.serving].filter(Boolean).join(' · '))}</span></span>
+      <span class="mono" style="font-size:11.5px;color:var(--ink3)">${esc([c.brand, c.serving].filter(Boolean).join(' · '))}</span>
+      ${c.purpose ? `<span class="item-purpose">${esc(c.purpose)}</span>` : ''}</span>
       ${tag ? `<span class="pill ${tag[1]}">${tag[0]}</span>` : ''}${I.chev}</summary>
     <div class="it-body">
       ${c.serving ? sec(c.servingLabel || 'Take', esc(c.serving)) : ''}
@@ -605,7 +607,9 @@ function stacksView() {
   const body = (S.data.stacks || []).map(st => {
     const items = S.data.compounds.filter(c => c.stack === st.id && c.active !== false);
     return `<details class="card stk stack-${esc(st.id)}" data-open="stack:${st.id}" ${openAttr('stack:' + st.id)}>
-      <summary><span class="stack-symbol" aria-hidden="true">${st.id === 'am' ? '☀' : '☾'}</span><span class="stack-caption" style="flex:1;min-width:0"><span class="big-title" style="display:block;font-size:27px;line-height:32px">${esc(st.name)}</span>
+      <summary aria-label="${esc(st.name)} ${clockOf(st.time)} · ${items.length} item${items.length === 1 ? '' : 's'}" ${items.length ? `aria-describedby="stack-preview-${esc(st.id)}"` : ''}><span class="stack-symbol" aria-hidden="true">${st.id === 'am' ? '☀' : '☾'}</span>
+        ${items.length ? `<span class="stack-preview" id="stack-preview-${esc(st.id)}"><span>Inside</span> ${items.slice(0, 3).map(c => esc(c.name)).join(' · ')}${items.length > 3 ? `<span class="preview-more"> + ${items.length - 3} more</span>` : ''}</span>` : ''}
+        <span class="stack-caption" style="flex:1;min-width:0"><span class="big-title" style="display:block;font-size:27px;line-height:32px">${esc(st.name)}</span>
         <span class="mono" style="font-size:12px;color:var(--ink3)">${clockOf(st.time)} · ${items.length} item${items.length === 1 ? '' : 's'}</span></span>${I.chev}</summary>
       <div class="stk-body">${items.map(stackItemHTML).join('') ||
         `<div class="fine" style="padding:6px 0">${S.role === 'admin' ? 'Nothing in this stack yet.' : 'Roman hasn’t filled this stack yet.'}</div>`}

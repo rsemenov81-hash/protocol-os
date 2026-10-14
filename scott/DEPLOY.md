@@ -162,3 +162,23 @@ After that, edit or add items in the app (pencil → **Edit**, or **+ Add to …
 - The codes live only in Cloudflare secrets, never in the code or the repo.
 - To lock someone out, change their secret. Their phone asks for a code again on its next sync.
 - The dose gate runs on the worker as well as in the app: an injection at 5× or more of the set dose is refused.
+
+### Photographic compound cards
+
+Compound buttons show their saved purpose text without changing private records. The
+stack covers preview three active item names and the remaining count. Purpose text
+and preview names are HTML-escaped; full dosing and ingredient details retain their
+existing controls. No extra network request is needed for these descriptions.
+
+Two generic, unlabelled still-life images were generated with Higgsfield; no personal
+or regimen data was supplied. They are decorative category imagery, not product
+identification:
+
+- `compound-vial.webp`: 47,700 bytes; job `3dbeba86-17c1-456b-9336-12911eb7c990`.
+- `compound-oral.webp`: 46,206 bytes; job `b1605e03-bfbe-4129-bd49-c43a3c2e2475`.
+
+Both use `gpt_image_2_5` and optimized WebP. Still photography, static edge highlights
+and shadows create depth. Hover lift applies only to fine pointers and is disabled
+for reduced motion. No new continuously animated effects, dependencies or backend
+changes are introduced. Deploy these two assets alongside the HTML and its matching
+content-versioned stylesheet.

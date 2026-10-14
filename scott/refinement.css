@@ -58,3 +58,33 @@ button,a,input,select,textarea,summary{-webkit-tap-highlight-color:transparent}b
 @media(min-width:700px){.scan-controls .lbl{margin-top:2px!important}}
 
 .connection-notice{display:flex;align-items:center;gap:12px;margin:8px 20px 14px;padding:14px 16px;background:#183845;border:1px solid #6c8990;border-radius:16px;font-size:13px;line-height:1.5;color:#edf1e7}.connection-notice span{flex:1}.connection-notice button{flex-shrink:0;min-width:68px}
+
+/* Photographic compound surfaces: dimensional still life, readable content. */
+.dose-photo,.stk,.it{box-shadow:0 2px 3px rgba(2,17,14,.18),0 16px 32px -18px rgba(2,17,14,.65),inset 0 1px 0 rgba(249,244,223,.16);border-color:rgba(220,234,215,.24)}
+.dose-photo{isolation:isolate;background:#18352e;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.dose-photo::before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(15,36,29,.95),rgba(15,36,29,.86) 65%,rgba(15,36,29,.06)),url('./assets/compound-vial.webp') right center/cover no-repeat}
+.dose-photo.photo-oral::before{background-image:linear-gradient(90deg,rgba(15,36,29,.95),rgba(15,36,29,.86) 65%,rgba(15,36,29,.06)),url('./assets/compound-oral.webp')}
+.dose-photo::after,.stk>summary::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,250,224,.2),inset 0 -2px 3px rgba(0,14,10,.18);background:linear-gradient(135deg,rgba(255,251,221,.07),transparent 38%)}
+.dose-photo .dose{min-height:284px;gap:14px;height:100%;background:none}
+.dose-photo .nm{display:block;min-height:0;overflow:visible;max-width:76%;font-size:23px;line-height:1.22;overflow-wrap:anywhere}
+.dose-purpose{font-size:13px;line-height:1.65;color:#e3ebe5;max-width:65ch;padding-right:20%;text-wrap:pretty}
+.dose-photo .hero{margin-top:4px}.dose-photo .ft{margin-top:auto;border-color:rgba(239,240,220,.2)}
+.dose-photo .r1 .rtl{color:#e0e9df}.dose-photo .ring{background:linear-gradient(145deg,#e7dbb7,#c6b98e);box-shadow:0 3px 6px rgba(0,0,0,.2),inset 0 1px 0 #fff5d4;border:1px solid #e3d5b1;color:#15372b}.dose-photo .ring svg{stroke:#18382e}.dose-photo.logged .ring{background:#86caa0}
+.dose-photo .dose-edit{background:rgba(19,42,33,.8);border:1px solid rgba(230,237,220,.18);color:#e3ebe5}
+.dose-photo .dose-action{padding:7px 9px;border:1px solid rgba(226,210,167,.25);border-radius:9px;background:rgba(19,42,33,.8)}
+.stk>summary{display:grid;grid-template-columns:38px minmax(0,1fr) 18px;column-gap:14px;row-gap:25px;align-items:center;border-radius:23px}
+.stk>summary .stack-symbol{position:static;grid-column:1;grid-row:1;background:linear-gradient(145deg,rgba(241,239,212,.14),rgba(13,35,27,.38));box-shadow:0 3px 8px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,249,221,.18)}
+.stk>summary .stack-preview{grid-column:2/-1;grid-row:1;max-width:58ch;font-size:12px;line-height:1.6;color:#edf1e8;text-wrap:pretty}
+.stack-preview>span:first-child{font-weight:600;color:var(--accent);margin-right:5px}.preview-more{white-space:nowrap;color:#cedbcf}
+.stk>summary .stack-caption{grid-column:1/3;grid-row:2}.stk>summary>svg:last-child{grid-column:3;grid-row:2;margin:0;color:#f1e7ce}
+.stk>summary::before{background-image:linear-gradient(90deg,rgba(19,37,28,.88),rgba(19,37,28,.58) 52%,rgba(19,37,28,.16)),url('./assets/morning-ritual.webp')}
+.stack-pm>summary::before{background-image:linear-gradient(90deg,rgba(13,31,42,.9),rgba(13,31,42,.62) 52%,rgba(13,31,42,.14)),url('./assets/night-ritual.webp')}
+.stk[open]>summary{border-radius:23px 23px 0 0}.stk-body{gap:12px}
+.it{overflow:hidden;border:1px solid rgba(222,236,226,.18);border-radius:18px!important;background:#17372e;box-shadow:0 5px 12px -9px rgba(0,0,0,.7),inset 0 1px 0 rgba(243,239,215,.09)}
+.it:last-of-type{border-bottom:1px solid rgba(222,236,226,.18)}
+.it>summary{padding:18px 16px;align-items:flex-start;background:linear-gradient(90deg,rgba(18,42,33,.98),rgba(18,42,33,.95) 50%,rgba(18,42,33,.76)),url('./assets/compound-oral.webp') right center/cover no-repeat}
+.it>summary .pill{margin-top:1px}.it>summary>svg:last-child{margin-top:5px}.item-purpose{display:block;font-size:12px;line-height:1.65;margin-top:8px;color:#d7e3d9;text-wrap:pretty}.it-body{padding:2px 16px 20px}
+@media(hover:hover) and (pointer:fine){.dose-photo:hover{transform:translateY(-3px);border-color:rgba(234,222,184,.52);box-shadow:0 4px 6px rgba(2,17,14,.2),0 24px 36px -20px rgba(2,17,14,.75),inset 0 1px 0 rgba(249,244,223,.2)}.stk>summary:hover::after{background:linear-gradient(135deg,rgba(255,251,221,.12),transparent 55%)}.it>summary:hover{background-color:#24483b}}
+@media(max-width:600px){.protocol-block .grid2{grid-template-columns:1fr}.dose-purpose{padding-right:12%;font-size:13px}.dose-photo .nm{font-size:20px;max-width:80%}.stk>summary{min-height:206px;padding:22px;row-gap:20px}.stk>summary .stack-preview{font-size:12px;line-height:1.55}.it>summary{padding:16px 12px;gap:8px}.it>summary>span>span:first-child{font-size:15px!important}.item-purpose{font-size:12px}.stk-body{padding:12px}.dose-photo .dose{min-height:284px}}
+@media(max-width:360px){.dose-photo .dose{padding:16px}.dose-purpose{padding-right:0}.stk>summary{padding:19px;column-gap:11px;grid-template-columns:34px minmax(0,1fr) 16px}.stack-symbol{width:34px;height:34px}.stk>summary .big-title{font-size:31px!important}.stk>summary .mono{margin-top:8px}}
+@media(prefers-reduced-motion:reduce){.dose-photo:hover{transform:none}}
