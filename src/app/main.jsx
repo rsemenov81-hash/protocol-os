@@ -1,4 +1,6 @@
 import { pushStatus, enableReminders, updateReminders, disableReminders, sendTestReminder, listenForOpenBlock, defaultReminderSettings, getSavedReminders } from './push.js';
+import { LevelsView } from './LevelsView.jsx';
+import { LEVEL_MODELS_KEY } from './levels.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback, useContext } = React;
 // Sheet confirm bar slot: a sheet's footer is portaled next to .sheet-body (a flex sibling below it), so the
@@ -683,6 +685,14 @@ const MIGRATIONS = [
     //      every day since that carries no testosterone entry. Today is left for the user to log.
     //  (2) Anavar 50 mg/day, 2026-08-22 → 2026-09-28, cycle finished — logged for every day.
     id: 'm1_roman_test_daily_anavar_2026-10', profile: 'Roman',
+    appliesTo({ protocols, logs }) {
+      // This one-off correction belongs only to the pre-existing 2026 regimen.
+      // New accounts (including after their first logged dose) must stay untouched.
+      const relevant = p => /^(testosterone|testosterone-cypionate|anavar)$/.test(p.peptideId || '') || /testosterone\s*cyp|\banavar\b/i.test(p.peptideName || p.peptide || '');
+      const historic = d => dkValid(dkOf(d)) && dkOf(d) <= '2026-10-02';
+      return protocols.some(p => p.profile === 'Roman' && relevant(p) && historic(p.startDate)) ||
+        logs.some(l => l.profile === 'Roman' && relevant(l) && historic(l.datetime));
+    },
     run({ protocols, logs, vials }, todayDk) {
       const FROM = '2026-08-22';
       let ps = protocols.slice(), ls = logs.slice();
@@ -714,8 +724,11 @@ const MIGRATIONS = [
 function runMigrations(state, profile, todayDk) {
   const done = new Set((state.meta && Array.isArray(state.meta.migrations)) ? state.meta.migrations : []);
   let protocols = state.protocols || [], logs = state.logs || [], meta = state.meta || {}, changed = false;
+  // A fresh install has no historical regimen to migrate. Never manufacture exposure in Levels.
+  if (!protocols.length && !logs.length) return { protocols, logs, meta, changed };
   for (const m of MIGRATIONS) {
     if (done.has(m.id) || (m.profile && m.profile !== profile)) continue;
+    if (m.appliesTo && !m.appliesTo({ protocols, logs })) continue;
     try {
       const r = m.run({ protocols, logs, vials: state.vials || [] }, todayDk) || {};
       protocols = r.protocols || protocols; logs = r.logs || logs;
@@ -900,6 +913,7 @@ function RouteIcon({ route, color, s=16 }) {
 // Tab-bar line-art icons
 function NavIcon({ id, color }) {
   const p = { width:22, height:22, viewBox:'0 0 24 24', fill:'none', stroke:color, strokeWidth:1.8, strokeLinecap:'round', strokeLinejoin:'round' };
+  if (id==='levels') return <svg {...p}><path d="M3 3v18h18M5 16l4-7 3 4 3-8 4 5"/></svg>;
   if (id==='protocol') return <svg {...p}><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>;
   if (id==='plan') return <svg {...p}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>;
   if (id==='lab') return <svg {...p}><path d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"/></svg>;
@@ -1402,7 +1416,7 @@ function App() {
   const openLockSettings = () => openModal(<LockSheet lock={lock} onSave={(rec) => { saveLock(rec); closeModal(); showToast(rec ? 'App lock is on' : 'App lock is off'); }} onClose={closeModal}/>);
   const forgetAndResync = () => {
     // Keeps sync settings; wipes this phone's copy so the next launch pulls the cloud record.
-    ['protocol_os_protocols', 'protocol_os_logs', 'protocol_os_vials', 'protocol_os_meta', 'protocol_os_backup', 'protocol_os_lock'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    ['protocol_os_protocols', 'protocol_os_logs', 'protocol_os_vials', 'protocol_os_meta', 'protocol_os_backup', 'protocol_os_lock', LEVEL_MODELS_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
     location.reload();
   };
   // Theme: auto (follows the device), dark or light — applied as data-theme on <html>; the browser chrome colour follows.
@@ -1829,6 +1843,7 @@ function App() {
       <div className="ambient"/>
       <div {...((sheet.content || locked) ? { inert: '' } : {})}>
       <AppHeader
+        levelsMode={activeTab === 'levels'}
         viewDate={viewDate} setViewDate={setViewDate} isToday={isToday}
         activeProfile={activeProfile} setActiveProfile={switchProfile} protocols={protocols}
         logged={headerLogged} scheduled={headerScheduled} weekDays={weekDays}
@@ -1845,6 +1860,7 @@ function App() {
       {!isToday && activeTab === 'protocol' && <div style={{position:'relative',zIndex:2,maxWidth:480,margin:'0 auto',padding:'10px 18px 0'}}><button className="viewing-pill" onClick={() => setViewDate(new Date())}>Viewing {fmtDk(dateKey)} · Back to today</button></div>}
       <div style={{position:'relative',zIndex:1,maxWidth:480,margin:'0 auto',padding:'12px 18px 0'}}>
         <div className="anim-fade-in" key={activeTab + dateKey + activeProfile}>
+          {activeTab === 'levels' && <LevelsView logs={logs} protocols={protocols} activeProfile={activeProfile}/>}
           {(activeTab === 'protocol' || activeTab === 'plan') && <ProtocolView mode={activeTab === 'plan' ? 'plan' : 'today'} openLibrary={openLibrary} openCalculator={openCalculator} proposalsPending={proposalsPending} onOpenProposals={openProposals} viewDate={viewDate} dateKey={dateKey} isFuture={isFuture} activeProfile={activeProfile} protocols={protocols} setProtocols={setProtocols} vials={vials} setVials={setVials} logs={logs} setLogs={setLogs} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} jumpTo={jumpTo} clearJump={() => setJumpTo(null)}/>}
           {activeTab === 'history' && <HistoryView logs={logs} setLogs={setLogs} protocols={protocols} vials={vials} activeProfile={activeProfile} openModal={openModal} closeModal={closeModal} confirmModal={confirmModal} showToast={showToast} exportCSV={exportHistoryCSV} exportJSON={exportHistoryJSON} onReport={(list, label, adherence) => setReport({ logs: list, label, adherence })}
             onJump={(dk, protocolId, logId) => { const t = dkParse(dk); if (!isNaN(t)) { const d = new Date(t); setViewDate(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); } setJumpTo({ dateKey: dk, protocolId, logId }); setActiveTab('protocol'); }}/>}
@@ -1853,8 +1869,8 @@ function App() {
 
       <div className="pill-nav-wrap">
         <div className="pill-nav">
-          {[['protocol','Today'],['plan','Plan'],['history','History']].map(([id,label]) => (
-            <button key={id} onClick={() => setActiveTab(id)} className={`pill-nav-item ${activeTab===id?'active':''}`}>
+          {[['protocol','Today'],['plan','Plan'],['levels','Levels'],['history','History']].map(([id,label]) => (
+            <button key={id} onClick={() => setActiveTab(id)} aria-current={activeTab===id?'page':undefined} className={`pill-nav-item ${activeTab===id?'active':''}`}>
               <NavIcon id={id} color={activeTab===id?'var(--accent)':'var(--text-faint)'}/><span>{label}</span>
             </button>
           ))}
@@ -1998,7 +2014,7 @@ function AvatarMenu({ activeProfile, setActiveProfile, protocols, onOpenDataSync
   );
 }
 
-function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
+function AppHeader({ levelsMode=false, viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = React.useRef(null);
   useEffect(() => {
@@ -2025,16 +2041,16 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
     <>
       <header className={scrolled ? 'hdr scrolled' : 'hdr'}>
         <div className="hdr-in">
-          <DateButton viewDate={viewDate} setViewDate={setViewDate}/>
+          {!levelsMode && <DateButton viewDate={viewDate} setViewDate={setViewDate}/>}
           <div className="hdr-center" aria-hidden="true">
             <span className="hdr-mark">PROTOCOL OS</span>
-            <span className="hdr-title num">{titleLabel}<span className="mini mono num">{logged}/{scheduled}</span></span>
+            <span className="hdr-title num">{levelsMode ? activeProfile : titleLabel}{!levelsMode && <span className="mini mono num">{logged}/{scheduled}</span>}</span>
           </div>
           <button className={'sync-cap num ' + syncState} aria-label={syncAria} onClick={onSyncTap}>{syncLabel}</button>
           <AvatarMenu activeProfile={activeProfile} setActiveProfile={setActiveProfile} protocols={protocols} onOpenDataSync={onOpenDataSync} onOpenLibrary={onOpenLibrary} onOpenCalculator={onOpenCalculator} onOpenReminders={onOpenReminders} textScale={textScale} setTextScale={setTextScale} theme={theme} setTheme={setTheme}/>
         </div>
       </header>
-      <div className="hdr-large">
+      {!levelsMode && <div className="hdr-large">
         <div className="eyebrow num">{eyebrow}</div>
         <div className="title-row">
           <h1 className="large-title">{titleLabel}</h1>
@@ -2059,7 +2075,7 @@ function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActivePro
             </button>
           ))}
         </div>
-      </div>
+      </div>}
       <div ref={sentinelRef} style={{height:1}} aria-hidden="true"/>
     </>
   );

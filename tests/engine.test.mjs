@@ -140,4 +140,11 @@ describe('migration m1 (Roman: daily testosterone + Anavar cycle) against a live
   eq(r3.logs.length, r1.logs.length, 're-run without marker adds nothing (deterministic ids)');
   eq(r3.protocols.find((p) => p.id === 'p_live_t').timeline.length, 2, 're-run does not duplicate timeline entry');
   eq(m.runMigrations(live, 'Scott', TODAY).changed, false, 'does not run for other profiles');
+  const fresh = { protocols: [], logs: [], meta: {} };
+  eq(m.runMigrations(fresh, 'Roman', TODAY).changed, false, 'empty install stays empty');
+  const recent = { ...fresh, protocols: [{ ...live.protocols[0], startDate: '2026-10-14' }], logs: [{ ...live.logs[0], datetime: '2026-10-14T07:00' }] };
+  const recentResult = m.runMigrations(recent, 'Roman', '2026-10-14');
+  eq(recentResult.changed, false, 'first new regimen cannot trigger historical backfill after reload');
+  eq(recentResult.logs.length, 1, 'new regimen keeps only its actual log');
+  eq(m.runMigrations({ ...fresh, logs: [{ ...live.logs[0], profile: 'Scott' }] }, 'Roman', TODAY).changed, false, 'another profile history cannot seed Roman');
 });
