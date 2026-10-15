@@ -788,6 +788,68 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   .report-actions{display:none}
   .report-view tr{break-inside:avoid}
 }
+
+/* Levels: quiet, inspectable dose history; all charts are lightweight SVG. */
+.levels-view{padding:8px 0 28px}
+.levels-hero{padding:20px 0 18px}
+.level-eyebrow{font-size:10px;line-height:1.5;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.levels-hero h1{font-size:38px;letter-spacing:-1.3px;margin:6px 0 8px;line-height:1.1}
+.levels-hero p{color:var(--text-dim);font-size:14px;margin:0;line-height:1.5}
+.levels-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:24px 0 16px;gap:12px}
+.levels-stats>div{display:flex;flex-direction:column;gap:5px;border-left:1px solid var(--border-strong);padding-left:14px}
+.levels-stats>div:first-child{border:0;padding-left:0}
+.levels-stats strong{font-family:var(--mono);font-size:27px;font-weight:500;line-height:1.2}
+.levels-stats span{font-size:11px;color:var(--text-dim);line-height:1.4}
+.levels-updated{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--text-dim)}
+.levels-live-dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.levels-explainer{border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--fill-1);font-size:12px;line-height:1.55;margin-bottom:20px}
+.levels-explainer>strong{font-size:13px;color:var(--text-2)}
+.levels-explainer p{margin:5px 0 9px;color:var(--text-dim)}
+.levels-explainer summary,.level-source summary,.levels-exclusions summary{min-height:36px;display:flex;align-items:center;color:var(--accent);font-size:12px;font-weight:600;gap:8px}
+.levels-explainer summary::after,.level-source summary::after,.levels-exclusions summary::after{content:'+';margin-left:auto}
+.levels-explainer details[open]>summary::after,.level-source[open]>summary::after,.levels-exclusions[open]>summary::after{content:'−'}
+.level-search{display:block;margin-bottom:12px}
+.level-search .input{padding:12px 14px}
+.level-search .input::placeholder{color:var(--text-faint)}
+.level-filters{display:flex;gap:6px;flex-wrap:wrap}
+.level-filters button,.level-ranges button{background:var(--fill-1);border:1px solid var(--border);color:var(--text-dim);border-radius:20px;padding:8px 11px;font-size:11px;min-height:40px}
+.level-filters button[aria-pressed=true],.level-ranges button[aria-pressed=true]{color:var(--accent);border-color:var(--accent);background:var(--fill-3)}
+.level-results{font-size:10px;color:var(--text-dim);margin:16px 0 10px}
+.level-card{border:1px solid var(--border);border-radius:18px;background:var(--glass);box-shadow:var(--edge1),var(--shadow1);margin:10px 0;overflow:hidden}
+.level-card-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:18px 16px;border:0;background:transparent;color:var(--text);text-align:left;min-height:104px}
+.level-card-heading{display:flex;flex-direction:column;gap:7px;min-width:0}
+.level-card-heading>strong{font-size:15px;line-height:1.4;overflow-wrap:anywhere;font-weight:600}
+.level-card-meta{font-size:10px;line-height:1.5;color:var(--text-dim)}
+.level-card-value{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+.level-card-value>strong{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--accent)}
+.level-card-value>span{font-size:20px;color:var(--text-dim);line-height:1}
+.level-card.is-open{border-color:var(--border-strong)}
+.level-card-body{border-top:1px solid var(--border);padding:16px}
+.level-model-label{display:flex;flex-direction:column;gap:9px;font-size:11px;color:var(--text-dim)}
+.level-model-label select{width:100%;padding:12px;font-size:12px!important;min-height:44px;white-space:normal}
+.level-note,.level-caption{color:var(--text-dim);font-size:12px;line-height:1.6;margin:12px 0}
+.level-caption{font-size:10px}
+.level-current{display:flex;flex-direction:column;gap:8px;margin:24px 0 20px}
+.level-current>span{font-size:11px;color:var(--text-dim)}
+.level-current>strong{font-size:34px;line-height:1.15;font-family:var(--mono);font-weight:500;letter-spacing:-1px;color:var(--accent)}
+.level-toolbar,.level-readout{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--text-dim)}
+.level-ranges{display:flex;gap:4px}.level-ranges button{padding:7px 10px;min-height:36px}
+.level-trend svg{width:100%;height:auto;display:block;margin-top:10px}
+.level-scrubber{display:block;font-size:10px;color:var(--text-dim)}
+.level-scrubber input{display:block;width:100%;min-height:40px;accent-color:var(--accent);-webkit-appearance:auto}
+.level-readout{min-height:30px;flex-wrap:wrap}.level-readout strong{color:var(--text-2);font-family:var(--mono);font-size:12px}
+.level-source,.levels-exclusions{border-top:1px solid var(--border);padding:8px 0;font-size:11px;line-height:1.65;color:var(--text-dim)}
+.level-source a{color:var(--accent);text-underline-offset:3px}.level-source p{margin:8px 0}
+.level-history-title{font-size:12px;margin:20px 0 8px;font-weight:600}
+.level-dose-list{list-style:none;margin:0;padding:0;font-size:11px}
+.level-dose-list li{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 0;border-bottom:1px solid var(--border-light);color:var(--text-dim)}
+.level-dose-list strong{font-family:var(--mono);font-weight:500;color:var(--text-2)}
+.level-more{width:100%;margin-top:10px;min-height:44px}
+.levels-empty{text-align:center;padding:28px 12px;color:var(--text-dim);font-size:13px;line-height:1.6}
+.levels-empty h2{font-size:17px;color:var(--text)}
+.levels-exclusions{margin-top:20px}
+@media(max-width:360px){.level-card-toggle{padding:16px 12px;gap:8px}.level-card-value>strong{font-size:11px}.level-card-body{padding:12px}.level-card-heading>strong{font-size:14px}.levels-stats{gap:8px}.levels-stats>div{padding-left:10px}}
+.levels-view .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 </head>
 <body>
@@ -1132,8 +1194,316 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     };
   }
 
+  // src/app/levels.js
+  var HOUR = 36e5;
+  var LEVEL_MODELS_KEY = "protocol_os_levels_models_v1";
+  var model = (id, compound, name, routes, hours, label, source, note, extra = {}) => ({ id, compound, name, routes, hours, label, source, note, unit: "mass", ...extra });
+  var LEVEL_MODELS = [
+    model(
+      "cyp-im",
+      "testosterone-cypionate",
+      "Testosterone cypionate",
+      ["im"],
+      192,
+      "IM · 8 days",
+      "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/216318s000lbl.pdf",
+      "FDA label, section 12.3: approximate half-life after intramuscular injection. Models the logged ester dose; does not predict serum testosterone, free testosterone, or endogenous production."
+    ),
+    model(
+      "deca-im",
+      "deca",
+      "Nandrolone decanoate",
+      ["im"],
+      144,
+      "IM depot · 6 days",
+      "https://pubmed.ncbi.nlm.nih.gov/3865478/",
+      "Human IM study: 6-day release half-life from the injection depot. This estimates ester remaining in the depot, not circulating nandrolone (which has different kinetics).",
+      { kind: "depot" }
+    ),
+    model(
+      "tirz-sc",
+      "tirzepatide",
+      "Tirzepatide",
+      ["sc"],
+      120,
+      "Subcutaneous · 5 days",
+      "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/215866s041lbl.pdf",
+      "Mounjaro label, section 12.3: population mean elimination half-life about 5 days after subcutaneous administration. Absorption and product differences are not modeled."
+    ),
+    model(
+      "reta-sc",
+      "retatrutide",
+      "Retatrutide",
+      ["sc"],
+      144,
+      "Subcutaneous · 6 days",
+      "https://pubmed.ncbi.nlm.nih.gov/36354040/",
+      "Urva et al., 2022 phase 1b human trial: approximately 6 days after subcutaneous administration of the study product. This does not establish equivalence of other preparations."
+    ),
+    model(
+      "cagri-sc",
+      "cagrilintide",
+      "Cagrilintide",
+      ["sc"],
+      177,
+      "Subcutaneous · 159–195 hours",
+      "https://pubmed.ncbi.nlm.nih.gov/33894838/",
+      "Enebo et al., 2021 phase 1b trial with semaglutide: 159–195 hours. The line uses the midpoint (177 hours); shading shows both endpoints, not a statistical confidence interval.",
+      { range: [159, 195] }
+    ),
+    model(
+      "hcg-inj",
+      "hcg",
+      "HCG",
+      ["sc", "im"],
+      33,
+      "Urinary hCG · SC / IM · 33 hours",
+      "https://assets.hpra.ie/products/Human/23292/LicenseSPC_PA0964-005-001_08052015164049.pdf",
+      "Pregnyl product information, section 5.2: apparent elimination half-life approximately 33 hours after SC / IM dosing. Urinary hCG reference only; not a testosterone-response model.",
+      { unit: "IU" }
+    ),
+    model(
+      "anavar-oral",
+      "anavar",
+      "Oxandrolone (Anavar)",
+      ["oral"],
+      10.4,
+      "Oral · 10.4 hours",
+      "https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=f622616e-4c11-4149-bf00-5ea5ce97800b",
+      "Historical Oxandrin label: mean 10.4 hours in younger volunteers; 13.3 hours in elderly subjects. Duration of effects is not determined by this curve."
+    ),
+    model(
+      "tadalafil-oral",
+      "tadalafil",
+      "Tadalafil",
+      ["oral"],
+      17.5,
+      "Oral tablet · 17.5 hours",
+      "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=13e72ff9-29bd-4aa4-ba24-0aafa7dacd7e",
+      "Oral tablet label: mean terminal half-life in healthy subjects. Not validated for sublingual preparations."
+    ),
+    model(
+      "finasteride-oral",
+      "finasteride",
+      "Finasteride",
+      ["oral"],
+      6,
+      "Oral · 6 hours",
+      "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5e69ea84-dc5a-4aac-9353-4920c6f7b3aa",
+      "Label: mean plasma half-life about 6 hours in healthy young subjects, with substantial variability. DHT suppression can persist beyond plasma elimination."
+    )
+  ];
+  function compoundId(log) {
+    const id = String(log.peptideId || "").toLowerCase();
+    if (id === "testosterone" && /\bcyp(?:ionate)?\b/i.test(log.peptide || log.peptideName || "")) return "testosterone-cypionate";
+    return { "test-cyp": "testosterone-cypionate", oxandrolone: "anavar", "nandrolone-decanoate": "deca", "ss-31": "ss31", "ta-1": "thymosin-a1" }[id] || id;
+  }
+  function recordedRoute(log) {
+    const exact = String(log.route || "").toLowerCase();
+    const route = { im: "im", intramuscular: "im", sc: "sc", sq: "sc", subq: "sc", subcutaneous: "sc", oral: "oral", sl: "sl", sublingual: "sl", nasal: "nasal", intranasal: "nasal", iv: "iv", intravenous: "iv", inj: "inj", pen: "inj" }[exact];
+    if (route && route !== "inj") return route;
+    const label = String(log.peptide || log.peptideName || "");
+    if (/\b(SL|sublingual)\b/i.test(label)) return "sl";
+    if (/\b(intranasal|nasal)\b/i.test(label)) return "nasal";
+    if (/\b(oral|tablet)\b/i.test(label)) return "oral";
+    if (/\b(subq|subcutaneous|SC)\b/i.test(label)) return "sc";
+    if (/\b(intramuscular|IM)\b/i.test(label)) return "im";
+    if (/\b(intravenous|IV)\b/i.test(label)) return "iv";
+    return route || "unknown";
+  }
+  function parseDoseTime(value) {
+    if (typeof value !== "string") return NaN;
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?$/.exec(value);
+    if (!m || +m[2] < 1 || +m[2] > 12 || +m[3] < 1 || +m[3] > new Date(Date.UTC(+m[1], +m[2], 0)).getUTCDate() || +m[4] > 23 || +m[5] > 59 || +(m[6] || 0) > 59) return NaN;
+    const t = Date.parse(value);
+    if (Number.isFinite(t) && !m[7]) {
+      const d = new Date(t);
+      if (d.getHours() !== +m[4] || d.getMinutes() !== +m[5]) return NaN;
+    }
+    return t;
+  }
+  function remainingAt(entries, time, halfLifeHours) {
+    if (!Number.isFinite(time) || !(halfLifeHours > 0) || !Number.isFinite(halfLifeHours)) return null;
+    return entries.reduce((sum, e) => e.at <= time ? sum + e.amount * 2 ** (-(time - e.at) / HOUR / halfLifeHours) : sum, 0);
+  }
+  function compatibleModels(group) {
+    if (group.blend || group.unit === "unknown") return [];
+    return LEVEL_MODELS.filter((m) => m.compound === group.compound && m.unit === group.unit && (group.route === "unknown" || group.route === "inj" && m.routes.some((r) => r === "sc" || r === "im") || m.routes.includes(group.route)));
+  }
+  function resolveModel(group, selections = {}) {
+    const available = compatibleModels(group);
+    if (Object.hasOwn(selections, group.key)) return available.find((m) => m.id === selections[group.key]) || null;
+    return group.route !== "unknown" && group.route !== "inj" && available.length === 1 ? available[0] : null;
+  }
+  function buildLevels({ logs = [], protocols = [], profile, now = Date.now(), selections = {} }) {
+    const owners = new Map(protocols.map((p) => [p.id, p.profile]));
+    const unique = /* @__PURE__ */ new Map();
+    const ignored = { skipped: 0, future: 0, invalid: 0, duplicate: 0, unassigned: 0 };
+    for (const l of logs) {
+      if (!l || typeof l !== "object") continue;
+      const owner = l.profile || owners.get(l.protocolId);
+      if (!owner) {
+        ignored.unassigned++;
+        continue;
+      }
+      if (owner !== profile) continue;
+      const key = l.id == null ? /* @__PURE__ */ Symbol() : String(l.id);
+      const prior = unique.get(key);
+      if (prior) {
+        ignored.duplicate++;
+        if ((Date.parse(l.updatedAt) || 0) <= (Date.parse(prior.updatedAt) || 0)) continue;
+      }
+      unique.set(key, l);
+    }
+    const groups = /* @__PURE__ */ new Map();
+    for (const l of unique.values()) {
+      if (l.skipped) {
+        ignored.skipped++;
+        continue;
+      }
+      const at = parseDoseTime(l.datetime), amount = typeof l.doseMcg === "number" || typeof l.doseMcg === "string" && l.doseMcg.trim() ? Number(l.doseMcg) : NaN;
+      if (!Number.isFinite(at) || !Number.isFinite(amount) || amount <= 0) {
+        ignored.invalid++;
+        continue;
+      }
+      if (at > now) {
+        ignored.future++;
+        continue;
+      }
+      const compound = compoundId(l), name = l.peptide || l.peptideName || compound || "Unnamed compound";
+      const route = recordedRoute(l);
+      const tag = l.doseUnit;
+      const unit = tag === "IU" ? "IU" : compound === "hcg" || tag && !["mcg", "mg", "g"].includes(tag) ? "unknown" : "mass";
+      const blend = compound === "__pen__" || /^blend_/.test(compound) || /\+|\b(blend|mix|pen|neurolux|coremend|klow|glow)\b/i.test(name);
+      const identity = compound === "__pen__" || !compound ? l.protocolId || name : compound;
+      const key = JSON.stringify([profile, identity, route, unit]);
+      let g = groups.get(key);
+      if (!g) {
+        g = { key, compound, name, route, unit, blend, entries: [], localTimes: 0, backfilled: 0, review: 0 };
+        groups.set(key, g);
+      }
+      g.entries.push({ at, amount, id: l.id, datetime: l.datetime });
+      if (!/(Z|[+-]\d{2}:\d{2})$/.test(l.datetime)) g.localTimes++;
+      if (l.backfilled) g.backfilled++;
+      if (l.needsReview) g.review++;
+    }
+    const result = [...groups.values()].map((g) => {
+      g.entries.sort((a, b) => b.at - a.at);
+      g.last = g.entries[0];
+      g.model = resolveModel(g, selections);
+      g.models = compatibleModels(g);
+      g.remaining = g.model ? remainingAt(g.entries, now, g.model.hours) : null;
+      return g;
+    }).sort((a, b) => b.last.at - a.last.at);
+    return { groups: result, ignored };
+  }
+  function levelSeries(entries, now, hours, days = 7) {
+    const start = now - days * 24 * HOUR;
+    const times = new Set(Array.from({ length: 121 }, (_, i) => start + (now - start) * i / 120));
+    const sorted = entries.filter((e) => e.at <= now).slice().sort((a, b) => a.at - b.at);
+    sorted.forEach((e) => {
+      if (e.at >= start) times.add(e.at);
+    });
+    let amount = 0, cursor = 0, lastTime = start;
+    while (cursor < sorted.length && sorted[cursor].at < start) {
+      const e = sorted[cursor++];
+      amount += e.amount * 2 ** (-(start - e.at) / HOUR / hours);
+    }
+    const points = [];
+    for (const time of [...times].sort((a, b) => a - b)) {
+      amount *= 2 ** (-(time - lastTime) / HOUR / hours);
+      if (cursor < sorted.length && sorted[cursor].at === time) points.push({ time, amount });
+      while (cursor < sorted.length && sorted[cursor].at <= time) amount += sorted[cursor++].amount;
+      points.push({ time, amount });
+      lastTime = time;
+    }
+    return points;
+  }
+  function formatLevel(amount, unit) {
+    if (amount == null || !Number.isFinite(amount) || unit === "unknown") return "—";
+    const u = unit === "IU" ? "IU" : amount >= 1e3 ? "mg" : "mcg";
+    const n = u === "mg" ? amount / 1e3 : amount;
+    if (n < 0.01) return `<0.01 ${u}`;
+    return `${new Intl.NumberFormat("en-US", { maximumSignificantDigits: 3 }).format(n)} ${u}`;
+  }
+
+  // src/app/LevelsView.jsx
+  var { useState, useEffect, useMemo } = React;
+  var routeLabels = { unknown: "Route not recorded", inj: "Injection route unspecified", sc: "Subcutaneous", im: "Intramuscular", oral: "Oral", sl: "Sublingual", nasal: "Intranasal", iv: "Intravenous" };
+  var dateText = (time) => new Date(time).toLocaleString(void 0, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  function Trend({ group, now }) {
+    const [days, setDays] = useState(7);
+    const [cursor, setCursor] = useState(120);
+    const m = group.model;
+    const points = useMemo(() => levelSeries(group.entries, now, m.hours, days), [group.entries, now, m, days]);
+    const high = useMemo(() => m.range ? levelSeries(group.entries, now, m.range[1], days) : points, [group.entries, now, m, days, points]);
+    const low = useMemo(() => m.range ? levelSeries(group.entries, now, m.range[0], days) : points, [group.entries, now, m, days, points]);
+    const max = Math.max(1, ...high.map((p) => p.amount));
+    const start = now - days * 24 * HOUR, x = (t) => 12 + 336 * (t - start) / (now - start), y = (a) => 150 - 126 * a / max;
+    const path = (p) => p.map((v, i) => `${i ? "L" : "M"}${x(v.time).toFixed(2)},${y(v.amount).toFixed(2)}`).join(" ");
+    const time = start + (now - start) * cursor / 120;
+    const value = remainingAt(group.entries, time, m.hours);
+    return /* @__PURE__ */ React.createElement("div", { className: "level-trend" }, /* @__PURE__ */ React.createElement("div", { className: "level-toolbar" }, /* @__PURE__ */ React.createElement("span", null, "Logged-dose trend"), /* @__PURE__ */ React.createElement("div", { className: "level-ranges", "aria-label": "Chart time range" }, [7, 30, 90].map((d) => /* @__PURE__ */ React.createElement("button", { key: d, "aria-pressed": days === d, onClick: () => {
+      setDays(d);
+      setCursor(120);
+    } }, d, "d")))), /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 360 178", role: "img", "aria-label": `${group.name}: estimated dose remaining over ${days} days. Current estimate ${formatLevel(group.remaining, group.unit)}. Use the slider below to inspect history.` }, [24, 87, 150].map((v) => /* @__PURE__ */ React.createElement("line", { key: v, x1: "12", x2: "348", y1: v, y2: v, stroke: "var(--border)" })), /* @__PURE__ */ React.createElement("text", { x: "12", y: "14", fill: "var(--text-dim)", fontSize: "10" }, formatLevel(max, group.unit)), m.range && /* @__PURE__ */ React.createElement("path", { d: `${path(high)} ${path([...low].reverse()).replace(/^M/, "L")} Z`, fill: "var(--accent)", opacity: ".14" }), /* @__PURE__ */ React.createElement("path", { d: `${path(points)} L348,150 L12,150 Z`, fill: "var(--accent)", opacity: ".07" }), /* @__PURE__ */ React.createElement("path", { d: path(points), fill: "none", stroke: "var(--accent)", strokeWidth: "2", strokeLinejoin: "round" }), /* @__PURE__ */ React.createElement("line", { x1: x(time), x2: x(time), y1: "24", y2: "150", stroke: "var(--text-dim)", strokeDasharray: "3 4" }), /* @__PURE__ */ React.createElement("circle", { cx: x(time), cy: y(value), r: "4", fill: "var(--accent)" }), /* @__PURE__ */ React.createElement("text", { x: "12", y: "172", fill: "var(--text-dim)", fontSize: "10" }, days, " days ago"), /* @__PURE__ */ React.createElement("text", { x: "348", y: "172", textAnchor: "end", fill: "var(--text-dim)", fontSize: "10" }, "Now")), /* @__PURE__ */ React.createElement("label", { className: "level-scrubber" }, "Inspect history", /* @__PURE__ */ React.createElement("input", { type: "range", min: "0", max: "120", value: cursor, "aria-label": `Inspect ${group.name} history`, "aria-valuetext": `${dateText(time)}: ${formatLevel(value, group.unit)}`, onChange: (e) => setCursor(+e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "level-readout" }, /* @__PURE__ */ React.createElement("time", null, cursor === 120 ? "Now" : dateText(time)), /* @__PURE__ */ React.createElement("strong", null, formatLevel(value, group.unit))), /* @__PURE__ */ React.createElement("p", { className: "level-caption" }, "Steps mark recorded doses. No future doses are included.", m.range ? " Shading: published half-life range." : ""));
+  }
+  function LevelCard({ group: g, now, onModel }) {
+    const [open, setOpen] = useState(false);
+    const [limit, setLimit] = useState(6);
+    const m = g.model;
+    const unavailable = g.unit === "unknown" ? "The dose unit needs confirmation in History before a level can be calculated." : g.blend ? "A blend has no single half-life. Historical component amounts and a suitable model for each ingredient are needed." : "No sourced human half-life model is available here for this compound and recorded route.";
+    return /* @__PURE__ */ React.createElement("article", { className: `level-card ${open ? "is-open" : ""}` }, /* @__PURE__ */ React.createElement("button", { className: "level-card-toggle", "aria-expanded": open, onClick: () => setOpen(!open) }, /* @__PURE__ */ React.createElement("span", { className: "level-card-heading" }, /* @__PURE__ */ React.createElement("span", { className: "level-eyebrow" }, m ? m.kind === "depot" ? "Depot estimate" : "Decay estimate" : g.models.length ? "Choose a reference" : "No estimate"), /* @__PURE__ */ React.createElement("strong", null, g.name), /* @__PURE__ */ React.createElement("span", { className: "level-card-meta" }, g.entries.length, " logged dose", g.entries.length !== 1 ? "s" : "", " · ", routeLabels[g.route])), /* @__PURE__ */ React.createElement("span", { className: "level-card-value" }, /* @__PURE__ */ React.createElement("strong", null, m ? formatLevel(g.remaining, g.unit) : "—"), /* @__PURE__ */ React.createElement("span", { "aria-hidden": "true" }, open ? "−" : "+"))), open && /* @__PURE__ */ React.createElement("div", { className: "level-card-body" }, g.models.length > 0 ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("label", { className: "level-model-label" }, "Half-life reference", /* @__PURE__ */ React.createElement("select", { className: "input", "aria-label": `Half-life reference for ${g.name}`, value: m?.id || "", onChange: (e) => onModel(g.key, e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, "Select matching route / preparation"), g.models.map((model2) => /* @__PURE__ */ React.createElement("option", { key: model2.id, value: model2.id }, model2.label)))), !m && /* @__PURE__ */ React.createElement("p", { className: "level-note" }, "Choose the reference matching these doses. This sets a modeling assumption for this group; it does not change your protocol."), m && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "level-current" }, /* @__PURE__ */ React.createElement("span", null, m.kind === "depot" ? "Estimated depot remaining" : "Estimated dose remaining", " · now"), /* @__PURE__ */ React.createElement("strong", null, formatLevel(g.remaining, g.unit)), /* @__PURE__ */ React.createElement("span", null, m.label)), (g.route === "unknown" || g.route === "inj") && /* @__PURE__ */ React.createElement("p", { className: "level-note" }, "Route / preparation assumed from your selection. The original logs do not confirm this reference."), /* @__PURE__ */ React.createElement(Trend, { group: g, now }), /* @__PURE__ */ React.createElement("details", { className: "level-source" }, /* @__PURE__ */ React.createElement("summary", null, "Model details & source"), /* @__PURE__ */ React.createElement("p", null, m.note), /* @__PURE__ */ React.createElement("a", { href: m.source, target: "_blank", rel: "noopener noreferrer" }, "Read the half-life source ↗"), /* @__PURE__ */ React.createElement("p", null, "Remaining = sum of each logged dose × ½^(hours elapsed ÷ half-life). Amounts use the logged compound or ester, not an active-moiety conversion. This is a simplified dose-equivalent calculation.")))) : /* @__PURE__ */ React.createElement("p", { className: "level-note" }, unavailable), !!(g.localTimes || g.backfilled || g.review) && /* @__PURE__ */ React.createElement("p", { className: "level-caption" }, g.localTimes ? `${g.localTimes} timestamps have no saved time zone and use this device’s local time. ` : "", g.backfilled ? `${g.backfilled} backfilled entries included; times may be approximate. ` : "", g.review ? `${g.review} entries are marked for review in History.` : ""), /* @__PURE__ */ React.createElement("h3", { className: "level-history-title" }, "Recorded doses"), /* @__PURE__ */ React.createElement("ol", { className: "level-dose-list" }, g.entries.slice(0, limit).map((e, i) => /* @__PURE__ */ React.createElement("li", { key: e.id || i }, /* @__PURE__ */ React.createElement("time", null, dateText(e.at)), /* @__PURE__ */ React.createElement("strong", null, formatLevel(e.amount, g.unit))))), limit < g.entries.length && /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost level-more", onClick: () => setLimit(limit + 20) }, "Show older doses (", g.entries.length - limit, ")")));
+  }
+  function LevelsView({ logs, protocols, activeProfile }) {
+    const [now, setNow] = useState(Date.now);
+    const [search, setSearch] = useState("");
+    const [filter, setFilter] = useState("all");
+    const [saveError, setSaveError] = useState(false);
+    const [selections, setSelections] = useState(() => {
+      try {
+        const s = JSON.parse(localStorage.getItem(LEVEL_MODELS_KEY) || "{}");
+        return s && typeof s === "object" && !Array.isArray(s) ? s : {};
+      } catch {
+        return {};
+      }
+    });
+    useEffect(() => {
+      const tick = () => setNow(Date.now());
+      const id = setInterval(() => {
+        if (document.visibilityState === "visible") tick();
+      }, 3e4);
+      const visible = () => {
+        if (document.visibilityState === "visible") tick();
+      };
+      window.addEventListener("focus", tick);
+      document.addEventListener("visibilitychange", visible);
+      return () => {
+        clearInterval(id);
+        window.removeEventListener("focus", tick);
+        document.removeEventListener("visibilitychange", visible);
+      };
+    }, []);
+    const result = useMemo(() => buildLevels({ logs, protocols, profile: activeProfile, now, selections }), [logs, protocols, activeProfile, now, selections]);
+    const modeled = result.groups.filter((g) => g.model).length;
+    const available = result.groups.filter((g) => g.models.length).length;
+    const groups = result.groups.filter((g) => (filter === "all" || (filter === "modeled" ? g.model : !g.model)) && g.name.toLowerCase().includes(search.toLowerCase())).sort((a, b) => !!b.model - !!a.model || !!b.models.length - !!a.models.length || b.last.at - a.last.at);
+    const onModel = (key, value) => {
+      const next = { ...selections, [key]: value };
+      setSelections(next);
+      try {
+        localStorage.setItem(LEVEL_MODELS_KEY, JSON.stringify(next));
+        setSaveError(false);
+      } catch {
+        setSaveError(true);
+      }
+    };
+    const excluded = result.ignored;
+    return /* @__PURE__ */ React.createElement("section", { className: "levels-view", "aria-labelledby": "levels-title" }, /* @__PURE__ */ React.createElement("div", { className: "levels-hero" }, /* @__PURE__ */ React.createElement("div", { className: "level-eyebrow" }, "Your recorded exposure"), /* @__PURE__ */ React.createElement("h1", { id: "levels-title" }, "Levels"), /* @__PURE__ */ React.createElement("p", null, "See how logged doses decline over time."), /* @__PURE__ */ React.createElement("div", { className: "levels-stats" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, modeled), /* @__PURE__ */ React.createElement("span", null, "modeled")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, available - modeled), /* @__PURE__ */ React.createElement("span", null, "need a reference")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, result.groups.length - available), /* @__PURE__ */ React.createElement("span", null, "unavailable"))), /* @__PURE__ */ React.createElement("div", { className: "levels-updated" }, /* @__PURE__ */ React.createElement("span", { className: "levels-live-dot" }), "Calculated ", new Date(now).toLocaleTimeString(void 0, { hour: "numeric", minute: "2-digit" }), " · updates while open")), /* @__PURE__ */ React.createElement("div", { className: "levels-explainer" }, /* @__PURE__ */ React.createElement("strong", null, "Estimated remaining, not a blood test."), /* @__PURE__ */ React.createElement("p", null, "Half-life models cannot determine your blood concentration. These estimates are not a guide to dose timing or safety."), /* @__PURE__ */ React.createElement("details", null, /* @__PURE__ */ React.createElement("summary", null, "How to read this view"), /* @__PURE__ */ React.createElement("p", null, "Each calculation adds up the remaining fraction of every recorded dose, including finished cycles. Planned doses and skipped entries do not count. Missing logs mean missing exposure."), /* @__PURE__ */ React.createElement("p", null, "The model assumes immediate input and constant exponential decay. Absorption, bioavailability, tissue distribution, metabolites, organ function and endogenous hormones are not modeled. Effects can persist after the displayed amount becomes very small."), /* @__PURE__ */ React.createElement("p", null, "Route-specific references are used only with a matching recorded route or your explicit selection. Selections are saved on this device. Unknown compounds and blends stay visible without fabricated half-lives."))), saveError && /* @__PURE__ */ React.createElement("p", { role: "alert", className: "level-note" }, "Your reference choice works in this session but could not be saved on this device."), !result.groups.length ? /* @__PURE__ */ React.createElement("div", { className: "levels-empty" }, /* @__PURE__ */ React.createElement("h2", null, "No recorded doses yet"), /* @__PURE__ */ React.createElement("p", null, "Log a dose in Today or add an existing dose in History. Your compounds will appear here automatically.")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("label", { className: "level-search" }, /* @__PURE__ */ React.createElement("span", { className: "sr-only" }, "Search logged compounds"), /* @__PURE__ */ React.createElement("input", { className: "input", type: "search", placeholder: "Find a compound…", value: search, onChange: (e) => setSearch(e.target.value), "aria-label": "Search logged compounds" })), /* @__PURE__ */ React.createElement("div", { className: "level-filters", "aria-label": "Filter levels" }, [["all", "All compounds"], ["modeled", "Modeled"], ["pending", "Without estimate"]].map(([id, label]) => /* @__PURE__ */ React.createElement("button", { key: id, "aria-pressed": filter === id, onClick: () => setFilter(id) }, label))), /* @__PURE__ */ React.createElement("div", { className: "level-results", "aria-live": "polite" }, groups.length, " compound group", groups.length !== 1 ? "s" : "", " · as of now"), groups.map((g) => /* @__PURE__ */ React.createElement(LevelCard, { key: g.key, group: g, now, onModel })), !groups.length && /* @__PURE__ */ React.createElement("p", { className: "levels-empty" }, "No compounds match this search and filter.")), !!Object.values(excluded).some(Boolean) && /* @__PURE__ */ React.createElement("details", { className: "levels-exclusions" }, /* @__PURE__ */ React.createElement("summary", null, "Entries outside this calculation"), /* @__PURE__ */ React.createElement("p", null, excluded.skipped, " skipped · ", excluded.future, " future-dated · ", excluded.invalid, " invalid dose / time · ", excluded.duplicate, " duplicate IDs · ", excluded.unassigned, " without a profile. Review entries in History. Unassigned records are never attributed to the selected profile.")));
+  }
+
   // src/app/main.jsx
-  var { useState, useEffect, useRef, useMemo, useCallback, useContext } = React;
+  var { useState: useState2, useEffect: useEffect2, useRef, useMemo: useMemo2, useCallback, useContext } = React;
   var SheetFootContext = React.createContext(null);
   var {
     LayoutDashboard,
@@ -1180,8 +1550,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     ChevronRight
   } = LucideReact;
   var useReducedMotion = () => {
-    const [rm, setRm] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    useEffect(() => {
+    const [rm, setRm] = useState2(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    useEffect2(() => {
       const m = window.matchMedia("(prefers-reduced-motion: reduce)");
       const f = (e) => setRm(e.matches);
       m.addEventListener ? m.addEventListener("change", f) : m.addListener(f);
@@ -1850,6 +2220,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       //  (2) Anavar 50 mg/day, 2026-08-22 → 2026-09-28, cycle finished — logged for every day.
       id: "m1_roman_test_daily_anavar_2026-10",
       profile: "Roman",
+      appliesTo({ protocols, logs }) {
+        const relevant = (p) => /^(testosterone|testosterone-cypionate|anavar)$/.test(p.peptideId || "") || /testosterone\s*cyp|\banavar\b/i.test(p.peptideName || p.peptide || "");
+        const historic = (d) => dkValid(dkOf(d)) && dkOf(d) <= "2026-10-02";
+        return protocols.some((p) => p.profile === "Roman" && relevant(p) && historic(p.startDate)) || logs.some((l) => l.profile === "Roman" && relevant(l) && historic(l.datetime));
+      },
       run({ protocols, logs, vials }, todayDk) {
         const FROM = "2026-08-22";
         let ps = protocols.slice(), ls = logs.slice();
@@ -1897,8 +2272,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   function runMigrations(state, profile, todayDk) {
     const done = new Set(state.meta && Array.isArray(state.meta.migrations) ? state.meta.migrations : []);
     let protocols = state.protocols || [], logs = state.logs || [], meta = state.meta || {}, changed = false;
+    if (!protocols.length && !logs.length) return { protocols, logs, meta, changed };
     for (const m of MIGRATIONS) {
       if (done.has(m.id) || m.profile && m.profile !== profile) continue;
+      if (m.appliesTo && !m.appliesTo({ protocols, logs })) continue;
       try {
         const r = m.run({ protocols, logs, vials: state.vials || [] }, todayDk) || {};
         protocols = r.protocols || protocols;
@@ -2077,6 +2454,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   }
   function NavIcon({ id, color }) {
     const p = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
+    if (id === "levels") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("path", { d: "M3 3v18h18M5 16l4-7 3 4 3-8 4 5" }));
     if (id === "protocol") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("rect", { x: "3", y: "4", width: "18", height: "17", rx: "3" }), /* @__PURE__ */ React.createElement("path", { d: "M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4" }));
     if (id === "plan") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("rect", { x: "5", y: "3", width: "14", height: "18", rx: "2" }), /* @__PURE__ */ React.createElement("path", { d: "M9 8h6M9 12h6M9 16h4" }));
     if (id === "lab") return /* @__PURE__ */ React.createElement("svg", { ...p }, /* @__PURE__ */ React.createElement("path", { d: "M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3" }));
@@ -2266,8 +2644,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return { totalMcg, mcgPerMl, mcgPerUnit, volPerDose, unitsPerDose, totalDoses };
   }
   function SyncConfig({ initialUrl, initialToken, onSave, onClose }) {
-    const [u, setU] = useState(initialUrl || "");
-    const [t, setT] = useState(initialToken || "");
+    const [u, setU] = useState2(initialUrl || "");
+    const [t, setT] = useState2(initialToken || "");
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 6px", fontSize: 18, fontWeight: 700 } }, "☁️ Cloud Sync Setup"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, color: "var(--text-dim)" } }, "Connect once. After this, your protocol auto-syncs across every device + Claude — no files."), /* @__PURE__ */ React.createElement("label", { style: { fontSize: 12, fontWeight: 600, color: "var(--text-dim)" } }, "Worker URL"), /* @__PURE__ */ React.createElement(
       "input",
       {
@@ -2435,21 +2813,21 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     }
   };
   function App() {
-    const [logs, setLogs] = useState([]);
-    const [vials, setVials] = useState([]);
-    const [protocols, setProtocols] = useState([]);
-    const [meta, setMeta] = useState(() => {
+    const [logs, setLogs] = useState2([]);
+    const [vials, setVials] = useState2([]);
+    const [protocols, setProtocols] = useState2([]);
+    const [meta, setMeta] = useState2(() => {
       try {
         return JSON.parse(localStorage.getItem("protocol_os_meta") || "{}") || {};
       } catch (e) {
         return {};
       }
     });
-    const [activeTab, setActiveTab] = useState("protocol");
-    const [activeProfile, setActiveProfile] = useState(() => localStorage.getItem("protocol_os_active_profile") || "Roman");
-    const [viewDate, setViewDate] = useState(() => /* @__PURE__ */ new Date());
-    const [jumpTo, setJumpTo] = useState(null);
-    const [toast, setToast] = useState(null);
+    const [activeTab, setActiveTab] = useState2("protocol");
+    const [activeProfile, setActiveProfile] = useState2(() => localStorage.getItem("protocol_os_active_profile") || "Roman");
+    const [viewDate, setViewDate] = useState2(() => /* @__PURE__ */ new Date());
+    const [jumpTo, setJumpTo] = useState2(null);
+    const [toast, setToast] = useState2(null);
     const toastTimer = useRef(null);
     const protocolsRef = useRef(protocols);
     protocolsRef.current = protocols;
@@ -2457,12 +2835,12 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     logsRef.current = logs;
     const vialsRef = useRef(vials);
     vialsRef.current = vials;
-    const [sheet, setSheet] = useState({ content: null, open: false, closing: false, settled: false });
+    const [sheet, setSheet] = useState2({ content: null, open: false, closing: false, settled: false });
     const sheetTimer = useRef(null);
     const sheetRef = useRef(null);
-    const [footSlot, setFootSlot] = useState(null);
+    const [footSlot, setFootSlot] = useState2(null);
     const prevFocusRef = useRef(null);
-    useEffect(() => {
+    useEffect2(() => {
       try {
         let storedLogs = JSON.parse(localStorage.getItem("protocol_os_logs") || "[]").map(canonicalizeDose);
         let storedVials = JSON.parse(localStorage.getItem("protocol_os_vials") || "[]");
@@ -2493,7 +2871,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         console.error(e);
       }
     }, []);
-    useEffect(() => {
+    useEffect2(() => {
       const tick = () => setProtocols((prev) => {
         const n = materializeAll(prev, todayLocal());
         return n === prev ? prev : n;
@@ -2508,7 +2886,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         clearInterval(t);
       };
     }, []);
-    const [storageFull, setStorageFull] = useState(false);
+    const [storageFull, setStorageFull] = useState2(false);
     const persist = (key, value) => {
       try {
         localStorage.setItem(key, value);
@@ -2518,29 +2896,29 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         setStorageFull(true);
       }
     };
-    useEffect(() => {
+    useEffect2(() => {
       persist("protocol_os_meta", JSON.stringify(meta || {}));
     }, [meta]);
-    useEffect(() => {
+    useEffect2(() => {
       persist("protocol_os_logs", JSON.stringify(logs));
     }, [logs]);
-    useEffect(() => {
+    useEffect2(() => {
       persist("protocol_os_vials", JSON.stringify(vials));
     }, [vials]);
-    useEffect(() => {
+    useEffect2(() => {
       persist("protocol_os_protocols", JSON.stringify(protocols));
     }, [protocols]);
-    useEffect(() => {
+    useEffect2(() => {
       persist("protocol_os_active_profile", activeProfile);
     }, [activeProfile]);
-    const [lock, setLock] = useState(() => {
+    const [lock, setLock] = useState2(() => {
       try {
         return JSON.parse(localStorage.getItem("protocol_os_lock") || "null");
       } catch (e) {
         return null;
       }
     });
-    const [locked, setLocked] = useState(() => {
+    const [locked, setLocked] = useState2(() => {
       try {
         return !!JSON.parse(localStorage.getItem("protocol_os_lock") || "null");
       } catch (e) {
@@ -2548,7 +2926,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       }
     });
     const hiddenAt = useRef(null);
-    useEffect(() => {
+    useEffect2(() => {
       const onVis = () => {
         if (document.visibilityState === "hidden") {
           hiddenAt.current = Date.now();
@@ -2578,7 +2956,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       showToast(rec ? "App lock is on" : "App lock is off");
     }, onClose: closeModal }));
     const forgetAndResync = () => {
-      ["protocol_os_protocols", "protocol_os_logs", "protocol_os_vials", "protocol_os_meta", "protocol_os_backup", "protocol_os_lock"].forEach((k) => {
+      ["protocol_os_protocols", "protocol_os_logs", "protocol_os_vials", "protocol_os_meta", "protocol_os_backup", "protocol_os_lock", LEVEL_MODELS_KEY].forEach((k) => {
         try {
           localStorage.removeItem(k);
         } catch (e) {
@@ -2586,14 +2964,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       });
       location.reload();
     };
-    const [theme, setTheme] = useState(() => {
+    const [theme, setTheme] = useState2(() => {
       try {
         return localStorage.getItem("protocol_os_theme") || "auto";
       } catch (e) {
         return "auto";
       }
     });
-    useEffect(() => {
+    useEffect2(() => {
       const root = document.documentElement;
       if (theme === "auto") root.removeAttribute("data-theme");
       else root.setAttribute("data-theme", theme);
@@ -2610,20 +2988,20 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         return () => mq.removeEventListener("change", apply);
       }
     }, [theme]);
-    const [textScale, setTextScale] = useState(() => {
+    const [textScale, setTextScale] = useState2(() => {
       try {
         return localStorage.getItem("protocol_os_text_scale") || "1";
       } catch (e) {
         return "1";
       }
     });
-    useEffect(() => {
+    useEffect2(() => {
       document.documentElement.style.setProperty("--ts", textScale);
       persist("protocol_os_text_scale", textScale);
     }, [textScale]);
-    const [syncUrl, setSyncUrl] = useState(() => localStorage.getItem("protocol_os_sync_url") || "");
-    const [syncToken, setSyncToken] = useState(() => localStorage.getItem("protocol_os_sync_token") || "");
-    const [syncStatus, setSyncStatus] = useState("idle");
+    const [syncUrl, setSyncUrl] = useState2(() => localStorage.getItem("protocol_os_sync_url") || "");
+    const [syncToken, setSyncToken] = useState2(() => localStorage.getItem("protocol_os_sync_token") || "");
+    const [syncStatus, setSyncStatus] = useState2("idle");
     const syncReady = syncUrl && syncToken;
     const lastPushRef = React.useRef("");
     const pulledOnce = React.useRef(false);
@@ -2632,8 +3010,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const pushBlockedUntil = React.useRef(0);
     const pullTries = React.useRef(0);
     const syncBase = React.useRef(null);
-    const [syncQueued, setSyncQueued] = useState(false);
-    const [proposalsPending, setProposalsPending] = useState(0);
+    const [syncQueued, setSyncQueued] = useState2(false);
+    const [proposalsPending, setProposalsPending] = useState2(0);
     const metaRef = useRef(meta);
     metaRef.current = meta;
     const cloudEndpoint = () => `${syncUrl.replace(/\/+$/, "")}/sync?profile=all`;
@@ -2762,10 +3140,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         if (announce) showToast("Cloud sync failed — will retry when online", "error");
       }
     };
-    useEffect(() => {
+    useEffect2(() => {
       if (syncReady) cloudPull(false);
     }, []);
-    useEffect(() => {
+    useEffect2(() => {
       if (!syncReady) {
         setSyncStatus("off");
         return;
@@ -2773,7 +3151,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const t = setTimeout(() => cloudPush(false), 1500);
       return () => clearTimeout(t);
     }, [protocols, vials, logs, meta, syncUrl, syncToken]);
-    useEffect(() => {
+    useEffect2(() => {
       const retry = () => {
         if (!syncReady) return;
         if (!pulledOnce.current) cloudPull(false);
@@ -2941,7 +3319,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         setSheet({ content: null, open: false, closing: false, settled: false });
       }, 380);
     };
-    useEffect(() => {
+    useEffect2(() => {
       if (sheet.content && !sheet.open && !sheet.closing) {
         let r2 = null;
         const r1 = requestAnimationFrame(() => {
@@ -2953,7 +3331,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         };
       }
     }, [sheet.content, sheet.open, sheet.closing]);
-    useEffect(() => {
+    useEffect2(() => {
       if (sheet.content) {
         if (!prevFocusRef.current && document.activeElement && document.activeElement !== document.body) prevFocusRef.current = document.activeElement;
         if (sheetRef.current) sheetRef.current.focus({ preventScroll: true });
@@ -2964,7 +3342,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       }
     }, [!!sheet.content]);
-    useEffect(() => {
+    useEffect2(() => {
       if (!sheet.content) return;
       const onKey = (e) => {
         if (e.key === "Escape") return closeModal();
@@ -3107,9 +3485,9 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       showToast(status === "approved" ? `Applied · ${pr.peptideName}` : `Dismissed · ${pr.peptideName}`);
       return true;
     };
-    const [report, setReport] = useState(null);
+    const [report, setReport] = useState2(null);
     const openReminders = () => openModal(/* @__PURE__ */ React.createElement(RemindersSheet, { syncUrl, token: syncToken, profile: activeProfile, syncReady: !!syncReady, onClose: closeModal, onSetupSync: () => openSyncConfigModal(true), showToast }));
-    useEffect(() => listenForOpenBlock((data) => {
+    useEffect2(() => listenForOpenBlock((data) => {
       if (data && data.date) {
         const t = dkParse(data.date);
         if (!isNaN(t)) {
@@ -3132,6 +3510,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return /* @__PURE__ */ React.createElement("div", { style: { position: "relative", minHeight: "100vh" } }, /* @__PURE__ */ React.createElement("div", { className: "ambient" }), /* @__PURE__ */ React.createElement("div", { ...sheet.content || locked ? { inert: "" } : {} }, /* @__PURE__ */ React.createElement(
       AppHeader,
       {
+        levelsMode: activeTab === "levels",
         viewDate,
         setViewDate,
         isToday,
@@ -3163,7 +3542,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         theme,
         setTheme
       }
-    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, (activeTab === "protocol" || activeTab === "plan") && /* @__PURE__ */ React.createElement(ProtocolView, { mode: activeTab === "plan" ? "plan" : "today", openLibrary, openCalculator, proposalsPending, onOpenProposals: openProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("input", { ref: importInputRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: handleImportFile }), storageFull && /* @__PURE__ */ React.createElement("div", { role: "alert", className: "storage-banner" }, /* @__PURE__ */ React.createElement("span", null, "Storage is full. New entries are kept in memory only until space is freed."), /* @__PURE__ */ React.createElement("button", { onClick: exportData }, "Export now")), !isToday && activeTab === "protocol" && /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 2, maxWidth: 480, margin: "0 auto", padding: "10px 18px 0" } }, /* @__PURE__ */ React.createElement("button", { className: "viewing-pill", onClick: () => setViewDate(/* @__PURE__ */ new Date()) }, "Viewing ", fmtDk(dateKey), " · Back to today")), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, maxWidth: 480, margin: "0 auto", padding: "12px 18px 0" } }, /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in", key: activeTab + dateKey + activeProfile }, activeTab === "levels" && /* @__PURE__ */ React.createElement(LevelsView, { logs, protocols, activeProfile }), (activeTab === "protocol" || activeTab === "plan") && /* @__PURE__ */ React.createElement(ProtocolView, { mode: activeTab === "plan" ? "plan" : "today", openLibrary, openCalculator, proposalsPending, onOpenProposals: openProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump: () => setJumpTo(null) }), activeTab === "history" && /* @__PURE__ */ React.createElement(
       HistoryView,
       {
         logs,
@@ -3188,7 +3567,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           setActiveTab("protocol");
         }
       }
-    ))), /* @__PURE__ */ React.createElement("div", { className: "pill-nav-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "pill-nav" }, [["protocol", "Today"], ["plan", "Plan"], ["history", "History"]].map(([id, label]) => /* @__PURE__ */ React.createElement("button", { key: id, onClick: () => setActiveTab(id), className: `pill-nav-item ${activeTab === id ? "active" : ""}` }, /* @__PURE__ */ React.createElement(NavIcon, { id, color: activeTab === id ? "var(--accent)" : "var(--text-faint)" }), /* @__PURE__ */ React.createElement("span", null, label)))))), report && /* @__PURE__ */ React.createElement(ReportView, { profile: activeProfile, protocols, vials, logs: report.logs, label: report.label, adherence: report.adherence, onClose: () => setReport(null) }), locked && lock && /* @__PURE__ */ React.createElement(LockScreen, { lock, syncReady: !!syncReady, onUnlock: () => setLocked(false), onForget: forgetAndResync }), toast && /* @__PURE__ */ React.createElement("div", { role: "status", "aria-live": "polite", style: { position: "fixed", bottom: "calc(100px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 200 }, className: "anim-slide-up" }, /* @__PURE__ */ React.createElement("div", { className: "glass-strong", style: { borderRadius: 100, padding: "12px 18px", display: "flex", gap: 10, alignItems: "center", boxShadow: "0 12px 32px rgba(0,0,0,0.4)" } }, toast.type === "error" ? /* @__PURE__ */ React.createElement(AlertTriangle, { size: 18, color: "#FF453A" }) : /* @__PURE__ */ React.createElement(CheckCircle, { size: 18, color: "#30D158" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, fontWeight: 500 } }, toast.message), toast.undoFn && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    ))), /* @__PURE__ */ React.createElement("div", { className: "pill-nav-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "pill-nav" }, [["protocol", "Today"], ["plan", "Plan"], ["levels", "Levels"], ["history", "History"]].map(([id, label]) => /* @__PURE__ */ React.createElement("button", { key: id, onClick: () => setActiveTab(id), "aria-current": activeTab === id ? "page" : void 0, className: `pill-nav-item ${activeTab === id ? "active" : ""}` }, /* @__PURE__ */ React.createElement(NavIcon, { id, color: activeTab === id ? "var(--accent)" : "var(--text-faint)" }), /* @__PURE__ */ React.createElement("span", null, label)))))), report && /* @__PURE__ */ React.createElement(ReportView, { profile: activeProfile, protocols, vials, logs: report.logs, label: report.label, adherence: report.adherence, onClose: () => setReport(null) }), locked && lock && /* @__PURE__ */ React.createElement(LockScreen, { lock, syncReady: !!syncReady, onUnlock: () => setLocked(false), onForget: forgetAndResync }), toast && /* @__PURE__ */ React.createElement("div", { role: "status", "aria-live": "polite", style: { position: "fixed", bottom: "calc(100px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 200 }, className: "anim-slide-up" }, /* @__PURE__ */ React.createElement("div", { className: "glass-strong", style: { borderRadius: 100, padding: "12px 18px", display: "flex", gap: 10, alignItems: "center", boxShadow: "0 12px 32px rgba(0,0,0,0.4)" } }, toast.type === "error" ? /* @__PURE__ */ React.createElement(AlertTriangle, { size: 18, color: "#FF453A" }) : /* @__PURE__ */ React.createElement(CheckCircle, { size: 18, color: "#30D158" }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, fontWeight: 500 } }, toast.message), toast.undoFn && /* @__PURE__ */ React.createElement("button", { onClick: () => {
       toast.undoFn();
       setToast(null);
     }, style: { marginLeft: 6, fontSize: 12, fontWeight: 700, color: "var(--accent-2)", background: "rgba(227,200,134,0.15)", border: "1px solid rgba(227,200,134,0.3)", borderRadius: 100, padding: "6px 12px", cursor: "pointer" } }, "Undo"))), sheet.content && /* @__PURE__ */ React.createElement("div", { className: "sheet-wrap" }, /* @__PURE__ */ React.createElement(
@@ -3227,8 +3606,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     )));
   }
   function DateButton({ viewDate, setViewDate }) {
-    const [open, setOpen] = useState(false);
-    useEffect(() => {
+    const [open, setOpen] = useState2(false);
+    useEffect2(() => {
       if (!open) return;
       const k = (e) => {
         if (e.key === "Escape") setOpen(false);
@@ -3236,7 +3615,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       window.addEventListener("keydown", k);
       return () => window.removeEventListener("keydown", k);
     }, [open]);
-    const [calMonth, setCalMonth] = useState(() => new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
+    const [calMonth, setCalMonth] = useState2(() => new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
     const today = /* @__PURE__ */ new Date();
     const sel = viewDate;
     const start = new Date(calMonth);
@@ -3281,7 +3660,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const i = scales.findIndex((s) => s[0] === String(textScale));
       setTextScale(scales[(i + 1) % scales.length][0]);
     };
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState2(false);
     return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "avatar", "aria-label": "Profile: " + activeProfile + ". Open profile menu", "aria-haspopup": "menu", "aria-expanded": open, onClick: () => setOpen(!open) }, (activeProfile || "?").charAt(0)), open && ReactDOM.createPortal(
       /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { onClick: () => setOpen(false), style: { position: "fixed", inset: 0, zIndex: 190 } }), /* @__PURE__ */ React.createElement("div", { className: "glass-strong anim-slide-up", role: "menu", "aria-label": "Profiles and data", style: { position: "fixed", top: "calc(env(safe-area-inset-top, 0px) + 56px)", right: 12, zIndex: 195, width: 220, borderRadius: 14, padding: 6, boxShadow: "0 20px 50px rgba(0,0,0,0.6)" } }, PROFILES.map((p) => {
         const count = protocols.filter((x) => x.profile === p && x.active !== false).length;
@@ -3306,10 +3685,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       document.body
     ));
   }
-  function AppHeader({ viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
-    const [scrolled, setScrolled] = useState(false);
+  function AppHeader({ levelsMode = false, viewDate, setViewDate, isToday, activeProfile, setActiveProfile, protocols, logged, scheduled, weekDays, syncReady, syncStatus, syncQueued, onSyncTap, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }) {
+    const [scrolled, setScrolled] = useState2(false);
     const sentinelRef = React.useRef(null);
-    useEffect(() => {
+    useEffect2(() => {
       const el = sentinelRef.current;
       if (!el || typeof IntersectionObserver === "undefined") return;
       const obs = new IntersectionObserver((entries) => setScrolled(!entries[0].isIntersecting), { rootMargin: "-48px 0px 0px 0px" });
@@ -3323,7 +3702,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const syncState = !syncReady ? "setup" : syncStatus === "pushing" || syncStatus === "pulling" ? "syncing" : syncStatus === "error" ? "error" : syncQueued ? "queued" : "ok";
     const syncLabel = { setup: "Set up sync", syncing: "↻ syncing…", error: "sync failed — retry", queued: "● queued", ok: "✓ synced" }[syncState];
     const syncAria = { setup: "Cloud sync not configured. Set up sync", syncing: "Cloud sync in progress", error: "Cloud sync failed. Tap to retry", queued: "Changes queued, waiting to sync. Tap to sync now", ok: "Synced to cloud. Tap to refresh" }[syncState];
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, titleLabel, /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }))), /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("header", { className: scrolled ? "hdr scrolled" : "hdr" }, /* @__PURE__ */ React.createElement("div", { className: "hdr-in" }, !levelsMode && /* @__PURE__ */ React.createElement(DateButton, { viewDate, setViewDate }), /* @__PURE__ */ React.createElement("div", { className: "hdr-center", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("span", { className: "hdr-mark" }, "PROTOCOL OS"), /* @__PURE__ */ React.createElement("span", { className: "hdr-title num" }, levelsMode ? activeProfile : titleLabel, !levelsMode && /* @__PURE__ */ React.createElement("span", { className: "mini mono num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("button", { className: "sync-cap num " + syncState, "aria-label": syncAria, onClick: onSyncTap }, syncLabel), /* @__PURE__ */ React.createElement(AvatarMenu, { activeProfile, setActiveProfile, protocols, onOpenDataSync, onOpenLibrary, onOpenCalculator, onOpenReminders, textScale, setTextScale, theme, setTheme }))), !levelsMode && /* @__PURE__ */ React.createElement("div", { className: "hdr-large" }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num" }, eyebrow), /* @__PURE__ */ React.createElement("div", { className: "title-row" }, /* @__PURE__ */ React.createElement("h1", { className: "large-title" }, titleLabel), /* @__PURE__ */ React.createElement("div", { className: "ring-wrap", role: "img", "aria-label": logged + " of " + scheduled + " scheduled doses logged" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 48 48", width: "40", height: "40" }, /* @__PURE__ */ React.createElement("circle", { className: "ring-track", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5" }), /* @__PURE__ */ React.createElement("circle", { className: complete ? "ring-arc done" : "ring-arc", cx: "24", cy: "24", r: "20", fill: "none", strokeWidth: "4.5", strokeLinecap: "round", strokeDasharray: "125.66", transform: "rotate(-90 24 24)", style: { strokeDashoffset: 125.66 * (1 - frac), transition: "stroke-dashoffset 600ms cubic-bezier(.65,0,.35,1)" } })), /* @__PURE__ */ React.createElement("span", { className: complete ? "ring-num num done" : "ring-num num" }, logged, "/", scheduled))), /* @__PURE__ */ React.createElement("div", { className: "week" }, weekDays.map((d) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: d.key,
@@ -3395,13 +3774,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", gap: 14, margin: "10px 0 22px" }, "aria-label": `${value.length} of ${length} digits entered` }, Array.from({ length }, (_, i) => /* @__PURE__ */ React.createElement("span", { key: i, style: { width: 14, height: 14, borderRadius: "50%", border: "1.6px solid var(--accent)", background: i < value.length ? "var(--accent)" : "transparent" } }))), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 72px)", gap: 14, justifyContent: "center" } }, ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map((k, i) => k === "" ? /* @__PURE__ */ React.createElement("span", { key: i }) : /* @__PURE__ */ React.createElement("button", { key: k, type: "button", onClick: () => press(k), "aria-label": k === "del" ? "Delete" : k, disabled, className: "lg", style: { width: 72, height: 72, borderRadius: "50%", fontSize: k === "del" ? 18 : 26, fontWeight: 600, color: "var(--text)", cursor: "pointer" } }, k === "del" ? "⌫" : k))));
   }
   function LockScreen({ lock, syncReady, onUnlock, onForget }) {
-    const [pin, setPin] = useState("");
-    const [err, setErr] = useState("");
-    const [fails, setFails] = useState(0);
-    const [until, setUntil] = useState(0);
-    const [forget, setForget] = useState(false);
+    const [pin, setPin] = useState2("");
+    const [err, setErr] = useState2("");
+    const [fails, setFails] = useState2(0);
+    const [until, setUntil] = useState2(0);
+    const [forget, setForget] = useState2(false);
     const cooling = until > Date.now();
-    useEffect(() => {
+    useEffect2(() => {
       if (pin.length !== lock.len) return;
       let live = true;
       hashPin(pin, lock.salt).then((h) => {
@@ -3433,17 +3812,17 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     }, disabled: cooling }), !forget ? /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { marginTop: 26, fontSize: 12.5 }, onClick: () => setForget(true) }, "Forgot the PIN?") : /* @__PURE__ */ React.createElement("div", { className: "lg", style: { marginTop: 22, borderRadius: 14, padding: 14, fontSize: 13, lineHeight: 1.45, maxWidth: 340 } }, syncReady ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Your data is in the cloud. Erase this phone's copy and sign back in with the next launch; the cloud record comes back down.", /* @__PURE__ */ React.createElement("button", { className: "btn btn-danger", style: { width: "100%", marginTop: 10 }, onClick: onForget }, "Erase this phone's copy and re-sync")) : /* @__PURE__ */ React.createElement(React.Fragment, null, "Cloud sync is not set up, so there is no copy to recover from. Clearing Safari's website data removes the lock together with the data on this phone."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 8 }, onClick: () => setForget(false) }, "Back")));
   }
   function LockSheet({ lock, onSave, onClose }) {
-    const [step, setStep] = useState(lock ? "manage" : "new");
-    const [pin, setPin] = useState("");
-    const [first, setFirst] = useState("");
-    const [err, setErr] = useState("");
-    const [len, setLen] = useState(lock ? lock.len : 4);
-    const [timeoutMin, setTimeoutMin] = useState(lock ? lock.timeoutMin : 5);
+    const [step, setStep] = useState2(lock ? "manage" : "new");
+    const [pin, setPin] = useState2("");
+    const [first, setFirst] = useState2("");
+    const [err, setErr] = useState2("");
+    const [len, setLen] = useState2(lock ? lock.len : 4);
+    const [timeoutMin, setTimeoutMin] = useState2(lock ? lock.timeoutMin : 5);
     const save = async (code) => {
       const salt = randomSalt();
       onSave({ len: code.length, salt, hash: await hashPin(code, salt), timeoutMin, setAt: (/* @__PURE__ */ new Date()).toISOString() });
     };
-    useEffect(() => {
+    useEffect2(() => {
       if (step === "new" && pin.length === len) {
         setFirst(pin);
         setPin("");
@@ -3478,12 +3857,12 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   }
   function RemindersSheet({ syncUrl, token, profile, syncReady, onClose, onSetupSync, showToast }) {
     const saved = getSavedReminders();
-    const [status, setStatus] = useState("checking");
-    const [settings, setSettings] = useState(() => ({ ...defaultReminderSettings(), ...saved && saved.settings || {} }));
-    const [busy, setBusy] = useState(false);
-    const [msg, setMsg] = useState(null);
+    const [status, setStatus] = useState2("checking");
+    const [settings, setSettings] = useState2(() => ({ ...defaultReminderSettings(), ...saved && saved.settings || {} }));
+    const [busy, setBusy] = useState2(false);
+    const [msg, setMsg] = useState2(null);
     const refresh = () => pushStatus().then(setStatus).catch(() => setStatus("unsupported"));
-    useEffect(() => {
+    useEffect2(() => {
       refresh();
     }, []);
     const blocks = [["am", "Morning"], ["pre", "Pre-workout"], ["pm", "Evening"]];
@@ -3514,14 +3893,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 19, fontWeight: 700 } }, "Reminders"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, color: "var(--text-dim)" } }, status === "subscribed" ? "On for this device." : "Off on this device."), msg && /* @__PURE__ */ React.createElement("div", { role: "status", style: { fontSize: 12.5, marginBottom: 10, color: msg.ok ? "var(--success)" : "var(--danger)" } }, msg.t), body, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onClose }, "Close"));
   }
   function RestoreSheet({ syncUrl, token, localBackup, onRestore, onClose }) {
-    const [list, setList] = useState(null);
-    const [err, setErr] = useState(null);
-    const [sel, setSel] = useState(null);
-    const [blob, setBlob] = useState(null);
-    const [busy, setBusy] = useState(false);
+    const [list, setList] = useState2(null);
+    const [err, setErr] = useState2(null);
+    const [sel, setSel] = useState2(null);
+    const [blob, setBlob] = useState2(null);
+    const [busy, setBusy] = useState2(false);
     const base = (syncUrl || "").replace(/\/+$/, "");
     const hdr = { "Authorization": "Bearer " + token };
-    useEffect(() => {
+    useEffect2(() => {
       if (!syncUrl || !token) {
         setList([]);
         return;
@@ -3561,11 +3940,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { style: { margin: "0 0 4px", fontSize: 19, fontWeight: 700 } }, "Restore from a backup"), /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 14px", fontSize: 13, lineHeight: 1.45, color: "var(--text-dim)" } }, "The cloud keeps one snapshot per day for 30 days. Restoring replaces what is on this phone with that snapshot and syncs it back up. The current data is saved as the local backup first."), err && /* @__PURE__ */ React.createElement("div", { role: "alert", style: { color: "var(--danger)", fontSize: 12.5, marginBottom: 10 } }, "Could not reach the cloud: ", err), /* @__PURE__ */ React.createElement("div", { className: "blk", style: { marginBottom: 12 } }, localBackup && /* @__PURE__ */ React.createElement(Row, { k: "local", name: "Local backup", sub: "saved " + new Date(localBackup.at).toLocaleString() + " · before the last import or restore" }), list === null ? /* @__PURE__ */ React.createElement("div", { style: { padding: 12, fontSize: 13, color: "var(--text-dim)" } }, "Loading snapshots…") : list.length === 0 && !localBackup ? /* @__PURE__ */ React.createElement("div", { style: { padding: 12, fontSize: 13, color: "var(--text-dim)" } }, "No backups yet. The cloud writes one after the first sync of each day (Worker 1.5 or newer).") : list.map((dk) => /* @__PURE__ */ React.createElement(Row, { key: dk, k: dk, name: fmtDk(dk), sub: "cloud snapshot · " + dk }))), sel && (busy ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--text-dim)" } }, "Loading…") : blob ? /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, marginBottom: 4 } }, sel === "local" ? "Local backup" : fmtDk(sel)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: "var(--text-dim)", marginBottom: 12 } }, counts(blob)), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", style: { width: "100%" }, onClick: () => onRestore(blob, sel === "local" ? "local backup" : "snapshot of " + fmtDk(sel)) }, "Restore this")) : null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onClose }, "Close"));
   }
   function ProposalsSheet({ syncUrl, token, profile, onClose, onResolve }) {
-    const [list, setList] = useState(null);
-    const [err, setErr] = useState(null);
-    const [busyId, setBusyId] = useState(null);
+    const [list, setList] = useState2(null);
+    const [err, setErr] = useState2(null);
+    const [busyId, setBusyId] = useState2(null);
     const base = (syncUrl || "").replace(/\/+$/, "");
-    useEffect(() => {
+    useEffect2(() => {
       if (!syncUrl || !token) {
         setList([]);
         return;
@@ -3614,13 +3993,13 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       items.forEach((p) => used.add(p.id));
       return { label, items };
     }).filter((b) => b.items.length);
-    const [open, setOpen] = useState(buckets.length ? buckets[0].label : null);
+    const [open, setOpen] = useState2(buckets.length ? buckets[0].label : null);
     const cur = buckets.find((b) => b.label === open);
     return /* @__PURE__ */ React.createElement("div", { className: "anim-fade-in" }, /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 2px 14px" } }, /* @__PURE__ */ React.createElement("div", { className: "eyebrow num", style: { marginBottom: 6 } }, "STEP 1 OF 2 · ABOUT A MINUTE"), /* @__PURE__ */ React.createElement("h3", { style: { margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.15 } }, "What is ", activeProfile, " taking right now?"), /* @__PURE__ */ React.createElement("p", { style: { margin: "8px 0 0", fontSize: 14, lineHeight: 1.45, color: "var(--text-dim)" } }, "Pick one compound to start. Dose, days and vial come on the next step, and everything can be changed later.")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 12 } }, buckets.map((b) => /* @__PURE__ */ React.createElement("button", { key: b.label, onClick: () => setOpen(b.label), "aria-pressed": b.label === open, style: { minHeight: 40, padding: "0 13px", borderRadius: 100, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: "1px solid " + (b.label === open ? "rgba(227,200,134,.5)" : "var(--border)"), background: b.label === open ? "rgba(227,200,134,.14)" : "var(--fill-1)", color: b.label === open ? "var(--accent)" : "var(--text-2)" } }, b.label))), cur && /* @__PURE__ */ React.createElement("section", { className: "blk", "aria-label": cur.label }, cur.items.map((p, i) => /* @__PURE__ */ React.createElement("div", { key: p.id, className: "blk-row", style: i === 0 ? { borderTop: "none" } : void 0 }, /* @__PURE__ */ React.createElement("button", { className: "blk-main", onClick: () => onPick(p.id) }, /* @__PURE__ */ React.createElement("span", { className: "blk-disc", "aria-hidden": "true", style: { fontSize: 15, borderColor: "var(--border)", background: "var(--fill-2)" } }, p.icon), /* @__PURE__ */ React.createElement("span", { className: "blk-text" }, /* @__PURE__ */ React.createElement("span", { className: "blk-name" }, p.name), /* @__PURE__ */ React.createElement("span", { className: "blk-dose" }, p.protocol && p.protocol.route || "", p.protocol && p.protocol.doseRange ? " · " + p.protocol.doseRange : "", p.protocol && p.protocol.timing ? " · " + p.protocol.timing : "")), /* @__PURE__ */ React.createElement("span", { className: "plan-chev", "aria-hidden": "true" }, "›"))))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", style: { width: "100%", marginTop: 12 }, onClick: onLibrary }, "Search the whole library"));
   }
   function ProtocolView({ mode, openLibrary, openCalculator, proposalsPending, onOpenProposals, viewDate, dateKey, isFuture, activeProfile, protocols, setProtocols, vials, setVials, logs, setLogs, openModal, closeModal, confirmModal, showToast, jumpTo, clearJump }) {
-    const [routeFilter, setRouteFilter] = useState("all");
-    const [flashId, setFlashId] = useState(null);
+    const [routeFilter, setRouteFilter] = useState2("all");
+    const [flashId, setFlashId] = useState2(null);
     const todayDk = todayLocal();
     const baseMine = protocols.filter((p) => p.profile === activeProfile);
     const myProtocols = baseMine.filter((p) => p.active !== false);
@@ -3814,7 +4193,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const tl = timelineSorted(base.timeline || []);
       const title = base.route === "pen" ? penLabelOf(base) : base.peptideName;
       const Body = () => {
-        const [more, setMore] = useState(false);
+        const [more, setMore] = useState2(false);
         return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 44, height: 44, borderRadius: 13, background: rt.color + "24", display: "grid", placeItems: "center", boxShadow: "inset 0 0 0 1px " + rt.color + "40", flexShrink: 0 } }, /* @__PURE__ */ React.createElement(RouteIcon, { route, color: rt.color, s: 22 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("h3", { style: { margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.15, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } }, title), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--text-dim)", marginTop: 2 } }, base.profile, " · ", schedLabel(p.schedule), " · ", /* @__PURE__ */ React.createElement("span", { className: "mono", style: { color: "var(--accent)" } }, fmtDoseAny(p.doseMcg, p.doseUnit)))), /* @__PURE__ */ React.createElement("button", { onClick: () => {
           closeModal();
           editProtocol(base);
@@ -3962,16 +4341,16 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       const sup = supplyFor(proto);
       let f0 = existingLog ? { datetime: existingLog.datetime, doseMl: existingLog.doseMl ? String(existingLog.doseMl) : "", doseMcg: existingLog.doseMcg, vialId: existingLog.vialId || (vial ? vial.id : ""), notes: existingLog.notes || "", site: existingLog.site || "" } : { datetime: defaultDatetime(proto, dateKey), doseMl: defaultMl > 0 ? defaultMl.toFixed(3) : "", doseMcg: proto.doseMcg, vialId: vial ? vial.id : "", notes: "", site: suggestedSite };
       const Modal = () => {
-        const [f, setF] = useState(f0);
-        const [unitsText, setUnitsText] = useState(null);
+        const [f, setF] = useState2(f0);
+        const [unitsText, setUnitsText] = useState2(null);
         const rm = useReducedMotion();
         const footSlot = useContext(SheetFootContext);
-        const [committing, setCommitting] = useState(false);
+        const [committing, setCommitting] = useState2(false);
         const liveRef = useRef(true);
-        useEffect(() => () => {
+        useEffect2(() => () => {
           liveRef.current = false;
         }, []);
-        const [reconPatch, setReconPatch] = useState(null);
+        const [reconPatch, setReconPatch] = useState2(null);
         const baseVial = vials.find((v) => v.id === f.vialId) || vial;
         const targetVial = reconPatch && reconPatch.id === (f.vialId || baseVial && baseVial.id) ? { ...baseVial || {}, ...reconPatch } : baseVial;
         const mcgPerMl = targetVial && targetVial.mcgPerMl || 0;
@@ -3985,9 +4364,9 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         const admFactor = admUnit === "g" ? 1e6 : admUnit === "mg" ? 1e3 : 1;
         const admDisp = f.doseMcg === "" || f.doseMcg == null || isNaN(parseFloat(f.doseMcg)) ? "" : admFactor === 1 ? f.doseMcg : parseFloat(f.doseMcg) / admFactor;
         const fmtAdmDose = (mcg) => admUnit === "IU" ? fmtIU(mcg) : admUnit === "mcg" ? fmtDoseUnit(mcg, targetVial) : ((mcg || 0) / admFactor).toFixed(2).replace(/\.?0+$/, "") + " " + admUnit;
-        const [reconMl, setReconMl] = useState(targetVial && targetVial.diluentMl ? String(targetVial.diluentMl) : "");
-        const [reconMg, setReconMg] = useState(targetVial && targetVial.mgPerVial ? String(targetVial.mgPerVial) : "");
-        const [editRecon, setEditRecon] = useState(false);
+        const [reconMl, setReconMl] = useState2(targetVial && targetVial.diluentMl ? String(targetVial.diluentMl) : "");
+        const [reconMg, setReconMg] = useState2(targetVial && targetVial.mgPerVial ? String(targetVial.mgPerVial) : "");
+        const [editRecon, setEditRecon] = useState2(false);
         const drawDragRef = useRef(false);
         const barrelRef = useRef(null);
         const needsRecon = !isOral && !hasConc;
@@ -4034,7 +4413,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         const planOnly = isFuture && !existingLog;
         const pastDay = dateKey < todayDk;
         const logVerb = pastDay ? "Log for " + fmtDk(dateKey) : "Log";
-        const [planOpen, setPlanOpen] = useState(!!planOnly);
+        const [planOpen, setPlanOpen] = useState2(!!planOnly);
         const submit = () => {
           if (committing) return;
           const d = parseFloat(f.doseMcg);
@@ -4269,7 +4648,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       showToast(`${proto.peptideName} back on the schedule`);
       closeModal();
     };
-    useEffect(() => {
+    useEffect2(() => {
       if (!jumpTo || jumpTo.dateKey !== dateKey) return;
       const base = protocols.find((p) => p.id === jumpTo.protocolId);
       const log = jumpTo.logId ? logs.find((l) => l.id === jumpTo.logId) : null;
@@ -4291,7 +4670,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         sched: normSched(existing.schedule, existing.startDate)
       } : { color: "blue", name: "", comps: [{ peptideId: "", mcg: "" }], units: "30", sched: { days: ALL_DAYS.slice(), timeOfDay: "morning" } };
       const Modal = () => {
-        const [f, setF] = useState(f0);
+        const [f, setF] = useState2(f0);
         const setComp = (i, patch) => setF((p) => ({ ...p, comps: p.comps.map((c, j) => j === i ? { ...c, ...patch } : c) }));
         const addComp = () => setF((p) => p.comps.length < 4 ? { ...p, comps: [...p.comps, { peptideId: "", mcg: "" }] } : p);
         const rmComp = (i) => setF((p) => ({ ...p, comps: p.comps.length > 1 ? p.comps.filter((_, j) => j !== i) : p.comps }));
@@ -4353,7 +4732,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
         startDate: existing.startDate || todayLocal()
       } : { name: "", comps: [{ peptideId: "", mg: "" }], doseStr: "", doseUnit: "mcg", reconMl: "", sched: { days: ALL_DAYS.slice(), timeOfDay: "morning" }, cycleDays: 30, startDate: dateKey };
       const Modal = () => {
-        const [f, setF] = useState(f0);
+        const [f, setF] = useState2(f0);
         const setComp = (i, patch) => setF((p) => ({ ...p, comps: p.comps.map((c, j) => j === i ? { ...c, ...patch } : c) }));
         const addComp = () => setF((p) => p.comps.length < 4 ? { ...p, comps: [...p.comps, { peptideId: "", mg: "" }] } : p);
         const rmComp = (i) => setF((p) => ({ ...p, comps: p.comps.length > 1 ? p.comps.filter((_, j) => j !== i) : p.comps }));
@@ -4425,7 +4804,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       })();
       const init = { ...proto, doseMcg: eff.doseMcg, doseValue: eff.doseValue, sched: normSched(eff.schedule, applyFrom0), route: proto.route || routeOf(proto, _rv), oralUnitLabel: proto.oralUnitLabel || "mcg", doseUnit: eff.doseUnit || "mcg", ...reconPrefill(proto.peptideId), applyFrom: applyFrom0, applyMode: "date", timeline: proto.timeline || [] };
       const Modal = () => {
-        const [f, setF] = useState(init);
+        const [f, setF] = useState2(init);
         const onSave = () => {
           const _dm = parseFloat(f.doseMcg);
           if (!_dm || isNaN(_dm)) return showToast("Set dose", "error");
@@ -4477,9 +4856,9 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const addProtocol = (presetId) => {
       let f0 = { peptideId: "", doseMcg: 0, sched: { days: ALL_DAYS.slice(), timeOfDay: "morning" }, cycleDays: 30, startDate: dateKey, route: "inj", oralUnitLabel: "mcg", doseUnit: "mcg", reconMg: "", reconMl: "", reconVialId: null };
       const Modal = () => {
-        const [f, setF] = useState(f0);
+        const [f, setF] = useState2(f0);
         const pep = findPep(f.peptideId);
-        useEffect(() => {
+        useEffect2(() => {
           if (presetId && !f.peptideId) apply(presetId);
         }, []);
         const apply = (id) => {
@@ -4709,14 +5088,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   }
   function HistoryView({ logs, setLogs, protocols, vials, activeProfile, openModal, closeModal, confirmModal, showToast, onJump, exportCSV, exportJSON, onReport }) {
     const today = todayLocal();
-    const [range, setRange] = useState("30");
-    const [from, setFrom] = useState(() => dkAdd(today, -29));
-    const [to, setTo] = useState(() => today);
-    const [comp, setComp] = useState("all");
-    const [showSkipped, setShowSkipped] = useState(false);
+    const [range, setRange] = useState2("30");
+    const [from, setFrom] = useState2(() => dkAdd(today, -29));
+    const [to, setTo] = useState2(() => today);
+    const [comp, setComp] = useState2("all");
+    const [showSkipped, setShowSkipped] = useState2(false);
     const nameOf = (l) => l.peptide || l.peptideName || l.peptideId || "?";
-    const mine = useMemo(() => logs.filter((l) => (l.profile || activeProfile) === activeProfile), [logs, activeProfile]);
-    const compounds = useMemo(() => {
+    const mine = useMemo2(() => logs.filter((l) => (l.profile || activeProfile) === activeProfile), [logs, activeProfile]);
+    const compounds = useMemo2(() => {
       const m = {};
       mine.forEach((l) => {
         if (l.skipped) return;
@@ -4727,14 +5106,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     }, [mine]);
     const lo = range === "all" ? "0000-00-00" : range === "custom" ? dkValid(from) ? from : "0000-00-00" : dkAdd(today, -(parseInt(range) - 1));
     const hi = range === "custom" ? dkValid(to) ? to : "9999-12-31" : "9999-12-31";
-    const filtered = useMemo(() => mine.filter((l) => {
+    const filtered = useMemo2(() => mine.filter((l) => {
       const dk = dkOf(l.datetime) || "";
       if (dk < lo || dk > hi) return false;
       if (!showSkipped && l.skipped) return false;
       if (comp !== "all" && nameOf(l) !== comp) return false;
       return true;
     }).sort((a, b) => (b.datetime || "").localeCompare(a.datetime || "")), [mine, lo, hi, comp, showSkipped]);
-    const groups = useMemo(() => {
+    const groups = useMemo2(() => {
       const g = [];
       let cur = null;
       filtered.forEach((l) => {
@@ -4748,11 +5127,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
       return g;
     }, [filtered]);
     const PAGE = 150;
-    const [limit, setLimit] = useState(PAGE);
-    useEffect(() => {
+    const [limit, setLimit] = useState2(PAGE);
+    useEffect2(() => {
       setLimit(PAGE);
     }, [range, from, to, comp, showSkipped]);
-    const paged = useMemo(() => {
+    const paged = useMemo2(() => {
       const out = [];
       let n = 0;
       for (const g of groups) {
@@ -4766,7 +5145,7 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     const doses = filtered.filter((l) => !l.skipped).length;
     const compCount = new Set(filtered.filter((l) => !l.skipped).map(nameOf)).size;
     const dayCount = groups.filter((g) => g.items.some((l) => !l.skipped)).length;
-    const adherence = useMemo(() => {
+    const adherence = useMemo2(() => {
       const start = range === "all" || lo < "1000" ? dkAdd(today, -364) : lo;
       const end = hi > today ? today : hi;
       if (!dkValid(start) || !dkValid(end) || start > end) return { rows: [], exp: 0, got: 0, pct: null };
@@ -4876,14 +5255,14 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
   function BackdateSheet({ protocols, logs, vials, onSave, onClose }) {
     const today = todayLocal();
     const list = protocols.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.peptideName || "").localeCompare(b.peptideName || ""));
-    const [pid, setPid] = useState(list[0] ? list[0].id : "");
+    const [pid, setPid] = useState2(list[0] ? list[0].id : "");
     const p = list.find((x) => x.id === pid) || null;
-    const [from, setFrom] = useState(dkAdd(today, -7));
-    const [to, setTo] = useState(dkAdd(today, -1));
-    const [time, setTime] = useState("08:00");
-    const [onlySched, setOnlySched] = useState(true);
-    const [doseStr, setDoseStr] = useState("");
-    const [notes, setNotes] = useState("");
+    const [from, setFrom] = useState2(dkAdd(today, -7));
+    const [to, setTo] = useState2(dkAdd(today, -1));
+    const [time, setTime] = useState2("08:00");
+    const [onlySched, setOnlySched] = useState2(true);
+    const [doseStr, setDoseStr] = useState2("");
+    const [notes, setNotes] = useState2("");
     const unit = p ? p.doseUnit || "mcg" : "mcg";
     const factor = unit === "g" ? 1e6 : unit === "mg" ? 1e3 : 1;
     const doseMcg = doseStr.trim() === "" ? void 0 : Math.round((parseFloat(doseStr) || 0) * factor);
@@ -4897,10 +5276,10 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     }, className: "input" }, list.map((x) => /* @__PURE__ */ React.createElement("option", { key: x.id, value: x.id }, x.peptideName, x.active === false || x.endDate ? " · finished" : "")), !list.length && /* @__PURE__ */ React.createElement("option", { value: "" }, "No protocols yet"))), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement(Field, { label: "From" }, /* @__PURE__ */ React.createElement("input", { type: "date", value: from, max: today, onChange: (e) => setFrom(e.target.value), className: "input" })), /* @__PURE__ */ React.createElement(Field, { label: "To" }, /* @__PURE__ */ React.createElement("input", { type: "date", value: to, max: today, onChange: (e) => setTo(e.target.value), className: "input" }))), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement(Field, { label: "Time" }, /* @__PURE__ */ React.createElement("input", { type: "time", value: time, onChange: (e) => setTime(e.target.value), className: "input" })), /* @__PURE__ */ React.createElement(Field, { label: `Dose (${unit})` }, /* @__PURE__ */ React.createElement("input", { type: "number", inputMode: "decimal", placeholder: p ? String(unit === "IU" ? p.doseMcg : (p.doseMcg || 0) / factor) : "", value: doseStr, onChange: (e) => setDoseStr(e.target.value), className: "input" }))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setOnlySched(true), style: chipSt(onlySched) }, "Scheduled days only"), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setOnlySched(false), style: chipSt(!onlySched) }, "Every day")), /* @__PURE__ */ React.createElement(Field, { label: "Note (optional)" }, /* @__PURE__ */ React.createElement("input", { value: notes, onChange: (e) => setNotes(e.target.value), placeholder: "e.g. taken, forgot to log", className: "input" })), /* @__PURE__ */ React.createElement("div", { className: "lg", style: { borderRadius: 14, padding: "10px 12px", marginBottom: 14, fontSize: 12.5, color: "var(--text-dim)" } }, !p ? "Pick a compound." : !spanDays ? "Pick a valid date range." : /* @__PURE__ */ React.createElement(React.Fragment, null, "Will add ", /* @__PURE__ */ React.createElement("b", { className: "mono", style: { color: "var(--accent)" } }, preview.length), " ", preview.length === 1 ? "entry" : "entries", " for ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--text)" } }, p.peptideName), preview.length ? /* @__PURE__ */ React.createElement(React.Fragment, null, " at ", /* @__PURE__ */ React.createElement("b", { className: "mono", style: { color: "var(--text)" } }, fmtDoseAny(preview[0].doseMcg, preview[0].doseUnit)), preview[0].doseMl != null ? ` (${(preview[0].doseMl * 100).toFixed(1)}u)` : "") : null, skippedExisting > 0 ? ` · ${skippedExisting} ${skippedExisting === 1 ? "day" : "days"} skipped (already logged${onlySched ? " or not scheduled" : ""})` : "", ".")), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onClose }, "Cancel"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", disabled: !preview.length, onClick: () => onSave(preview) }, "Add ", preview.length || "", " ", preview.length === 1 ? "entry" : "entries")));
   }
   function LabView({ vials }) {
-    const [filter, setFilter] = useState("All");
-    const [search, setSearch] = useState("");
-    const [expanded, setExpanded] = useState(null);
-    const filtered = useMemo(() => {
+    const [filter, setFilter] = useState2("All");
+    const [search, setSearch] = useState2("");
+    const [expanded, setExpanded] = useState2(null);
+    const filtered = useMemo2(() => {
       let items = PEPTIDE_DB;
       if (filter !== "All") items = items.filter((p) => p.category === filter);
       if (search) {
@@ -4933,11 +5312,11 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     return /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color, textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em", marginBottom: 6 } }, label), /* @__PURE__ */ React.createElement("ul", { style: { margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 } }, items.map((s, i) => /* @__PURE__ */ React.createElement("li", { key: i, style: { fontSize: 12, color: "var(--text-2)", paddingLeft: 14, position: "relative" } }, /* @__PURE__ */ React.createElement("span", { style: { position: "absolute", left: 0, color } }, "•"), s))));
   }
   function MathView() {
-    const [mg, setMg] = useState(5);
-    const [ml, setMl] = useState(2);
-    const [dose, setDose] = useState(200);
-    const [preset, setPreset] = useState("");
-    const [components, setComponents] = useState([]);
+    const [mg, setMg] = useState2(5);
+    const [ml, setMl] = useState2(2);
+    const [dose, setDose] = useState2(200);
+    const [preset, setPreset] = useState2("");
+    const [components, setComponents] = useState2([]);
     const apply = (id) => {
       const p = findPep(id);
       if (!p) {
