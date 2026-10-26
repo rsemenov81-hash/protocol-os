@@ -32,7 +32,7 @@
 // KV binding: TREY_KV. Keys: "trey:state" (the whole record), "vapid" (push keypair), "subs" (devices),
 // "sent:<device>:<date>:<block | block:n | stack-am | stack-pm>" (2-day markers so a reminder goes out once).
 
-const VERSION = '2.0.1';
+const VERSION = '2.1.0';
 const STATE_KEY = 'trey:state';
 const ALLOWED_ORIGINS = ['https://rsemenov81-hash.github.io'];
 const MAX_LOGS = 5000;
@@ -120,11 +120,13 @@ async function handleAdmin(req, env, role) {
   const body = await readBody(req);
   if (!body) return fail(req, 400, 'Send a JSON body');
   const s = await load(env);
+  if (body.baseRev == null) return fail(req, 428, 'baseRev required');
   if (Number(body.baseRev) !== s._rev) return fail(req, 409, 'Someone saved first — reload and try again');
   let touched = false;
-  for (const k of ['compounds', 'logs', 'labs', 'scans']) {
+  for (const k of ['compounds', 'logs', 'labs', 'scans', 'library', 'faq', 'announcements']) {
     if (body[k] === undefined) continue;
     if (!Array.isArray(body[k]) || body[k].some(x => !x || typeof x !== 'object' || !x.id)) return fail(req, 400, `${k} must be a list of items with an id`);
+    if (k === 'compounds' && body[k].some(c => !validCourse(c))) return fail(req, 400, 'Course dates must be valid calendar dates in start-to-end order');
     s[k] = body[k];
     touched = true;
   }
@@ -153,6 +155,7 @@ async function handleLog(req, env, role) {
   const c = s.compounds.find(x => x.id === log.compoundId && x.active !== false);
   if (!c) return fail(req, 400, 'Unknown compound');
   if (typeof log.datetime !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(log.datetime)) return fail(req, 400, 'Bad date/time');
+  if (!withinCourse(c, log.datetime.slice(0,10))) return fail(req, 422, 'This date is outside the recorded course');
   const pill = isPill(c);
   const dose = Number(log.doseMcg);
   if (!pill) {
@@ -298,11 +301,20 @@ const blockOf = (c) => {
   if (Array.isArray(days) && days.length === 0) return 'prn';
   return /night|even|pm|bed/i.test(c.timing || '') ? 'pm' : 'am';
 };
+
+const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value + 'T12:00:00Z')) && new Date(value + 'T12:00:00Z').toISOString().slice(0,10) === value;
+const validCourse = c => {
+  const {startDate, endDate} = c.schedule || {};
+  return (!startDate || validDate(startDate)) && (!endDate || validDate(endDate)) && (!startDate || !endDate || startDate <= endDate);
+};
+const withinCourse = (c, day) => (!c.schedule?.startDate || day >= c.schedule.startDate) && (!c.schedule?.endDate || day <= c.schedule.endDate);
+
 const dowOf = (dk) => new Date(dk + 'T12:00:00Z').getUTCDay();
 const addDays = (dk, n) => new Date(Date.parse(dk + 'T12:00:00Z') + n * 86400000).toISOString().slice(0, 10);
 function dueFor(s, dk, block) {
   const dow = dowOf(dk);
   return s.compounds.filter(c => c.active !== false && !c.stack && blockOf(c) === block
+    && withinCourse(c, dk)
     && ((c.schedule && c.schedule.days) || [0, 1, 2, 3, 4, 5, 6]).includes(dow)
     && !s.logs.some(l => l.compoundId === c.id && (l.datetime || '').slice(0, 10) === dk));
 }
@@ -420,4 +432,4 @@ export default {
     }));
   },
 };
-export { runReminders };
+export { runReminders, dueFor };

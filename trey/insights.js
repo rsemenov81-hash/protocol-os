@@ -63,7 +63,9 @@ function scheduleText(compound, stacks) {
   const days = compound.schedule?.days;
   if (!Array.isArray(days)) return 'Daily';
   if (!days.length) return 'As needed';
-  return [...new Set(days)].filter(d => Number.isInteger(d) && d >= 0 && d <= 6).sort().map(d => weekdays[d]).join(', ');
+  const recurring = [...new Set(days)].filter(d => Number.isInteger(d) && d >= 0 && d <= 6).sort().map(d => weekdays[d]).join(', ');
+  const course = [compound.schedule?.startDate, compound.schedule?.endDate].filter(Boolean).join(' through ');
+  return recurring + (course ? ' | ' + course : '');
 }
 
 const scanFields = [
@@ -82,7 +84,7 @@ export function exportCSV(data = {}, type) {
       c.name, itemKind(c), c.active !== false ? 'Yes' : 'No', stacks.get(c.stack)?.name || c.stack || '',
       c.doseMcg ?? '', c.doseMcg != null ? (c.unit === 'IU' ? 'IU' : 'mcg') : '', c.serving || c.dose || '',
       scheduleText(c, stacks), c.timing || '',
-      list(c.ingredients).filter(Boolean).map(i => [text(i.name), text(i.amount)].filter(Boolean).join(': ')).join('; '),
+      list(c.ingredients).filter(Boolean).map(i => [text(i.name), text(i.amount || (i.mg != null ? i.mg + ' mg' : ''))].filter(Boolean).join(': ')).join('; '),
     ]),
   ]);
   if (type === 'history') return csv([

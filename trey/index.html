@@ -206,16 +206,16 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   *{transition-duration:1ms !important;animation-duration:1ms !important}
 }
 </style>
-<link rel="stylesheet" href="refinement.css?v=01cd87e2ffbc">
+<link rel="stylesheet" href="refinement.css?v=bddc563cd77b">
 </head>
 <body>
-<div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/water-poster.jpg" tabindex="-1"></video></div>
-<header id="shellbar" class="app-shell"><button class="brand" data-act="tab" data-tab="protocol" aria-label="Trey’s home"><img src="assets/vitae-logo.png" alt="Vitae Lab"><span>Trey’s protocol<span class="brand-sub">Personal health, considered.</span></span></button><div class="shell-actions"><span id="sync-status"></span><button id="motion-toggle" class="motion-toggle" aria-label="Pause background" aria-pressed="false">Pause background</button><button class="iconbtn" id="shell-settings" data-act="reminders" aria-label="Reminders" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button></div></header>
-<script type="module" src="motion.js?v=45b5f8ae6f85"></script>
+<div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/geneva-poster.webp" tabindex="-1"></video></div>
+<header id="shellbar" class="app-shell"><button class="brand" data-act="tab" data-tab="protocol" aria-label="Trey’s home"><span class="brand-wordmark">Trey <span>/ Protocol</span><small>Geneva, Switzerland</small></span></button><div class="shell-actions"><span id="sync-status"></span><button id="motion-toggle" class="motion-toggle" aria-label="Pause background" aria-pressed="false">Pause background</button><button class="iconbtn" id="shell-settings" data-act="reminders" aria-label="Reminders" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button></div></header>
+<script type="module" src="motion.js?v=dfc32234a8ce"></script>
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="app"></div>
 <div id="navigation" hidden></div>
-<script type="module" src="insights.js?v=aa737680a512" onload="if(typeof render==='function')render()"></script>
+<script type="module" src="insights.js?v=8fea36ae6332" onload="if(typeof render==='function')render()"></script>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Protocol details" aria-hidden="true" tabindex="-1" inert></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -226,7 +226,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 const API = 'https://trey-protocol.rsemenov81.workers.dev';
 // which kind of item each checklist tab lists (compounds without a kind are the injections)
 const TAB_KIND = { protocol: 'inject', meds: 'med' };
-const VALID_TABS = ['protocol','supps','meds','library','labs','progress','more','history'];
+const VALID_TABS = ['protocol','supps','meds','library','labs','progress','more','history','faq'];
 const S = {
   token: localStorage.getItem('trey_token') || '',
   role: null,
@@ -240,57 +240,8 @@ const S = {
   loaded: false,
 };
 
-/* ════════ built-in library (autofill for Roman's add-compound form; he can edit all of it) ════════ */
-const LIB = {
-  'Ipamorelin + CJC-1295': { category:'GH Support', doseMcg:200, mcgPerUnit:10, timing:'Nightly',
-    purpose:'A gold-standard pairing that nudges your body to release its own growth hormone in natural pulses, instead of replacing it. Taken at night on an empty stomach.',
-    benefits:['Deeper sleep','Recovery and joint comfort','Lean body composition'] },
-  'BPC-157': { category:'Healing', doseMcg:500, mcgPerUnit:40, timing:'Morning',
-    purpose:'A repair peptide that supports healing in tendons, joints, and the gut lining. Runs in cycles of a few weeks — not year-round.',
-    benefits:['Tendon and joint healing','Gut lining repair','Faster recovery from training'] },
-  'TB-500': { category:'Healing', doseMcg:2500, mcgPerUnit:100, timing:'Morning',
-    purpose:'A whole-body repair peptide often paired with BPC-157. Supports soft-tissue healing and recovery.',
-    benefits:['Soft-tissue repair','Flexibility','Recovery'] },
-  'GHK-Cu': { category:'Skin & Hair', doseMcg:1500, mcgPerUnit:100, timing:'Evening',
-    purpose:'A copper peptide your skin already makes, in smaller amounts as you age. Supports collagen, skin elasticity, and hair growth. Cycled month-on, month-off.',
-    benefits:['Skin elasticity and collagen','Hair growth','Wound healing'] },
-  'Semax': { category:'Focus', doseMcg:600, mcgPerUnit:0, timing:'Morning',
-    purpose:'A nasal-spray peptide for focus and mental energy. Used in the morning on demanding days.',
-    benefits:['Focus and attention','Mental energy','Stress resilience'] },
-  'Selank': { category:'Calm', doseMcg:400, mcgPerUnit:0, timing:'As needed',
-    purpose:'A nasal-spray peptide for calm, steady focus without sedation.',
-    benefits:['Less anxiety','Calm focus','Better mood'] },
-  'MOTS-c': { category:'Metabolic', doseMcg:10000, mcgPerUnit:500, timing:'Morning',
-    purpose:'A mitochondrial peptide that supports energy metabolism and exercise performance. Taken before workouts.',
-    benefits:['Exercise performance','Fat metabolism','Energy'] },
-  'NAD+': { category:'Energy', doseMcg:100000, mcgPerUnit:5000, timing:'Morning',
-    purpose:'A coenzyme your cells use to make energy. Injected slowly, a couple of times a week.',
-    benefits:['Cellular energy','Recovery','Mental clarity'] },
-  'Epitalon': { category:'Longevity', doseMcg:200, mcgPerUnit:50, timing:'Nightly',
-    purpose:'A short-course peptide taken in 2–3 week pulses a few times a year. Supports sleep rhythm and healthy aging.',
-    benefits:['Sleep regulation','Healthy aging','Recovery'] },
-  'Retatrutide': { category:'Weight Loss', doseMcg:4000, mcgPerUnit:0, timing:'Morning',
-    purpose:'The strongest of the new weight-loss injections — works on three hunger and metabolism pathways at once. One shot a week, dose raised slowly.',
-    benefits:['Steady fat loss','Appetite control','Better blood sugar'] },
-  'Testosterone': { category:'Hormone', doseMcg:150000, mcgPerUnit:0, timing:'Morning',
-    purpose:'The primary male hormone. Here it protects muscle while you lose weight and frees up usable testosterone that SHBG has been locking away.',
-    benefits:['Keeps muscle during weight loss','Energy and drive','Raises free testosterone'] },
-  'HCG': { category:'Hormone', doseMcg:500, mcgPerUnit:0, timing:'Morning',
-    purpose:'Signals the testes to keep working while on testosterone — preserves their size, natural function, and fertility.',
-    benefits:['Preserves fertility','Keeps natural production going','Supports testicular size'] },
-  'KLOW': { category:'Healing', doseMcg:2000, mcgPerUnit:0, timing:'Evening',
-    purpose:'A four-peptide repair blend — GHK-Cu, KPV, BPC-157, and TB-500 in one vial — for skin, gut, and tissue repair.',
-    benefits:['Skin and hair quality','Gut repair','Tissue and joint healing'] },
-  'Tesamorelin': { category:'GH Support', doseMcg:1000, mcgPerUnit:50, timing:'Morning',
-    purpose:'A growth-hormone support peptide with strong evidence for reducing deep belly fat. Taken fasted.',
-    benefits:['Visceral fat reduction','Body composition','Recovery'] },
-  'Nandrolone': { category:'Hormone', doseMcg:100000, mcgPerUnit:3000, timing:'Morning',
-    purpose:'An anabolic hormone injected once a week. Supports muscle, joint comfort and recovery from training. Long-acting, so the level stays steady between shots. At 300 mg/mL, every syringe unit holds 3 mg.',
-    benefits:['Joint comfort','Muscle and strength','Recovery between sessions'] },
-  'Testosterone Cypionate': { category:'Hormone', doseMcg:75000, mcgPerUnit:2500, timing:'Morning',
-    purpose:'The primary male hormone in a long-acting oil. At 250 mg/mL, every syringe unit holds 2.5 mg.',
-    benefits:['Energy and drive','Keeps muscle','Mood and recovery'] },
-};
+/* Compound suggestions come only from the signed-in record. */
+const LIB = {};
 
 /* ════════ helpers ════════ */
 const $ = (s, el) => (el || document).querySelector(s);
@@ -359,9 +310,11 @@ async function pullState(silent) {
   try {
     const d = await api('/state');
     S.role = d.role;
-    S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], _rev: d._rev||0 };
+    S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], library: d.library||[], faq: d.faq||[], announcements: d.announcements||[], _rev: d._rev||0 };
+    Object.keys(LIB).forEach(k => delete LIB[k]);
+    Object.assign(LIB, Object.fromEntries(S.data.compounds.map(c => [c.name, c])));
     S.sync = 'ok'; S.loaded = true;
-    setTimeout(maybeImport);
+    setTimeout(() => { maybeImport(); maybeAnnouncement(); });
   } catch (e) {
     S.sync = 'error';
     if (e.auth) { S.token = ''; S.loaded = false; S.data = { compounds: [], logs: [], labs: [], scans: [], stacks: [], _rev: 0 }; localStorage.removeItem('trey_token'); closeSheet(); }
@@ -392,11 +345,13 @@ const blockOf = (c) => {
   return /night|even|pm|bed/i.test(c.timing || '') ? 'pm' : 'am';
 };
 const dueOn = (c, date) => {
-  if (c.active === false) return false;
+  if (c.active === false || !withinCourse(c, dkey(date))) return false;
   const days = (c.schedule && c.schedule.days) || [0,1,2,3,4,5,6];
   if (days.length === 0) return false;
   return days.includes(date.getDay());
 };
+const withinCourse = (c, day) => (!c.schedule?.startDate || day >= c.schedule.startDate) && (!c.schedule?.endDate || day <= c.schedule.endDate);
+const courseLabel = c => c.schedule?.startDate || c.schedule?.endDate ? `${c.schedule.startDate ? fmtD(c.schedule.startDate) : 'Started'} — ${c.schedule.endDate ? fmtD(c.schedule.endDate) : 'ongoing'}${c.schedule.endDate && todayKey() > c.schedule.endDate ? ' · Course complete' : ''}` : '';
 // stack items (supplements and meds taken as one morning or night stack) live only on the Supps tab
 const kindOf = (c) => c.stack ? 'stack' : c.kind === 'supp' || c.kind === 'med' ? c.kind : 'inject';
 const tabItems = () => S.data.compounds.filter(c => kindOf(c) === (TAB_KIND[S.tab] || 'inject'));
@@ -415,6 +370,7 @@ const I = {
   chev: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
   bell: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
   tabs: {
+    faq: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.4 1.1-1.4 2.2"/><path d="M12 16h.01"/></svg>',
     supps: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7z"/><path d="m8.5 8.5 7 7"/></svg>',
     meds: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="5" rx="1"/><path d="M6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7"/><path d="M10 14.5h4M12 12.5v4"/></svg>',
     protocol: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 14.5l2 2 4-4"/></svg>',
@@ -460,7 +416,7 @@ const chartCard = (title, sub, svg) => svg ? `<div class="card" style="padding:1
 /* ════════ views ════════ */
 function headerHTML(title, subHTML) {
   const back = ['meds','library','history'].includes(S.tab) ? '<button class="back-link" data-act="tab" data-tab="more">← More</button>' : '';
-  return `<section class="page-head page-${S.tab}">${back}<div class="page-heading"><div><p class="eyebrow">${esc((TAB_KIND[S.tab] ? S.viewDate : new Date()).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))}</p><h1 class="big-title" id="main" tabindex="-1">${esc(title)}</h1></div>${TAB_KIND[S.tab] && tabItems().length ? ringHTML() : ''}</div>${S.tab === 'protocol' ? '<p class="page-intro">A little intention. Every day.</p>' : ''}${subHTML || ''}</section>`;
+  return `<section class="page-head page-${S.tab}">${back}<div class="page-heading"><div><p class="eyebrow">${esc((TAB_KIND[S.tab] ? S.viewDate : new Date()).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))}</p><h1 class="big-title" id="main" tabindex="-1">${esc(title)}</h1></div>${TAB_KIND[S.tab] && tabItems().length ? ringHTML() : ''}</div>${S.tab === 'protocol' ? '<p class="page-intro">Review your scheduled doses.</p><div class="resource-shortcuts"><button class="btn-ghost" data-act="tab" data-tab="library">Library</button><button class="btn-ghost" data-act="tab" data-tab="faq">FAQ</button></div>' : ''}${subHTML || ''}</section>`;
 }
 function shellHTML() {
   const cap = $('#sync-status');
@@ -487,8 +443,8 @@ function ringHTML() {
 }
 
 function weekHTML() {
-  const start = new Date(S.viewDate); start.setDate(start.getDate() - start.getDay());
-  const curStart = new Date(); curStart.setDate(curStart.getDate() - curStart.getDay());
+  const start = new Date(S.viewDate); start.setDate(start.getDate() - (start.getDay() + 6) % 7);
+  const curStart = new Date(); curStart.setDate(curStart.getDate() - (curStart.getDay() + 6) % 7);
   const atCurrentWeek = dkey(start) === dkey(curStart);
   // days before the first log ever get no dot — the schedule has no history, so older weeks would read as missed doses
   const firstK = S.data.logs.reduce((m, l) => { const lk = (l.datetime || '').slice(0, 10); return lk && (!m || lk < m) ? lk : m; }, '');
@@ -501,7 +457,7 @@ function weekHTML() {
     const has = due.length > 0 && k <= todayKey() && (!firstK || k >= firstK);
     const sel = k === dkey(S.viewDate), today = k === todayKey();
     cells += `<button class="day ${sel?'sel':''} ${today?'today':''}" data-act="day" data-k="${k}" aria-pressed="${sel}" ${today ? 'aria-current="date"' : ''} aria-label="${d.toDateString()}">
-      <span class="n">${d.getDate()}</span><span class="w">${'SMTWTFS'[d.getDay()]}</span>
+      <span class="n">${d.getDate()}</span><span class="w">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}</span>
       <span class="d ${!has?'none':done?'done':''}"></span></button>`;
   }
   const chev = (dir, off, label, path) => `<button class="wknav" data-act="weeknav" data-dir="${dir}" ${off ? 'disabled' : ''} aria-label="${label}">
@@ -510,39 +466,30 @@ function weekHTML() {
 }
 
 function doseCardHTML(c, glow) {
-  const k = dkey(S.viewDate);
-  const log = logFor(c, k);
-  const conc = concOf(c);
-  const units = conc > 0 ? Math.round(((log ? log.doseMcg : c.doseMcg) / conc) * 10) / 10 : null;
-  const state = log ? 'logged' : '';
-  const isIU = c.unit === 'IU';
+  const log = logFor(c, dkey(S.viewDate));
   const amt = log ? log.doseMcg : c.doseMcg;
-  const heroV = units != null ? units : isIU ? Number(amt).toLocaleString(undefined, { maximumFractionDigits: 6 }) : (amt >= 1000 ? (amt/1000).toFixed(1).replace(/\.0$/,'') : Math.round(amt));
-  const heroU = units != null ? 'units' : isIU ? 'IU' : (amt >= 1000 ? 'mg' : 'mcg');
-  const meta = log
-    ? `Logged ${clock(log.datetime)}`
-    : ((c.schedule && c.schedule.days && c.schedule.days.length === 0) ? `PRN · last ${relDay((lastLog(c)||{}).datetime)}` : `${esc(c.timing || 'Daily')} · set by Roman`);
-  return `<div class="card dose-wrap dose-photo ${/oral/i.test(c.category || '') ? 'photo-oral' : 'photo-vial'} ${state} ${S.role === 'admin' ? 'has-edit' : ''} ${glow && !log ? 'glow' : ''}"><button class="dose press" data-act="opendose" data-id="${esc(c.id)}" aria-label="${log ? 'Review logged dose for' : 'Review and log'} ${esc(c.name)}" ${c.purpose ? `aria-describedby="purpose-${esc(c.id)}"` : ''}>
-    <div class="r1">
-      <span style="display:flex;align-items:center;gap:6px"><span class="rt">${/oral/i.test(c.category || '') ? I.pill : I.inject}</span><span class="rtl">${esc((c.category||'Inject').split(' ')[0])}</span></span>
-      <span style="display:flex;gap:6px;align-items:center">
-        <span class="ring ${log && c.id === flashId ? 'pop' : ''}">${log ? I.check('#06231a') : I.plus('#e3c886')}${log && c.id === flashId ? '<span class="rip"></span>' : ''}</span>
-      </span>
-    </div>
-    <div class="nm">${esc(c.name)}</div>
-    ${c.purpose ? `<div class="dose-purpose" id="purpose-${esc(c.id)}">${esc(c.purpose)}</div>` : ''}
-    <div class="hero"><span class="hv">${heroV}</span><span class="hu">${heroU}</span><span class="by">${units != null ? fmtAmt(log ? log.doseMcg : c.doseMcg, c.unit) + ' · ' + mlOf(units) : ''}</span></div>
-    <div class="ft"><span class="mt">${meta}</span><span class="dose-action">${log ? 'View log' : 'Review & log'} ↗</span></div>
+  const conc = concOf(c);
+  const units = conc > 0 ? Math.round((amt / conc) * 10) / 10 : null;
+  const ingredients = c.preloaded ? (c.ingredients || []) : [];
+  const ratio = c.doseMcg > 0 ? amt / c.doseMcg : 1;
+  const blend = ingredients.map(i => `<div><span>${esc(i.name)}</span><strong>${esc(Number((Number(i.mg) * ratio).toFixed(3)))} mg${Number.isFinite(i.ml) ? ` · ${esc(Number((i.ml * ratio).toFixed(3)))} mL` : ''}</strong></div>`).join('');
+  const timing = log ? `Logged ${clock(log.datetime)}` : c.timing || 'Daily';
+  const schedule = c.schedule?.days?.length ? c.schedule.days.map(d=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d]).join(' / ') : 'As needed';
+  return `<div class="card dose-wrap ${log ? 'logged' : ''} ${S.role === 'admin' ? 'has-edit' : ''}"><button class="dose press" data-act="opendose" data-id="${esc(c.id)}" aria-label="${log ? 'Review logged dose for' : 'Review and log'} ${esc(c.name)}">
+    <div class="dose-heading"><span class="dose-symbol" aria-hidden="true">${I.inject}</span><span class="nm">${esc(c.name)}</span>${c.preloaded ? '<span class="preloaded-badge">One preloaded syringe</span>' : ''}</div>
+    <div class="dose-details">${c.preloaded ? `<div class="blend-ingredients">${blend}</div><div class="blend-total"><span>Total volume</span><strong>${units != null ? mlOf(units) : '—'}</strong></div>` : `<div class="hero"><span class="hv">${fmtAmt(amt,c.unit)}</span>${units != null ? `<span class="dose-volume">${mlOf(units)}</span>` : ''}</div>`}
+      <p class="dose-schedule">${esc(schedule)}${units != null && !c.preloaded ? ` · ${units} units on U-100` : ''}</p>${courseLabel(c) ? `<p class="course-label">${esc(courseLabel(c))}</p>` : ''}</div>
+    <div class="dose-controls"><span class="dose-status">${log ? I.check('currentColor',14) : '<i></i>'}${log ? esc(timing) : 'Not logged'}</span><span class="dose-action">${log ? 'View log' : c.preloaded ? 'Log syringe' : 'Log dose'}</span></div>
   </button>${S.role === 'admin' ? `<button class="dose-edit" data-act="editcomp" data-id="${esc(c.id)}" aria-label="Edit ${esc(c.name)}">${I.pencil}</button>` : ''}</div>`;
 }
 
 function protocolView() {
   const comps = S.data.compounds.filter(c => c.active !== false && kindOf(c) === 'inject');
   const k = dkey(S.viewDate);
-  const byBlock = { am: [], pm: [], prn: [] };
-  comps.forEach(c => { if (dueOn(c, S.viewDate) || blockOf(c) === 'prn') byBlock[blockOf(c)].push(c); });
-  const glowId = (byBlock.am.concat(byBlock.pm).find(c => !logFor(c, k)) || {}).id;
-  const title = isToday() ? 'Today' : S.viewDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  const byBlock = { am: [], pm: [], bed: [], prn: [] };
+  comps.forEach(c => { if (dueOn(c, S.viewDate) || (blockOf(c) === 'prn' && withinCourse(c, k))) byBlock[/before bed|bedtime/i.test(c.timing || '') ? 'bed' : blockOf(c)].push(c); });
+  const glowId = (byBlock.am.concat(byBlock.pm, byBlock.bed).find(c => !logFor(c, k)) || {}).id;
+  const title = isToday() ? 'Today’s protocol' : S.viewDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
   let body = '';
   if (!comps.length) {
     body = `<div style="margin:56px auto 0;max-width:280px;padding:36px 20px;border-radius:18px;background:#112a21;border:1px dashed rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
@@ -552,14 +499,14 @@ function protocolView() {
       ${S.role === 'admin' ? '<button class="btn-primary" style="margin-top:6px" data-act="addcomp">Add compound</button>' : ''}
     </div>`;
   } else {
-    const scheduled = byBlock.am.concat(byBlock.pm);
+    const scheduled = byBlock.am.concat(byBlock.pm, byBlock.bed);
     const logged = scheduled.filter(c => logFor(c, k)).length;
     body = `<div class="schedule-summary" aria-label="Daily summary"><span><strong>${scheduled.length}</strong>Scheduled</span><span><strong>${logged}</strong>Logged</span><span><strong>${scheduled.length - logged}</strong>Remaining</span></div>`;
     const sect = (id, label) => byBlock[id].length ? `<section class="protocol-block" aria-label="${label}">
       <div class="sect"><span class="t">${label}</span><span class="r"></span>
         <span class="c">${countTxt(byBlock[id], k)}</span></div>
       <div class="grid2">${byBlock[id].map(c => doseCardHTML(c, c.id === glowId)).join('')}</div></section>` : '';
-    body += (!scheduled.length ? '<div class="empty-state"><h2>No scheduled doses</h2><p>Nothing is scheduled for this day. Choose another day to see its protocol.</p></div>' : '') + '<div class="protocol-blocks">' + sect('am', 'Morning') + sect('pm', 'Evening') + '</div>' +
+    body += (!scheduled.length ? '<div class="empty-state"><h2>No scheduled doses</h2><p>Nothing is scheduled for this day. Choose another day to see its protocol.</p></div>' : '') + '<div class="protocol-blocks">' + sect('am', 'Morning') + sect('pm', 'Evening') + sect('bed', 'Before bed') + '</div>' +
       (byBlock.prn.length ? `<div class="sect"><span class="t">As Needed</span><span class="r"></span><span class="c">PRN</span></div>
        <div class="grid2">${byBlock.prn.map(c => doseCardHTML(c, false)).join('')}</div>` : '');
     if (S.role === 'admin') {
@@ -571,7 +518,7 @@ function protocolView() {
           <button class="btn-ghost" style="height:44px;font-size:13px" data-act="editcomp" data-id="${esc(c.id)}">Edit / Reactivate</button></div>`).join('');
     }
   }
-  return headerHTML(title, weekHTML()) + nextRoutineHTML() + `<div style="padding:4px 16px 0" class="fade">${body}</div>`;
+  return headerHTML(title, weekHTML()) + `<div class="page-content protocol-content fade">${(S.data.announcements || []).some(n=>n.active !== false) ? '<button class="update-banner" data-act="show-update"><span>Protocol updated</span><span>See changes ›</span></button>' : ''}${body}<div class="resource-shortcuts"><button class="btn-ghost" data-act="tab" data-tab="library">Library</button><button class="btn-ghost" data-act="tab" data-tab="faq">FAQ</button></div></div>` + nextRoutineHTML();
 }
 
 /* ════════ Supplements: the morning and night stacks — not logged, one reminder each ════════ */
@@ -625,7 +572,7 @@ const PILL = { med: { label: 'Meds', noun: 'medication', id: 'm_', eg: '500 mg �
 function pillsView(kind) {
   const P = PILL[kind], k = dkey(S.viewDate);
   const items = S.data.compounds.filter(c => c.active !== false && kindOf(c) === kind);
-  const byBlock = { am: [], pm: [], prn: [] };
+  const byBlock = { am: [], pm: [], bed: [], prn: [] };
   items.forEach(c => { if (dueOn(c, S.viewDate) || blockOf(c) === 'prn') byBlock[blockOf(c)].push(c); });
   const row = (c) => {
     const log = logFor(c, k), pop = log && c.id === flashId;
@@ -682,8 +629,8 @@ function libraryView() {
   const comps = S.data.compounds.filter(c => c.active !== false && kindOf(c) === 'inject');
   const cards = comps.length ? comps.map(c => {
     const cc = concOf(c);
-    const u = cc > 0 ? ` · ${Math.round((c.doseMcg / cc) * 10) / 10} units / ${mlOf(Math.round((c.doseMcg / cc) * 10) / 10)}` : '';
-    const ing = (c.ingredients || []).length ? `<div style="font-size:12px;color:var(--ink3)">In the blend: <span class="mono" style="color:var(--ink2)">${c.ingredients.map(i => esc(i.name) + ' ' + i.mg + ' mg').join(' · ')}</span></div>` : '';
+    const u = c.preloaded ? ` · ${mlOf(c.doseMcg / cc)} · preloaded syringe` : cc > 0 ? ` · ${Math.round((c.doseMcg / cc) * 10) / 10} units / ${mlOf(Math.round((c.doseMcg / cc) * 10) / 10)}` : '';
+    const ing = (c.ingredients || []).length ? `<div style="font-size:12px;color:var(--ink3)">${c.preloaded ? 'In each supplied syringe' : 'In the blend'}: <span class="mono" style="color:var(--ink2)">${c.ingredients.map(i => esc(i.name) + ' ' + i.mg + ' mg').join(' · ')}</span></div>` : '';
     return `<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="flex:1;font-size:17px;font-weight:700">${esc(c.name)}</span>
@@ -691,6 +638,7 @@ function libraryView() {
       </div>
       <div style="font-size:14px;line-height:1.5;color:var(--ink2)">${esc(c.purpose || '')}</div>
       ${ing}
+      ${courseLabel(c) ? `<p class="course-label">${esc(courseLabel(c))}</p>` : ''}
       ${(c.benefits || []).length ? `<div style="display:flex;flex-direction:column;gap:6px">${c.benefits.map(b =>
         `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)">${I.check('#5fdc97', 14)}${esc(b)}</div>`).join('')}</div>` : ''}
       <div style="padding-top:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">
@@ -699,8 +647,39 @@ function libraryView() {
       </div>
     </div>`;
   }).join('') : `<div class="fine" style="margin-top:40px">Compounds Roman adds will be explained here.</div>`;
-  return headerHTML('Library', `<div class="sub" style="margin-top:4px">What each compound does and why it's in your protocol — written by Roman.</div>`) +
-    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${cards}</div>`;
+  return headerHTML('Library', `<div class="sub" style="margin-top:4px">Your protocol, intended benefits and the evidence behind them.</div>`) +
+    `<div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:12px" class="fade">${(S.data.library || []).map(educationCard).join('')}${cards}</div>`;
+}
+
+
+/* Private educational content is loaded only after authentication. */
+function sourceLinks(sources) {
+  return (sources || []).filter(x => /^https:\/\//i.test(x.url || '')).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.label || 'Source')} ↗</a>`).join('');
+}
+function educationCard(article) {
+  return `<article class="card education-card"><p class="eyebrow">${esc(article.label || 'Evidence & context')}</p><h2>${esc(article.title)}</h2>${article.summary ? `<p>${esc(article.summary)}</p>` : ''}${(article.sections || []).map(x => `<section><h3>${esc(x.heading)}</h3><p>${esc(x.text)}</p></section>`).join('')}<div class="source-links">${sourceLinks(article.sources)}</div></article>`;
+}
+function faqView() {
+  const rows = (S.data.faq || []).map(x => `<details class="card faq-entry"><summary>${esc(x.question)}</summary><div><p>${esc(x.answer)}</p>${x.note ? `<p class="fine">${esc(x.note)}</p>` : ''}<div class="source-links">${sourceLinks(x.sources)}</div></div></details>`).join('');
+  return headerHTML('FAQ', '<p class="page-intro">Training, recovery and everyday nutrition.</p>') + `<div class="page-content education-list">${rows || '<p class="fine">Your training notes will appear here.</p>'}</div>`;
+}
+const displayedAnnouncements = new Set();
+let openAnnouncement = null;
+const announcementKey = (id) => `trey_notice_${S.role}_${id}`;
+function seenAnnouncement(id) { try { return localStorage.getItem(announcementKey(id)) === 'seen'; } catch { return false; } }
+function maybeAnnouncement(force = false) {
+  if (!S.loaded || !S.role || !$('#sheet').inert || location.hash.startsWith('#import=')) return;
+  const notices = [...(S.data.announcements || [])].filter(n => n.active !== false).sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+  const n = force ? notices[0] : notices.find(n => !displayedAnnouncements.has(`${S.role}:${n.id}`) && !seenAnnouncement(n.id));
+  if (!n) { if (force) toast('No protocol updates to show'); return; }
+  displayedAnnouncements.add(`${S.role}:${n.id}`); openAnnouncement = n.id;
+  const acknowledge = (destination) => { closeSheet(); if (destination) { S.tab = destination; render(); window.scrollTo(0,0); } };
+  openSheet(`<div class="sheet-body update-body"><p class="eyebrow">${esc(n.date ? fmtD(n.date) : 'New')}</p><h2>${esc(n.title || 'Protocol update')}</h2>${(n.items || []).map(x => `<section><h3>${esc(x.title)}</h3><p>${esc(x.text)}</p></section>`).join('')}<div class="update-links"><button class="btn-ghost" id="update-library">Open library</button><button class="btn-ghost" id="update-faq">Open FAQ</button></div></div><div class="sheet-foot"><button class="btn-primary" id="update-done">Got it</button></div>`, sh => {
+    sh.setAttribute('aria-label','Protocol update');
+    $('#update-done',sh).onclick = () => acknowledge();
+    $('#update-library',sh).onclick = () => acknowledge('library');
+    $('#update-faq',sh).onclick = () => acknowledge('faq');
+  });
 }
 
 // Match both the assay and its unit so incompatible measurements never share a chart.
@@ -856,7 +835,7 @@ function setupView() {
 }
 
 function tabbarHTML() {
-  const T = [['protocol','Today'],['supps','Stacks'],['labs','Labs'],['progress','Progress'],['more','More']];
+  const T = [['protocol','Today'],['supps','Stacks'],['labs','Labs'],['progress','Progress'],['faq','FAQ'],['more','More']];
   const active = ['meds','library','history'].includes(S.tab) ? 'more' : S.tab;
   const more = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
   return `<nav class="tabbar" role="tablist" aria-label="Protocol sections">${T.map(([id,l]) => `<button class="tab ${active === id ? 'on' : ''}" role="tab" aria-selected="${active === id}" data-act="tab" data-tab="${id}">${I.tabs[id] || more}<span>${l}</span></button>`).join('')}</nav>`;
@@ -869,7 +848,7 @@ function nextRoutineHTML() {
 }
 function moreView() {
   const row = (tab,title,sub) => `<button class="menu-row" data-act="tab" data-tab="${tab}"><span>${I.tabs[tab] || I.tabs.protocol}</span><span><strong>${title}</strong><small>${sub}</small></span>${I.chev}</button>`;
-  return headerHTML('Your health, together', '<p class="page-intro">Your history, resources and preferences.</p>') + `<div class="page-content"><section class="menu-group">${row('history','Dose history','Find and review recorded doses')}${row('meds','Medications','Medicines in your routines and protocol')}${row('library','Protocol library','Details about your current compounds')}<button class="menu-row" data-act="reminders"><span>${I.bell}</span><span><strong>Reminders</strong><small>Times, notifications and device settings</small></span>${I.chev}</button></section><section class="export-panel"><h2>Take your records with you</h2><p>Download a spreadsheet for your own records or next appointment. Files stay on your device until you choose to share them.</p><div class="export-grid">${[['protocol','Protocol'],['history','Dose history'],['labs','Lab results'],['scans','InBody scans']].map(([type,label])=>`<button class="btn-ghost" data-act="export-csv" data-type="${type}">${label}<span aria-hidden="true">↓</span></button>`).join('')}</div></section><div class="account-note"><span>Signed in as ${S.role === 'admin' ? 'Roman · administrator' : 'Trey'}</span><button data-act="change-code">Sign out</button></div></div>`;
+  return headerHTML('Your health, together', '<p class="page-intro">Your history, resources and preferences.</p>') + `<div class="page-content"><section class="menu-group">${row('history','Dose history','Find and review recorded doses')}${row('meds','Medications','Medicines in your routines and protocol')}${row('library','Protocol library','Benefits, evidence and your current compounds')}${row('faq','FAQ','Training, walking and workout nutrition')}<button class="menu-row" data-act="show-update"><span>${I.bell}</span><span><strong>Protocol updates</strong><small>Review the latest changes</small></span>${I.chev}</button><button class="menu-row" data-act="reminders"><span>${I.bell}</span><span><strong>Reminders</strong><small>Times, notifications and device settings</small></span>${I.chev}</button></section><section class="export-panel"><h2>Take your records with you</h2><p>Download a spreadsheet for your own records or next appointment. Files stay on your device until you choose to share them.</p><div class="export-grid">${[['protocol','Protocol'],['history','Dose history'],['labs','Lab results'],['scans','InBody scans']].map(([type,label])=>`<button class="btn-ghost" data-act="export-csv" data-type="${type}">${label}<span aria-hidden="true">↓</span></button>`).join('')}</div></section><div class="account-note"><span>Signed in as ${S.role === 'admin' ? 'Roman · administrator' : 'Trey'}</span><button data-act="change-code">Sign out</button></div></div>`;
 }
 function historyView() {
   const rows = window.TreyInsights?.activityRows(S.data,{query:S.historyQuery,from:S.historyFrom,to:S.historyTo}) || [];
@@ -895,7 +874,7 @@ function render() {
     return;
   }
   if (!VALID_TABS.includes(S.tab)) S.tab = 'protocol';
-  const v = { protocol: protocolView, supps: stacksView, meds: () => pillsView('med'), library: libraryView, labs: labsView, progress: progressView, more: moreView, history: historyView }[S.tab];
+  const v = { protocol: protocolView, supps: stacksView, meds: () => pillsView('med'), library: libraryView, labs: labsView, progress: progressView, more: moreView, history: historyView, faq: faqView }[S.tab];
   app.innerHTML = (S.sync === 'error' ? '<div class="connection-notice" role="status"><span>Couldn’t refresh. Showing the last loaded records.</span><button class="btn-ghost" data-act="pull">Retry</button></div>' : '') + v(); nav.innerHTML = tabbarHTML(); nav.hidden = false;
   if (focus) { const field = $('#'+focus.id); if (field && field !== active) { field.focus({preventScroll:true}); if (typeof focus.start === 'number') { try { field.setSelectionRange(focus.start,focus.end); } catch {} } } }
 }
@@ -926,6 +905,7 @@ function openSheet(html, onmount) {
   if (onmount) onmount(sh);
 }
 function closeSheet() {
+  if (openAnnouncement) { try { localStorage.setItem(announcementKey(openAnnouncement), 'seen'); } catch {} openAnnouncement = null; }
   const sh = $('#sheet'), sc = $('#scrim');
   clearTimeout(sheetTimer);
   sh.inert = true;
@@ -978,19 +958,22 @@ function openDose(c) {
   let mcg = existing ? existing.doseMcg : rec;
   let invalidDoseInput = false;
   const futureDay = k > todayKey();
+  const outsideCourse = !withinCourse(c, k);
   const showMg = c.unit !== 'IU' && mcg >= 1000; // single source for display unit AND parse scale
 
-  const draw = conc > 0;
+  const draw = conc > 0 && !c.preloaded;
   const html = `
   <div class="sheet-body">
     <div>
       <div style="font-size:22px;line-height:27px;font-weight:700;letter-spacing:-.015em">${esc(c.name)}</div>
-      <div style="font-size:13px;color:var(--ink3);margin-top:3px">${esc(c.timing || 'Daily')} · Roman recommends <span class="mono" style="color:var(--ink2)">${fmtAmt(rec, c.unit)}</span></div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:3px">${esc(c.timing || 'Daily')} · Scheduled dose <span class="mono" style="color:var(--ink2)">${fmtAmt(rec, c.unit)}</span></div>
     </div>
     <div class="card" style="border-radius:16px;padding:14px 14px 12px">
-      <div class="lbl" style="margin:0 0 6px">${draw ? 'The Draw' : 'Dose'}</div>
+      <div class="lbl" style="margin:0 0 6px">${c.preloaded ? 'Preloaded syringe' : draw ? 'The Draw' : 'Dose'}</div>
+      ${c.preloaded ? `<p class="preloaded-summary">${esc(c.serving || 'One supplied syringe')} · ${mlOf(recU)} total. This entry records the supplied mixture.</p>` : ''}
+      ${courseLabel(c) ? `<p class="course-label">${esc(courseLabel(c))}</p>` : ''}
       <div style="display:flex;align-items:baseline;gap:6px">
-        <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (showMg ? (mcg/1000) : mcg))}" aria-label="Dose">
+        <input class="readout" id="dv" inputmode="decimal" value="${draw ? units.toFixed(1) : (c.unit === 'IU' ? mcg : (showMg ? (mcg/1000) : mcg))}" aria-label="Dose" ${c.preloaded ? 'readonly' : ''}>
         <span style="font-size:16px;color:var(--ink3)">${draw ? 'units' : (c.unit === 'IU' ? 'IU' : (showMg ? 'mg' : 'mcg'))}</span>
         <span class="mono" id="conv" style="margin-left:auto;font-size:13px;color:var(--ink2)"></span>
       </div>
@@ -1086,7 +1069,7 @@ function openDose(c) {
            <button class="btn-ghost" id="rst" style="height:44px;font-size:12px;font-family:var(--mono)">Reset to ${draw ? (Math.round(recU * 2) / 2) + ' units' : fmtAmt(rec, c.unit)}</button></div>`
         : '';
       const r = $('#rst', sh); if (r) r.onclick = () => { units = recU; mcg = rec; upd(); };
-      go.disabled = blocked || invalidDoseInput || !Number.isFinite(mcg) || !(mcg > 0) || futureDay;
+      go.disabled = blocked || invalidDoseInput || !Number.isFinite(mcg) || !(mcg > 0) || futureDay || outsideCourse;
       if (invalidDoseInput) guard.innerHTML = '<div class="advice err" role="alert"><span class="t">Enter a valid dose above zero.</span></div>';
       if (futureDay) guard.innerHTML = '<div class="advice"><span class="t">You’re viewing a future day. Log a dose after taking it.</span></div>';
       const goLabel = blocked ? 'Blocked by the dose gate'
@@ -1094,6 +1077,7 @@ function openDose(c) {
       // Replacing the tapped button's children during input blur can swallow the first click.
       if (go.innerHTML !== goLabel) go.innerHTML = goLabel;
       if (invalidDoseInput) { go.textContent = 'Enter a valid dose'; conv.textContent = '—'; }
+      if (outsideCourse) { guard.innerHTML = '<div class="advice" role="status">This day is outside the recorded course.</div>'; go.textContent = 'Outside course dates'; }
       if (futureDay) go.textContent = 'Scheduled for ' + fmtD(k);
     };
 
@@ -1121,7 +1105,7 @@ function openDose(c) {
       catch (e) { toast(e.message); }
     };
     go.onclick = async () => {
-      if (go.disabled || invalidDoseInput || futureDay || !Number.isFinite(mcg) || mcg <= 0) return;
+      if (go.disabled || invalidDoseInput || futureDay || outsideCourse || !Number.isFinite(mcg) || mcg <= 0) return;
       go.disabled = true;
       // re-resolve against FRESH state: a background pull may have brought a same-day log in
       const live = isPrn ? null : logFor(c, k);
@@ -1129,7 +1113,7 @@ function openDose(c) {
         go.disabled = false; closeSheet();
         return toast(`Already logged by Roman ${relDay(k)} — ask him to change it.`);
       }
-      const entry = { id: existing ? existing.id : (live ? live.id : uid()), compoundId: c.id, datetime: when, doseMcg: Number(mcg.toFixed(6)), units: draw ? Math.round(units * 10) / 10 : null };
+      const entry = { id: existing ? existing.id : (live ? live.id : uid()), compoundId: c.id, datetime: when, doseMcg: Number(mcg.toFixed(6)), units: conc > 0 ? Number((mcg / conc).toFixed(6)) : null };
       try {
         await api('/log', { log: entry });
         // instant confirmation: update locally + pop the check, then reconcile in background
@@ -1165,7 +1149,7 @@ function compForm(c) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><span class="lbl">Category</span><input class="well" id="f-cat" value="${esc(c.category)}"></div>
       <div><span class="lbl">Timing</span><select class="well" id="f-time">
-        ${['Morning','Evening','Nightly','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        ${['Morning','Evening','Nightly','Before bed','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><span class="lbl">Dose (<span id="f-ul">${c.unit === 'IU' ? 'IU' : 'mcg'}</span>)</span><input class="well mono" id="f-dose" inputmode="numeric" value="${esc(c.doseMcg)}"></div>
@@ -1183,6 +1167,7 @@ function compForm(c) {
     <div><span class="lbl">Days</span><div class="days7" id="f-days">
       ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}" aria-label="${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i]}" aria-pressed="${days.includes(i)}">${d}</button>`).join('')}</div>
       <div class="fine" style="text-align:left;margin-top:6px">No days selected = as-needed only.</div></div>
+    <div class="filter-dates"><label>Course starts<input class="well" id="f-start" type="date" value="${esc(c.schedule?.startDate || '')}"></label><label>Last scheduled day<input class="well" id="f-end" type="date" value="${esc(c.schedule?.endDate || '')}"></label></div>
     <div><span class="lbl">What it does (shown in Library)</span><textarea class="well" id="f-purp" rows="3">${esc(c.purpose)}</textarea></div>
     <div><span class="lbl">Benefits — one per line</span><textarea class="well" id="f-ben" rows="3">${esc((c.benefits || []).join('\n'))}</textarea></div>
   </div>
@@ -1227,16 +1212,18 @@ function compForm(c) {
       const dose = parseFloat($('#f-dose', sh).value);
       if (!name) { done(false); return toast('Name it first'); }
       if (!Number.isFinite(dose) || dose <= 0) { done(false); return toast('Set a dose first'); }
+      const startDate = $('#f-start', sh).value, endDate = $('#f-end', sh).value;
+      if (startDate && endDate && startDate > endDate) { done(false); return toast('The last day must be on or after the start date'); }
       const upd = {
         ...c, name, category: $('#f-cat', sh).value.trim(), timing: $('#f-time', sh).value,
         unit: $('#f-unit', sh).value === 'IU' ? 'IU' : 'mcg',
         vialAmount: parseFloat($('#f-vial', sh).value) || 0,
         bacMl: parseFloat($('#f-bac', sh).value) || 0,
-        ingredients: $('#f-ing', sh).value.split('\n').map(l => { const m = l.split(':'); const nm = (m[0]||'').trim(); const mg = parseFloat(m[1]); return nm && Number.isFinite(mg) ? { name: nm, mg } : null; }).filter(Boolean),
+        ingredients: $('#f-ing', sh).value.split('\n').map(l => { const m = l.split(':'); const nm = (m[0]||'').trim(); const mg = parseFloat(m[1]); const prior = (c.ingredients || []).find(i => i.name === nm && i.mg === mg); return nm && Number.isFinite(mg) ? { ...prior, name: nm, mg } : null; }).filter(Boolean),
         doseMcg: Number(dose.toFixed(6)), mcgPerUnit: parseFloat($('#f-conc', sh).value) || 0,
         purpose: $('#f-purp', sh).value.trim(),
         benefits: $('#f-ben', sh).value.split('\n').map(s => s.trim()).filter(Boolean),
-        schedule: { days: [...sh.querySelectorAll('.dtoggle.on')].map(b => Number(b.dataset.d)).sort() },
+        schedule: { ...c.schedule, days: [...sh.querySelectorAll('.dtoggle.on')].map(b => Number(b.dataset.d)).sort(), startDate, endDate },
       };
       const next = isNew ? [...S.data.compounds, upd] : S.data.compounds.map(x => x.id === c.id ? upd : x);
       const ok = await adminWrite({ compounds: next }, isNew ? `Added ${name}` : 'Saved');
@@ -1256,7 +1243,7 @@ function pillForm(kind, c) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><span class="lbl">Dose</span><input class="well mono" id="p-dose" value="${esc(c.dose || '')}" placeholder="${P.eg}"></div>
       <div><span class="lbl">Timing</span><select class="well" id="p-time">
-        ${['Morning','Evening','Nightly','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        ${['Morning','Evening','Nightly','Before bed','As needed'].map(t => `<option ${c.timing === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
     </div>
     <div><span class="lbl">Days</span><div class="days7">
       ${'SMTWTFS'.split('').map((d, i) => `<button class="dtoggle ${days.includes(i) ? 'on' : ''}" data-d="${i}" aria-label="${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i]}" aria-pressed="${days.includes(i)}">${d}</button>`).join('')}</div>
@@ -1576,6 +1563,7 @@ document.addEventListener('click', async (e) => {
   else if (act === 'togglepill') { const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) togglePill(c); }
   else if (act === 'editpill') { e.stopPropagation(); const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) pillForm(kindOf(c), c); }
   else if (act === 'addpill') pillForm(el.dataset.kind, null);
+  else if (act === 'show-update') maybeAnnouncement(true);
   else if (act === 'reminders') openReminders();
   else if (act === 'addstack') stackForm(el.dataset.stack, null);
   else if (act === 'editstack') { const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) stackForm(c.stack, c); }
@@ -1592,11 +1580,13 @@ document.addEventListener('click', async (e) => {
       const d = await api('/state');
       localStorage.setItem('trey_token', tok);
       S.role = d.role;
-      S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], _rev: d._rev||0 };
+      S.data = { compounds: d.compounds||[], logs: d.logs||[], labs: d.labs||[], scans: d.scans||[], stacks: d.stacks||[], library: d.library||[], faq: d.faq||[], announcements: d.announcements||[], _rev: d._rev||0 };
+    Object.keys(LIB).forEach(k => delete LIB[k]);
+    Object.assign(LIB, Object.fromEntries(S.data.compounds.map(c => [c.name, c])));
       S.loaded = true; S.sync = 'ok';
       render();
       toast(d.role === 'admin' ? 'Connected as Roman (admin)' : 'Connected as Trey');
-      maybeImport();
+      maybeImport(); maybeAnnouncement();
     } catch (err) {
       S.token = '';
       el.disabled = false;

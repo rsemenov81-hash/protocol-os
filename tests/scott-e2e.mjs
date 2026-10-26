@@ -96,7 +96,7 @@ origin = `http://127.0.0.1:${server.address().port}`;
 
 const tab = (page, name) => page.getByRole('tab', { name, exact: true });
 async function navGeometry(page, label) {
-  await page.waitForFunction(() => [...document.querySelectorAll('#navigation .tab')].length === 5);
+  await page.waitForFunction(count => [...document.querySelectorAll('#navigation .tab')].length === count, client === 'trey' ? 6 : 5);
   const geometry = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     tabs: [...document.querySelectorAll('#navigation .tab')].map(el => {
@@ -159,7 +159,7 @@ async function runBrowser(name, engine) {
     await navGeometry(page, 'after collapsing both scrolled stacks');
     for (const viewport of [{ width: 320, height: 740 }, { width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 1000 }, { width: 740, height: 390 }]) {
       await page.setViewportSize(viewport);
-      for (const destination of ['Today', 'Stacks', 'Labs', 'Progress', 'More']) {
+      for (const destination of ['Today', 'Stacks', 'Labs', 'Progress', ...(client === 'trey' ? ['FAQ'] : []), 'More']) {
         await tab(page, destination).click();
         assert.equal(await tab(page, destination).getAttribute('aria-selected'), 'true');
         await navGeometry(page, `${viewport.width}×${viewport.height} ${destination}`);
@@ -322,6 +322,35 @@ async function runBrowser(name, engine) {
       }
       await page.getByRole('button',{name:'Close',exact:true}).click();
       check('reminder setup validates times or explains browser support');
+    }
+
+    if (client === 'trey') {
+      const today = new Date().toISOString().slice(0,10);
+      state.compounds = [{id:'blend-fixture',name:'Synthetic preloaded blend',preloaded:true,active:true,doseMcg:15000,mcgPerUnit:1000,timing:'Morning',schedule:{days:[0,1,2,3,4,5,6]},ingredients:[{name:'Component A',mg:10,ml:0.1},{name:'Component B',mg:5,ml:0.05}]}];
+      state.library = [{id:'reading',title:'Synthetic evidence notes',summary:'Private fixture reading.',sources:[{label:'Source',url:'https://example.com/source'}]}];
+      state.faq = [{id:'recovery',question:'Synthetic recovery question',answer:'Synthetic recovery answer.'}];
+      state.announcements = [{id:'release-fixture',date:today,title:'Your protocol has changed',items:[{title:'New resources',text:'A synthetic protocol update.'}]}];
+      await page.reload();
+      await page.getByRole('dialog',{name:'Protocol update',exact:true}).waitFor();
+      await page.getByRole('button',{name:'Open FAQ',exact:true}).click();
+      await page.getByText('Synthetic recovery question',{exact:true}).click();
+      await page.getByText('Synthetic recovery answer.',{exact:true}).waitFor();
+      await page.reload();
+      await tab(page,'Today').waitFor();
+      assert.equal(await page.locator('#sheet.open').count(),0,'acknowledged notice stays dismissed after reload');
+      await page.getByRole('button',{name:'Review and log Synthetic preloaded blend',exact:true}).click();
+      assert.equal(await page.getByLabel('Dose',{exact:true}).getAttribute('readonly'),'');
+      assert.equal(await page.locator('#barrel').count(),0,'supplied mixture has no adjustable draw control');
+      assert.match(await page.locator('#shotmix').innerText(),/Component A.*10 mg/s);
+      assert.match(await page.locator('#shotmix').innerText(),/Component B.*5 mg/s);
+      await page.locator('#go').click();
+      await page.getByRole('button',{name:'Review logged dose for Synthetic preloaded blend',exact:true}).waitFor();
+      assert.equal(state.logs.filter(l=>l.compoundId==='blend-fixture').length,1,'one mixture produces one log');
+      assert.equal(state.logs.find(l=>l.compoundId==='blend-fixture').doseMcg,15000);
+      await page.getByRole('button',{name:'Protocol updated See changes ›',exact:true}).click();
+      await page.getByRole('button',{name:'Open library',exact:true}).click();
+      await page.getByRole('heading',{name:'Synthetic evidence notes',exact:true}).waitFor();
+      check('private FAQ and Library, one-time update acknowledgment, and one preloaded syringe log');
     }
 
     failState = true;
