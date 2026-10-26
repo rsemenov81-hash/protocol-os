@@ -20,7 +20,7 @@ export function startMotion({ video, button, doc = document, win = window, nav =
       updateButton();
       return;
     }
-    if (!video.getAttribute('src')) video.src = new URL('./assets/water-motion.mp4', import.meta.url).href;
+    if (!video.getAttribute('src')) video.src = new URL('./assets/geneva-motion.mp4', import.meta.url).href;
     video.muted = true;
     try {
       await video.play();
