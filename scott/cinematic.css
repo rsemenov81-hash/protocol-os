@@ -1,0 +1,14 @@
+/* The approved Higgsfield sculpture is the only continuously moving surface.
+   Keep all protocol content on opaque, stationary cards below the artwork. */
+.cinema-stage{position:relative;z-index:1;max-width:680px;margin:18px auto 0;padding:0 20px;pointer-events:none}
+.cinema-frame.ambient{position:relative;inset:auto;aspect-ratio:16/9;contain:paint;opacity:1;border:2px solid var(--pop-line);border-radius:18px;background:#17657b url('./assets/cinematic-pop-art-poster.jpg') center/cover no-repeat;box-shadow:6px 6px 0 var(--pop-line);isolation:isolate}
+.cinema-frame.ambient video{display:block;width:100%;height:100%;object-fit:cover;opacity:1;filter:none}
+.cinema-frame.ambient::after{content:none}
+.page-head{padding-top:26px;min-height:0}.page-protocol{min-height:0}
+.page-protocol .page-heading::after{display:none}
+.dose-photo,.dose-photo:hover{transform:none!important}
+.motion-toggle{min-height:44px;transition:background-color .18s ease,box-shadow .18s ease}
+.motion-toggle:hover:not(:disabled){background:var(--pop-yellow)}
+.motion-toggle:active:not(:disabled){box-shadow:none}
+@media(min-width:900px){.cinema-stage{max-width:1240px;padding:0 56px 0 260px;margin-top:28px}.cinema-frame.ambient{aspect-ratio:2;box-shadow:8px 8px 0 var(--pop-line)}.cinema-frame.ambient video{object-position:center 55%}.cinema-frame.ambient{background-position:center 55%}.page-head{min-height:0}.page-protocol{min-height:0}.page-protocol .big-title{font-size:76px}.page-head .week{margin-top:24px}}
+@media(prefers-reduced-motion:reduce){.cinema-frame.ambient video{display:none}.motion-toggle{transition:none}}

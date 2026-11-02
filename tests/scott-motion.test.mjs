@@ -2,16 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { startMotion } from '../scott/motion.js';
 
-function fixture({ reduced = false, saveData = false, speed = '4g', persisted = false, reject = false, hidden = false } = {}) {
+function fixture({ reduced = false, saveData = false, speed = '4g', persisted = false, reject = false, hidden = false, observed = false } = {}) {
   const emitter = extra => Object.assign({ events:{}, addEventListener(type, fn){ this.events[type] = fn; } }, extra);
   const video = emitter({ src:'', paused:true, starts:0, loads:0, muted:false, getAttribute(k){return this[k];}, removeAttribute(k){this[k]='';}, load(){this.loads++;}, pause(){this.paused=true;}, async play(){this.starts++;if(reject) throw new Error('NotAllowed'); this.paused=false;} });
   const button = emitter({ setAttribute(k,v){this[k]=v;} });
   const media = emitter({matches:reduced}), connection = emitter({saveData,effectiveType:speed});
   const doc = emitter({hidden,readyState:'complete'});
-  let begin;
+  let begin, intersection;
   const storage = { value:persisted?'1':'0', getItem(){return this.value;},setItem(_k,v){this.value=v;} };
-  const control = startMotion({video,button,doc,storage,nav:{connection},win:{matchMedia(){return media;},requestIdleCallback(fn){begin=fn;}}});
-  return {video,button,media,connection,doc,storage,control,begin};
+  const control = startMotion({video,button,doc,storage,nav:{connection},win:{IntersectionObserver:observed ? class { constructor(callback){intersection=callback;} observe(){} } : undefined,matchMedia(){return media;},requestIdleCallback(fn){begin=fn;}}});
+  return {video,button,media,connection,doc,storage,control,begin,intersect:visible=>intersection([{isIntersecting:visible}])};
 }
 
 test('deferred silent playback attaches one video source', async () => {
@@ -40,4 +40,21 @@ test('changing to reduced motion releases the media source', async () => {
 test('autoplay denial and media errors leave a working still background', async () => {
   const f=fixture({reject:true}); f.begin(); await f.control.sync(); assert.equal(f.button.textContent,'Play background');
   f.video.events.error(); assert.equal(f.button.textContent,'Motion off'); assert.equal(f.button.disabled,true);
+});
+
+test('offscreen hero does not download, pauses on exit and resumes on return', async () => {
+  const f=fixture({observed:true}); f.begin(); await f.control.sync();
+  assert.equal(f.video.src,'');
+  f.intersect(true); await f.control.sync(); assert.equal(f.video.paused,false);
+  f.intersect(false); await f.control.sync(); assert.equal(f.video.paused,true);
+  f.intersect(true); await f.control.sync(); assert.equal(f.video.paused,false);
+});
+test('hero uses its supplied decorative asset without changing reminder behavior', async () => {
+  const f=fixture(); f.video.dataset={motionSrc:'./assets/cinematic-pop-art.mp4'};
+  f.begin(); await f.control.sync(); assert.match(f.video.src,/cinematic-pop-art.mp4$/);
+});
+test('open-codec fallback supports browsers without H264 decoding', async () => {
+  const f=fixture(); f.video.dataset={motionSrc:'./assets/cinematic-pop-art.mp4',motionFallbackSrc:'./assets/cinematic-pop-art.webm'};
+  f.video.canPlayType=()=>''; f.begin(); await f.control.sync();
+  assert.match(f.video.src,/cinematic-pop-art.webm$/);
 });

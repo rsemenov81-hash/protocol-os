@@ -208,11 +208,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 </style>
 <link rel="stylesheet" href="refinement.css?v=4b1e4d2cff86">
 <link rel="stylesheet" href="pop-art.css?v=20261102a">
+<link rel="stylesheet" href="cinematic.css?v=20261102a">
 </head>
 <body>
-<div class="ambient" aria-hidden="true"><video id="ambient-video" muted loop playsinline preload="none" poster="assets/water-poster.jpg" tabindex="-1"></video></div>
 <header id="shellbar" class="app-shell"><button class="brand" data-act="tab" data-tab="protocol" aria-label="Scott’s home"><img src="assets/vitae-logo.png" alt="Vitae Lab"><span>Scott’s protocol<span class="brand-sub">Personal health, considered.</span></span></button><div class="shell-actions"><span id="sync-status"></span><button id="motion-toggle" class="motion-toggle" aria-label="Pause background" aria-pressed="false">Pause background</button><button class="iconbtn" id="shell-settings" data-act="reminders" aria-label="Reminders" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button></div></header>
-<script type="module" src="motion.js?v=51f60aed0fe4"></script>
+<div class="cinema-stage" aria-hidden="true"><div class="ambient cinema-frame"><video id="ambient-video" data-motion-src="./assets/cinematic-pop-art.mp4" data-motion-fallback-src="./assets/cinematic-pop-art.webm" muted loop playsinline preload="none" poster="assets/cinematic-pop-art-poster.jpg" tabindex="-1"></video></div></div>
+<script type="module" src="motion.js?v=20261102cinema"></script>
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="app"></div>
 <div id="navigation" hidden></div>

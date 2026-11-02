@@ -69,6 +69,9 @@ jobs:
       - name: Scott browser regression suite
         run: npm run e2e:scott
 
+      - name: Scott cinematic motion checks
+        run: npm run e2e:scott-cinematic
+
       - name: Trey browser regression suite
         run: npm run e2e:trey
 
