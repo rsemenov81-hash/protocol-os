@@ -1,0 +1,262 @@
+// Regression checks against the real inline frontend. No browser, credentials or live API.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('../scott/index.html', import.meta.url), 'utf8');
+const source = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+function app({ fetch = async () => new Response('{}'), token = '', timers = setTimeout } = {}) {
+  const elements = new Map();
+  const el = () => ({ innerHTML: '', style: {}, inert: true, classList: { add(){}, remove(){}, contains(){ return false; } }, addEventListener(){}, setAttribute(){}, removeAttribute(){}, focus(){} });
+  const document = { querySelector(s) { if (!elements.has(s)) elements.set(s, el()); return elements.get(s); }, querySelectorAll(){ return []; }, addEventListener(){}, body: el(), activeElement: null };
+  const ctx = vm.createContext({ document, localStorage: { getItem(){ return token; }, removeItem(){}, setItem(){} }, navigator: { userAgent: 'test' }, window: { addEventListener(){} }, location: { search: '', hash: '' }, URLSearchParams, URL, fetch, Response, AbortController, setTimeout: timers, clearTimeout, setInterval(){}, requestAnimationFrame(fn){ fn(); }, console });
+  vm.runInContext(source.replace(/render\(\);\s*if \(S.token\) pull\(\);\s*$/, ''), ctx);
+  return { ctx, run: (code) => vm.runInContext(code, ctx), elements };
+}
+
+test('initial network failure offers retry and code recovery instead of permanent loading', async () => {
+  const a = app({ fetch: async () => { throw new Error('offline'); } });
+  a.run("S.token='fixture';");
+  await a.run('pull()');
+  const view = a.elements.get('#app').innerHTML;
+  assert.match(view, /Couldn’t connect/);
+  assert.match(view, /data-act="pull"/);
+  assert.match(view, /data-act="change-code"/);
+  assert.doesNotMatch(view, /Loading your protocol/);
+});
+
+test('repeated background refreshes share one pending request', async () => {
+  let calls = 0, resolve;
+  const a = app({ fetch: () => { calls++; return new Promise(r => { resolve = r; }); } });
+  a.run("S.token='fixture';");
+  const first = a.run('pull(true)'), second = a.run('pull(true)');
+  assert.equal(first, second);
+  assert.equal(calls, 1);
+  resolve(new Response(JSON.stringify({ role:'member' })));
+  await first;
+  assert.equal(a.run('S.loaded'), true);
+});
+
+test('API timeout aborts the request and presents an actionable error', async () => {
+  const a = app({ timers: fn => setTimeout(fn, 1), fetch: (_url, { signal }) => new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error('abort')))) });
+  await assert.rejects(a.run("api('/state')"), /Connection timed out/);
+});
+
+test('no scheduled items has a clear empty day and a route back to today', () => {
+  const a = app();
+  a.run("S.role='member'; S.data.compounds=[{ id:'demo', name:'Example compound', schedule:{ days:[] } }]; S.viewDate=new Date(2020,0,1);");
+  const view = a.run('protocolView()');
+  assert.match(view, /No scheduled doses/);
+  assert.match(view, /Back to today/);
+  assert.match(view, /As Needed/);
+});
+
+test('admin edit is a sibling button, never an interactive control inside the dose button', () => {
+  const a = app();
+  a.run("S.role='admin';");
+  const card = a.run("doseCardHTML({ id:'demo', name:'Example compound', doseMcg:1000, schedule:{days:[0,1,2,3,4,5,6]} }, false)");
+  const mainButton = card.slice(card.indexOf('<button'), card.indexOf('</button>'));
+  assert.doesNotMatch(mainButton, /data-act="editcomp"/);
+  assert.match(card, /<\/button><button class="dose-edit"/);
+});
+
+test('missing scan values do not become zero-valued chart points or misleading deltas', () => {
+  const a = app();
+  a.run("S.role='member'; S.data.scans=[{date:'2026-01-01',weightLb:null},{date:'2026-02-01',weightLb:180}];");
+  const view = a.run('progressView()');
+  assert.doesNotMatch(view, /2 scans/);
+  assert.doesNotMatch(view, /class="delta/);
+  for (const expr of ['null', 'undefined', "''", "' '", "'invalid'"]) assert.equal(a.run(`hasNumber(${expr})`), false);
+  assert.equal(a.run('hasNumber(0)'), true);
+});
+
+test('viewport permits magnification and closed dialogs are inert', () => {
+  assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
+  assert.match(html, /id="sheet"[^>]*aria-hidden="true"[^>]*inert/);
+});
+
+function doseSheet(a, c) {
+  a.run(`openSheet = (_html, mount) => mount(testSheet); S.role='admin';`);
+  const nodes = new Map();
+  const get = s => {
+    if (!nodes.has(s)) nodes.set(s, { value:'20', style:{}, innerHTML:'', textContent:'', classList:{toggle(){}}, setAttribute(){}, querySelectorAll(){ return []; }, addEventListener(k, fn){ this[k]=fn; } });
+    return nodes.get(s);
+  };
+  a.ctx.testSheet = { querySelector:get, querySelectorAll(){ return []; } };
+  a.ctx.compound = c;
+  a.run('openDose(compound)');
+  return get;
+}
+
+test('clearing a syringe dose cannot submit the previous valid value', async () => {
+  let calls = 0;
+  const a = app({ fetch:async () => { calls++; return new Response('{}'); } });
+  const get = doseSheet(a, {id:'example',name:'Example',doseMcg:1000,mcgPerUnit:50,schedule:{days:[0,1,2,3,4,5,6]}});
+  assert.equal(get('#go').disabled, false);
+  get('#dv').value=''; get('#dv').input();
+  assert.equal(get('#go').disabled, true);
+  get('#dv').blur();
+  assert.equal(get('#dv').value, '');
+  await get('#go').onclick();
+  assert.equal(calls, 0);
+  get('#dv').value='10'; get('#dv').input();
+  assert.equal(get('#go').disabled, false);
+});
+
+test('oral dose rejects blank, zero, negative and nonnumeric input', () => {
+  const a = app();
+  const get = doseSheet(a, {id:'oral',name:'Example oral',doseMcg:10000,category:'Oral',schedule:{days:[0,1,2,3,4,5,6]}});
+  for (const value of ['', '0', '-2', 'invalid']) {
+    get('#dv').value=value; get('#dv').input();
+    assert.equal(get('#go').disabled, true, value);
+  }
+  get('#dv').value='10'; get('#dv').input();
+  assert.equal(get('#go').disabled, false);
+});
+
+test('leaving a fractional syringe input preserves its exact entered units', () => {
+  const a=app();
+  const get=doseSheet(a,{id:'example',name:'Example',doseMcg:1000,mcgPerUnit:50,schedule:{days:[0,1,2,3,4,5,6]}});
+  get('#dv').value='16.7'; get('#dv').input(); get('#dv').blur();
+  assert.equal(get('#dv').value,'16.7');
+  assert.match(get('#go').innerHTML,/16.7 units · 835 mcg/);
+});
+
+test('future scheduled days can be reviewed without recording an administration', async () => {
+  let calls=0;
+  const a=app({fetch:async()=>{calls++;return new Response('{}');}});
+  a.run('S.viewDate=new Date(2099,0,1)');
+  const get=doseSheet(a,{id:'example',name:'Example',doseMcg:1000,schedule:{days:[0,1,2,3,4,5,6]}});
+  assert.equal(get('#go').disabled,true);
+  assert.match(get('#go').textContent,/Scheduled for/);
+  await get('#go').onclick();
+  assert.equal(calls,0);
+});
+
+test('stack label strengths remain distinct from take instructions and unsafe source links are omitted', () => {
+  const a=app();
+  const view=a.run(`stackItemHTML({id:'demo',name:'Example',serving:'Follow prescription',servingLabel:'Prescription directions',ingredientBasis:'Per tablet',ingredients:[{name:'Ingredient',amount:'1 mg'}],sources:[{label:'Bad',url:'javascript:alert(1)'},{label:'Label',url:'https://example.com/label'}]})`);
+  assert.match(view,/Prescription directions/);
+  assert.match(view,/Per tablet/);
+  assert.doesNotMatch(view,/javascript:/);
+  assert.match(view,/rel="noopener noreferrer"/);
+  assert.doesNotMatch(view,/data-act="togglepill"/);
+});
+
+test('unknown reminder tabs recover to PEDs instead of crashing render', () => {
+  const a=app();
+  a.run("S.token='fixture'; S.loaded=true; S.tab='invalid'; render();");
+  assert.equal(a.run('S.tab'),'protocol');
+});
+
+test('blood results without a numeric value or reference bounds are not labeled in range', () => {
+  const a=app();
+  a.run("S.data.labs=[{date:'2026-01-01',markers:[{name:'No bounds',value:20},{name:'Text result',value:'Negative',lo:0,hi:1}]}];");
+  const view=a.run('labsView()');
+  assert.match(view,/No reference range/);
+  assert.match(view,/Reported result/);
+  assert.doesNotMatch(view,/In range|NaN%/);
+});
+
+test('a missing visceral-fat measure has no healthy label', () => {
+  const a=app();
+  a.run("S.data.scans=[{date:'2026-01-01',weightLb:180,vfl:null}];");
+  assert.doesNotMatch(a.run('progressView()'),/· healthy/);
+});
+
+test('lab history separates units and excludes bounded or qualitative values from numeric trends', () => {
+  const a=app();
+  a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'Example',unit:'g/L',value:10}]},{date:'2026-02-01',markers:[{name:'Example',unit:'mg/L',value:20}]},{date:'2026-03-01',markers:[{name:'Example',unit:'g/L',value:'<5'}]}];`);
+  assert.equal(a.run("markerHistory({name:'Example',unit:'g/L'}).length"),1);
+  assert.equal(a.run("markerHistory({name:'Example',unit:'g/L'})[0].v"),10);
+  const view=a.run('labsView()'); assert.match(view,/&lt;5/); assert.match(view,/20/);
+});
+test('date selection shows historical values and only its source documents', () => {
+  const a=app();
+  a.run(`S.labDate='2026-01-01'; S.data.labs=[{date:'2026-01-01',markers:[{name:'Older marker',value:3,unit:'U'}],sources:[{id:'doc_aaaaaaaaaaaaaaaaaaaa',name:'Older.pdf'}]},{date:'2026-02-01',markers:[{name:'Newer marker',value:6,unit:'U'}],sources:[{id:'doc_bbbbbbbbbbbbbbbbbbbb',name:'Newer.pdf'}]}];`);
+  const view=a.run('labsView()'); assert.match(view,/Older marker/); assert.match(view,/Older.pdf/); assert.doesNotMatch(view,/Newer marker|Newer.pdf/);
+});
+test('same-day InBody scans are selectable independently with their full measurements', () => {
+  const a=app();
+  a.run(`S.scanId='early'; S.data.scans=[{id:'late',date:'2026-01-01',measuredAt:'2026-01-01T18:00:00',weightLb:182},{id:'early',date:'2026-01-01',measuredAt:'2026-01-01T08:00:00',weightLb:180,metrics:[{name:'Test metric',value:12}]}];`);
+  const view=a.run('progressView()'); assert.match(view,/08:00/); assert.match(view,/18:00/); assert.match(view,/Test metric/); assert.match(view,/value="early" selected/);
+});
+test('source document names and marker values are escaped', () => {
+  const a=app(); a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'<script>bad</script>',value:'<5'}]}];`);
+  assert.match(a.run('labsView()'),/&lt;script&gt;bad&lt;\/script&gt;/);
+  assert.equal(a.run("documentButton({id:'../../state',name:'Bad'})"),'');
+});
+
+test('document download uses authenticated API bytes and the original filename', async () => {
+  let clicked=false, blob, filename;
+  const a=app({fetch:async (_url, options)=>{
+    assert.equal(options.headers.Authorization,'Bearer fixture');
+    return new Response(JSON.stringify({name:'Original.pdf',mime:'application/pdf',base64:btoa('%PDF-1.7 example')}));
+  },timers:()=>0});
+  a.run("S.token='fixture'");
+  a.ctx.atob=atob; a.ctx.Blob=Blob;
+  a.ctx.URL={createObjectURL(value){blob=value;return 'blob:fixture';},revokeObjectURL(){}};
+  a.ctx.document.createElement=()=>({click(){clicked=true;filename=this.download;},remove(){}});
+  a.ctx.document.body.appendChild=()=>{};
+  a.ctx.downloadButton={dataset:{id:'doc_aaaaaaaaaaaaaaaaaaaa'},disabled:false};
+  await a.run('downloadDocument(downloadButton)');
+  assert.equal(clicked,true);assert.equal(filename,'Original.pdf');assert.equal(await blob.text(),'%PDF-1.7 example');assert.equal(blob.type,'application/pdf');assert.equal(a.ctx.downloadButton.disabled,false);
+});
+test('failed document downloads restore the button and show a retryable error', async () => {
+  const a=app({fetch:async()=>new Response(JSON.stringify({error:'Document not found'}),{status:404}),timers:()=>0});
+  a.ctx.downloadButton={dataset:{id:'doc_aaaaaaaaaaaaaaaaaaaa'},disabled:false};
+  await a.run('downloadDocument(downloadButton)');
+  assert.equal(a.ctx.downloadButton.disabled,false); assert.match(a.elements.get('#toast').innerHTML,/Document not found/);assert.doesNotMatch(a.elements.get('#toast').innerHTML,/downloaded/);
+});
+
+test('outside-range filtering preserves explicit flags, boundaries and missing references', () => {
+  const a=app();
+  for (const [marker, expected] of [
+    [{value:2,lo:1,hi:3},false],[{value:0,lo:1},true],[{value:3,hi:3},false],
+    [{value:'<0.7',flag:'L'},true],[{value:'Negative'},false],[{value:50},false],
+    [{value:4,lo:10,hi:1},false],[{value:2,lo:1,hi:3,flag:'N'},false]
+  ]) assert.equal(a.run(`outsideReportRange(${JSON.stringify(marker)})`), expected);
+  a.run(`S.labFilter='outside'; S.labQuery='example'; S.data.labs=[{date:'2026-01-01',markers:[{name:'Example low',value:0,lo:1},{name:'Example normal',value:2,lo:1,hi:3},{name:'Other low',value:0,lo:1}]}];`);
+  const view=a.run('labsView()');
+  assert.match(view,/1 of 3 results shown/);
+  assert.match(view,/data-marker="example low" data-outside="true" >/);
+  assert.match(view,/data-marker="example normal" data-outside="false" hidden/);
+  assert.match(view,/data-marker="other low" data-outside="true" hidden/);
+});
+
+test('scan comparisons default to previous measurement and retain an explicit earlier baseline', () => {
+  const a=app(); a.run(`S.role='member'; S.data.scans=[{id:'a',date:'2026-01-01',measuredAt:'2026-01-01T08:00:00',weightLb:180},{id:'b',date:'2026-01-01',measuredAt:'2026-01-01T18:00:00',weightLb:182},{id:'c',date:'2026-02-01',weightLb:185}];`);
+  let view=a.run('progressView()'); assert.match(view,/value="b" selected/); assert.match(view,/\+3\.0/);
+  a.run("S.compareId='a'"); view=a.run('progressView()'); assert.match(view,/value="a" selected/); assert.match(view,/\+5\.0/);
+  a.run("S.scanId='a'"); view=a.run('progressView()'); assert.doesNotMatch(view,/id="scan-baseline"|class="delta/); assert.match(view,/first measurement/);
+  a.run("S.scanId='b'; S.compareId='c'"); view=a.run('progressView()'); assert.match(view,/value="a" selected/); assert.match(view,/\+2\.0/);
+});
+
+test('medicines inside stacks do not show empty daily tracking controls', () => {
+  const a=app(); a.run(`S.tab='meds'; S.data.stacks=[{id:'am',name:'Morning stack',time:'10:00'}]; S.data.compounds=[{id:'m',name:'Example medicine',kind:'med',stack:'am',active:true}];`);
+  const view=a.run("pillsView('med')"); assert.match(view,/No separate check-in/); assert.doesNotMatch(view,/0 of 0 doses|Choose a day|Next routine/);
+});
+
+test('background refresh restores search focus and selection without scrolling', () => {
+  const a=app(); a.run("S.token='fixture'; S.loaded=true; S.tab='history';");
+  a.ctx.document.activeElement={id:'history-search',tagName:'INPUT',selectionStart:2,selectionEnd:4};
+  const field=a.ctx.document.querySelector('#history-search'); let focus,selection;
+  field.focus=options=>focus=options; field.setSelectionRange=(start,end)=>selection=[start,end];
+  a.run('render()'); assert.equal(focus.preventScroll,true); assert.deepEqual(selection,[2,4]);
+});
+
+test('expanded record archives and lab trends survive background rendering', () => {
+  const a=app(); a.run(`S.data.labs=[{date:'2026-01-01',markers:[{name:'Example',unit:'U',value:2}]},{date:'2026-02-01',markers:[{name:'Example',unit:'U',value:3}]}]; S.open.add('lab-reports'); S.open.add('lab-trend:'+JSON.stringify(['Example','U'])); S.open.add('scan-metrics'); S.data.scans=[{id:'x',date:'2026-01-01',metrics:[{name:'Example',value:1}]}];`);
+  assert.match(a.run('labsView()'),/class="lab-trend"[^>]+ open>/);
+  assert.match(a.run('progressView()'),/data-open="scan-metrics" open/);
+});
+
+test('a failed refresh keeps loaded records and exposes a retry notice on every viewport', async () => {
+  const a=app({fetch:async()=>{throw new Error('offline')}});
+  a.run("S.token='fixture'; S.loaded=true; S.tab='supps'; S.data.stacks=[{id:'am',name:'Morning stack',time:'10:00'}];");
+  await a.run('pull(true)');
+  const view=a.elements.get('#app').innerHTML;
+  assert.match(view,/Showing the last loaded records/); assert.match(view,/data-act="pull"/); assert.match(view,/Morning stack/);
+  assert.equal(a.elements.get('#navigation').hidden,false);
+});

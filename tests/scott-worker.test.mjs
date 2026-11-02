@@ -39,6 +39,97 @@ async function call(path, { method = 'GET', token = 'scott-code', body } = {}) {
   let j = null; try { j = await res.json(); } catch {}
   return { status: res.status, body: j };
 }
+const state = (token) => call('/state', { token }).then(r => r.body);
+async function setCompounds(compounds) {
+  const s = await state('roman-code');
+  const r = await call('/admin', { method: 'POST', token: 'roman-code', body: { baseRev: s._rev, compounds } });
+  assert.equal(r.status, 200);
+}
+
+// 2026-10-12 is a Monday (dow 1). Fixed items: a daily AM supplement, a Monday PM med, a Saturday-only injection.
+const VITD = { id: 'vd', kind: 'supp', name: 'Vitamin D3', dose: '5,000 IU', timing: 'Morning', schedule: { days: [0, 1, 2, 3, 4, 5, 6] } };
+const MET = { id: 'met', kind: 'med', name: 'Metformin', dose: '500 mg', timing: 'Evening', schedule: { days: [1] } };
+const TEST = { id: 'tc', name: 'Testosterone Cypionate', doseMcg: 75000, mcgPerUnit: 2500, timing: 'Morning', schedule: { days: [6] } };
+const PRN = { id: 'prn', kind: 'supp', name: 'Melatonin', dose: '3 mg', timing: 'Nightly', schedule: { days: [] } };
+
+describe('protocol and logs', () => {
+  test('codes and roles', async () => {
+    assert.equal((await call('/health', { token: '' })).status, 200);
+    assert.equal((await call('/state', { token: 'nope' })).status, 401);
+    assert.equal((await state('scott-code')).role, 'member');
+    assert.equal((await state('roman-code')).role, 'admin');
+  });
+  test("an empty KV serves Scott's four compounds at rev 1", async () => {
+    const s = await state('scott-code');
+    assert.equal(s._rev, 1);
+    assert.deepEqual(s.compounds.map(c => c.name), ['Testosterone Cypionate', 'Nandrolone Decanoate', 'HCG', 'Anavar']);
+    assert.ok(s.compounds.every(c => !c.kind && c.active), 'all four sit on the Protocol tab');
+    assert.deepEqual(s.logs, []);
+  });
+  test('seed doses, days and syringe draws', async () => {
+    const by = Object.fromEntries((await state()).compounds.map(c => [c.name, c]));
+    // the app's concOf(): strength per U-100 syringe unit
+    const conc = (c) => c.vialAmount > 0 && c.bacMl > 0
+      ? (c.unit === 'IU' ? c.vialAmount / (c.bacMl * 100) : (c.vialAmount * 1000) / (c.bacMl * 100))
+      : Number(c.mcgPerUnit) || 0;
+    const draw = (c) => ({ units: Math.round((c.doseMcg / conc(c)) * 10) / 10, mL: c.doseMcg / conc(c) / 100 });
+
+    const t = by['Testosterone Cypionate'];
+    assert.deepEqual(t.schedule.days, [1, 5]); // Mon, Fri
+    assert.equal(t.doseMcg, 75000);
+    assert.equal(conc(t), 2500); // 250 mg/mL
+    assert.deepEqual(draw(t), { units: 30, mL: 0.3 });
+
+    const n = by['Nandrolone Decanoate'];
+    assert.deepEqual(n.schedule.days, [1, 5]);
+    assert.equal(n.doseMcg, 50000);
+    assert.equal(conc(n), 3000); // 300 mg/mL
+    assert.equal(draw(n).units, 16.7);
+    assert.ok(Math.abs(draw(n).mL - 1 / 6) < 1e-9, '50 mg / 300 mg/mL = 0.1667 mL');
+
+    const h = by.HCG;
+    assert.equal(h.unit, 'IU');
+    assert.deepEqual(h.schedule.days, [2, 6]); // Tue, Sat
+    assert.equal(h.doseMcg, 500);
+    assert.equal(conc(h), 50); // 10,000 IU in 2 mL
+    assert.deepEqual(draw(h), { units: 10, mL: 0.1 });
+
+    const a = by.Anavar;
+    assert.deepEqual(a.schedule.days, [0, 1, 2, 3, 4, 5, 6]);
+    assert.equal(a.doseMcg, 10000);
+    assert.equal(conc(a), 0, 'oral: no syringe draw');
+  });
+  test('the seed passes the dose gate at its own doses', async () => {
+    for (const c of (await state()).compounds) {
+      const r = await call('/log', { method: 'POST', body: { log: { compoundId: c.id, datetime: '2026-10-12T08:00', doseMcg: c.doseMcg } } });
+      assert.equal(r.status, 200, c.name);
+    }
+  });
+  test('only Roman edits the protocol', async () => {
+    const r = await call('/admin', { method: 'POST', body: { baseRev: 1, compounds: [VITD] } });
+    assert.equal(r.status, 403);
+  });
+  test('supplements and meds log as "taken" with no dose', async () => {
+    await setCompounds([VITD, MET, TEST]);
+    const r = await call('/log', { method: 'POST', body: { log: { id: 'l1', compoundId: 'vd', datetime: '2026-10-12T08:10' } } });
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.body.log, { id: 'l1', compoundId: 'vd', datetime: '2026-10-12T08:10', doseMcg: null, units: null, by: 'member' });
+  });
+  test('injections keep the dose rules and the 5× gate', async () => {
+    await setCompounds([VITD, MET, TEST]);
+    assert.equal((await call('/log', { method: 'POST', body: { log: { compoundId: 'tc', datetime: '2026-10-12T08:10' } } })).status, 400);
+    assert.equal((await call('/log', { method: 'POST', body: { log: { compoundId: 'tc', datetime: '2026-10-12T08:10', doseMcg: 375000 } } })).status, 422);
+    const ok = await call('/log', { method: 'POST', body: { log: { compoundId: 'tc', datetime: '2026-10-12T08:10', doseMcg: 75000, units: 30 } } });
+    assert.equal(ok.body.log.doseMcg, 75000);
+  });
+  test("Scott cannot remove Roman's log", async () => {
+    await setCompounds([VITD]);
+    await call('/log', { method: 'POST', token: 'roman-code', body: { log: { id: 'r1', compoundId: 'vd', datetime: '2026-10-12T08:00' } } });
+    assert.equal((await call('/log', { method: 'POST', body: { deleteId: 'r1' } })).status, 403);
+  });
+});
+
+// ---------- push ----------
 async function genSubscriber(endpoint) {
   const kp = await subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
   return { kp, subscription: { endpoint, keys: { p256dh: b64u(new Uint8Array(await subtle.exportKey('raw', kp.publicKey))), auth: b64u(webcrypto.getRandomValues(new Uint8Array(16))) } } };
@@ -73,47 +164,122 @@ const subscribe = (sub, extra = {}) => call('/push/subscribe', { method: 'POST',
 // 2026-10-12 is EDT (UTC-4): 08:05 local = 12:05Z.
 const at = (local) => new Date(`${local}:00-04:00`);
 
-test('retired record routes disclose nothing and preserve records for both roles', async () => {
-  const record = JSON.stringify({ compounds: [{ doseMcg: 12345 }], logs: ['fixture'] });
-  await env.SCOTT_KV.put('state', record);
-  for (const token of ['roman-code', 'scott-code', '']) {
-    for (const path of ['/state', '/state/', '/document?id=doc_fixture', '/admin', '/log']) {
-      const result = await call(path, { token, method: ['/admin', '/log'].includes(path) ? 'POST' : 'GET', body: undefined });
-      assert.equal(result.status, 410);
-      assert.deepEqual(result.body, { message: 'Google it.' });
+describe('push reminders', () => {
+  test('/push/config mints one VAPID key and keeps it', async () => {
+    const a = (await call('/push/config')).body.publicKey;
+    assert.equal(fromB64u(a).length, 65);
+    assert.equal((await call('/push/config', { token: 'roman-code' })).body.publicKey, a);
+  });
+  test('subscribe validates its input', async () => {
+    const sub = await genSubscriber('https://push.example/abc');
+    assert.equal((await call('/push/subscribe', { method: 'POST', body: { subscription: { endpoint: 'http://x' } } })).status, 400);
+    assert.equal((await subscribe(sub, { times: { am: '8am' } })).status, 400);
+    assert.equal((await subscribe(sub)).status, 200);
+    assert.equal(Object.keys(JSON.parse(env.SCOTT_KV.store.get('subs'))).length, 1);
+    assert.equal((await subscribe(sub)).status, 200, 'same endpoint updates in place');
+    assert.equal(Object.keys(JSON.parse(env.SCOTT_KV.store.get('subs'))).length, 1);
+  });
+  test('the morning push lists what is due and unlogged, signed and encrypted, once', async () => {
+    await setCompounds([VITD, MET, TEST, PRN]);
+    const sub = await genSubscriber('https://web.push.apple.com/abc');
+    await subscribe(sub);
+    const { publicKey } = (await call('/push/config')).body;
+
+    assert.deepEqual(await runReminders(env, at('2026-10-12T07:50')), { sent: 0, failed: 0 }, 'before the time');
+    assert.deepEqual(await runReminders(env, at('2026-10-12T08:05')), { sent: 1, failed: 0 });
+    assert.equal(sent[0].url, 'https://web.push.apple.com/abc');
+    assert.equal(sent[0].init.headers['Content-Encoding'], 'aes128gcm');
+    await verifyVapid(sent[0].init.headers.Authorization, publicKey, sent[0].url);
+    const msg = await decrypt(sent[0].init.body, sub);
+    assert.equal(msg.title, 'Morning protocol');
+    assert.equal(msg.body, '1 due: Vitamin D3 5,000 IU. Tap to log.', 'Saturday injection, PM med and PRN are not in the morning list');
+    assert.equal(msg.data.tab, 'supps');
+
+    assert.deepEqual(await runReminders(env, at('2026-10-12T08:12')), { sent: 0, failed: 0 }, 'same window again: deduped');
+  });
+  test('a logged block sends nothing; the nudge only goes out while something is still due', async () => {
+    await setCompounds([VITD, MET]);
+    const sub = await genSubscriber('https://push.example/n');
+    await subscribe(sub, { nudge: 30 });
+    await call('/log', { method: 'POST', body: { log: { compoundId: 'met', datetime: '2026-10-12T19:58' } } });
+    assert.equal((await runReminders(env, at('2026-10-12T20:05'))).sent, 0, 'Metformin already taken');
+    assert.equal((await runReminders(env, at('2026-10-12T08:31'))).sent, 1, '08:30 nudge for the untaken Vitamin D');
+    assert.equal((await decrypt(sent[0].init.body, sub)).title, 'Still due: Morning protocol');
+  });
+  test('a late-evening time is checked against the day it belongs to', async () => {
+    await setCompounds([MET]); // Mondays only
+    const sub = await genSubscriber('https://push.example/late');
+    await subscribe(sub, { times: { am: '', pm: '23:55' } });
+    assert.equal((await runReminders(env, at('2026-10-13T00:05'))).sent, 1, '23:55 Monday, seen from 00:05 Tuesday');
+  });
+  test('supplement stacks: one "time to take it" push at 10:00 and 21:30, never part of a dose block', async () => {
+    const stackItem = (id, stack, name) => ({ id, stack, kind: 'supp', name, serving: '1 capsule', ingredients: [], active: true });
+    await setCompounds([VITD, stackItem('s1', 'am', 'Creatine'), stackItem('s2', 'am', 'Omega-3'), { ...stackItem('s3', 'am', 'Old one'), active: false }]);
+    assert.deepEqual((await state()).stacks.map(x => [x.id, x.time]), [['am', '10:00'], ['pm', '21:30']]);
+    const sub = await genSubscriber('https://push.example/stack');
+    await subscribe(sub);
+
+    assert.equal((await runReminders(env, at('2026-10-12T08:05'))).sent, 1);
+    assert.equal((await decrypt(sent[0].init.body, sub)).body, '1 due: Vitamin D3 5,000 IU. Tap to log.', 'stack items stay out of the dose block');
+
+    assert.equal((await runReminders(env, at('2026-10-12T10:00'))).sent, 1);
+    const msg = await decrypt(sent[1].init.body, sub);
+    assert.equal(msg.title, 'Morning stack');
+    assert.equal(msg.body, 'Time to take it — 2 items: Creatine, Omega-3.');
+    assert.equal(msg.data.tab, 'supps');
+    assert.equal((await runReminders(env, at('2026-10-12T10:10'))).sent, 0, 'once a day');
+
+    assert.equal((await runReminders(env, at('2026-10-12T21:35'))).sent, 0, 'the night stack is empty: nothing to send');
+  });
+  test('stack-only subscription sends morning and night exactly once without dose reminders or nudges', async () => {
+    await setCompounds([VITD, { id:'am-stack',stack:'am',kind:'supp',name:'Example AM' }, { id:'pm-stack',stack:'pm',kind:'supp',name:'Example PM' }]);
+    const sub=await genSubscriber('https://push.example/stacks-only');
+    await subscribe(sub,{times:{am:'',pm:''},nudge:0});
+    assert.equal((await runReminders(env,at('2026-10-12T08:05'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T10:05'))).sent,1);
+    assert.equal((await decrypt(sent[0].init.body,sub)).title,'Morning stack');
+    assert.equal((await runReminders(env,at('2026-10-12T10:10'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T20:05'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T21:35'))).sent,1);
+    assert.equal((await decrypt(sent[1].init.body,sub)).title,'Night stack');
+    assert.equal((await runReminders(env,at('2026-10-12T21:40'))).sent,0);
+    assert.equal((await runReminders(env,at('2026-10-12T22:05'))).sent,0);
+  });
+  test('a 410 from the push service drops the device; test and unsubscribe work by endpoint', async () => {
+    await setCompounds([VITD]);
+    const sub = await genSubscriber('https://push.example/gone');
+    await subscribe(sub);
+    assert.equal((await call('/push/test', { method: 'POST', body: { endpoint: sub.subscription.endpoint } })).status, 200);
+    assert.equal((await decrypt(sent[0].init.body, sub)).body, 'Reminders are on for this device.');
+    pushStatus = 410;
+    assert.deepEqual(await runReminders(env, at('2026-10-12T08:01')), { sent: 0, failed: 1 });
+    assert.deepEqual(JSON.parse(env.SCOTT_KV.store.get('subs')), {});
+    pushStatus = 201;
+    await subscribe(sub);
+    assert.equal((await call('/push/unsubscribe', { method: 'POST', body: { endpoint: sub.subscription.endpoint } })).body.removed, true);
+    assert.equal((await call('/push/test', { method: 'POST', body: { endpoint: sub.subscription.endpoint } })).status, 404);
+  });
+});
+
+describe('private original documents', () => {
+  test('requires authentication before looking up any document', async () => {
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa',{token:''})).status,401);
+  });
+  test('rejects arbitrary KV keys and reports missing files', async () => {
+    for(const id of ['state','vapid','../state','doc_invalid']) assert.equal((await call('/document?id='+id)).status,400);
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa')).status,404);
+  });
+  test('both authorized roles receive exact originals with private caching', async () => {
+    const file={name:'Example.pdf',mime:'application/pdf',base64:btoa('%PDF-1.7 fixture'),sha256:'example'};
+    await env.SCOTT_KV.put('document:doc_aaaaaaaaaaaaaaaaaaaa',JSON.stringify(file));
+    for(const token of ['scott-code','roman-code']) {
+      const req=new Request(BASE+'/document?id=doc_aaaaaaaaaaaaaaaaaaaa',{headers:{Authorization:'Bearer '+token,Origin:'https://rsemenov81-hash.github.io'}});
+      const res=await worker.fetch(req,env); assert.equal(res.status,200); assert.equal(res.headers.get('Cache-Control'),'no-store');
+      assert.deepEqual(await res.json(),file);
     }
-  }
-  assert.equal(await env.SCOTT_KV.get('state'), record);
-});
-test('existing subscription receives encrypted Google it once per hour, with no state reads', async () => {
-  const sub = await genSubscriber('https://push.example/subscriber');
-  assert.equal((await subscribe(sub)).status, 200);
-  assert.equal((await subscribe(sub)).status, 200);
-  assert.equal(Object.keys(JSON.parse(await env.SCOTT_KV.get('subs'))).length, 1);
-  const get = env.SCOTT_KV.get.bind(env.SCOTT_KV);
-  env.SCOTT_KV.get = key => { assert.notEqual(key, 'state'); return get(key); };
-  for (const minute of ['00', '15', '30', '45']) await runReminders(env, new Date(`2026-11-01T12:${minute}:00Z`));
-  assert.equal(sent.length, 1);
-  const payload = await decrypt(sent[0].init.body, sub);
-  assert.equal(payload.title, 'Google it.');
-  assert.equal(payload.body, 'Google it.');
-  const config = await call('/push/config');
-  await verifyVapid(sent[0].init.headers.Authorization, config.body.publicKey, sub.subscription.endpoint);
-  await runReminders(env, new Date('2026-11-01T13:00:00Z'));
-  assert.equal(sent.length, 2);
-});
-test('expired subscriptions removed; no new subscriptions created by cron', async () => {
-  assert.deepEqual(await runReminders(env, new Date()), { sent: 0, failed: 0 });
-  const sub = await genSubscriber('https://push.example/expired');
-  await subscribe(sub);
-  pushStatus = 410;
-  await runReminders(env, new Date());
-  assert.deepEqual(JSON.parse(await env.SCOTT_KV.get('subs')), {});
-});
-test('test push is sanitized and requires authentication', async () => {
-  assert.equal((await call('/push/config', { token: '' })).status, 401);
-  const sub = await genSubscriber('https://push.example/test');
-  await subscribe(sub);
-  await call('/push/test', { method: 'POST', body: { endpoint: sub.subscription.endpoint } });
-  assert.equal((await decrypt(sent[0].init.body, sub)).body, 'Google it.');
+  });
+  test('disallows active content even inside an authenticated archive', async () => {
+    await env.SCOTT_KV.put('document:doc_aaaaaaaaaaaaaaaaaaaa',JSON.stringify({mime:'text/html',base64:'x',name:'x.html'}));
+    assert.equal((await call('/document?id=doc_aaaaaaaaaaaaaaaaaaaa')).status,500);
+  });
 });

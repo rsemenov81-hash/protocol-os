@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "Google it.",
+  "name": "Scott · Protocol",
   "short_name": "Scott",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#0e2820",
+  "theme_color": "#0e2820",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
