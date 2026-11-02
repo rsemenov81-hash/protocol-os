@@ -3,6 +3,7 @@ export function startMotion({ video, button, doc = document, win = window, nav =
   const reduced = win.matchMedia('(prefers-reduced-motion: reduce)');
   const connection = nav.connection;
   let userPaused = false, blocked = false, failed = false, ready = false, generation = 0;
+  let inView = !win.IntersectionObserver;
   try { userPaused = storage.getItem('scott_motion_paused') === '1'; } catch {}
   const constrained = () => reduced.matches || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '');
   const updateButton = () => {
@@ -14,18 +15,23 @@ export function startMotion({ video, button, doc = document, win = window, nav =
   };
   const sync = async () => {
     const current = ++generation;
-    if (!ready || constrained() || userPaused || doc.hidden || failed) {
+    if (!ready || constrained() || userPaused || doc.hidden || !inView || failed) {
       video.pause();
       if (constrained() && video.getAttribute('src')) { video.removeAttribute('src'); video.load(); }
       updateButton();
       return;
     }
-    if (!video.getAttribute('src')) video.src = new URL('./assets/water-motion.mp4', import.meta.url).href;
+    if (!video.getAttribute('src')) {
+      const fallback = video.dataset?.motionFallbackSrc;
+      const source = fallback && video.canPlayType?.('video/mp4; codecs="avc1.64001f"') === ''
+        ? fallback : video.dataset?.motionSrc || './assets/water-motion.mp4';
+      video.src = new URL(source, import.meta.url).href;
+    }
     video.muted = true;
     try {
       await video.play();
       if (current === generation) blocked = false;
-      if (constrained() || userPaused || doc.hidden || failed) video.pause();
+      if (constrained() || userPaused || doc.hidden || !inView || failed) video.pause();
     } catch { if (current === generation) blocked = true; }
     updateButton();
   };
@@ -35,6 +41,11 @@ export function startMotion({ video, button, doc = document, win = window, nav =
     try { storage.setItem('scott_motion_paused', userPaused ? '1' : '0'); } catch {}
     sync();
   });
+  const observer = win.IntersectionObserver ? new win.IntersectionObserver(entries => {
+    inView = entries.some(entry => entry.isIntersecting);
+    sync();
+  }, { threshold: 0.01 }) : null;
+  observer?.observe(video);
   doc.addEventListener('visibilitychange', sync);
   reduced.addEventListener('change', sync);
   connection?.addEventListener?.('change', sync);
