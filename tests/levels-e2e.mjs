@@ -52,7 +52,10 @@ try {
    await page.getByRole('searchbox').fill('nothing-matches');check(name+' search empty state',await page.getByText('No compounds match this search and filter.').isVisible());
    await page.getByRole('searchbox').fill('');await page.getByRole('button',{name:'Modeled',exact:true}).click();check(name+' modeled filter',await page.locator('.level-card').count()===4);
    // Live time advances without reloading.
-   await page.getByRole('searchbox').fill('Tirzepatide');await page.clock.fastForward(5*24*3600000);check(name+' clock refresh recomputes',await page.locator('.level-card-value').innerText().then(x=>x.includes('2.5 mg')));
+   await page.getByRole('searchbox').fill('Tirzepatide');await page.clock.fastForward(5*24*3600000);
+   // The fast-forward fires the 30 s refresh interval thousands of times; wait for React to commit the recomputed level before reading it (WebKit can otherwise read the stale value).
+   await page.locator('.level-card-value').filter({hasText:'2.5 mg'}).first().waitFor({timeout:10000});
+   check(name+' clock refresh recomputes',await page.locator('.level-card-value').innerText().then(x=>x.includes('2.5 mg')));
    for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});check(name+' fits '+width,await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));}
    await page.setViewportSize({width:390,height:844});await page.getByRole('searchbox').fill('');await page.getByRole('button',{name:'All compounds',exact:true}).click();await page.screenshot({path:root+'.playwright/levels/'+name+'.png',fullPage:true});
    check(name+' logs unchanged by model selection',await page.evaluate(()=>localStorage.getItem('protocol_os_logs')).then(v=>v===initialLogs));
