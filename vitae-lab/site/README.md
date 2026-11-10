@@ -60,7 +60,7 @@ npm run e2e:vitae                   # 12 checks; screenshots land in .playwright
 
 ## Deployment, and keeping it private
 
-- **Private preview:** a private Claude artifact (link in the pull request). Only the owner can open it.
+- **Private preview:** a private Claude artifact, https://claude.ai/artifact/7vj3FS7Ypi37Ntbr4mhyWr. Only the owner can open it.
 - **GitHub Pages:** this repo's Pages site serves `main`. **Merging this branch publishes the prototype at
   `rsemenov81-hash.github.io/protocol-os/vitae-lab/site/`.** The page carries `noindex, nofollow` and a
   "Private preview" bar, but the URL would be public. Keep the pull request as a draft until that is
