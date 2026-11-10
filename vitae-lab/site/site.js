@@ -14,31 +14,17 @@
   };
   const announce = (msg) => { $('#announce').textContent = msg; };
 
-  // ---------- pack art: Ledger label on an illustrative container (ported from vitae-lab/labels/index.html) ----------
-  function labelHTML(s, mm) {
-    const tub = s.form === 'tub', H = s.H * mm, W = Math.round(s.dia * 0.78 * mm);
-    const v = { H, W, m: H * (tub ? 0.08 : 0.06), name: H * (tub ? 0.09 : 0.065) / 0.66, desc: H * (tub ? 0.045 : 0.035) / 0.7, data: H * 0.028 / 0.7, no: H * 0.035 / 0.7, netfs: 3.2 * mm / 0.7 };
-    const vars = Object.entries(v).map(([k, x]) => `--${k}:${x.toFixed(1)}px`).join(';') + `;--acc:${s.accent};--debossB:${tub ? 0.36 : 0.4}`;
-    return `<div class="label" style="${vars}"><div class="front">
-      <div class="mono"><i class="lg lg-letters"></i><i class="lg lg-helix"></i></div><i class="lg word lg-wordmark"></i>
-      <div class="deboss">${s.no}</div>
-      <div class="name">${s.labelName.map((n) => `<span>${esc(n)}</span>`).join('')}</div>
-      <div class="desc">${esc(s.descriptor)}</div><div class="ident">Dietary Supplement</div>
-      <div class="rules"></div><div class="chip"></div><div class="no">No. ${s.no}</div>
-      ${s.rows.map((r, i) => `<div class="row r${i + 1}">${esc(r)}</div>`).join('')}
-      <div class="net">${esc(s.net)}</div></div></div>`;
+  // ---------- the jar: a cut-out of the owner's label visualization (media/pack-<handle>.webp) ----------
+  const PACK = { 'creatine-monohydrate': [719, 1002], 'vanilla-whey-isolate': [766, 1181], 'chocolate-whey-blend': [701, 1018], 'collagen-peptides': [712, 1047], 'magnesium-glycinate': [580, 1104], 'vitamin-d3': [550, 1005] };
+  function packHTML(p, cls = '') {
+    const [w, h] = PACK[p.handle];
+    return `<span class="pack ${cls}" data-handle="${p.handle}" style="--ar:${w}/${h}"><img src="media/pack-${p.handle}.webp" width="${w}" height="${h}" loading="lazy" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}."></span>`;
   }
-  function packHTML(s, mm = 2.3) {
-    const tub = s.form === 'tub', D = s.dia * mm, BH = s.bodyH * mm;
-    const CD = (tub ? s.dia + 4 : s.dia * 0.66) * mm, CH = (tub ? 18 : 16) * mm, DD = (tub ? 30 : 20) * mm;
-    const LT = tub ? (s.bodyH - s.H - 8) * mm / 2 + 4 * mm : (s.bodyH - s.H) * mm * 0.55;
-    const vars = `--D:${D}px;--BH:${BH}px;--CD:${CD}px;--CH:${CH}px;--DD:${DD}px;--LT:${LT}px;--bodyc:var(${tub ? '--tub' : '--amber'});--capc:${tub ? '#E6E1D6' : '#1B1B1A'};--acc:${s.accent}`;
-    const neck = tub ? '' : '<div class="neck"><div class="shade"></div></div><div class="shoulder"><div class="shade"></div></div>';
-    // The drawing is one image to assistive tech; the same facts are real text beside it.
-    return `<div class="pack-art" data-handle="${s.handle}" role="img" aria-label="Label preview: ${esc(s.name)}, ${esc(s.net)}"><div class="pack ${s.form}" style="${vars}" aria-hidden="true">
-      <div class="shadow"></div><div class="cap"><div class="shade"></div><div class="top"></div><div class="disc"></div></div>${neck}
-      <div class="body">${labelHTML(s, mm)}<div class="shade"></div><div class="wet"></div></div></div></div>`;
-  }
+  // One filmed ledge, graded by CSS for the time of day; the jar stands on it.
+  const sceneHTML = (p) => `<div class="frame__scene stage" data-stage>
+      <img class="stage__plate" src="media/ledge-poster.jpg" width="1280" height="720" loading="lazy" alt="">
+      <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/ledge"></video>
+      <div class="frame__pack" style="--h:${p.form === 'tub' ? 60 : 50}%">${packHTML(p)}</div></div>`;
 
   // ---------- simulated availability (preview bar) ----------
   let sim = store.get('vitae-sim', false);
@@ -50,18 +36,20 @@
   const factsHTML = (rows) => `<dl class="facts">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
 
   // ---------- home: rotator, stories, compare table, research ----------
+  const SHELF = [...PRODUCTS].sort((a, b) => a.order - b.order);   // dawn to dusk
   function renderHome() {
-    $('#stories').innerHTML = PRODUCTS.map((p) => `<article class="story" id="story-${p.handle}">
-      <div class="story__art reveal">${packHTML(p)}</div>
-      <div class="story__text">
-        <p class="story__sku">${esc(p.descriptor)} · ${esc(p.net.replace('Net Wt ', ''))}</p>
+    $('#stories').innerHTML = SHELF.map((p) => `<article class="frame" id="story-${p.handle}" data-time="${p.time}">
+      ${sceneHTML(p)}
+      <div class="frame__text">
+        <p class="kicker">${esc(p.descriptor)} · ${esc(p.net.replace('Net Wt ', ''))}</p>
         <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
         <p>${esc(p.summary)}</p>
-        ${factsHTML(p.facts.slice(0, 3).concat([['Allergens', p.allergens]]))}
+        ${factsHTML([p.facts[0], ['Servings', p.servings], ['Allergens', p.allergens]])}
         <div class="actions"><a class="link" href="#${p.handle}">Read the label</a>${buyButton(p)}</div>
       </div></article>`).join('');
-    $('#compare-body').innerHTML = PRODUCTS.map((p) => `<tr><th scope="row"><a href="#${p.handle}">${esc(p.name)}</a></th><td>${esc(p.facts[0][1])}</td><td>${esc(p.key)}</td><td>${esc(p.servings)}</td><td>${esc(p.allergens)}</td></tr>`).join('');
+    $('#compare-body').innerHTML = SHELF.map((p) => `<tr><th scope="row"><a href="#${p.handle}">${esc(p.name)}</a></th><td>${esc(p.facts[0][1])}</td><td>${esc(p.key)}</td><td>${esc(p.servings)}</td><td>${esc(p.allergens)}</td></tr>`).join('');
     $('#research-list').innerHTML = RESEARCH.map(studyHTML).join('');
+    watchStages();
   }
   function studyHTML(r) {
     return `<article class="study" id="study-${r.id}"><p class="study__meta">${esc(r.ingredient)}</p><h3>${esc(r.title)}</h3>
@@ -73,14 +61,14 @@
   const pending = (what) => `<p class="unavailable">${what} will be shown here once the final supplier label is transcribed.</p>`;
   function renderProduct(p) {
     const sec = (title, html) => `<section class="product__sec"><h2>${title}</h2>${html}</section>`;
-    $('#product-view').innerHTML = `<article class="product wrap" data-product="${p.handle}">
-      <a class="product__back" href="#products">← All products</a>
-      <div class="product__grid">
-        <div class="product__art">${packHTML(p)}<p class="caption">Label preview drawn from review artwork. Not a photograph of manufactured stock.</p></div>
+    $('#product-view').innerHTML = `<article class="product frame" data-product="${p.handle}" data-time="${p.time}">
+      ${sceneHTML(p)}
+      <div class="wrap"><a class="product__back" href="#products">← All products</a>
         <div class="product__main">
-          <p class="story__sku">${esc(p.descriptor)} · Dietary supplement</p>
+          <p class="kicker">${esc(p.descriptor)} · Dietary supplement</p>
           <h1 tabindex="-1">${esc(p.name)}</h1>
           <p>${esc(p.summary)}</p>
+          <p class="caption">The jar shown is a visualization of review artwork, not a photograph of manufactured stock.</p>
           <div class="buy">
             <p class="buy__price">${priceText(p)}</p>
             <div class="buy__row">
@@ -99,6 +87,7 @@
           ${p.review.length ? `<div class="preview-note"><p>Preview note. Open label questions (${esc(p.sku)}; ${esc(p.verified)}):</p><ul>${p.review.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>` : `<p class="preview-note">Preview note. ${esc(p.sku)}; ${esc(p.verified)}. No open label questions recorded.</p>`}
         </div>
       </div></article>`;
+    watchStages();
   }
 
   // ---------- router: plain #name only (the same links work on Shopify as /products/<handle>) ----------
@@ -123,27 +112,46 @@
   }
   addEventListener('hashchange', () => route());
 
-  // ---------- ambient motion: one loop, loaded late, pausable ----------
-  const root = document.documentElement, video = $('.scene__video'), motionBtn = $('#motion-btn');
+  // ---------- ambient motion: several filmed stages, but only the one most in view ever plays ----------
+  const root = document.documentElement, motionBtn = $('#motion-btn');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const saveData = !!(navigator.connection && navigator.connection.saveData);
   let motion = store.get('vitae-motion', null);
   if (motion == null) motion = !reduced.matches;        // reduced-motion users start paused and may opt in
+  let activeStage = null;
+  const seen = new Map();                               // stage -> visible pixels
+  const stageWatch = new IntersectionObserver((entries) => {
+    for (const e of entries) seen.set(e.target, e.isIntersecting ? e.intersectionRect.height : 0);
+    let best = null;
+    for (const [el, px] of seen) if (el.isConnected && px > 0 && (!best || px > seen.get(best))) best = el;
+    if (best !== activeStage) { activeStage = best; applyMotion(); }
+  }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] });
+  function watchStages() {
+    for (const el of [...seen.keys()]) if (!el.isConnected) { stageWatch.unobserve(el); seen.delete(el); }
+    $$('[data-stage]').forEach((el) => { if (!seen.has(el)) { seen.set(el, 0); stageWatch.observe(el); } });
+  }
   function applyMotion() {
     root.dataset.motion = motion ? 'on' : 'off';
     motionBtn.setAttribute('aria-pressed', String(!motion));
     motionBtn.firstChild.textContent = motion ? 'Pause' : 'Play';
-    if (motion && !saveData && !document.hidden) {
-      // Poster is already painted; fetch the loop only now, and only one size.
-      if (document.readyState !== 'complete') return;   // wait for the page itself; see the load listener below
-      // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
-      const ext = video.canPlayType('video/mp4; codecs="avc1.4D401E"') ? 'mp4' : 'webm';
-      if (!video.src) video.src = `media/water-${matchMedia('(max-width: 700px)').matches ? 640 : 960}.${ext}`;
-      video.play().catch(() => { /* autoplay refused or file missing: the poster stays */ });
-    } else video.pause();
+    const allowed = motion && !saveData && !document.hidden && document.readyState === 'complete';   // posters first; loops only after load
+    for (const stage of seen.keys()) {
+      const video = $('.stage__video', stage);
+      if (!video) continue;
+      if (allowed && stage === activeStage) {
+        if (!video.src) {
+          // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
+          const ext = video.canPlayType('video/mp4; codecs="avc1.4D401E"') ? 'mp4' : 'webm';
+          const tall = video.dataset.tall && matchMedia('(max-width: 700px)').matches;
+          video.src = `${tall ? video.dataset.tall : video.dataset.wide}.${ext}`;
+        }
+        video.play().catch(() => { /* autoplay refused or file missing: the poster stays */ });
+      } else video.pause();
+    }
   }
-  video.addEventListener('playing', () => video.classList.add('is-playing'));
-  video.addEventListener('error', () => video.classList.remove('is-playing'));
+  // Media events do not bubble; capture them for every stage, including ones drawn later.
+  document.addEventListener('playing', (e) => e.target.classList && e.target.classList.add('is-playing'), true);
+  document.addEventListener('error', (e) => e.target.classList && e.target.classList.remove('is-playing'), true);
   motionBtn.addEventListener('click', () => { motion = !motion; store.set('vitae-motion', motion); applyMotion(); });
   document.addEventListener('visibilitychange', applyMotion);
   addEventListener('load', applyMotion);
@@ -165,7 +173,7 @@
         const a = $('a', el);
         if (a) a.tabIndex = n === i ? 0 : -1;
       });
-      if (list.id === 'product-rotator') $$('#hero-packs .pack-art').forEach((el, n) => el.classList.toggle('is-on', n === i));
+      if (list.id === 'product-rotator') $$('#hero-packs .pack').forEach((el, n) => el.classList.toggle('is-on', n === i));
     }, Number(list.dataset.interval));
   }
 
@@ -269,8 +277,8 @@
 
   // ---------- start ----------
   // Opening artwork is drawn once, in the order of the product names already in the HTML.
-  $('#hero-packs').innerHTML = $$('#product-rotator a').map((a) => packHTML(byHandle(a.hash.slice(1)))).join('');
-  $('#hero-packs .pack-art').classList.add('is-on');
+  $('#hero-packs').innerHTML = $$('#product-rotator a').map((a, n) => packHTML(byHandle(a.hash.slice(1)), n ? '' : 'is-on')).join('');
+  $$('#hero-packs img').forEach((img, n) => { if (!n) img.loading = 'eager'; });
   renderHome();
   route(false);
   applyMotion();

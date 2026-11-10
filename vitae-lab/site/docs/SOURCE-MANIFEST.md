@@ -7,6 +7,7 @@ handoff says so and I could not check.
 
 | Source | Purpose | Owner | Freshness | Approval status | Access this session |
 |---|---|---|---|---|---|
+| Owner's current draft, `https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/` | **The canonical draft**: page, styles, script, hero loop, six label visualizations with cut-out paths | Roman | Seen 10 Nov 2026 | Owner: "I do like it"; a design preview, not launch approval. Its title and FAQ still carry two retired phrases ("Everyday, considered", "research-informed"). | Seen; fully downloaded |
 | `Vitae_Lab_Claude_Handoff.docx` | The brief: direction, corrected catalog, decisions to preserve | Roman | 9 Nov 2026 | Owner's instructions | Seen |
 | `/Users/romansemenov/Documents/Codex/Vitae-Lab-Higgsfield` (Mac) | Latest site source with water and hero edits; preview was `127.0.0.1:4173` | Roman | Reported latest (8–9 Nov) | "Looks good for now" was visual feedback, not launch approval | **Not reachable** |
 | Shopify theme "Water Cinematic Draft" `186959724767` | Shopify implementation in progress | Roman | Reported: unpublished, static poster, MP4 upload failed 8 Nov | Unpublished draft | **Not reachable.** The connector needs sign-in, and the storefront password wall hides the preview. A "Share preview" link from Themes would work. |
@@ -59,54 +60,51 @@ Six products, none published, none priced, none mapped. NMN is excluded.
 | Cloudflare Pages `vitae-lab` | The old peptide page | Public; outside this work |
 | Shopify `wh7315-e9` | Live store and draft theme | Not touched |
 
-## 4. Asset manifest: what the prototype ships
+## 4. Asset manifest: what the prototype ships (v2)
 
-| File | Dimensions / length | Size | Origin | Model, job, prompt | Rights | Approved for Vitae Lab storefront |
-|---|---|---|---|---|---|---|
-| `media/water-960.mp4` | 960×540, 5.0 s loop, H.264, no audio | 479 KB | Re-encode of `scott/assets/water-motion.mp4`: last second cross-faded into the first for a seamless loop, highlights rolled off (`curves`), CRF 27 | Higgsfield `seedance_2_5`, job `e0f649fe-846d-4b19-a507-3e935190fd6c`, 14 Oct 2026 (recorded in `scott/DEPLOY.md`; the prompt is not recorded there) | Generated on Roman's Higgsfield account | **No.** It was made for the Scott app. Used here as a placeholder plate. |
-| `media/water-640.mp4` | 640×360, 5.0 s loop | 195 KB | Same, scaled, CRF 29. Served under 700 px. | same | same | No |
-| `media/water-960.webm`, `media/water-640.webm` | same loops, VP9 | 335 KB, 179 KB | Same pipeline, encoded from the source. Used only by browsers without H.264 (Playwright's CI Chromium is one). | same | same | No |
-| `media/water-poster.jpg` | 960×540 | 20 KB | First frame of the graded loop | same | same | No |
-| `media/mono-letters.png`, `mono-helix.png`, `wordmark.png` | 154×161, 154×161, 329×64 | 5, 4, 9 KB | Copied from `vitae-lab/labels/assets/` (cut from the 520 px logo PNG) | Not generated | Roman's logo | Yes (identity). **No vector master is known to exist.** |
-| Pack art | Drawn live in HTML/CSS | 0 KB | `packHTML()` in `site.js`, ported from `vitae-lab/labels/index.html`, fed with corrected working facts | Not generated | — | **No.** Illustrative containers and concept labels. Replace with approved packshots before launch. |
-| `docs/qa/*.jpg` | Screenshots | 1.6 MB total | Playwright, this session | — | — | Evidence only |
+Everything is in `vitae-lab/site/media/`. "Draft" means the owner's draft at the chatgpt.site address.
 
-What is missing against the handoff's delivery checklist: an approved water plate composed for this
-store (desktop and mobile), original masters, approved product packshots with final labels, and a
-recorded prompt for the plate in use.
+| File | What | Size | Origin | Approved for the storefront |
+|---|---|---|---|---|
+| `opening.mp4` / `.webm`, `opening-poster.jpg` | Terraces at first light, 1280×720, 8.8 s seamless loop | 426 / 172 KB, 32 KB | Higgsfield shot `opening-16x9` (below), with the draft's `higgsfield-hero-poster.jpg` as the reference image. Last 1.2 s cross-faded into the first; H.264 CRF 27 and VP9 CRF 39. | **Pending your review.** Generated at your instruction on 10 Nov. |
+| `opening-tall.mp4` / `.webm`, `opening-poster-tall.jpg` | The same place composed for phones, 720×1280, 7 s loop | 295 / 140 KB, 42 KB | Shot `opening-9x16`, same reference | Pending your review |
+| `ledge.mp4` / `.webm`, `ledge-poster.jpg` | Empty stone ledge, ridges and moving cloud, 1280×720, 8.8 s loop. The stage for all six jars. | 382 / 171 KB, 58 KB | Shot `ledge-16x9`, with the draft's `vitae-ledger-alpine-background-imagine-02.jpg` as reference | Pending your review |
+| `water.mp4` / `.webm`, `water-poster.jpg` | Water droplet on slate, 1280×720, 7 s loop | 322 / 169 KB, 66 KB | Shot `water-16x9`, with the draft's `higgsfield-atmosphere.jpg` as reference | Pending your review |
+| `pack-<handle>.webp` × 6 | The six jars with transparent background, about 700×1050 | 41–53 KB each | Cut from the draft's `vitae-ledger-*-imagine-01.jpg` using the draft's own SVG outline paths, rendered in Chromium, edge pulled in 1 px. **No model touched the labels.** | They are your review visualizations: not photographs of stock, and not approved print labels. The page says so. |
+| `mono-letters.png`, `mono-helix.png`, `wordmark.png` | Logo masks | 5, 4, 9 KB | `vitae-lab/labels/assets/` (same files as the draft) | Yes (identity). No vector master is known to exist. |
+| `docs/qa/*.jpg` | Screenshots | 1.4 MB total | Playwright, this session | Evidence only |
+| `docs/higgsfield-shots.json` | Exact request body and request ID for each shot | — | This session | Record |
 
-### Existing Higgsfield history (account workspace `7a0a649f…`, read 9 Nov 2026)
+Original 720p masters from Higgsfield are **not** in the repo (5 to 10 MB each). Higgsfield deletes them
+seven days after generation (17 Nov 2026). Say if you want them saved somewhere.
 
-Nine videos and at least 24 images, 10 Oct to 4 Nov 2026. I downloaded the twelve most recent and looked
-at them. **None is a Vitae Lab water scene or product still.** They are Geneva dashboard studies for
-the Trey app, a pop-art plan for the Scott app, and abstract paper sculptures. The "eight-second
-Seedance 2.5 video and one still" named in the handoff are not in this workspace's history (the Seedance
-2.5 clips here are 6 s). They were made elsewhere and live only in the Mac folder. Balance: 3.75
-credits, Pro plan.
+Not used from the draft: `higgsfield-hero-web.mp4` (replaced by the new opening loop of the same scene).
 
-## 5. Proposed Higgsfield shot list (nothing was generated or spent)
+## 5. Higgsfield: what was generated and what it cost
 
-Model catalog and inputs were read from the account on 9 Nov 2026. Prices are the Higgsfield API's own
-estimate for `bytedance/seedance-2.5/text-to-video` on this account: about **$0.4622 per second at 720p**
-and **$1.1372 per second at 1080p** for 16:9 output, before any discount. A second estimate call returned
-1.5 credits = $0.094, so one credit is roughly $0.063. Treat credit figures as approximate.
+Model: **Cinema Studio 4.0** (`higgsfield/cinema-studio/4.0`), Higgsfield's own flagship video model on the
+API, chosen because you asked for their most advanced one. It tops out at 720p; Seedance 2.5 goes to
+1080p but is not Higgsfield's top tier. All four shots used a locked camera (`static-shot`), one
+continuous take (`single-shot`), no audio, and one of your existing frames as the look reference so the
+new footage stays in your world.
 
-| # | Shot | Model and mode | Aspect | Length | Resolution | Audio | Prompt | Estimated cost |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Desktop water plate (test first) | `seedance_2_5`, `t2v` | 16:9 | 10 s | 720p | off | Handoff Prompt A | **$4.62** (about 74 credits) |
-| 2 | Mobile water plate | `seedance_2_5`, `omni_reference` with the approved poster from shot 1 as `start_image` | 9:16 | 10 s | 720p | off | Handoff Prompt C | **$4.62** (about 74 credits) |
-| 3 | Desktop master, only if shot 1 is approved and softness shows | same as 1 | 16:9 | 10 s | 1080p | off | Prompt A, same seed frame as `start_image` | **$11.37** (about 181 credits) |
-| — | Posters and static fallback | Frame grabs from the approved clips | — | — | — | — | — | $0 |
-| — | Product in scene (Prompt B) | **Not proposed yet.** There is no approved packshot to protect. When there is, generate the lighting plate only and composite the real packshot. | — | — | — | — | — | — |
+| Shot | Request ID | Aspect, length | Reference frame | Result |
+|---|---|---|---|---|
+| `opening-16x9` | `01a1c2f4-7a5d-77cd-b92f-d0bf76d16001` | 16:9, 10 s | hero poster | Used |
+| `opening-9x16` | `01a1c2f4-8fc6-7d2f-8663-02df54407196` | 9:16, 8 s | hero poster | Used |
+| `ledge-16x9` | `01a1c2f4-93a1-7937-8ae8-7572ba88bacf` | 16:9, 10 s | alpine background | Used |
+| `water-16x9` | `01a1c2f4-9893-7437-adad-88e66572d00c` | 16:9, 8 s | atmosphere (droplet) | Used |
 
-Totals: shots 1+2 = **$9.24** (about 148 credits). With the 1080p master, **$20.61** (about 329
-credits). Allow the same again for one retake each. Seedance 2.5 accepts 4 to 30 s, 480p/720p/1080p,
-and `start_image` / `end_image` references; using the same frame as start and end is the route to a
-clean loop, with an editor cross-fade as the fallback (already implemented in the encode step above).
+Prompts and parameters are in `docs/higgsfield-shots.json`, exactly as sent.
 
-Why 720p is enough to start: the plate sits behind a 50–90% veil and is never the subject. The loop in
-use today is 540p.
+**Cost: about $16.64**, by Higgsfield's published rate for this model on your account ($0.0214 per 1,000
+video tokens; 720p works out to about $0.4622 per second): $4.62 + $3.70 + $4.62 + $3.70 for 36 seconds.
+I could not read the account's billing record from here, so check the exact charge in the Higgsfield
+console. All four were first takes; nothing was regenerated.
 
-What it needs from you: approval of the spend, and credits. The account holds 3.75. The connector in
-this session can read the catalog and history but cannot submit jobs; the environment's API key can, and
-I did not use it for anything paid.
+Photos: no still images were generated. The posters are frames from the four shots, and the jars are your
+existing visualizations. A generated still would have meant inventing product or ingredient imagery,
+which the brief rules out.
+
+Not generated, and why: per-product videos with the jar in shot. A video model redraws label text, so the
+jar stays a still cut-out and only the world behind it moves.

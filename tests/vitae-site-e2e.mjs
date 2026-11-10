@@ -70,10 +70,13 @@ try {
     assert.deepEqual(await box(), before);
     assert.deepEqual(await page.locator('.rotator--goals > li').allTextContents(), ['Strength', 'Longevity', 'Everyday vitality', 'Wellness']);
     // The static list of names is the catalogue in products.js, in order.
-    assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#product-rotator a')].map((a) => [a.hash.slice(1), a.textContent])), await page.evaluate(() => VITAE_PRODUCTS.map((p) => [p.handle, p.name])));
+    assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#product-rotator a')].map((a) => [a.hash.slice(1), a.textContent])), await page.evaluate(() => [...VITAE_PRODUCTS].sort((a, b) => a.order - b.order).map((p) => [p.handle, p.name])));
     // The artwork shown always belongs to the product named.
     const pair = await page.evaluate(() => [document.querySelector('#product-rotator > .is-on a').getAttribute('href').slice(1), document.querySelector('#hero-packs > .is-on').dataset.handle]);
     assert.equal(pair[0], pair[1]);
+    // The jars are real cut-outs: each one loads and has a text alternative.
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('#hero-packs img')].every((i) => i.alt.length > 20)), true);
+    await page.waitForFunction(() => document.querySelector('#hero-packs .is-on img').naturalWidth > 0);
     // Only the visible product link takes keyboard focus.
     assert.equal(await page.locator('#product-rotator a:not([tabindex="-1"])').count(), 1);
     await context.close();
@@ -163,18 +166,22 @@ try {
 
   await check('motion on: one loop, after load, pausable and remembered', async () => {
     const { context, page, seen } = await open();
-    await page.waitForFunction(() => document.querySelector('.scene__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => { const v = document.querySelector('.scene__video'); return v.muted && v.loop && v.playsInline && /water-640\.(mp4|webm)$/.test(v.currentSrc); }), true);
+    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => { const v = document.querySelector('.stage--opening .stage__video'); return v.muted && v.loop && v.playsInline && /opening-tall\.(mp4|webm)$/.test(v.currentSrc); }), true);
+    await page.evaluate(() => document.querySelector('#story-magnesium-glycinate').scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && /ledge\.(mp4|webm)$/.test(on[0].currentSrc); });
+    await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && on[0].closest('.stage--opening'); });
     const btn = page.locator('#motion-btn');
     assert.equal(await btn.textContent(), 'Pause motion');
     await btn.click();
-    await page.waitForFunction(() => document.querySelector('.scene__video').paused);
+    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').paused);
     assert.equal(await btn.textContent(), 'Play motion');
     assert.equal(await btn.getAttribute('aria-pressed'), 'true');
     await allShown(page);
     await page.reload();
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'off');
-    assert.equal(seen.video, 1, 'the loop is not fetched again while paused');
+    assert.equal(seen.video, 2, 'paused: no loop is fetched again (two were fetched while playing: opening and ledge)');
     await context.close();
   });
 
@@ -186,8 +193,8 @@ try {
       const { context, page, seen } = await open(opts);
       await page.waitForTimeout(600);
       assert.equal(seen.video, 0);
-      assert.equal(await page.locator('.scene__poster').evaluate((i) => i.complete && i.naturalWidth > 0), true);
-      assert.equal(await page.locator('#stories .story').count(), 6);
+      assert.equal(await page.locator('.stage--opening .stage__plate img').evaluate((i) => i.complete && i.naturalWidth > 0), true);
+      assert.equal(await page.locator('#stories .frame').count(), 6);
       if (name === 'reduced motion') {
         await allShown(page);
         assert.equal(await page.locator('#motion-btn').textContent(), 'Play motion');
@@ -201,8 +208,8 @@ try {
   await check('no H.264 in the browser: the WebM loop plays instead', async () => {
     // Playwright's open-source Chromium (CI) has no H.264 decoder; force the same answer everywhere.
     const { context, page, seen } = await open({ init: () => { HTMLMediaElement.prototype.canPlayType = (t) => (/mp4/.test(t) ? '' : 'probably'); } });
-    await page.waitForFunction(() => document.querySelector('.scene__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => document.querySelector('.scene__video').currentSrc.endsWith('water-640.webm')), true);
+    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => document.querySelector('.stage--opening .stage__video').currentSrc.endsWith('opening-tall.webm')), true);
     assert.equal(seen.video, 1);
     await context.close();
   });
@@ -210,8 +217,8 @@ try {
   await check('video unavailable: the poster stays and the page still works', async () => {
     const { context, page, seen } = await open({ noVideo: true });
     await page.waitForTimeout(600);
-    assert.equal(await page.locator('.scene__video').evaluate((v) => v.classList.contains('is-playing')), false);
-    assert.equal(await page.locator('#stories .story').count(), 6);
+    assert.equal(await page.locator('.stage--opening .stage__video').evaluate((v) => v.classList.contains('is-playing')), false);
+    assert.equal(await page.locator('#stories .frame').count(), 6);
     assert.deepEqual(seen.errors, []);
     await context.close();
   });

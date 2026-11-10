@@ -1,177 +1,123 @@
-# Copy deck
+# Copy deck (v2)
 
-Every visible string in the prototype, with its purpose. "Before" is what I could actually see: the
-retired lines listed in the handoff, the supplier's catalog copy, the old pages.dev page, and the
-Ledger notes. The strings in the Mac build were not available, so they are not quoted here.
+"Before" is the owner's draft at `vitae-lab-storefront-review.rsemenov81.chatgpt.site`, read on 10 Nov
+2026. "After" is what the prototype says now. Where the supplier's catalog copy is the relevant "before",
+it is marked (supplier).
 
-Marks: **[V]** a factual claim that must be verified before publication (see `CLAIMS-REGISTER.md`).
-**[O]** needs the owner's facts. **[P]** preview-only text, deleted at launch.
+Marks: **[V]** a factual claim to verify before publication (see `CLAIMS-REGISTER.md`). **[O]** needs
+the owner's facts. **[P]** preview-only, deleted at launch.
 
-Rules followed: plain names, exact amounts, short sentences of uneven length, no superlatives, no
-"clean / pure / premium", no slogans in threes, no founder story, no reviews, no badges, no urgency.
+## What made the draft read as machine-written, and what changed
 
-## Navigation and chrome
-
-| Where | Before | After | Purpose |
-|---|---|---|---|
-| Header links | "Explore collection" hero button (removed by owner) | Products · Labels · Research · About · FAQ | Shopping is reached from the header, not from a hero button |
-| Cart button | — | Cart (0) | Always-visible count |
-| Motion control | — | Pause motion / Play motion | States exactly what it does |
-| Mobile menu | — | Menu | — |
-| Skip link | — | Skip to content | Keyboard users |
-| Preview bar [P] | — | **Private preview.** Nothing here is on sale. Label facts are working figures under supplier review. / Simulate products on sale (to test the cart) | Stops anyone mistaking the preview for a store |
+| Pattern in the draft | Examples | What v2 does |
+|---|---|---|
+| Two-beat slogans as headings, over and over | "Clear facts. Thoughtful choices." · "Good questions. Clear answers." · "Your routine. Your rhythm." · "Everyday essentials. Thoughtfully considered." | One heading keeps that shape, because it is the owner's own line ("What the research says. What it doesn't."). The rest are plain: "The range", "Start from a goal", "Questions", "Who makes it". |
+| Soft words standing in for facts | "thoughtful", "considered", "for the rhythm of everyday life", "a thoughtful place to begin" | Cut. Sentences carry a number or a refusal instead. |
+| Numbers spelled out to sound literary | "Twenty-two grams of protein per two-scoop serving" | Digits: "Two scoops (34 g) give you 22 g of protein." |
+| The page describing itself | "Each product has its own place. Start with the facts." · "We keep that distinction clear." | It just does it. |
+| A section for something that does not exist | "A future possibility: a simpler way to replenish" (refill concept) | Removed. Bundles and subscriptions are not approved offers. |
+| Retired phrases still present | Title "Everyday, considered."; "research-informed" in the description and the first FAQ | Gone, and a test fails if they return. |
 
 ## Opening
 
-| Where | Before | After | Purpose |
-|---|---|---|---|
-| Label 1 | (kept) | Your goals | Owner's structure |
-| Rotating words | (kept) | Strength / Longevity / Everyday vitality / Wellness | Browsing themes, not promises |
-| Label 2 | (kept) | Your solution | Owner's structure |
-| Rotating names | — | Creatine monohydrate / Vanilla whey isolate / Chocolate performance whey blend / Collagen peptides / Magnesium glycinate / Vitamin D3 | Real product names, each a link. Creatine is one of six, not the story. |
-| Caption | Long AI landscape caption (removed by owner) | Label previews drawn from review artwork. Not photographs of manufactured stock. | Describes the images honestly in one line |
-| Retired, not restored | "Research-informed essentials" · "Everyday, considered" · "Protein, creatine, vitamins and minerals. Clear serving sizes. Ingredients you can inspect." · the old quote | — | A test fails if any of these reappear |
-
-The two rotators run on different timings on purpose. A goal and a product that happen to be on screen
-together are not a pairing.
+| Where | Before | After |
+|---|---|---|
+| Label | Your goals: | Your goals |
+| Rotating word | Strength / Longevity / Everyday vitality / Wellness | Same four words, set large in italic |
+| Small caps list under it | STRENGTH LONGEVITY EVERYDAY VITALITY WELLNESS | Removed (it repeated the rotator) |
+| Label | Your solution: | Your solution |
+| Rotating names | Creatine Monohydrate / Whey Isolate / Collagen / Magnesium Glycinate / Vitamin D3 / Chocolate Performance Whey | Creatine monohydrate / Vanilla whey isolate / Chocolate performance whey blend / Collagen peptides / Vitamin D3 / Magnesium glycinate. Each is a link, and its jar stands below it. |
+| Lines under the rotators | "Different goals. A thoughtful place to begin." · "Your goals are personal. Explore the facts. Find your own starting point." · "For the rhythm of everyday life." · "Discover below ↓" | Removed. The opening is the two labels, the two rotators and the jar. |
 
 ## Below the opening
 
-| Where | Before | After | Purpose |
-|---|---|---|---|
-| Heading | — | Understand what you’re taking. | Says what the site is for |
-| Line | — | Find the facts, compare the options, and choose what fits your routine. | Owner's proposed direction, used as given |
-
-## Browse by goal
-
-| Where | After | Purpose |
+| Where | Before | After |
 |---|---|---|
-| Heading | Browse by goal | — |
-| Note | These are ways to browse the range. They are not medical advice or a recommendation for you. | Keeps themes from reading as advice |
-| Strength | Training does the work. Protein and creatine both have a large body of trial evidence behind them, and both were studied alongside resistance training. **[V]** → Creatine monohydrate, Vanilla whey isolate, Chocolate whey blend | Pairs only products whose evidence concerns strength training |
-| Longevity | No supplement here has been shown to extend life, and we won’t suggest otherwise. What the research does support is narrower: staying strong and adequately nourished as you get older. **[V]** → Creatine monohydrate, Vanilla whey isolate, Vitamin D3 | Keeps Longevity as a category and refuses the promise in the same breath |
-| Everyday vitality | The plain ones you take most days. Two nutrients worth checking your intake of, in amounts you can read on the front of the label. → Magnesium glycinate, Vitamin D3 | Essential nutrients; no benefit claimed |
-| Wellness | A broad word, so here is what we mean by it: products people add for general nutrition, not for a medical condition. → Collagen peptides, Magnesium glycinate | Defines a vague word instead of leaning on it |
+| Heading | "Find what fits your routine." | Understand what you’re taking. |
+| Line | "Get to know the ingredients, serving sizes and formats in our current range. Each product has its own place. Start with the facts." | Find the facts, compare the options, and choose what fits your routine. |
+| Image note | "Product facts reflect supplied review artwork and remain subject to final label approval. Pack images are AI visualizations, not photographs of manufactured stock or approved print labels." | The jars on this page are visualizations of review artwork. They are not photographs of manufactured stock. |
 
-## The range (product stories)
+## Start from a goal (new; the draft had no goal browsing)
 
-| Where | After | Purpose |
+| Theme | After |
+|---|---|
+| Note | A way to browse the range. Not medical advice, and not a recommendation for you. |
+| Strength | Lifting is the part that works. Creatine and protein are the two additions with decades of trials behind them, and in those trials people were training. **[V]** |
+| Longevity | Nothing on this shelf makes you live longer. What is in your hands is narrower: staying strong and getting enough of the basics as the years go by. **[V]** |
+| Everyday vitality | The plain ones. You take them most days, you can read the amount on the front, and now and then you check whether you still need them. |
+| Wellness | A vague word. Here it means things people add for general nutrition, not to fix a medical problem. |
+
+## The range
+
+| Where | Before | After |
 |---|---|---|
-| Heading | The range | — |
-| Note | A short list for now. It will grow when we can say plainly what a product contains and why someone might take it. | The catalog is meant to grow; it is not "the six" |
-| Actions | Read the label · Add to cart / Not on sale yet | The two things a shopper wants |
+| Kicker / heading | "The Ledger collection" / "No. 01 / Ledger collection" | The range · "Short on purpose. It grows when there is something worth adding." |
+| Creatine | "Creatine monohydrate powder. One scoop, 5 g creatine monohydrate." | Just creatine monohydrate. No flavor, no blend, nothing to decode. One scoop gives you 5 g. **[V]** |
+| Vanilla whey | "Vanilla whey protein isolate. Twenty-two grams of protein per two-scoop serving." | Whey isolate that tastes like vanilla, sweetened with stevia. Two scoops (34 g) give you 22 g of protein. **[V]** |
+| Chocolate whey | "Chocolate whey protein blend. Twenty-two grams of protein per two-scoop serving." | Chocolate, and a blend: whey isolate plus whey concentrate, so not a pure isolate. Two scoops (about 35 g) give you 22 g of protein and 130 calories. **[V]** |
+| Collagen | "Bovine hide collagen peptides. Twenty grams of collagen per scoop; eighteen grams of protein." | Bovine collagen peptides with no flavor, so they disappear into coffee. A 20 g scoop has 18 g of protein. It is not a complete protein and does not stand in for whey. **[V]** |
+| Vitamin D3 | "Cholecalciferol softgels. Fifty micrograms (2,000 IU) of vitamin D3 per softgel." | One small softgel with 50 mcg (2,000 IU) of vitamin D3. There is no K2 in it. It is made with gelatin and soybean oil, so it is not vegan and not soy-free. **[V]** |
+| Magnesium | "Magnesium glycinate capsules. Two hundred seventy-five milligrams of elemental magnesium per three-capsule serving." | Three capsules, 275 mg of magnesium. The 2,500 mg on the label is the weight of the whole glycinate compound, not of the magnesium in it. **[V]** |
+| Actions | "Facts & ingredients +" (a disclosure) | Read the label (opens the product page) · Add to cart / Not on sale yet |
 
-Product introductions. Before = the supplier's catalog line. After = what the page says.
+Supplier marketing copy ("for busy minds", "seasonal depression", "boosts muscle mass" and the disease
+language in its science sections) is not used anywhere.
 
-| Product | Before (supplier copy; not ours) | After |
-|---|---|---|
-| Creatine monohydrate | "Creatine supports muscle strength and power during high-intensity exercise… Enhanced focus… Helps to push beyond the limits" | Creatine monohydrate powder with nothing else in it. Unflavored. One scoop declares 5 g of creatine monohydrate. **[V]** |
-| Vanilla whey isolate | "…smooth, creamy vanilla flavor while delivering high-quality whey protein to support muscle repair and growth… enhanced metabolism" | Whey protein isolate, vanilla flavored and sweetened with stevia. A two-scoop serving (34 g) has 22 g of protein. **[V]** |
-| Chocolate performance whey blend | (supplier page not located) | A chocolate whey blend: whey protein isolate and whey protein concentrate together, so not a pure isolate. A two-scoop serving (about 35 g) has 22 g of protein and 130 calories. **[V]** |
-| Collagen peptides | "…an effective supplement to maintain the body’s collagen levels to ensure optimal functioning… Boosts muscle mass" | Hydrolyzed collagen peptides from bovine hide. Unflavored. One 20 g scoop provides 18 g of protein. **[V]** |
-| Magnesium glycinate | "Gentle magnesium glycinate for busy minds — supports relaxation and a calm, restful evening routine" | Magnesium glycinate capsules. Three capsules provide 275 mg of elemental magnesium from 2,500 mg of magnesium glycinate. **[V]** |
-| Vitamin D3 | "Vitamin D3 provides the body with energy during the darker winter months… seasonal depression" | Vitamin D3 (cholecalciferol) softgels. One softgel provides 50 mcg (2,000 IU). It does not contain vitamin K2. **[V]** |
+## Product page
 
-The supplier's "science" sections include disease language (cancer, HIV, Alzheimer's, depression,
-cholesterol, blood pressure). None of it is used, and none of it should be pasted into Shopify.
+Order: jar on the ledge → name → what it is → price and buy → In a serving → Who might consider it → How
+to use it → Ingredients → Allergens and warnings → Evidence and limits → FDA disclaimer.
 
-## Product page pattern
-
-Order: name → what it is → price and buy → In a serving → Who might consider it → How to use it →
-Ingredients → Allergens and warnings → Evidence and limits → FDA disclaimer.
-
-| Section | After | Notes |
-|---|---|---|
-| Back link | ← All products | — |
-| Kicker | *Descriptor* · Dietary supplement | Statement of identity |
-| Price | Price not set **[O]** | Replaced by the Shopify price |
-| Quantity | − 1 + (labels: Decrease quantity / Increase quantity) | — |
-| Buy, available | Add to cart | — |
-| Buy, unavailable | Not on sale yet · This product is not available to buy yet. The label is still being finalized with the manufacturer. | Also the sold-out pattern: say why and what is true |
-| Shipping line | Shipping and returns details will be published before the store opens. **[O]** | Replace with the real policy summary |
-| Who might consider it | Creatine: People who lift, sprint or do other short, hard efforts. Most creatine research uses this form, and most of it pairs the supplement with training. **[V]** | — |
-| | Vanilla whey: People who want an easier way to reach a daily protein target, especially alongside resistance training. Protein from food counts the same. This is a convenience. | — |
-| | Chocolate blend: People who want a chocolate protein shake and are fine with a blend. The jar holds 15 servings, fewer than the vanilla isolate. | — |
-| | Collagen: People who want to stir collagen into coffee, a shake or food. Collagen is not a complete protein and does not replace whey or protein from meals. **[V]** | — |
-| | Magnesium: People whose diet is low in magnesium-rich foods such as nuts, seeds, legumes and leafy greens. We do not sell this as a sleep aid. The evidence for that is weak. **[V]** | Refuses the claim the supplier leads with |
-| | Vitamin D3: People who get little sun or little vitamin D from food. A blood test for 25-hydroxyvitamin D is the way to know your level. Ask your clinician. **[V]** | — |
-| How to use it | The supplier's directions, quoted exactly, then: Directions as printed on the manufacturer’s current label. | Required label copy stays intact. Not paraphrased. |
-| Ingredients | Quoted from the supplier listing | Same |
-| Allergens and warnings | Contains milk. / None declared on the supplier listing. / Made with soybean oil and gelatin. Not vegan, not soy-free. — then the supplier's warning text, quoted | **[V]** against the final label |
-| Missing label copy | Directions / The full ingredient list / Warnings will be shown here once the final supplier label is transcribed. | Chocolate blend only |
-| Caption under art | Label preview drawn from review artwork. Not a photograph of manufactured stock. | — |
-| Preview note [P] | Open label questions for this SKU, with dates | For the owner; removed at launch |
+| Section | After |
+|---|---|
+| Price **[O]** | Price not set |
+| Buy, unavailable | Not on sale yet · This product is not available to buy yet. The label is still being finalized with the manufacturer. |
+| Shipping line **[O]** | Shipping and returns details will be published before the store opens. |
+| Who might consider it | One or two plain sentences per product (in `products.js`). Magnesium's says: "We do not sell this as a sleep aid. The evidence for that is weak." **[V]** |
+| How to use it · Ingredients · Warnings | The supplier's label text, quoted exactly, then "Directions as printed on the manufacturer’s current label." Missing label copy is stated as missing. |
+| Image note | The jar shown is a visualization of review artwork, not a photograph of manufactured stock. |
 
 ## Labels
 
-| Where | After | Purpose |
+| Where | Before | After |
 |---|---|---|
-| Heading | Know what’s in your routine. | Owner's proposed direction |
-| Body | See the ingredients, amounts, directions and the evidence behind each claim. Every product page carries the serving size, the full ingredient list, allergens, directions and warnings as they appear on the label. | Says what the label section delivers |
-| Note | Serving counts differ a lot between containers. A jar is not a month’s supply unless the numbers say so. | Heads off the "one jar = one month" assumption |
-| Table | Compare the range: Product · Serving · Per serving · Servings · Allergens and suitability | "Compare the options", literally |
+| Heading | "Clear facts. Thoughtful choices." | Know what’s in your routine. |
+| Body | "Know what’s inside. Serving sizes, ingredient forms and amounts, without making you hunt for the details." | Every product page carries the serving, the full ingredient list, the directions and the warnings, word for word from the label. |
+| Note | — | One thing to watch: a jar is not a month. At a serving a day the creatine lasts 50 days and the collagen lasts 14. **[V]** |
+| Table | — | Compare the range: Product · Serving · Per serving · Servings · Allergens and suitability |
 
-## Research and quality
+## Research
 
-| Where | After | Purpose |
+| Where | Before | After |
 |---|---|---|
-| Heading | What the research says. What it doesn’t. | Owner's proposed direction |
-| Body | Each note names what was studied, how much, in whom, and where the finding stops. The studies tested ingredients. None of them tested our finished products. | Sets the limit before any finding |
-| Each note | Three labelled parts: What it says · What was studied · Where it stops, then the citation and DOI | Full text of all six notes is in `products.js` and `CLAIMS-REGISTER.md` |
-| Disclaimer | These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. | Exact text, boxed, in Research, on every product page and in the footer |
-| Quality heading | Quality, stated carefully | — |
-| Quality body | Our products are made by a contract manufacturer. We have not yet published test results or certificates, so we make no testing or certification claims. When we hold a document for a specific lot, it will be linked from that product’s page. **[O]** | Replaces any "third-party tested / cGMP / Made in USA" badge until documents exist |
+| Heading | "Keep evidence in context." | What the research says. What it doesn’t. |
+| Body | "Research on an ingredient is not the same as a trial of a finished product. We keep that distinction clear." | We read the trials so this page can be straight about them. They studied ingredients, not our jars, and each note says where the finding stops. |
+| Notes | none | Six notes, each in three parts: What it says · What was studied · Where it stops, with citation and DOI **[V]** |
+| Disclaimer | none on the page | The exact FDA text, boxed, in Research, on every product page and in the footer |
+| Who makes it **[O]** | — | A contract manufacturer makes these products and a fulfillment partner ships them. We don’t own a factory. We haven’t published test results yet, so you won’t find a “lab tested” badge here. When we hold a certificate for a specific lot, it goes on that product’s page. |
 
 ## About
 
-| Before (pages.dev, a different business) | After | Purpose |
-|---|---|---|
-| "Optimize how you feel, recover, and age." / "A data-first way to recover, perform, and age. COA-tested products, personal protocols, and coaching included" | **Good habits do most of the work.** Supplements should have a clear place alongside them. | Owner's proposed line |
-| — | Vitae Lab is a small supplement brand. We keep the range short, put the amounts on the front of the label, and write down what the evidence supports and where it runs out. The products are made by a contract manufacturer and shipped by a fulfillment partner. We don’t make them ourselves. **[O]** | Honest and short. No founder, no origin story, no "we believe". |
-
-## FAQ
-
-| Question | Answer |
+| Before | After |
 |---|---|
-| Can I buy these now? [P] | Not yet. The store is in private preview while labels, prices and shipping are finalized. Product pages show the facts we have today. |
-| How long does one container last? | It depends on the product. At one serving a day: creatine 50 days, vanilla whey isolate 24, chocolate whey blend 15, collagen peptides 14, magnesium glycinate 30, vitamin D3 100. Check the serving count before you plan around a jar. **[V]** |
-| Is the collagen a complete protein? | No. A 20 g scoop provides 18 g of protein, but collagen lacks the full set of essential amino acids. It does not replace whey or the protein in meals. **[V]** |
-| What is the difference between the two whey products? | The vanilla is whey protein isolate. The chocolate is a blend of whey isolate and whey concentrate. Both list 22 g of protein per two-scoop serving. Both contain milk. **[V]** |
-| How much magnesium is in a serving? | Three capsules provide 275 mg of elemental magnesium. That comes from 2,500 mg of magnesium glycinate, which is the weight of the whole compound. The two numbers measure different things. **[V]** |
-| Is the vitamin D3 vegan or soy-free? | No. The softgel is made with gelatin, and the fill includes soybean oil and corn oil. It contains no vitamin K2. **[V]** |
-| Who should check with a clinician first? | Anyone who is pregnant or nursing, under 18, taking medication or managing a medical condition. Supplements can interact with medicines. Follow the directions on the label and do not exceed the stated serving. |
-| Where do you ship, and what is the return policy? **[O]** | Shipping regions, rates and the return policy will be published here before the store opens. They are not final yet. |
+| "Begin with everyday habits. Supplements belong alongside food, movement, sleep and consistency." | **Good habits do most of the work.** *Supplements should have a clear place alongside them.* Sleep, food and training do the heavy lifting. A supplement earns a spot when you can say what it is for and how much you are taking. That is the idea behind Vitae Lab: a short range, the amounts printed on the front, and nothing promised that the evidence can’t back. **[O]** |
 
-## Cart
+## Questions
 
-| State | Copy |
+| Before | After |
 |---|---|
-| Title | Your cart |
-| Close | Close |
-| Line | *Product name* · *net quantity* · *price or "Price not set"* · − *n* + · Remove |
-| Empty | Your cart is empty. → Browse products |
-| Subtotal | Subtotal · *amount* (preview: Shown once prices are set) |
-| Fine print | Shipping and taxes are calculated at checkout. |
-| Primary | Go to checkout |
-| Handoff in preview [P] | Checkout runs on Shopify. This preview is not connected to the store, so no order was placed and nothing was charged. |
-| Error | We couldn’t update your cart. Check your connection and try again. |
-| Screen-reader status | *Product* added to cart. Cart has *n* items. / quantity updated / removed |
+| "Good questions. Clear answers." | Questions |
+| "What does Vitae Lab make? Research-informed dietary supplements for everyday routines…" | Removed (retired phrase; the page already answers it) |
+| "Can I start a refill plan today?" | Removed with the refill section |
+| Creatine, magnesium, collagen, whey and D3 questions | Kept, in plainer wording. Added: Can I buy these now? **[P]** · How long does one container last? **[V]** · Who should check with a clinician first? · Where do you ship, and what is the return policy? **[O]** |
 
-Order confirmation is Shopify's own page and email. No confirmation is shown or implied in the preview.
-
-## Footer
+## Cart, footer, titles
 
 | Where | After |
 |---|---|
-| Contact **[O]** | Customer service contact and mailing address will be published here before the store opens. |
-| Policies **[O]** | Privacy policy (in Shopify, needs review) · Terms of service · Shipping policy · Refund policy (not yet published) |
-| Browse | Products · Labels · Research · FAQ |
-| Disclaimer | The FDA text, exact |
-| Fine print | © 2026 Vitae Lab. Dietary supplements are not a substitute for a varied diet. Keep out of reach of children. |
-
-## Page titles and descriptions
-
-| Page | Title | Description |
-|---|---|---|
-| Home | Vitae Lab \| Supplements with the amounts on the label | Vitae Lab sells a short range of supplements: creatine, whey protein, collagen, magnesium and vitamin D3. Every page shows the serving, the ingredients and what the research does and does not support. |
-| Product | *Product name* \| Vitae Lab | On Shopify: the product summary sentence above |
+| Cart | Your cart · Close · Remove · Your cart is empty. · Browse products · Subtotal · Shown once prices are set · Shipping and taxes are calculated at checkout. · Go to checkout |
+| Checkout in preview **[P]** | Checkout runs on Shopify. This preview is not connected to the store, so no order was placed and nothing was charged. |
+| Cart error | We couldn’t update your cart. Check your connection and try again. |
+| Footer **[O]** | Contact and policies are marked as not yet published. Fine print: "Dietary supplements are not a substitute for a varied diet. Keep out of reach of children. The mountain scenery is decorative and says nothing about where ingredients come from." |
+| Footer slogan | "Everyday essentials. Thoughtfully considered." → removed |
+| Page title | "Vitae Lab — Everyday, considered." → Vitae Lab \| Supplements with the amounts on the label |

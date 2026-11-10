@@ -1,6 +1,6 @@
 # Product and claims register
 
-Review date for every row: 9 Nov 2026. Reviewer: Claude (drafting and source checks only).
+Review date for every row: 9 Nov 2026; wording of rows 7 and 9 and the chocolate facts updated 10 Nov 2026 for v2. Reviewer: Claude (drafting and source checks only).
 **Nothing in this file has had qualified regulatory or legal review. No row is approved for
 publication.** I am not stating that any wording complies with FDA or FTC rules; the rows marked
 "regulatory question" need a qualified reviewer.
@@ -48,8 +48,9 @@ page does not print it, so it rests on the handoff and the label drafts I could 
 | 2 scoops (approx. 35 g); 22 g protein; 130 calories; 15 servings; 525 g | H only | Unverified |
 | Contains milk | H only | Unverified |
 | 150 mg cholesterol (50% DV) | H | **Unresolved; not shown on the site.** |
-| Ingredients, directions, warnings | — | **Missing.** The page says so instead of guessing. |
-| Catalogue number "06", neutral accent | — | Provisional placeholders, not established identity |
+| Ingredients (whey blend, Solnul® resistant potato starch, natural flavors, pink Himalayan salt, guar gum, xanthan gum, stevia leaf extract) | Owner's draft, from review artwork | Not checked against a supplier page. Confirm on final label. |
+| Directions, warnings | — | **Missing.** The page says so instead of guessing. |
+| Catalogue number "06", brown accent, net weight 18.55 oz (525 g) | Owner's review artwork (visible on the jar image) | As drawn on the visualization; not an approved print label |
 
 ### Collagen peptides — RLC8COLL — https://supliful.com/catalog/grass-fed-hydrolyzed-collagen-peptides-powder
 
@@ -98,9 +99,9 @@ Status for every row: **Draft. Not approved.** Owner of the next step: Roman, wi
 | 4 | "…better skin hydration and elasticity, and fewer wrinkles, after about 90 days of daily hydrolyzed collagen." | Collagen | Meta-analysis, 19 RCTs, n=1,125 | Ages 20–70, 95% women; products and doses varied | Different products; our 20 g serving was not what was tested. **Regulatory question:** "wrinkles" language on a supplement page. Consider cutting to hydration and elasticity. | de Miranda et al. 2021, [doi:10.1111/ijd.15518](https://doi.org/10.1111/ijd.15518) |
 | 5 | "People taking magnesium fell asleep about 17 minutes sooner than those on placebo. Total sleep time did not clearly change." followed by "That is why we make no sleep claim for our magnesium." | Magnesium | Systematic review, 3 RCTs, n=151 | Older adults with insomnia; not glycinate specifically | Low to very low quality evidence. **Regulatory question:** the trials are in people with insomnia, a condition. Reporting them, even to decline the claim, may need rewording or removal. | Mah & Pitre 2021, [doi:10.1186/s12906-021-03297-z](https://doi.org/10.1186/s12906-021-03297-z) |
 | 6 | "The vitamin D group did not have fewer invasive cancers or major cardiovascular events." and "This trial is the reason we do not present it as protection against disease." | Vitamin D3 | VITAL RCT, n=25,871 | 2,000 IU/day D3, men ≥50 and women ≥55, median 5.3 years | **Regulatory question:** naming diseases on a supplement page, even in a null result. A reviewer may prefer "did not improve the health outcomes the trial measured". | Manson et al. 2019, [doi:10.1056/NEJMoa1809944](https://doi.org/10.1056/NEJMoa1809944) |
-| 7 | "Protein and creatine both have a large body of trial evidence behind them, and both were studied alongside resistance training." (Strength theme) | Creatine, both wheys | Rows 1–3 (22 and 49 pooled trials) | — | An earlier draft said "the most trial evidence", which rows 1–3 cannot prove; it was softened. | Rows 1–3 |
+| 7 | "Lifting is the part that works. Creatine and protein are the two additions with decades of trials behind them, and in those trials people were training." (Strength theme) | Creatine, both wheys | Rows 1–3 (22 and 49 pooled trials) | — | "Decades of trials" rests on the review dates in rows 1–3 (trials pooled back to the 1990s); verify. It does not claim these are the only or best-evidenced supplements. | Rows 1–3 |
 | 8 | "Most creatine research uses this form" | Creatine | Row 1 (monohydrate is the studied form) and the supplier's own statement | — | Verify against full text of row 1 | — |
-| 9 | Longevity theme lists creatine, vanilla whey, vitamin D3 under "staying strong and adequately nourished as you get older" | Three products | Rows 2, 3, 6 | Row 2 is in ages 57–70; row 3 shows a smaller effect with age | The copy states no product extends life. Vitamin D3's place rests on nutrient adequacy only. **Owner decision:** keep or drop D3 here. |
+| 9 | Longevity theme: "Nothing on this shelf makes you live longer. What is in your hands is narrower: staying strong and getting enough of the basics as the years go by." Lists creatine, vanilla whey, vitamin D3 | Three products | Rows 2, 3, 6 | Row 2 is in ages 57–70; row 3 shows a smaller effect with age | The copy states no product extends life. Vitamin D3's place rests on nutrient adequacy only. **Owner decision:** keep or drop D3 here. |
 | 10 | "collagen lacks the full set of essential amino acids" / "not a complete protein" | Collagen | Standard nutrition fact (collagen contains no tryptophan) | — | Add a reference before publication | To add |
 | 11 | "People whose diet is low in magnesium-rich foods such as nuts, seeds, legumes and leafy greens" | Magnesium | NIH Office of Dietary Supplements magnesium fact sheet (food sources) | — | I could not open the NIH page from this environment. **Verify.** | To verify |
 | 12 | "A blood test for 25-hydroxyvitamin D is the way to know your level" | Vitamin D3 | NIH ODS vitamin D fact sheet | — | Same: **verify.** | To verify |

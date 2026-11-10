@@ -1,0 +1,78 @@
+{
+ "opening-16x9": {
+  "request_id": "01a1c2f4-7a5d-77cd-b92f-d0bf76d16001",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_movement": "static-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 10,
+   "aspect_ratio": "16:9",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-hero-poster.jpg"
+   ],
+   "prompt": "<<<image_1>>> shows the exact location, framing, palette and light to keep. Locked-off camera. Pale travertine terraces filled with still, clear water on a mountainside at sunrise. Warm backlit mist drifts slowly from right to left across the dark forested slope behind. A thin sheet of water slides over the terrace rims and catches the low golden sun. Calm, quiet, natural motion only in the mist and the water. No people, no animals, no text, no logos, no products, no lens flare bursts, no sudden change in brightness, no cuts."
+  }
+ },
+ "opening-9x16": {
+  "request_id": "01a1c2f4-8fc6-7d2f-8663-02df54407196",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_movement": "static-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 8,
+   "aspect_ratio": "9:16",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-hero-poster.jpg"
+   ],
+   "prompt": "Vertical frame of the place shown in <<<image_1>>>, same palette and light. Locked-off camera. Pale travertine terraces filled with still, clear water sit in the lower third of the frame. Above them, a dark forested mountain slope and a wide area of soft, warm, backlit morning mist that stays calm and even in tone. The mist drifts slowly; a thin sheet of water slides over the terrace rims and glints in low golden sun. No people, no text, no logos, no products, no lens flare bursts, no sudden change in brightness, no cuts."
+  }
+ },
+ "ledge-16x9": {
+  "request_id": "01a1c2f4-93a1-7937-8ae8-7572ba88bacf",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_movement": "static-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 10,
+   "aspect_ratio": "16:9",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/vitae-ledger-alpine-background-imagine-02.jpg"
+   ],
+   "prompt": "<<<image_1>>> shows the exact scene, framing, palette and light to keep. Locked-off camera. A flat, pale, weathered stone ledge fills the bottom of the frame, empty and perfectly still. Behind it, layered blue alpine ridges fade into warm haze at first light. Low cloud slides slowly through the valleys between the ridges and thin mist lifts off the peaks. The light warms very gradually. Nothing stands on the ledge. No people, no animals, no text, no logos, no objects, no products, no cuts."
+  }
+ },
+ "water-16x9": {
+  "request_id": "01a1c2f4-9893-7437-adad-88e66572d00c",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_movement": "static-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 8,
+   "aspect_ratio": "16:9",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-atmosphere.jpg"
+   ],
+   "prompt": "<<<image_1>>> shows the exact scene, framing, palette and light to keep. Macro, locked-off camera. A single clear water droplet rests on dark, rough slate. Soft golden backlight slowly brightens and fades as thin mist passes far behind. Small highlights shimmer inside the droplet and along the wet edge of the stone. The droplet does not move or change shape. No text, no logos, no hands, no objects, no cuts."
+  }
+ }
+}

@@ -1,152 +1,133 @@
-# Vitae Lab storefront prototype
+# Vitae Lab storefront prototype (v2)
 
-Status on 9 Nov 2026: **prototype complete. Storefront not implemented in Shopify. Not launch-ready.**
+Status on 10 Nov 2026: **prototype complete. Storefront not implemented in Shopify. Not launch-ready.**
 
-This folder is a working, tested static prototype of the Vitae Lab storefront: one continuous water
-scene, the centered "Your goals / Your solution" opening, six product stories, label comparison,
-research notes, About, FAQ, product views and a preview cart. It was built from the handoff brief of
-9 Nov 2026 because the latest site source could not be reached (see "What exists" below). It does not
-replace that source. It sits beside the Ledger label system in `vitae-lab/labels/` and changes nothing
-there.
+v2 is a rebuild on top of the owner's own draft
+(`https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/`), not a replacement for it. It keeps that
+draft's world (warm mist, pale terraces, alpine stone), its six label visualizations and its palette, and
+changes three things: the design, the filmed motion, and the writing. The first version of this folder
+(dark river stones, drawn jars) is gone.
 
-Supporting documents are in `docs/`:
+Private preview: https://claude.ai/artifact/7vj3FS7Ypi37Ntbr4mhyWr
 
-| File | What it is |
-|---|---|
-| `docs/SOURCE-MANIFEST.md` | Every source, asset, product record and deployment, with owner, freshness and approval status. Asset manifest and the Higgsfield shot list with real cost estimates. |
-| `docs/COPY-DECK.md` | Before and after copy for every visible string, with the purpose of each section. |
-| `docs/CLAIMS-REGISTER.md` | Product facts and every claim, with evidence, limits, source and approval status. |
-| `docs/QA-REPORT.md` | What was tested, how, and what was not. Screenshots in `docs/qa/`. |
-| `docs/LAUNCH-CHECKLIST.md` | Passed / Failed / Unverified for every launch gate, the blocker list, the decisions needed and the rollback plan. |
-| `docs/SHOPIFY.md` | How this maps onto the Shopify theme, what Shopify must own, and the names of any settings needed. |
+Supporting documents are in `docs/`: `SOURCE-MANIFEST.md` (sources, assets, Higgsfield jobs and cost),
+`COPY-DECK.md`, `CLAIMS-REGISTER.md`, `QA-REPORT.md` (+ `qa/` screenshots), `LAUNCH-CHECKLIST.md`,
+`SHOPIFY.md`.
+
+## The idea: one morning on the mountain
+
+The page is a single day in one place.
+
+1. **First light.** The centered opening sits over the terraces with mist moving across the slope.
+   "Your goals" rotates four words; "Your solution" rotates the six product names, and the jar for the
+   name on screen stands in the mist below it.
+2. **Mist.** The reading sections (goals, labels table, research, about, questions) are plain warm paper.
+   Each filmed stage dissolves into it at top and bottom, so nothing is boxed and nothing cuts.
+3. **The ledge.** Every product gets one frame: the real jar cut-out standing on a stone ledge with cloud
+   sliding through the ridges behind it. It is the same filmed ledge each time, graded for the hour:
+   creatine at dawn, the wheys through the morning, collagen at noon, vitamin D3 in afternoon sun,
+   magnesium at dusk. Frames alternate sides.
+4. **A drop of water** on slate carries "Know what's in your routine" into the comparison table.
+5. **After dark.** The footer.
 
 ## What exists, and which build is canonical
 
-| Thing | Where | State on 9 Nov 2026 | Could I open it? |
+| Thing | Where | State on 10 Nov 2026 | Opened this session? |
 |---|---|---|---|
-| Latest site source with the water and hero edits | `/Users/romansemenov/Documents/Codex/Vitae-Lab-Higgsfield` on Roman's Mac | **Canonical by the handoff's account.** Not in any repository I can reach. | No. The Mac offers only a "Desktop" folder to Remote Control, and not to cloud sessions. |
-| Shopify theme "Water Cinematic Draft" (id 186959724767) | store `wh7315-e9` | Unpublished draft with a static poster. Horizon is the live theme. | No. The Shopify connector needs to be signed in again. |
-| Live storefront | `wh7315-e9.myshopify.com` | Horizon theme, no products published (per handoff). | No (same reason; also outside the network allowlist). |
-| `vitae-lab.pages.dev` | Cloudflare Pages | An **older peptide-clinic landing page** (Manrope type, molecular film, "COA-tested peptides", DMV delivery). It is a visual reference only. None of its copy or claims belong on the supplement store. | Yes. |
-| Ledger label system | `vitae-lab/labels/` in this repo, commit `c51d68f` | Identity reference. Its quantities are old placeholders and are not used here. | Yes. |
-| This prototype | `vitae-lab/site/` on branch `claude/nice-mccarthy-5a6lgl` (base `f4bd5bc`) | New. Tested in Chromium. | Yes. |
-
-So there are three different things: a **visual prototype** (this folder), a **Shopify implementation**
-(the unpublished draft theme, which I could not inspect) and the **live storefront** (Horizon, nothing on
-sale). Nothing in this branch touches the second or third.
-
-To reconcile: push the Mac folder to a branch of this repo (without `.env` files or credentials) and I
-will diff it against this prototype and merge whichever parts are newer. Until then, treat the Mac
-folder as the owner of the hero and water edits and this folder as a proposal.
+| Owner's current draft | `vitae-lab-storefront-review.rsemenov81.chatgpt.site` | **Canonical draft.** Static page, one 8 s hero loop, six pack images with hand-drawn cut-out paths. | Yes; fully downloaded and studied |
+| This prototype (v2) | `vitae-lab/site/` on branch `claude/nice-mccarthy-5a6lgl` | Built from that draft's assets plus four new Higgsfield shots | Yes |
+| Latest local source | `Vitae-Lab-Higgsfield` on Roman's Mac | Presumably the source of the draft above | No |
+| Shopify draft theme `186959724767` and live store `wh7315-e9` | Shopify | Store is behind the "Opening soon" password page; live theme is Horizon 4.4.0 | Password page only; connector needs sign-in |
+| `vitae-lab.pages.dev` | Cloudflare Pages | Older peptide-clinic page. Not the supplement store. | Yes |
+| Ledger label system | `vitae-lab/labels/` | Identity reference; its quantities are old placeholders | Yes |
 
 ## Run it
 
-No build step and no dependencies. Any static file server works:
+No build step and no dependencies.
 
 ```
 python3 -m http.server 4173        # from the repo root
 open http://127.0.0.1:4173/vitae-lab/site/
+npm ci && npx playwright install chromium && npm run e2e:vitae     # 13 checks
 ```
 
-Tests (Chromium, all local, no network):
+## Keeping it private
 
-```
-npm ci
-npx playwright install chromium     # CI already does this
-npm run e2e:vitae                   # 13 checks; screenshots land in .playwright/vitae-site/
-```
-
-`npm run ci` and `.github/workflows/ci.yml` now include `e2e:vitae`.
-
-## Deployment, and keeping it private
-
-- **Private preview:** a private Claude artifact, https://claude.ai/artifact/7vj3FS7Ypi37Ntbr4mhyWr. Only the owner can open it.
-- **GitHub Pages:** this repo's Pages site serves `main`. **Merging this branch publishes the prototype at
-  `rsemenov81-hash.github.io/protocol-os/vitae-lab/site/`.** The page carries `noindex, nofollow` and a
-  "Private preview" bar, but the URL would be public. Keep the pull request as a draft until that is
-  acceptable, or move the folder out of the Pages tree first.
+- **Private preview:** the Claude artifact above. Only the owner can open it.
+- **GitHub Pages serves `main`.** Merging this branch publishes the prototype at
+  `rsemenov81-hash.github.io/protocol-os/vitae-lab/site/`. It is `noindex, nofollow` and carries a
+  "Private preview" bar, but the URL would be public. The pull request stays a draft for that reason.
 - **Shopify:** not deployed. See `docs/SHOPIFY.md`.
 
 ## Files
 
 | File | Role |
 |---|---|
-| `index.html` | All static copy and structure. One page; product views are opened by a plain `#handle`. |
-| `site.css` | Tokens, scene, layout, the Ledger label drawing, cart. |
-| `site.js` | Renders products and research from data, rotators, motion control, hash views, cart. No dependencies. |
+| `index.html` | All static copy and structure. One page; product views open on a plain `#handle`. |
+| `site.css` | Tokens, stages, mist sections, product frames, cart. |
+| `site.js` | Renders products and research from data, rotators, one-loop-at-a-time video, hash views, cart. No dependencies. |
 | `products.js` | Product facts and research notes. The only place a product fact is written. |
-| `media/` | Water loop (two sizes, MP4 and WebM), poster, logo masks. See the asset manifest. |
+| `media/` | Four filmed loops (MP4 + WebM), their posters, six jar cut-outs, logo masks. See the asset manifest. |
 | `../../tests/vitae-site-e2e.mjs` | The checks. |
 
 ## Design tokens
 
-All colour and type tokens are the Ledger label tokens, declared once at the top of `site.css`.
-
 | Token | Value | Use |
 |---|---|---|
-| `--stock` | `#F1EDE4` | Text on water; cart sheet; label stock |
-| `--ink` | `#14231D` | Text on stock; label ink |
-| `--ink60` | `#5E6661` | Secondary text on stock |
-| `--rule` | `#C9C3B6` | Hairlines on stock |
-| `--teal` | `#2DB5A1` | Helix in the logo, focus ring, link underline. Never text on stock (2.2:1). |
-| `--surface`, `--page` | `#D9D5CC`, `#E7E3DA` | Reserved; not used on the water pages |
-| `--deep` | `#0B1512` | **Derived**, one step darker than ink: the deepest water, header and footer ground |
-| `--dim`, `--hair` | stock at 80% and 22% | Secondary text and hairlines over water |
-| Product accents | creatine `#4B6480`, vanilla whey `#B8923D`, collagen `#6E8A6A`, magnesium `#4E3A5A`, D3 `#C65A2E` | Label chip and cap disc only |
-| Chocolate accent | `#5E6661` (neutral) | **Provisional.** The corrected chocolate proof was not available, so no accent was invented. |
+| `--paper`, `--paper-light` | `#F1EDE4`, `#F8F5EF` | Page ground (the mist); header and cart |
+| `--ink` | `#14231D` | Text; buttons; footer ground |
+| `--muted` | `#4F5B54` | Secondary text on paper (6.3:1) |
+| `--rule`, `--hair` | `#C9C3B6`, ink at 18% | Hairlines |
+| `--teal`, `--teal-deep` | `#2DB5A1`, `#147A6C` | Helix in the logo; link underline and focus ring on paper use the deeper tone |
+| Product accents | On the label artwork itself | Not repeated in the page chrome |
 
-Type: Newsreader 400 (names, headings, rotators), IBM Plex Sans 400/500 (body, buttons), IBM Plex Mono
-400/500 (facts, labels, notes). All three are SIL Open Font License families served from Google Fonts
-with `display=swap` and system fallbacks. Scale: rotator `clamp(2.9rem, 11vw, 6.5rem)`, h2
-`clamp(1.9rem, 5vw, 3.1rem)`, body `1.0625rem/1.6`, facts `.875rem` mono.
-
-Spacing: one section rhythm, `--section: clamp(4.5rem, 12vw, 9rem)`. Gutter 20 px minimum with
-safe-area insets. Breakpoint at `52rem`; everything below is one column.
+Type: Newsreader (roman for names and headings, italic for the rotating goal word), IBM Plex Sans for
+body, IBM Plex Mono for facts and notes. All SIL Open Font License, from Google Fonts, `display=swap`,
+with system fallbacks. The owner's draft fell back to system serifs; loading Newsreader makes the page
+match the labels.
 
 ## Component notes
 
-- **Scene.** One `position: fixed` layer behind the whole page: poster image, then a single muted loop
-  on top, then a veil. The veil deepens with scroll (CSS `animation-timeline: scroll()`), so the water
-  reads as getting deeper as you go down. Browsers without scroll timelines get a fixed veil. Text
-  contrast is guaranteed by the veil and by a highlight roll-off baked into the encode, not by boxes.
-- **Rotators.** Every item sits in the same grid cell, so the longest one reserves the space and nothing
-  shifts. Goals and products rotate on different intervals (2.9 s and 3.7 s) so a goal is never shown as
-  paired with a product. Rotation stops on hover and focus. With motion off, all four goals and all six
-  product names are listed.
-- **Pack art.** The Ledger front label is drawn in HTML and CSS on an illustrative tub or bottle, using
-  the corrected working facts. It is a stand-in for approved packshots: swap `packHTML()` for an `<img>`
-  per product when those exist. Each drawing is one `role="img"` with a text alternative; the same facts
-  are real text beside it.
-- **Facts.** Ruled mono rows directly on the water. No cards, no boxes under products.
-- **Motion control.** "Pause motion" in the header stops the loop, the rotators and the ripple rings and
-  is remembered. `prefers-reduced-motion` and Save-Data visitors never download the video.
-- **Product view.** Name, summary, price and buy controls first; then serving facts, who might consider
-  it, directions, ingredients, allergens and warnings, evidence and limits, and the FDA disclaimer.
-- **Cart.** A native `<dialog>` drawn as a sheet of label stock. Two adapters behind one interface:
-  `local` (this preview; never takes an order) and `shopify` (Ajax Cart API and Shopify checkout; written
-  but not yet run against the store).
-- **Preview-only parts.** `.preview` bar, `.preview-note` blocks and the "simulate products on sale"
-  switch. Delete all three at launch.
+- **Stage.** A filmed plate: poster image first, then one muted loop faded in on top. An
+  IntersectionObserver picks the stage with the most pixels on screen; only that one's video has a source
+  and plays. Loops start after page load, never under reduced motion or Save-Data, and stop when the tab
+  is hidden. Each loop is 300 to 430 KB.
+- **Jar.** `media/pack-<handle>.webp`: the owner's label visualization, cut out with the owner's own
+  outline paths, so label text is exactly the artwork's. The page adds the shadow. Nothing generative
+  touched a label.
+- **Product frame.** Ledge plate + jar + words. On wide screens the words sit in open sky on the side
+  away from the jar, over a mist wash that keeps contrast above 8:1. On phones the words sit on paper
+  under the picture. The hour of day is a CSS filter on the shared plate (`data-time`).
+- **Scroll-linked motion.** The plate drifts a little slower than the jar, and the jar settles onto the
+  ledge as its frame arrives (`animation-timeline: view()`). Text blocks rise 16 px. Nothing is ever
+  dimmed, hidden or pinned, and scrolling is never taken over. Browsers without scroll timelines get the
+  still composition.
+- **Rotators.** All items share one grid cell, so the longest reserves the space. Goals and products run
+  on different intervals so no goal is paired with a product. With motion off, all words and names list.
+- **Motion control.** "Pause motion" stops every loop, the rotators and the scroll-linked motion, and is
+  remembered.
+- **Cart.** Native `<dialog>`. `local` adapter for the preview (never takes an order); `shopify` adapter
+  for the Ajax Cart API, written but not yet run against the store.
+- **Preview-only parts.** `.preview` bar, `.preview-note` blocks, the "simulate products on sale" switch.
 
 ## Proposed shopping navigation
 
-The removed "Explore collection" hero button, the old quote and the retired copy are not restored (a
-test fails if they come back). Shopping is reached four ways instead, proposed here for approval:
-
-1. "Products" in the header, and a cart button that is always visible.
-2. Each rotating product name in the opening is a link to that product.
-3. Product names under each goal, in "The range", and in the comparison table are links.
-4. "Read the label" and the buy button on every product story.
+The removed "Explore collection" hero button, the old quote and the retired copy are not restored (a test
+fails if they return). Shopping is reached from "Products" in the header and the always-visible cart
+button; from each rotating product name; from the product names under each goal and in the comparison
+table; and from "Read the label" and the buy button in every product frame.
 
 ## Rollback
 
-Nothing live was changed, so there is nothing to roll back in production.
+Nothing live was changed.
 
-- **This branch:** close the draft pull request, or `git revert` the commit. The change is additive:
-  one new folder, one new test, one line each in `package.json` and `ci.yml`.
-- **Artifact preview:** delete the artifact from claude.ai; the link stops working.
-- **Environment:** three hosts were added to the `protocol-os` cloud environment's network allowlist for
-  this work (`vitae-lab.pages.dev`, `d8j0ntlcm91z4.cloudfront.net`, `supliful.com`). Remove them in the
-  environment settings if they are not wanted.
-- **Shopify, at launch:** publish is a theme switch. Rolling back is re-publishing Horizon from
-  Online Store → Themes; keep Horizon untouched and duplicate the draft before each edit.
+- **This branch:** close the draft pull request or `git revert`. The change is one folder, one test, and
+  one line each in `package.json` and `ci.yml`.
+- **Artifact:** delete it from claude.ai.
+- **Environment:** seven hosts were added to the `protocol-os` cloud environment's allowlist during this
+  work: `vitae-lab.pages.dev`, `d8j0ntlcm91z4.cloudfront.net`, `supliful.com`, `wh7315-e9.myshopify.com`,
+  `cdn.shopify.com`, `vitae-lab-storefront-review.rsemenov81.chatgpt.site`,
+  `d3u0tzju9qaucj.cloudfront.net`. Remove any you don't want kept.
+- **Higgsfield:** four generations were charged (see the manifest). That spend cannot be undone; the
+  outputs are deleted from Higgsfield automatically after seven days and are kept here in `media/`.
+- **Shopify, at launch:** publish is a theme switch; rollback is re-publishing Horizon.

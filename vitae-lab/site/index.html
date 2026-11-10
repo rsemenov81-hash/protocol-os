@@ -7,28 +7,22 @@
 <meta name="description" content="Vitae Lab sells a short range of supplements: creatine, whey protein, collagen, magnesium and vitamin D3. Every page shows the serving, the ingredients and what the research does and does not support.">
 <!-- Private preview: keep out of search until launch is approved. Remove this line only as part of the approved launch. -->
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0B1512">
+<meta name="theme-color" content="#F1EDE4">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Vitae Lab">
 <meta property="og:description" content="Supplements with the amounts on the label and the evidence beside them.">
-<meta property="og:image" content="media/water-poster.jpg">
+<meta property="og:image" content="media/opening-poster.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="media/water-poster.jpg" fetchpriority="high">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preload" as="image" href="media/opening-poster.jpg" media="(min-width: 701px)" fetchpriority="high">
+<link rel="preload" as="image" href="media/opening-poster-tall.jpg" media="(max-width: 700px)" fetchpriority="high">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="site.css">
 <!-- Set the motion mode before first paint so reduced-motion and paused visitors never see the page rearrange. -->
 <script>try{var m=localStorage.getItem('vitae-motion');document.documentElement.dataset.motion=(m==null?!matchMedia('(prefers-reduced-motion: reduce)').matches:m==='true')?'on':'off'}catch(e){}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-
-<!-- One fixed water scene behind the whole page: poster first, one small loop on top when allowed. -->
-<div class="scene" aria-hidden="true">
-  <img class="scene__poster" src="media/water-poster.jpg" alt="" width="960" height="540" fetchpriority="high">
-  <video class="scene__video" muted loop playsinline preload="none" tabindex="-1"></video>
-  <div class="scene__veil"></div>
-</div>
 
 <!-- Preview-only bar. Delete at launch. -->
 <aside class="preview" aria-label="Preview status">
@@ -62,9 +56,14 @@
   <span id="top"></span>
   <h1 class="sr-only">Vitae Lab supplements</h1>
 
-  <!-- 1. Centered opening -->
-  <section class="opening" aria-label="Opening">
-    <div class="wrap opening__col">
+  <!-- 1. First light: the centered opening over the terraces. -->
+  <section class="stage stage--opening" data-stage aria-label="Opening">
+    <picture class="stage__plate">
+      <source media="(max-width: 700px)" srcset="media/opening-poster-tall.jpg" width="720" height="1280">
+      <img src="media/opening-poster.jpg" alt="" width="1280" height="720" fetchpriority="high">
+    </picture>
+    <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/opening" data-tall="media/opening-tall"></video>
+    <div class="opening wrap">
       <p class="eyebrow" id="goals-label">Your goals</p>
       <ul class="rotator rotator--goals" aria-labelledby="goals-label" data-rotator data-interval="2900">
         <li class="is-on">Strength</li>
@@ -72,7 +71,6 @@
         <li>Everyday vitality</li>
         <li>Wellness</li>
       </ul>
-
       <p class="eyebrow opening__second" id="solution-label">Your solution</p>
       <!-- Same order as products.js; the artwork below follows this list. On Shopify this is a Liquid loop. -->
       <ul class="rotator rotator--products" id="product-rotator" aria-labelledby="solution-label" data-rotator data-interval="3700">
@@ -80,66 +78,74 @@
         <li><a href="#vanilla-whey-isolate" tabindex="-1">Vanilla whey isolate</a></li>
         <li><a href="#chocolate-whey-blend" tabindex="-1">Chocolate performance whey blend</a></li>
         <li><a href="#collagen-peptides" tabindex="-1">Collagen peptides</a></li>
-        <li><a href="#magnesium-glycinate" tabindex="-1">Magnesium glycinate</a></li>
         <li><a href="#vitamin-d3" tabindex="-1">Vitamin D3</a></li>
+        <li><a href="#magnesium-glycinate" tabindex="-1">Magnesium glycinate</a></li>
       </ul>
       <div class="hero-packs" id="hero-packs"></div>
-      <p class="caption">Label previews drawn from review artwork. Not photographs of manufactured stock.</p>
     </div>
   </section>
 
-  <section class="lede">
+  <section class="mist lede">
     <div class="wrap reveal">
       <h2>Understand what you’re taking.</h2>
       <p class="lede__body">Find the facts, compare the options, and choose what fits your routine.</p>
+      <p class="caption">The jars on this page are visualizations of review artwork. They are not photographs of manufactured stock.</p>
     </div>
   </section>
 
   <!-- 2. Goals as browsing themes -->
-  <section class="themes" id="goals" aria-labelledby="themes-h">
+  <section class="mist themes" id="goals" aria-labelledby="themes-h">
     <div class="wrap">
-      <h2 id="themes-h" class="reveal">Browse by goal</h2>
-      <p class="note reveal">These are ways to browse the range. They are not medical advice or a recommendation for you.</p>
+      <h2 id="themes-h" class="reveal">Start from a goal</h2>
+      <p class="note reveal">A way to browse the range. Not medical advice, and not a recommendation for you.</p>
       <div class="themes__list">
         <article class="theme reveal">
           <h3>Strength</h3>
-          <p>Training does the work. Protein and creatine both have a large body of trial evidence behind them, and both were studied alongside resistance training.</p>
+          <p>Lifting is the part that works. Creatine and protein are the two additions with decades of trials behind them, and in those trials people were training.</p>
           <p class="theme__links"><a href="#creatine-monohydrate">Creatine monohydrate</a><a href="#vanilla-whey-isolate">Vanilla whey isolate</a><a href="#chocolate-whey-blend">Chocolate whey blend</a></p>
         </article>
         <article class="theme reveal">
           <h3>Longevity</h3>
-          <p>No supplement here has been shown to extend life, and we won’t suggest otherwise. What the research does support is narrower: staying strong and adequately nourished as you get older.</p>
+          <p>Nothing on this shelf makes you live longer. What is in your hands is narrower: staying strong and getting enough of the basics as the years go by.</p>
           <p class="theme__links"><a href="#creatine-monohydrate">Creatine monohydrate</a><a href="#vanilla-whey-isolate">Vanilla whey isolate</a><a href="#vitamin-d3">Vitamin D3</a></p>
         </article>
         <article class="theme reveal">
           <h3>Everyday vitality</h3>
-          <p>The plain ones you take most days. Two nutrients worth checking your intake of, in amounts you can read on the front of the label.</p>
+          <p>The plain ones. You take them most days, you can read the amount on the front, and now and then you check whether you still need them.</p>
           <p class="theme__links"><a href="#magnesium-glycinate">Magnesium glycinate</a><a href="#vitamin-d3">Vitamin D3</a></p>
         </article>
         <article class="theme reveal">
           <h3>Wellness</h3>
-          <p>A broad word, so here is what we mean by it: products people add for general nutrition, not for a medical condition.</p>
+          <p>A vague word. Here it means things people add for general nutrition, not to fix a medical problem.</p>
           <p class="theme__links"><a href="#collagen-peptides">Collagen peptides</a><a href="#magnesium-glycinate">Magnesium glycinate</a></p>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- 3. Product stories: the collection -->
-  <section class="stories" id="products" aria-labelledby="products-h">
-    <div class="wrap">
-      <h2 id="products-h" class="reveal">The range</h2>
-      <p class="note reveal">A short list for now. It will grow when we can say plainly what a product contains and why someone might take it.</p>
+  <!-- 3. The range: one ledge, six products, one day from dawn to dusk. -->
+  <section class="range" id="products" aria-labelledby="products-h">
+    <div class="mist range__head">
+      <div class="wrap">
+        <h2 id="products-h" class="reveal">The range</h2>
+        <p class="note reveal">Short on purpose. It grows when there is something worth adding.</p>
+      </div>
     </div>
-    <div class="wrap" id="stories"></div>
+    <div id="stories"></div>
   </section>
 
   <!-- 4. Ingredient and label transparency -->
-  <section class="labels" id="labels" aria-labelledby="labels-h">
+  <section class="stage stage--water" data-stage id="labels" aria-labelledby="labels-h">
+    <img class="stage__plate" src="media/water-poster.jpg" alt="" width="1280" height="720" loading="lazy">
+    <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/water"></video>
+    <div class="wrap stage__words">
+      <h2 id="labels-h">Know what’s in your routine.</h2>
+      <p>Every product page carries the serving, the full ingredient list, the directions and the warnings, word for word from the label.</p>
+    </div>
+  </section>
+  <div class="mist labels">
     <div class="wrap">
-      <h2 id="labels-h" class="reveal">Know what’s in your routine.</h2>
-      <p class="reveal measure">See the ingredients, amounts, directions and the evidence behind each claim. Every product page carries the serving size, the full ingredient list, allergens, directions and warnings as they appear on the label.</p>
-      <p class="note reveal">Serving counts differ a lot between containers. A jar is not a month’s supply unless the numbers say so.</p>
+      <p class="reveal measure">One thing to watch: a jar is not a month. At a serving a day the creatine lasts 50 days and the collagen lasts 14.</p>
       <div class="table-scroll reveal" role="region" aria-labelledby="compare-cap" tabindex="0">
         <table class="compare">
           <caption id="compare-cap">Compare the range</caption>
@@ -147,47 +153,47 @@
           <tbody id="compare-body"></tbody>
         </table>
       </div>
-      <p class="preview-note">Preview note: these are working figures from supplier records dated 7 to 9 Nov 2026. Three label questions are still open with the manufacturer. Nothing here is approved production label copy.</p>
+      <p class="preview-note">Preview note: these are working figures from supplier records and review artwork dated 7 to 9 Nov 2026. Three label questions are still open with the manufacturer. Nothing here is approved production label copy.</p>
     </div>
-  </section>
+  </div>
 
   <!-- 5. Research and quality -->
-  <section class="research" id="research" aria-labelledby="research-h">
+  <section class="mist research" id="research" aria-labelledby="research-h">
     <div class="wrap">
       <h2 id="research-h" class="reveal">What the research says. What it doesn’t.</h2>
-      <p class="reveal measure">Each note names what was studied, how much, in whom, and where the finding stops. The studies tested ingredients. None of them tested our finished products.</p>
+      <p class="reveal measure">We read the trials so this page can be straight about them. They studied ingredients, not our jars, and each note says where the finding stops.</p>
       <div id="research-list"></div>
       <p class="fda" id="fda-note">These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
 
-      <h3 class="research__quality reveal">Quality, stated carefully</h3>
-      <p class="reveal measure">Our products are made by a contract manufacturer. We have not yet published test results or certificates, so we make no testing or certification claims. When we hold a document for a specific lot, it will be linked from that product’s page.</p>
+      <h3 class="research__quality reveal">Who makes it</h3>
+      <p class="reveal measure">A contract manufacturer makes these products and a fulfillment partner ships them. We don’t own a factory. We haven’t published test results yet, so you won’t find a “lab tested” badge here. When we hold a certificate for a specific lot, it goes on that product’s page.</p>
     </div>
   </section>
 
   <!-- 6. About -->
-  <section class="about" id="about" aria-labelledby="about-h">
+  <section class="mist about" id="about" aria-labelledby="about-h">
     <div class="wrap split">
       <div>
         <h2 id="about-h" class="reveal">Good habits do most of the work.</h2>
         <p class="about__lead reveal">Supplements should have a clear place alongside them.</p>
       </div>
-      <p class="reveal measure">Vitae Lab is a small supplement brand. We keep the range short, put the amounts on the front of the label, and write down what the evidence supports and where it runs out. The products are made by a contract manufacturer and shipped by a fulfillment partner. We don’t make them ourselves.</p>
+      <p class="reveal measure">Sleep, food and training do the heavy lifting. A supplement earns a spot when you can say what it is for and how much you are taking. That is the idea behind Vitae Lab: a short range, the amounts printed on the front, and nothing promised that the evidence can’t back.</p>
     </div>
   </section>
 
   <!-- 7. FAQ -->
-  <section class="faq" id="faq" aria-labelledby="faq-h">
+  <section class="mist faq" id="faq" aria-labelledby="faq-h">
     <div class="wrap split">
       <h2 id="faq-h" class="reveal">Questions</h2>
       <div class="faq__list">
-        <details><summary>Can I buy these now?</summary><p>Not yet. The store is in private preview while labels, prices and shipping are finalized. Product pages show the facts we have today.</p></details>
+        <details><summary>Can I buy these now?</summary><p>Not yet. The store is in private preview while labels, prices and shipping are settled. The product pages show what we know today.</p></details>
         <details><summary>How long does one container last?</summary><p>It depends on the product. At one serving a day: creatine 50 days, vanilla whey isolate 24, chocolate whey blend 15, collagen peptides 14, magnesium glycinate 30, vitamin D3 100. Check the serving count before you plan around a jar.</p></details>
-        <details><summary>Is the collagen a complete protein?</summary><p>No. A 20 g scoop provides 18 g of protein, but collagen lacks the full set of essential amino acids. It does not replace whey or the protein in meals.</p></details>
-        <details><summary>What is the difference between the two whey products?</summary><p>The vanilla is whey protein isolate. The chocolate is a blend of whey isolate and whey concentrate. Both list 22 g of protein per two-scoop serving. Both contain milk.</p></details>
-        <details><summary>How much magnesium is in a serving?</summary><p>Three capsules provide 275 mg of elemental magnesium. That comes from 2,500 mg of magnesium glycinate, which is the weight of the whole compound. The two numbers measure different things.</p></details>
-        <details><summary>Is the vitamin D3 vegan or soy-free?</summary><p>No. The softgel is made with gelatin, and the fill includes soybean oil and corn oil. It contains no vitamin K2.</p></details>
-        <details><summary>Who should check with a clinician first?</summary><p>Anyone who is pregnant or nursing, under 18, taking medication or managing a medical condition. Supplements can interact with medicines. Follow the directions on the label and do not exceed the stated serving.</p></details>
-        <details><summary>Where do you ship, and what is the return policy?</summary><p>Shipping regions, rates and the return policy will be published here before the store opens. They are not final yet.</p></details>
+        <details><summary>Is the collagen a complete protein?</summary><p>No. A 20 g scoop has 18 g of protein, but collagen is missing some essential amino acids. It doesn’t replace whey or the protein in your meals.</p></details>
+        <details><summary>What is the difference between the two whey products?</summary><p>The vanilla is whey isolate. The chocolate is a blend of isolate and concentrate. Both list 22 g of protein in a two-scoop serving, and both contain milk.</p></details>
+        <details><summary>How much magnesium is in a serving?</summary><p>Three capsules give you 275 mg of magnesium. The label also says 2,500 mg of magnesium glycinate. That is the weight of the whole compound, so the two numbers measure different things.</p></details>
+        <details><summary>Is the vitamin D3 vegan or soy-free?</summary><p>No. The softgel is gelatin, and the fill includes soybean oil and corn oil. There is no vitamin K2 in it.</p></details>
+        <details><summary>Who should check with a clinician first?</summary><p>Anyone who is pregnant or nursing, under 18, on medication or managing a medical condition. Supplements can interact with medicines. Follow the directions on the label and don’t exceed the stated serving.</p></details>
+        <details><summary>Where do you ship, and what is the return policy?</summary><p>Shipping regions, rates and the return policy will be published here before the store opens. They aren’t final yet.</p></details>
       </div>
     </div>
   </section>
@@ -224,7 +230,7 @@
       </div>
     </div>
     <p class="fda">These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
-    <p class="site-footer__fine">© 2026 Vitae Lab. Dietary supplements are not a substitute for a varied diet. Keep out of reach of children.</p>
+    <p class="site-footer__fine">© 2026 Vitae Lab. Dietary supplements are not a substitute for a varied diet. Keep out of reach of children. The mountain scenery is decorative and says nothing about where ingredients come from.</p>
   </div>
 </footer>
 
@@ -239,7 +245,7 @@
   <div class="cart__foot" id="cart-foot" hidden>
     <p class="cart__row"><span>Subtotal</span><span id="cart-subtotal"></span></p>
     <p class="cart__fine">Shipping and taxes are calculated at checkout.</p>
-    <button type="button" class="btn btn--ink" id="checkout-btn">Go to checkout</button>
+    <button type="button" class="btn" id="checkout-btn">Go to checkout</button>
     <p class="cart__handoff" id="cart-handoff" role="status"></p>
   </div>
 </dialog>

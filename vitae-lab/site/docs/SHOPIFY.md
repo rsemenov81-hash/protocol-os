@@ -19,7 +19,8 @@ confirmation, taxes and shipping. The site never captures payment and never repo
 | Prototype | Shopify |
 |---|---|
 | `site.css`, `site.js`, `media/*` | `assets/vitae.css`, `assets/vitae.js`, theme assets (or Files for the video; see below) |
-| `<div class="scene">` + header + footer | `layout/theme.liquid` and the header/footer section group |
+| Header + footer | `layout/theme.liquid` and the header/footer section group |
+| `.stage` plates (opening, water) and the per-product `.frame` | Section markup; loops and posters as theme assets or Files; jar cut-outs as each product's first image (transparent WebP or PNG) |
 | Home sections in `index.html` (opening, lede, themes, stories, labels, research, about, faq) | One section file each under `sections/`, listed in `templates/index.json`. Copy lives in section settings so it can be edited without code. |
 | `products.js` product array | Real products. The opening rotator and "The range" become `{% for product in collections.all.products %}` (or a chosen collection). |
 | Product view (`renderProduct`) | `sections/vitae-product.liquid` in `templates/product.json` |
@@ -58,7 +59,7 @@ Research notes become a metaobject definition `research_note` with fields `ingre
 The handoff records one failed MP4 upload on 8 Nov and is right that this proves nothing general. Two
 supported routes: upload to **Content → Files** and reference it with a `video` section setting
 (`{{ section.settings.loop | video_tag }}` or the file's CDN URL), or ship it as a theme asset (theme
-assets are limited in size; the 195 KB and 479 KB loops here are small). Keep the loading rules from
+assets are limited in size; the loops here are 300 to 430 KB each). Keep the loading rules from
 `site.js`: poster first, `preload="none"`, set `src` after `load`, one size only, nothing under reduced
 motion or Save-Data.
 
