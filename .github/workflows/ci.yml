@@ -39,7 +39,7 @@ concurrency:
 jobs:
   ci:
     name: check · test · e2e
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned: Playwright 1.56.1 cannot install browsers on ubuntu-latest (26.04)
     timeout-minutes: 20
     env:
       CI: true
