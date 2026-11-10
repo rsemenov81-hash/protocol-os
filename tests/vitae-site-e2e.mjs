@@ -176,7 +176,7 @@ try {
     await page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); scrollTo({ top: f.offsetTop + f.offsetHeight * 0.5, behavior: 'instant' }); });
     await page.waitForFunction((p0) => Number(document.querySelector('#story-creatine-monohydrate').style.getPropertyValue('--p')) > p0 + 0.2, far[0]);
     const near = await size();
-    assert.ok(near[1] > far[1] * 1.15, `jar should come closer: ${far[1]} -> ${near[1]}`);
+    assert.ok(near[1] > far[1] * 1.08, `jar should come closer: ${far[1]} -> ${near[1]}`);
     assert.equal(await page.evaluate(() => [...document.querySelectorAll('video')].filter((v) => !v.paused).length), 1, 'one loop on the page');
     await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
     const btn = page.locator('#motion-btn');

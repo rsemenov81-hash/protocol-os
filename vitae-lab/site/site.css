@@ -41,11 +41,20 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 .stage__video.is-playing{opacity:1}
 [data-motion="off"] .stage__video{display:none}
 /* The veil is the only thing that changes down the page: light at the top, then deep enough to read on. */
-.scene__veil{position:absolute;inset:0;background:var(--deep);opacity:.8}
+.scene__veil{position:absolute;inset:0;background:var(--deep);opacity:.5}
+.scene picture,.scene video{transform-origin:60% 60%}
 @supports (animation-timeline:scroll()){
   .scene__veil{animation:deepen linear both;animation-timeline:scroll(root);animation-range:0 110vh}
 }
-@keyframes deepen{from{opacity:.5}to{opacity:.8}}
+@keyframes deepen{from{opacity:.38}to{opacity:.52}}
+@supports (animation-timeline:scroll()){
+  [data-motion="on"] .scene picture,[data-motion="on"] .scene video{animation:push linear both;animation-timeline:scroll(root)}
+}
+@keyframes push{from{scale:1}to{scale:1.22}}
+/* Mist passing in front of everything, slowly. */
+.scene::after{content:"";position:absolute;inset:-20% -60%;background:radial-gradient(40% 30% at 25% 60%,rgb(241 237 228 / .16),transparent 70%),radial-gradient(35% 26% at 70% 35%,rgb(241 237 228 / .12),transparent 70%),radial-gradient(30% 22% at 50% 85%,rgb(241 237 228 / .1),transparent 70%);animation:mist 38s linear infinite alternate}
+@keyframes mist{from{translate:-12% 2%}to{translate:12% -3%}}
+[data-motion="off"] .scene::after{animation:none}
 
 /* ---------- preview bar (delete at launch) ---------- */
 .preview{background:var(--paper);color:var(--ink);font:400 .8125rem/1.45 var(--mono);padding:.6rem var(--gutter-r) .6rem var(--gutter);display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;align-items:center;justify-content:space-between}
@@ -82,9 +91,10 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 }
 
 /* ---------- opening ---------- */
-.opening{display:flex;flex-direction:column;align-items:center;text-align:center;min-height:calc(100svh - var(--bar));padding-block:clamp(2.5rem,8vh,5rem) 2rem}
+.opening{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;min-height:calc(100svh - var(--bar));padding-block:clamp(2.5rem,8vh,5rem) 2rem}
 .opening__second{margin-top:clamp(1.75rem,5vh,3.25rem)}
-.rotator{display:grid;justify-items:center;align-items:center;margin-top:.7rem;text-shadow:0 1px 28px rgb(12 22 18 / .6)}
+.opening::before{content:"";position:absolute;inset:0 -50vw;z-index:-1;background:linear-gradient(to bottom,rgb(12 22 18 / .5),rgb(12 22 18 / .3) 50%,transparent 75%)}
+.rotator{display:grid;justify-items:center;align-items:center;margin-top:.7rem;text-shadow:0 1px 28px rgb(12 22 18 / .7)}
 /* Resting items sit at 0.004 opacity, not 0: invisible, but painted with the first frame, so a later
    word fading in is not reported as a new "largest contentful paint" seconds after load. */
 .rotator>li.is-on{opacity:1;transition:opacity .55s ease .4s}   /* the old word leaves before the new one arrives */
@@ -106,6 +116,9 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 
 /* ---------- sections share the scene; nothing has its own background ---------- */
 .band{padding-block:calc(var(--section)*.6)}
+.band>.wrap,.frame__text{position:relative}
+.band>.wrap::before,.frame__text::before{content:"";position:absolute;inset:-2.5rem -1.5rem;z-index:-1;background:rgb(12 22 18 / .7);filter:blur(28px)}
+.band>.wrap::before{inset:-1rem -1rem;background:rgb(12 22 18 / .78)}
 .band .note{margin-top:.8rem}
 .lede{text-align:center}
 .lede__body{font-size:1.1875rem;max-width:32rem;margin:1rem auto 0;color:var(--dim)}
@@ -117,10 +130,16 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 .compare tbody th{font:400 1.0625rem/1.3 var(--serif);white-space:nowrap}
 
 /* ---------- the range: each jar comes toward you as you scroll past it ---------- */
-.frame__jar{height:min(62svh,34rem);display:grid;justify-items:center;align-items:center;perspective:70rem}
+.frame__jar{height:min(40svh,22rem);display:grid;justify-items:center;align-items:center;perspective:70rem}
 .frame__jar .pack{height:100%;will-change:transform;
   /* --p runs 0 to 1 while the product is on screen (set by site.js): far and low, then close and level. */
-  transform:translateY(calc((.5 - var(--p,.5))*20vh)) scale(calc(.58 + var(--p,.5)*.56)) rotateY(calc((var(--p,.5) - .5)*-26deg))}
+  transform:translateY(calc((.5 - var(--p,.5))*9vh)) scale(calc(.74 + var(--p,.5)*.26)) rotateY(calc((var(--p,.5) - .5)*-34deg));
+  opacity:var(--o,1)}
+.frame__jar{animation:float 6s ease-in-out infinite alternate}
+@keyframes float{from{translate:0 -6px}to{translate:0 6px}}
+[data-motion="off"] .frame__jar{animation:none}
+/* A band of light crosses the jar as it turns; masked to the jar's own shape. */
+.frame__jar .pack::after{content:"";position:absolute;inset:0;-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat;background:linear-gradient(105deg,transparent 35%,rgb(255 255 255 / .38) 50%,transparent 65%) no-repeat;background-size:260% 100%;background-position:calc(120% - var(--p,.5)*140%) 0;mix-blend-mode:soft-light;pointer-events:none}
 .frame{overflow:clip}   /* a jar never spills into its neighbour */
 .frame__text{position:relative;z-index:1;display:grid;gap:1rem;justify-items:start;max-width:30rem;margin-inline:auto;padding-block:1.5rem 3.5rem}
 .frame__text h3{font-size:clamp(2.1rem,6vw,3.4rem);letter-spacing:-.02em}
@@ -133,8 +152,8 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
   [data-motion="off"] .frame__pin{position:static;height:auto;padding-block:3rem}
   .frame .wrap{grid-template-columns:1fr 1fr;gap:3rem;align-items:center;width:100%}
   .frame:nth-child(even) .frame__jar{order:2}
-  .frame__jar{height:min(70svh,40rem)}
-  .frame__text{margin:0;padding:0;transform:translateY(calc((.5 - var(--p,.5))*10vh))}
+  .frame__jar{height:min(44svh,25rem)}
+  .frame__text{margin:0;padding:0;transform:translateY(calc((.5 - var(--p,.5))*8vh))}
 }
 .facts{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);font:400 .875rem/1.45 var(--mono);width:100%;max-width:32rem}
 .facts dt,.facts dd{padding:.5rem 0;border-top:1px solid var(--hair)}

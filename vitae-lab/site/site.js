@@ -18,7 +18,7 @@
   const PACK = { 'creatine-monohydrate': [719, 1002], 'vanilla-whey-isolate': [766, 1181], 'chocolate-whey-blend': [701, 1018], 'collagen-peptides': [712, 1047], 'magnesium-glycinate': [580, 1104], 'vitamin-d3': [550, 1005] };
   function packHTML(p, cls = '') {
     const [w, h] = PACK[p.handle];
-    return `<span class="pack ${cls}" data-handle="${p.handle}" style="--ar:${w}/${h}"><img src="media/pack-${p.handle}.webp" width="${w}" height="${h}" loading="lazy" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}."></span>`;
+    return `<span class="pack ${cls}" data-handle="${p.handle}" style="--ar:${w}/${h};--img:url(media/pack-${p.handle}.webp)"><img src="media/pack-${p.handle}.webp" width="${w}" height="${h}" loading="lazy" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}."></span>`;
   }
   // The product page opens on that product's film: the real jar with the camera arcing around it.
   const filmHTML = (p) => `<div class="product__film" data-stage>
@@ -151,20 +151,28 @@
   }
   // Each product frame gets --p, 0 to 1, for how far it has travelled through the viewport. CSS turns that
   // into the jar coming closer. Plain scrolling throughout: nothing is captured or delayed.
-  let frames = [], ticking = false;
-  function trackFrames() { frames = $$('#stories .frame'); placeFrames(); }
-  function placeFrames() {
-    ticking = false;
+  // Movement is eased: each frame keeps a current value that glides toward where the scroll says it should be.
+  let frames = [], running = false;
+  function trackFrames() { frames = $$('#stories .frame').map((el) => ({ el, cur: 0.5 })); placeFrames(true); }
+  function placeFrames(jump) {
+    running = false;
     const vh = innerHeight;
+    let moving = false;
     for (const f of frames) {
-      const r = f.getBoundingClientRect();
+      const r = f.el.getBoundingClientRect();
       if (r.bottom < -vh || r.top > 2 * vh) continue;
-      const p = motion ? Math.min(1, Math.max(0, (vh - r.top) / (r.height + vh * 0.25))) : 0.5;
-      f.style.setProperty('--p', p.toFixed(4));
+      const target = motion ? Math.min(1, Math.max(0, (vh - r.top) / (r.height + vh * 0.25))) : 0.5;
+      f.cur = jump === true || !motion ? target : f.cur + (target - f.cur) * 0.085;
+      if (Math.abs(target - f.cur) > 0.0008) moving = true; else f.cur = target;
+      f.el.style.setProperty('--p', f.cur.toFixed(4));
+      // The jar fades up as its frame arrives and away as it leaves, so one product hands over to the next.
+      f.el.style.setProperty('--o', motion ? Math.min(1, f.cur / 0.16, (1 - f.cur) / 0.12).toFixed(3) : '1');
     }
+    if (moving) kick();
   }
-  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(placeFrames); } }, { passive: true });
-  addEventListener('resize', placeFrames);
+  function kick() { if (!running) { running = true; requestAnimationFrame(placeFrames); } }
+  addEventListener('scroll', kick, { passive: true });
+  addEventListener('resize', () => placeFrames(true));
 
   // The jar in the opening leans a few degrees toward the pointer. Decorative; off with motion.
   const openingStage = $('.opening'), heroPacks = $('#hero-packs');
@@ -178,7 +186,7 @@
   // Media events do not bubble; capture them for every stage, including ones drawn later.
   document.addEventListener('playing', (e) => e.target.classList && e.target.classList.add('is-playing'), true);
   document.addEventListener('error', (e) => e.target.classList && e.target.classList.remove('is-playing'), true);
-  motionBtn.addEventListener('click', () => { motion = !motion; store.set('vitae-motion', motion); applyMotion(); placeFrames(); });
+  motionBtn.addEventListener('click', () => { motion = !motion; store.set('vitae-motion', motion); applyMotion(); placeFrames(true); });
   document.addEventListener('visibilitychange', applyMotion);
   addEventListener('load', applyMotion);
 
