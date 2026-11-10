@@ -100,3 +100,22 @@ Rules for both films:
 Budget note: about $50.90 of the $60 approval remains after the test shot. Two 12 s films at 1080p are
 about $27 on their own, so the product shots and these films will not all fit at 1080p. Options: make
 the explainers at 720p (about $11 for both), or ask the owner for more.
+
+## Update, later on 10 Nov 2026: approval raised, five shots ordered
+
+The owner raised the ceiling for this concept to **$80**. Five product-action shots were submitted
+(Seedance 2.5 text-to-video, 1080p, 5 s each, about $5.69 each, $28.43 together): `pour`, `whey`,
+`collagen`, `softgel`, `capsules`. Request IDs and exact prompts are in `docs/scoop-shots.json`, with the
+opening test shot. Spend on this concept: about $37.53 of $80, leaving about $42.47.
+
+Higgsfield deletes outputs seven days after generation (17 Nov 2026). Fetch each with
+`GET https://api.higgsfield.ai/requests/<id>/status` and download `video.url`; the result host
+`d3u0tzju9qaucj.cloudfront.net` is allowed in the `protocol-os` environment. None of these six has been
+reviewed by the owner except the opening shot, which he liked.
+
+Still to make, in this order: the labelled-jar reveal (image-to-video from a studio composite of the real
+jar cut-out, then `relabel.py`), then the two explainer films from approved storyboard stills at 720p
+(about $11), keeping about $15 for retakes.
+
+Unrelated but blocking CI: `ubuntu-latest` moved to Ubuntu 26.04 and Playwright 1.56.1 cannot install
+there. Proposed fix, not yet approved by the owner: `runs-on: ubuntu-24.04` in `.github/workflows/ci.yml`.

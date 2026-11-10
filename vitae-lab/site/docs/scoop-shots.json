@@ -1,0 +1,80 @@
+{
+ "opening": {
+  "request_id": "01a1c595-01eb-7726-a152-bcd17b459135",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background. It opens extremely close on fine white powder that fills the frame like a soft snowy landscape, with tiny grains and gentle ridges in sharp focus and a shallow depth of field. The camera drifts slowly across the powder, then rises and pulls back smoothly to reveal that the powder is a level scoop: a plain white measuring scoop held perfectly still above an open, plain, matte white supplement jar seen from slightly above. A few grains fall from the scoop into the jar. Soft natural shadows, clean and appetizing, calm pace. No hands, no people, no text, no labels, no logos, no cuts.",
+   "duration": 8,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "pour": {
+  "request_id": "01a1c7c6-447f-725a-8da5-22c8384f0bee",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. A level white measuring scoop tips slowly and fine white powder pours in a smooth ribbon into a clear glass of still water; the powder sinks and blooms into soft white clouds that slowly disperse. The camera holds close and drifts slightly downward following the powder. No hands, no people, no text, no labels, no logos, no brand marks, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "whey": {
+  "request_id": "01a1c7c6-45a9-76a2-82ed-3bcb8977fb23",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. A heaped scoop of pale cream-colored vanilla protein powder drops into a clear glass of cold milk; a long spoon stirs once and the powder folds into the milk in slow creamy swirls until it is smooth. The camera circles a few degrees around the glass. No hands, no people, no text, no labels, no logos, no brand marks, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "collagen": {
+  "request_id": "01a1c7c6-4711-788d-8937-4c85c56ae698",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. Fine white powder is sprinkled onto the surface of black coffee in a plain white ceramic cup; it rests for a moment, then dissolves and disappears completely into the coffee as thin steam rises. The camera looks down at an angle and pushes in slowly. No hands, no people, no text, no labels, no logos, no brand marks, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "softgel": {
+  "request_id": "01a1c7c6-4861-7123-a6e1-af4d56157d1e",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. A single small translucent golden softgel rolls slowly to a stop on a pale stone surface; warm light passes through it and casts a glowing amber shadow. The camera slides slowly past at eye level with the softgel, very close. No hands, no people, no text, no labels, no logos, no brand marks, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "capsules": {
+  "request_id": "01a1c7c6-499e-7b9d-8884-e9b3710228aa",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. Three plain white capsules fall in slow motion and land softly on a pale stone surface, bouncing and tumbling once before settling next to each other. The camera is low and close, and tilts gently down to follow them. No hands, no people, no text, no labels, no logos, no brand marks, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ }
+}
