@@ -78,6 +78,9 @@ jobs:
       - name: Jamal browser regression suite
         run: npm run e2e:jamal
 
+      - name: Vitae Lab storefront prototype checks
+        run: npm run e2e:vitae
+
       - name: Upload e2e screenshots and downloads
         if: failure()
         uses: actions/upload-artifact@v4
