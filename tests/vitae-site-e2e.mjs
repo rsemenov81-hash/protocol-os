@@ -8,7 +8,7 @@ import { chromium } from 'playwright';
 
 const root = resolve(import.meta.dirname, '..');
 const shots = resolve(root, '.playwright/vitae-site');
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.mp4': 'video/mp4', '.jpg': 'image/jpeg', '.png': 'image/png' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.mp4': 'video/mp4', '.webm': 'video/webm', '.jpg': 'image/jpeg', '.png': 'image/png' };
 const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, 'http://local').pathname;
@@ -31,7 +31,7 @@ async function open(opts = {}, hash = '') {
   const seen = { video: 0, errors: [] };
   await context.route('**/*', (route) => {
     const u = new URL(route.request().url());
-    if (u.pathname.endsWith('.mp4')) { seen.video++; if (opts.noVideo) return route.abort(); }
+    if (/\.(mp4|webm)$/.test(u.pathname)) { seen.video++; if (opts.noVideo) return route.abort(); }
     return u.origin === new URL(base).origin ? route.continue() : route.abort();   // fonts stay offline
   });
   if (opts.init) await context.addInitScript(opts.init);
@@ -164,7 +164,7 @@ try {
   await check('motion on: one loop, after load, pausable and remembered', async () => {
     const { context, page, seen } = await open();
     await page.waitForFunction(() => document.querySelector('.scene__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => { const v = document.querySelector('.scene__video'); return v.muted && v.loop && v.playsInline && v.currentSrc.endsWith('water-640.mp4'); }), true);
+    assert.equal(await page.evaluate(() => { const v = document.querySelector('.scene__video'); return v.muted && v.loop && v.playsInline && /water-640\.(mp4|webm)$/.test(v.currentSrc); }), true);
     const btn = page.locator('#motion-btn');
     assert.equal(await btn.textContent(), 'Pause motion');
     await btn.click();
@@ -197,6 +197,15 @@ try {
       await context.close();
     });
   }
+
+  await check('no H.264 in the browser: the WebM loop plays instead', async () => {
+    // Playwright's open-source Chromium (CI) has no H.264 decoder; force the same answer everywhere.
+    const { context, page, seen } = await open({ init: () => { HTMLMediaElement.prototype.canPlayType = (t) => (/mp4/.test(t) ? '' : 'probably'); } });
+    await page.waitForFunction(() => document.querySelector('.scene__video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => document.querySelector('.scene__video').currentSrc.endsWith('water-640.webm')), true);
+    assert.equal(seen.video, 1);
+    await context.close();
+  });
 
   await check('video unavailable: the poster stays and the page still works', async () => {
     const { context, page, seen } = await open({ noVideo: true });

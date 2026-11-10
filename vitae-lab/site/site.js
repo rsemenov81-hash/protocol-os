@@ -136,7 +136,9 @@
     if (motion && !saveData && !document.hidden) {
       // Poster is already painted; fetch the loop only now, and only one size.
       if (document.readyState !== 'complete') return;   // wait for the page itself; see the load listener below
-      if (!video.src) video.src = matchMedia('(max-width: 700px)').matches ? 'media/water-640.mp4' : 'media/water-960.mp4';
+      // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
+      const ext = video.canPlayType('video/mp4; codecs="avc1.4D401E"') ? 'mp4' : 'webm';
+      if (!video.src) video.src = `media/water-${matchMedia('(max-width: 700px)').matches ? 640 : 960}.${ext}`;
       video.play().catch(() => { /* autoplay refused or file missing: the poster stays */ });
     } else video.pause();
   }

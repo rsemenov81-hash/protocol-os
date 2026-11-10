@@ -53,7 +53,7 @@ Tests (Chromium, all local, no network):
 ```
 npm ci
 npx playwright install chromium     # CI already does this
-npm run e2e:vitae                   # 12 checks; screenshots land in .playwright/vitae-site/
+npm run e2e:vitae                   # 13 checks; screenshots land in .playwright/vitae-site/
 ```
 
 `npm run ci` and `.github/workflows/ci.yml` now include `e2e:vitae`.
@@ -75,7 +75,7 @@ npm run e2e:vitae                   # 12 checks; screenshots land in .playwright
 | `site.css` | Tokens, scene, layout, the Ledger label drawing, cart. |
 | `site.js` | Renders products and research from data, rotators, motion control, hash views, cart. No dependencies. |
 | `products.js` | Product facts and research notes. The only place a product fact is written. |
-| `media/` | Water loop (two sizes), poster, logo masks. See the asset manifest. |
+| `media/` | Water loop (two sizes, MP4 and WebM), poster, logo masks. See the asset manifest. |
 | `../../tests/vitae-site-e2e.mjs` | The checks. |
 
 ## Design tokens

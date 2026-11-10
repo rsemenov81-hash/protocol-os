@@ -65,6 +65,7 @@ Six products, none published, none priced, none mapped. NMN is excluded.
 |---|---|---|---|---|---|---|
 | `media/water-960.mp4` | 960×540, 5.0 s loop, H.264, no audio | 479 KB | Re-encode of `scott/assets/water-motion.mp4`: last second cross-faded into the first for a seamless loop, highlights rolled off (`curves`), CRF 27 | Higgsfield `seedance_2_5`, job `e0f649fe-846d-4b19-a507-3e935190fd6c`, 14 Oct 2026 (recorded in `scott/DEPLOY.md`; the prompt is not recorded there) | Generated on Roman's Higgsfield account | **No.** It was made for the Scott app. Used here as a placeholder plate. |
 | `media/water-640.mp4` | 640×360, 5.0 s loop | 195 KB | Same, scaled, CRF 29. Served under 700 px. | same | same | No |
+| `media/water-960.webm`, `media/water-640.webm` | same loops, VP9 | 335 KB, 179 KB | Same pipeline, encoded from the source. Used only by browsers without H.264 (Playwright's CI Chromium is one). | same | same | No |
 | `media/water-poster.jpg` | 960×540 | 20 KB | First frame of the graded loop | same | same | No |
 | `media/mono-letters.png`, `mono-helix.png`, `wordmark.png` | 154×161, 154×161, 329×64 | 5, 4, 9 KB | Copied from `vitae-lab/labels/assets/` (cut from the 520 px logo PNG) | Not generated | Roman's logo | Yes (identity). **No vector master is known to exist.** |
 | Pack art | Drawn live in HTML/CSS | 0 KB | `packHTML()` in `site.js`, ported from `vitae-lab/labels/index.html`, fed with corrected working facts | Not generated | — | **No.** Illustrative containers and concept labels. Replace with approved packshots before launch. |

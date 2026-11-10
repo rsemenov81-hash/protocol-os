@@ -19,7 +19,7 @@ Run 9 Nov 2026 against `vitae-lab/site/` served from a local static server.
 Everything about commerce below is a **simulated** test of the preview cart. There are no test-mode
 orders and no verified real fulfillment.
 
-## 1. Automated checks (`npm run e2e:vitae`, 12 of 12 pass)
+## 1. Automated checks (`npm run e2e:vitae`, 13 of 13 pass)
 
 Playwright's bundled Chromium (revision 1243), headless. Fonts are blocked in this run so it needs no network.
 
@@ -37,9 +37,10 @@ Playwright's bundled Chromium (revision 1243), headless. Fonts are blocked in th
 | 10 | `prefers-reduced-motion`: no video request at all, poster shown, all goals and products listed, button offers "Play motion" | Reduced motion |
 | 11 | Save-Data: no video request, poster shown, six stories render | Data saving |
 | 12 | Video blocked at the network: poster stays, page works, no errors | Unavailable video |
+| 12b | A browser with no H.264 decoder gets the WebM loop, and only one file is requested | The first CI run failed here: GitHub's Chromium cannot play MP4. Fixed by shipping a VP9 copy. |
 | 13 | Keyboard: first Tab lands on "Skip to content"; Enter opens the menu; Enter opens the cart; Escape closes it and focus returns to the cart button | Keyboard-only use of menu and dialog |
 
-(Checks 2 and 3 are one test; hence 12 tests.)
+(Checks 2 and 3 are one test; with 12b that makes 13 tests.)
 
 Bugs this run caught and fixed: ripple rings widened the page by 27 px at 320 px; the cart footer
 ignored `hidden`; rotating words re-triggered "largest contentful paint" every few seconds; the opening
