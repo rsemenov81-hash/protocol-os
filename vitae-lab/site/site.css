@@ -93,7 +93,8 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 .rotator a{text-decoration-color:rgb(241 237 228 / .7);text-underline-offset:.18em}
 .rotator a:focus-visible{outline-color:var(--paper)}
 .hero-packs{--jar:clamp(14rem,38vh,22rem);display:grid;justify-items:center;align-items:end;margin-top:clamp(1.25rem,4vh,2.5rem);height:var(--jar)}   /* reserved before the script draws the jars */
-.hero-packs>.pack{grid-area:1/1;height:var(--jar);opacity:0;transition:opacity .9s ease}
+.hero-packs{perspective:60rem}
+.hero-packs>.pack{grid-area:1/1;height:var(--jar);opacity:0;transition:opacity .9s ease,transform .5s ease-out;transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg))}
 .hero-packs>.pack.is-on{opacity:1}
 /* Motion off: nothing rotates, so every word and every product name is shown at once. */
 [data-motion="off"] .rotator{display:flex;flex-direction:column;gap:.3rem}
@@ -118,41 +119,31 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 .theme__links a{min-height:2rem;display:inline-flex;align-items:center}
 @media (min-width:52rem){.themes__list{grid-template-columns:1fr 1fr}}
 
-/* ---------- the range: one ledge, one day ---------- */
+/* ---------- the range: each product is a film of the real jar, camera arcing around it ---------- */
 .range__head{padding-bottom:1rem}
 .frame{position:relative}
-.frame__scene{aspect-ratio:4/5;-webkit-mask:linear-gradient(to bottom,transparent 0,#000 10%,#000 90%,transparent 100%);mask:linear-gradient(to bottom,transparent 0,#000 10%,#000 90%,transparent 100%)}
-.frame__scene .stage__plate,.frame__scene .stage__video{filter:var(--grade,none)}
-.frame:nth-child(even) .stage__plate,.frame:nth-child(even) .stage__video{transform:scaleX(-1)}
-.frame__pack{position:absolute;left:50%;bottom:15%;height:var(--h,58%);translate:-50% 0}
-.frame__pack .pack{height:100%;filter:drop-shadow(0 .9rem 1.1rem rgb(14 26 21 / .38)) var(--pack-grade,brightness(1))}
+.frame__scene{aspect-ratio:4/5;-webkit-mask:linear-gradient(to bottom,transparent 0,#000 9%,#000 91%,transparent 100%);mask:linear-gradient(to bottom,transparent 0,#000 9%,#000 91%,transparent 100%)}
+.frame__scene .stage__plate,.frame__scene .stage__video{filter:var(--grade,none);object-position:37% 50%}
 .frame__text{display:grid;gap:1rem;padding:0 var(--gutter-r) 2.5rem var(--gutter);justify-items:start;max-width:34rem;margin-inline:auto}
-.frame__text h3{font-size:clamp(2rem,6vw,3rem);letter-spacing:-.015em}
-.frame[data-time="dawn"]{--grade:sepia(.14) saturate(.95)}
-.frame[data-time="morning"]{--grade:none}
-.frame[data-time="midmorning"]{--grade:brightness(1.05) saturate(.92)}
-.frame[data-time="noon"]{--grade:brightness(1.09) saturate(.8) hue-rotate(-8deg)}
-.frame[data-time="afternoon"]{--grade:sepia(.3) saturate(1.2) brightness(1.02)}
-.frame[data-time="dusk"]{--grade:brightness(.56) saturate(.75) hue-rotate(14deg) contrast(1.06);--pack-grade:brightness(.84)}
+.frame__text h3{font-size:clamp(2.1rem,6vw,3.4rem);letter-spacing:-.02em}
+.frame[data-time="dawn"]{--grade:sepia(.12)}
+.frame[data-time="midmorning"]{--grade:brightness(1.04)}
+.frame[data-time="noon"]{--grade:brightness(1.08) saturate(.86)}
+.frame[data-time="afternoon"]{--grade:sepia(.22) saturate(1.12)}
+.frame[data-time="dusk"]{--grade:brightness(.66) saturate(.8) hue-rotate(10deg)}
 @media (min-width:52rem){
-  .frame__scene{aspect-ratio:16/9;max-height:54rem;width:100%}
-  .frame__pack{left:57%;bottom:14.5%}
-  .frame:nth-child(even) .frame__pack{left:43%}
-  /* The words sit in the open sky on the side away from the jar, washed with a little paper so cloud never runs under them. */
-  .frame__text{position:absolute;top:11%;left:max(var(--gutter),calc((100% - 72rem)/2 + 1.25rem));width:min(26rem,36%);padding:0;margin:0}
-  .frame:nth-child(even) .frame__text{left:auto;right:max(var(--gutter-r),calc((100% - 72rem)/2 + 1.25rem))}
-  .frame__scene::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgb(241 237 228 / .92),rgb(241 237 228 / .86) 26%,rgb(241 237 228 / .7) 42%,rgb(241 237 228 / 0) 60%)}
-  .frame:nth-child(even) .frame__scene::before{background:linear-gradient(270deg,rgb(241 237 228 / .92),rgb(241 237 228 / .86) 26%,rgb(241 237 228 / .7) 42%,rgb(241 237 228 / 0) 60%)}
+  .frame__scene{aspect-ratio:16/9;max-height:56rem;width:100%}
+  .frame__scene .stage__plate,.frame__scene .stage__video{object-position:50% 50%}
+  /* Title card: the jar holds the left of the frame, the words sit right, on the shadowed side of the valley. */
+  .frame__scene::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(270deg,rgb(10 18 15 / .86),rgb(10 18 15 / .74) 30%,rgb(10 18 15 / .3) 50%,rgb(10 18 15 / 0) 62%)}
   .product .frame__scene::before{content:none}
-  .frame[data-time="dusk"] .frame__text{color:var(--paper)}
-  .frame[data-time="dusk"] .frame__scene::before{background:linear-gradient(90deg,rgb(14 26 21 / .78),rgb(14 26 21 / .66) 40%,rgb(14 26 21 / 0) 60%)}
-  .frame[data-time="dusk"]:nth-child(even) .frame__scene::before{background:linear-gradient(270deg,rgb(14 26 21 / .78),rgb(14 26 21 / .66) 40%,rgb(14 26 21 / 0) 60%)}
-  .frame[data-time="dusk"] .kicker,.frame[data-time="dusk"] .facts dt,.frame[data-time="dusk"] .unavailable{color:rgb(241 237 228 / .85)}
-  .frame[data-time="dusk"] .facts dt,.frame[data-time="dusk"] .facts dd{border-color:rgb(241 237 228 / .3)}
-  .frame[data-time="dusk"] .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-  .frame[data-time="dusk"] .btn[disabled]{background:transparent;color:rgb(241 237 228 / .85);border-color:rgb(241 237 228 / .45)}
-  .frame[data-time="dusk"] a{text-decoration-color:var(--teal)}
-  .frame[data-time="dusk"] :focus-visible{outline-color:var(--paper)}
+  .frame__text{position:absolute;top:50%;translate:0 -50%;right:max(var(--gutter-r),calc((100% - 72rem)/2 + 1.25rem));width:min(27rem,37%);padding:0;margin:0;color:var(--paper)}
+  .frame__text .kicker,.frame__text .facts dt,.frame__text .unavailable{color:rgb(241 237 228 / .86)}
+  .frame__text .facts dt,.frame__text .facts dd{border-color:rgb(241 237 228 / .3)}
+  .frame__text .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .frame__text .btn[disabled]{background:transparent;color:rgb(241 237 228 / .86);border-color:rgb(241 237 228 / .45)}
+  .frame__text a{text-decoration-color:var(--teal)}
+  .frame__text :focus-visible{outline-color:var(--paper)}
 }
 .facts{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);font:400 .875rem/1.45 var(--mono);width:100%;max-width:32rem}
 .facts dt,.facts dd{padding:.5rem 0;border-top:1px solid var(--hair)}
@@ -185,6 +176,13 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 .compare th,.compare td{text-align:left;padding:.8rem 1.25rem .8rem 0;border-top:1px solid var(--hair);vertical-align:top}
 .compare thead th{font-weight:400;color:var(--muted);border-top:0}
 .compare tbody th{font:400 1.0625rem/1.3 var(--serif);white-space:nowrap}
+
+/* ---------- what's inside: two slow-motion material films ---------- */
+.inside{display:grid;gap:1px;margin-top:2.5rem}
+.inside figure{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/10;color:var(--paper);display:flex;flex-direction:column;justify-content:flex-end}
+.inside figcaption{padding:1.1rem 1.25rem;font:400 .875rem/1.5 var(--mono);background:linear-gradient(to top,rgb(10 18 15 / .82),rgb(10 18 15 / 0))}
+.inside figcaption b{display:block;font:400 1.5rem/1.2 var(--serif)}
+@media (min-width:52rem){.inside{grid-template-columns:1fr 1fr}}
 
 /* ---------- research ---------- */
 .research .measure{margin-top:1.25rem}
@@ -219,7 +217,7 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 /* ---------- product view ---------- */
 .product__back{font:400 .875rem/1 var(--mono);min-height:2.75rem;display:inline-flex;align-items:center;margin-top:1rem}
 .product .frame__scene{aspect-ratio:4/5;max-height:70vh;width:100%}
-@media (min-width:52rem){.product .frame__scene{aspect-ratio:auto;height:min(64vh,40rem)}.product .frame__pack{left:50%;height:var(--h,62%)}}
+@media (min-width:52rem){.product .frame__scene{aspect-ratio:auto;height:min(68vh,44rem)}}
 .product__main{display:grid;gap:1.4rem;max-width:40rem;margin-inline:auto;padding-bottom:var(--section)}
 .product__main h1{font:400 clamp(2.4rem,7vw,4rem)/1.03 var(--serif);letter-spacing:-.02em;text-wrap:balance}
 .buy{display:grid;gap:.9rem;padding-block:1.4rem;border-block:1px solid var(--hair)}
@@ -272,11 +270,8 @@ h3{font:400 1.5rem/1.15 var(--serif);text-wrap:balance}
 @media (prefers-reduced-motion:no-preference){
   @supports (animation-timeline:view()){
     [data-motion="on"] .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
-    [data-motion="on"] .frame__scene .stage__plate,[data-motion="on"] .frame__scene .stage__video{animation:drift linear both;animation-timeline:view()}
-    [data-motion="on"] .frame__pack{animation:settle linear both;animation-timeline:view();animation-range:entry 10% cover 45%}
+    [data-motion="on"] .frame__text>*{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
   }
 }
 @keyframes rise{from{transform:translateY(16px)}to{transform:none}}   /* position only: text is never dimmed */
-@keyframes drift{from{scale:1.1;translate:0 -3%}to{scale:1.1;translate:0 3%}}
-@keyframes settle{from{translate:-50% 5%;opacity:.4}to{translate:-50% 0;opacity:1}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rotator>li,.rotator>li.is-on,.hero-packs>.pack,.stage__video{transition:none}}

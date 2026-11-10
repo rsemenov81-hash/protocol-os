@@ -20,11 +20,11 @@
     const [w, h] = PACK[p.handle];
     return `<span class="pack ${cls}" data-handle="${p.handle}" style="--ar:${w}/${h}"><img src="media/pack-${p.handle}.webp" width="${w}" height="${h}" loading="lazy" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}."></span>`;
   }
-  // One filmed ledge, graded by CSS for the time of day; the jar stands on it.
+  // Each product has its own film: the real jar on the ledge with the camera arcing around it.
+  // The poster is the composited first frame, so the label in the still is exactly the artwork.
   const sceneHTML = (p) => `<div class="frame__scene stage" data-stage>
-      <img class="stage__plate" src="media/ledge-poster.jpg" width="1280" height="720" loading="lazy" alt="">
-      <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/ledge"></video>
-      <div class="frame__pack" style="--h:${p.form === 'tub' ? 60 : 50}%">${packHTML(p)}</div></div>`;
+      <img class="stage__plate" src="media/jar-${p.handle}-poster.jpg" width="1280" height="720" loading="lazy" alt="${esc(p.name)} jar on a stone ledge above a misty valley. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}.">
+      <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/jar-${p.handle}"></video></div>`;
 
   // ---------- simulated availability (preview bar) ----------
   let sim = store.get('vitae-sim', false);
@@ -41,7 +41,7 @@
     $('#stories').innerHTML = SHELF.map((p) => `<article class="frame" id="story-${p.handle}" data-time="${p.time}">
       ${sceneHTML(p)}
       <div class="frame__text">
-        <p class="kicker">${esc(p.descriptor)} · ${esc(p.net.replace('Net Wt ', ''))}</p>
+        <p class="kicker">No. ${p.no} · ${esc(p.descriptor)} · ${esc(p.net.replace('Net Wt ', ''))}</p>
         <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
         <p>${esc(p.summary)}</p>
         ${factsHTML([p.facts[0], ['Servings', p.servings], ['Allergens', p.allergens]])}
@@ -135,9 +135,7 @@
     motionBtn.setAttribute('aria-pressed', String(!motion));
     motionBtn.firstChild.textContent = motion ? 'Pause' : 'Play';
     const allowed = motion && !saveData && !document.hidden && document.readyState === 'complete';   // posters first; loops only after load
-    for (const stage of seen.keys()) {
-      const video = $('.stage__video', stage);
-      if (!video) continue;
+    for (const stage of seen.keys()) for (const video of $$('.stage__video', stage)) {
       if (allowed && stage === activeStage) {
         if (!video.src) {
           // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
@@ -149,6 +147,15 @@
       } else video.pause();
     }
   }
+  // The jar in the opening leans a few degrees toward the pointer. Decorative; off with motion.
+  const openingStage = $('.stage--opening'), heroPacks = $('#hero-packs');
+  openingStage.addEventListener('pointermove', (e) => {
+    if (!motion || e.pointerType === 'touch') return;
+    const r = openingStage.getBoundingClientRect();
+    heroPacks.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width) - 0.5) * 14}deg`);
+    heroPacks.style.setProperty('--rx', `${(0.5 - ((e.clientY - r.top) / r.height)) * 8}deg`);
+  });
+  openingStage.addEventListener('pointerleave', () => { heroPacks.style.removeProperty('--ry'); heroPacks.style.removeProperty('--rx'); });
   // Media events do not bubble; capture them for every stage, including ones drawn later.
   document.addEventListener('playing', (e) => e.target.classList && e.target.classList.add('is-playing'), true);
   document.addEventListener('error', (e) => e.target.classList && e.target.classList.remove('is-playing'), true);

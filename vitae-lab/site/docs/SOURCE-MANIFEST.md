@@ -60,51 +60,72 @@ Six products, none published, none priced, none mapped. NMN is excluded.
 | Cloudflare Pages `vitae-lab` | The old peptide page | Public; outside this work |
 | Shopify `wh7315-e9` | Live store and draft theme | Not touched |
 
-## 4. Asset manifest: what the prototype ships (v2)
+## 4. Asset manifest: what the prototype ships (v3)
 
 Everything is in `vitae-lab/site/media/`. "Draft" means the owner's draft at the chatgpt.site address.
+Every generated asset below is **pending your review**; none is approved for launch.
 
-| File | What | Size | Origin | Approved for the storefront |
-|---|---|---|---|---|
-| `opening.mp4` / `.webm`, `opening-poster.jpg` | Terraces at first light, 1280×720, 8.8 s seamless loop | 426 / 172 KB, 32 KB | Higgsfield shot `opening-16x9` (below), with the draft's `higgsfield-hero-poster.jpg` as the reference image. Last 1.2 s cross-faded into the first; H.264 CRF 27 and VP9 CRF 39. | **Pending your review.** Generated at your instruction on 10 Nov. |
-| `opening-tall.mp4` / `.webm`, `opening-poster-tall.jpg` | The same place composed for phones, 720×1280, 7 s loop | 295 / 140 KB, 42 KB | Shot `opening-9x16`, same reference | Pending your review |
-| `ledge.mp4` / `.webm`, `ledge-poster.jpg` | Empty stone ledge, ridges and moving cloud, 1280×720, 8.8 s loop. The stage for all six jars. | 382 / 171 KB, 58 KB | Shot `ledge-16x9`, with the draft's `vitae-ledger-alpine-background-imagine-02.jpg` as reference | Pending your review |
-| `water.mp4` / `.webm`, `water-poster.jpg` | Water droplet on slate, 1280×720, 7 s loop | 322 / 169 KB, 66 KB | Shot `water-16x9`, with the draft's `higgsfield-atmosphere.jpg` as reference | Pending your review |
-| `pack-<handle>.webp` × 6 | The six jars with transparent background, about 700×1050 | 41–53 KB each | Cut from the draft's `vitae-ledger-*-imagine-01.jpg` using the draft's own SVG outline paths, rendered in Chromium, edge pulled in 1 px. **No model touched the labels.** | They are your review visualizations: not photographs of stock, and not approved print labels. The page says so. |
-| `mono-letters.png`, `mono-helix.png`, `wordmark.png` | Logo masks | 5, 4, 9 KB | `vitae-lab/labels/assets/` (same files as the draft) | Yes (identity). No vector master is known to exist. |
-| `docs/qa/*.jpg` | Screenshots | 1.4 MB total | Playwright, this session | Evidence only |
-| `docs/higgsfield-shots.json` | Exact request body and request ID for each shot | — | This session | Record |
+**Product films (the main change in v3).** One per product: the real jar on the stone ledge with the
+camera arcing around it, mist passing in front and behind, light moving across it.
 
-Original 720p masters from Higgsfield are **not** in the repo (5 to 10 MB each). Higgsfield deletes them
-seven days after generation (17 Nov 2026). Say if you want them saved somewhere.
+| File | Size | Higgsfield request |
+|---|---|---|
+| `jar-creatine-monohydrate.mp4` / `.webm` / `-poster.jpg` | 673 KB / 333 KB | `01a1c331-9b93-707f-9652-75db97433238` |
+| `jar-vanilla-whey-isolate.mp4` / `.webm` / `-poster.jpg` | 417 KB / 202 KB | `01a1c337-efa0-7ac9-ab5c-15f7b67ab824` |
+| `jar-chocolate-whey-blend.mp4` / `.webm` / `-poster.jpg` | 620 KB / 269 KB | `01a1c337-f5e3-7f7d-b2d3-6eb8fa936271` |
+| `jar-collagen-peptides.mp4` / `.webm` / `-poster.jpg` | 340 KB / 160 KB | `01a1c337-fc1b-7d41-999c-8d033f7901ee` |
+| `jar-vitamin-d3.mp4` / `.webm` / `-poster.jpg` | 429 KB / 220 KB | `01a1c338-0223-745a-afe7-40d17b7f7b96` |
+| `jar-magnesium-glycinate.mp4` / `.webm` / `-poster.jpg` | 648 KB / 297 KB | `01a1c338-081d-73b9-b234-85ed1358df6c` |
 
-Not used from the draft: `higgsfield-hero-web.mp4` (replaced by the new opening loop of the same scene).
+How each was made, so the label stays yours:
+
+1. **First frame.** The jar cut-out (from the draft's image, using the draft's own outline path) is
+   composited onto a still of the filmed ledge with a contact shadow. The label in that frame is exactly
+   your artwork.
+2. **Motion.** Seedance 2.5 image-to-video, 5 s, 720p, starting from that exact frame. Prompt in
+   `docs/higgsfield-shots.json`.
+3. **Label put back.** The model keeps the jar and the large type but garbles small print ("DIETARY"
+   became "DEETARY" mid-shot). So for every frame the sharp first-frame label is aligned to the moving jar
+   (ECC homography) and re-applied, keeping that frame's lighting. If the alignment score drops below 0.6
+   the clip is cut there instead of showing a wrong label: creatine, chocolate and magnesium kept all 5 s;
+   vanilla kept 3.2 s, vitamin D3 3.0 s, collagen 2.2 s.
+4. **Loop.** Forward then reversed, so the camera arcs out and back with no jump. H.264 CRF 27, VP9 CRF 39.
+
+I checked the last frame of all six by eye: every label reads correctly. I did not check every frame of
+every clip. Small print is a few pixels tall at 720p, so treat these as visualizations, as the page says.
+
+**Other footage**
+
+| File | What | Size | Origin |
+|---|---|---|---|
+| `opening.mp4` / `.webm`, `opening-poster.jpg` | Flight through mist down to the terraces, 1280×720, 16 s (8 s out and back) | 1203 KB / 632 KB | Cinema Studio 4.0 shot `flight-16x9`, draft's hero poster as reference |
+| `opening-tall.mp4` / `.webm`, `opening-poster-tall.jpg` | Terraces composed for phones, 720×1280, 7 s | 287 KB / 136 KB | Cinema Studio 4.0 shot `opening-9x16` (v2) |
+| `water.mp4` / `.webm`, `water-poster.jpg` | Water droplet on slate, 7 s | 314 KB / 165 KB | Cinema Studio 4.0 shot `water-16x9` (v2) |
+| `powder.mp4` / `.webm`, `powder-poster.jpg` | White powder pouring onto slate in slow motion | 883 KB / 669 KB | Cinema Studio 4.0 shot `powder-16x9`. **Illustrative; not film of a product.** Captioned as such. |
+| `softgels.mp4` / `.webm`, `softgels-poster.jpg` | One golden softgel and one white capsule on slate, camera sliding past | 626 KB / 478 KB | Cinema Studio 4.0 shot `softgels-16x9`. Illustrative; same caption. |
+| `pack-<handle>.webp` × 6 | Jar cut-outs (transparent), used under the rotating product name and as the source of every first frame | 41–53 KB each | Draft images + draft outline paths. No model touched these. |
+| logo masks, `docs/qa/*.jpg`, `docs/higgsfield-shots.json` | as before | — | — |
+
+Generated in v2 but no longer used: the static opening (`opening-16x9`) and the empty ledge loop
+(`ledge-16x9`); the ledge still survives as the background of every jar's first frame. Higgsfield
+deletes its copies seven days after generation. Masters are not in the repo.
 
 ## 5. Higgsfield: what was generated and what it cost
 
-Model: **Cinema Studio 4.0** (`higgsfield/cinema-studio/4.0`), Higgsfield's own flagship video model on the
-API, chosen because you asked for their most advanced one. It tops out at 720p; Seedance 2.5 goes to
-1080p but is not Higgsfield's top tier. All four shots used a locked camera (`static-shot`), one
-continuous take (`single-shot`), no audio, and one of your existing frames as the look reference so the
-new footage stays in your world.
-
-| Shot | Request ID | Aspect, length | Reference frame | Result |
+| Round | Shots | Model | Seconds | Estimated cost |
 |---|---|---|---|---|
-| `opening-16x9` | `01a1c2f4-7a5d-77cd-b92f-d0bf76d16001` | 16:9, 10 s | hero poster | Used |
-| `opening-9x16` | `01a1c2f4-8fc6-7d2f-8663-02df54407196` | 9:16, 8 s | hero poster | Used |
-| `ledge-16x9` | `01a1c2f4-93a1-7937-8ae8-7572ba88bacf` | 16:9, 10 s | alpine background | Used |
-| `water-16x9` | `01a1c2f4-9893-7437-adad-88e66572d00c` | 16:9, 8 s | atmosphere (droplet) | Used |
+| v2 | opening 16:9, opening 9:16, ledge, water | Cinema Studio 4.0, 720p | 36 | $16.64 |
+| v3 | flight, powder, softgels | Cinema Studio 4.0, 720p | 18 | $8.32 |
+| v3 | six jar films | Seedance 2.5 image-to-video, 720p | 30 | $13.87 |
+| | **13 shots** | | **84** | **about $38.83** |
 
-Prompts and parameters are in `docs/higgsfield-shots.json`, exactly as sent.
+Cost is Higgsfield's published rate for both models on this account (about $0.4622 per second at 720p).
+The jar films were sent with `bitrate_mode: high`; if that carries a surcharge the total is higher. I
+cannot read the billing record from here: **check the exact charge in the Higgsfield console.** Every
+shot was a first take.
 
-**Cost: about $16.64**, by Higgsfield's published rate for this model on your account ($0.0214 per 1,000
-video tokens; 720p works out to about $0.4622 per second): $4.62 + $3.70 + $4.62 + $3.70 for 36 seconds.
-I could not read the account's billing record from here, so check the exact charge in the Higgsfield
-console. All four were first takes; nothing was regenerated.
+Why two models: Cinema Studio 4.0 is Higgsfield's flagship and made every scene shot. It works from
+reference images and restages what it sees, which would redraw the jar. Seedance 2.5 image-to-video
+starts from an exact first frame, so it was used only where the real jar had to be in shot.
 
-Photos: no still images were generated. The posters are frames from the four shots, and the jars are your
-existing visualizations. A generated still would have meant inventing product or ingredient imagery,
-which the brief rules out.
-
-Not generated, and why: per-product videos with the jar in shot. A video model redraws label text, so the
-jar stays a still cut-out and only the world behind it moves.
+Photos: no still images were generated. Posters are frames from the shots.

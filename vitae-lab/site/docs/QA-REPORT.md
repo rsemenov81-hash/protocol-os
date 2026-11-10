@@ -1,6 +1,6 @@
 # QA report
 
-Run 10 Nov 2026 against v2 of `vitae-lab/site/` served from a local static server.
+Run 10 Nov 2026 against `vitae-lab/site/` served from a local static server. **The 13 automated checks were re-run on v3 and pass. The accessibility scan, contrast measurements and performance numbers below were taken on v2 and have not been repeated on v3**, which changed the product frames (text now light on a dark wash over film), added the material films and made the opening loop larger (1.2 MB instead of 0.4 MB).
 
 ## What this report covers, and what it does not
 
@@ -120,7 +120,6 @@ Console errors: none. Failed requests: none.
 
 ## 5. Screenshots (`docs/qa/`)
 
-`01-desktop-opening` · `02-desktop-creatine-dawn` · `03-desktop-magnesium-dusk` · `04-desktop-water-labels` ·
-`05-desktop-product` · `06-mobile-opening` · `07-mobile-product-frame` · `08-mobile-cart` (simulated, with
-the honest checkout message) · `09-mobile-reduced-motion` · `10-tablet-range`. Chromium, 2×, web fonts
-loaded. They are stills; the motion is in the preview.
+Taken on v3, Chromium, 2×, web fonts loaded: `01-desktop-opening` · `02-desktop-creatine` ·
+`03-desktop-magnesium-dusk` · `04-desktop-whats-inside` · `05-desktop-product` · `06-mobile-opening` ·
+`07-mobile-product-frame` · `08-mobile-cart`. They are stills; the motion is in the preview.

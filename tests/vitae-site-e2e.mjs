@@ -169,7 +169,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').currentTime > 0.1);
     assert.equal(await page.evaluate(() => { const v = document.querySelector('.stage--opening .stage__video'); return v.muted && v.loop && v.playsInline && /opening-tall\.(mp4|webm)$/.test(v.currentSrc); }), true);
     await page.evaluate(() => document.querySelector('#story-magnesium-glycinate').scrollIntoView({ behavior: 'instant', block: 'center' }));
-    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && /ledge\.(mp4|webm)$/.test(on[0].currentSrc); });
+    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && /jar-magnesium-glycinate\.(mp4|webm)$/.test(on[0].currentSrc); });
     await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
     await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && on[0].closest('.stage--opening'); });
     const btn = page.locator('#motion-btn');
@@ -181,7 +181,7 @@ try {
     await allShown(page);
     await page.reload();
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'off');
-    assert.equal(seen.video, 2, 'paused: no loop is fetched again (two were fetched while playing: opening and ledge)');
+    assert.equal(seen.video, 2, 'paused: no loop is fetched again (two were fetched while playing: the opening and one jar film)');
     await context.close();
   });
 

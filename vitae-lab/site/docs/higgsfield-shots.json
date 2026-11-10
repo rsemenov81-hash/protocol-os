@@ -74,5 +74,140 @@
    ],
    "prompt": "<<<image_1>>> shows the exact scene, framing, palette and light to keep. Macro, locked-off camera. A single clear water droplet rests on dark, rough slate. Soft golden backlight slowly brightens and fades as thin mist passes far behind. Small highlights shimmer inside the droplet and along the wet edge of the stone. The droplet does not move or change shape. No text, no logos, no hands, no objects, no cuts."
   }
+ },
+ "flight-16x9": {
+  "request_id": "01a1c332-1af5-7f62-8f40-54a9cc85c36e",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 8,
+   "aspect_ratio": "16:9",
+   "camera_movement": "dolly-in",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-hero-poster.jpg"
+   ],
+   "prompt": "<<<image_1>>> shows the destination: the same mountainside, palette and sunrise light. One continuous photorealistic aerial shot. The camera flies slowly and steadily forward and slightly downward through warm backlit morning mist above a dark forested mountain slope, and the pale travertine terraces filled with still, clear water are revealed ahead and below as the mist parts. Strong sense of depth and parallax: near wisps of mist slide past the lens, the terraces grow closer, distant ridges barely move. Thin water slides over the terrace rims and glints in the low golden sun. No people, no animals, no text, no logos, no products, no cuts, no sudden change in brightness."
+  }
+ },
+ "powder-16x9": {
+  "request_id": "01a1c332-1e40-7f3b-9efb-e2c43f7a13cb",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 5,
+   "aspect_ratio": "16:9",
+   "camera_movement": "static-shot",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-atmosphere.jpg"
+   ],
+   "prompt": "Same dark slate, mist and warm golden backlight as <<<image_1>>>, without the water droplet. Photorealistic macro, extreme slow motion. A stream of fine white powder pours from above the frame onto the rough dark slate and builds a small soft mound; individual grains tumble and a faint cloud of dust rises and catches the backlight. Shallow depth of field. No scoop, no hands, no containers, no text, no logos, no cuts."
+  }
+ },
+ "softgels-16x9": {
+  "request_id": "01a1c332-21af-7d23-93b0-3bc93fcdf5f1",
+  "endpoint": "higgsfield/cinema-studio/4.0",
+  "submitted": "2026-11-10",
+  "request": {
+   "resolution": "720p",
+   "generate_audio": false,
+   "pacing": "single-shot",
+   "camera_model": "modern",
+   "camera_lens": "clean-sharp",
+   "duration": 5,
+   "aspect_ratio": "16:9",
+   "camera_movement": "slider-right",
+   "image_urls": [
+    "https://vitae-lab-storefront-review.rsemenov81.chatgpt.site/assets/higgsfield-atmosphere.jpg"
+   ],
+   "prompt": "Same dark slate, mist and warm golden backlight as <<<image_1>>>, without the water droplet. Photorealistic macro. A few small translucent golden softgels and plain white capsules rest on the rough dark slate. The camera slides slowly to the right past them with shallow depth of field; warm light passes through the golden softgels and makes them glow, and thin mist drifts far behind. The softgels and capsules are plain and unmarked. No text, no logos, no hands, no containers, no cuts."
+  }
+ },
+ "jar-creatine-monohydrate": {
+  "request_id": "01a1c331-9b93-707f-9652-75db97433238",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
+ },
+ "jar-vanilla-whey-isolate": {
+  "request_id": "01a1c337-efa0-7ac9-ab5c-15f7b67ab824",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
+ },
+ "jar-chocolate-whey-blend": {
+  "request_id": "01a1c337-f5e3-7f7d-b2d3-6eb8fa936271",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
+ },
+ "jar-collagen-peptides": {
+  "request_id": "01a1c337-fc1b-7d41-999c-8d033f7901ee",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
+ },
+ "jar-vitamin-d3": {
+  "request_id": "01a1c338-0223-745a-afe7-40d17b7f7b96",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
+ },
+ "jar-magnesium-glycinate": {
+  "request_id": "01a1c338-081d-73b9-b234-85ed1358df6c",
+  "endpoint": "bytedance/seedance-2.5/image-to-video",
+  "submitted": "2026-11-10",
+  "request": {
+   "image_url": "(uploaded start frame: the real jar cut-out composited on the ledge still; expired upload URL omitted)",
+   "prompt": "Photorealistic product film. The camera glides in a slow, smooth arc around the white supplement jar standing on the stone ledge, moving a little to the right and slightly closer, with real parallax between the jar, the ledge and the distant mountains. Shallow depth of field. Thin morning mist drifts across the ledge, passing behind and in front of the jar. Low warm sunlight slides across the jar and the stone as clouds move through the valley. The jar itself stays perfectly still and rigid. Its label, every word, number and the logo stay exactly as in the first frame: sharp, flat on the jar, unchanged. No new text, no extra objects, no people, no cuts.",
+   "duration": 5,
+   "resolution": "720p",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  }
  }
 }

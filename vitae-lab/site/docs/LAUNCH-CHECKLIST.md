@@ -1,12 +1,12 @@
 # Launch checklist
 
-Status on 10 Nov 2026 (v2): **prototype complete. Not launch-ready.** An Unverified critical item blocks
+Status on 10 Nov 2026 (v3): **prototype complete. Not launch-ready.** An Unverified critical item blocks
 launch. Owner of every next step is Roman unless noted.
 
 ## Blockers, in the order I would clear them
 
-1. **Your sign-off on v2.** It is built from your draft's own assets, but it is a new composition and
-   new footage. Nothing else should build on it until you have looked.
+1. **Your sign-off on v3.** The products are now filmed (camera moving around the real jar). Nothing
+   else should build on it until you have looked.
 2. **Shopify connector is signed out.** Until it is reconnected I cannot read products, policies or the
    draft theme, or write theme files to the unpublished theme.
 3. **No products exist in Shopify; no prices are approved.** Nothing can be bought, so no cart or
@@ -20,8 +20,10 @@ launch. Owner of every next step is Roman unless noted.
 7. **Business identity, contact, address and policies** are not confirmed. Only a Privacy policy is
    known to exist.
 8. **Claims have had no qualified review.**
-9. **The four new Higgsfield shots are unreviewed.** They were generated at your instruction and need
-   your approval like any other asset.
+9. **Thirteen Higgsfield shots are unreviewed**, including six product films whose labels were
+   re-applied frame by frame. I checked the last frame of each, not every frame.
+10. **v3 has not had its accessibility, contrast or speed measurements repeated.** Only the 13 automated
+    checks were re-run.
 
 ## Design and content
 
@@ -84,9 +86,10 @@ launch. Owner of every next step is Roman unless noted.
 
 ## Decisions needed from you
 
-1. **Is v2 the direction?** If yes, I port it to Shopify. If parts miss, tell me which (opening, the
-   ledge frames, the water moment, the writing) and I rework those.
-2. **The four shots.** Approve, or name the ones to redo. A redo is about $3.70 to $4.62 each.
+1. **Is v3 the direction?** If parts miss, tell me which: the opening flight, the six product films, the
+   material films, the layout, or the writing.
+2. **The shots.** Approve, or name the ones to redo. A 5-second redo is about $2.31; 1080p is about
+   $5.69 for 5 seconds on Seedance.
 3. **Shopify.** Reconnect the Shopify connector so I can read the draft theme and write to an unpublished
    copy.
 4. **Preview hosting.** Is a public but unlisted, noindex GitHub Pages URL acceptable? If not, the pull
