@@ -119,3 +119,5 @@ jar cut-out, then `relabel.py`), then the two explainer films from approved stor
 
 Unrelated but blocking CI: `ubuntu-latest` moved to Ubuntu 26.04 and Playwright 1.56.1 cannot install
 there. Proposed fix, not yet approved by the owner: `runs-on: ubuntu-24.04` in `.github/workflows/ci.yml`.
+
+Later still on 10 Nov: the owner asked for the two explainer films ahead of everything else. First takes were ordered straight from text (12 s, 720p, about $5.55 each; IDs in `scoop-shots.json` as `explainer-journey` and `explainer-muscle`), skipping the storyboard step to get him a look quickly. Their biology is unchecked until someone watches them frame by frame. Of the five product shots he was sent, pour and collagen are good, whey lacks the stir, and softgel and capsules came out as spheres and need redoing with exact shapes. Spend on this concept: about $48.62 of $80.

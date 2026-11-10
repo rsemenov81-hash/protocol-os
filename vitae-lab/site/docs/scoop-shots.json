@@ -76,5 +76,31 @@
   },
   "endpoint": "bytedance/seedance-2.5/text-to-video",
   "submitted": "2026-11-10"
+ },
+ "explainer-journey": {
+  "request_id": "01a1c7d7-4f50-774e-b2c1-33c790329366",
+  "request": {
+   "prompt": "High-end 3D medical animation for a science documentary, one continuous smooth camera move, photorealistic translucent materials, soft warm cream and coral tones with glowing teal accents, clean studio lighting, shallow depth of field, calm and precise, accurate simplified anatomy. The camera follows tiny glowing teal particles through a translucent glass-like human torso: they travel down the esophagus into the stomach, pass into the coiled small intestine, and the camera pushes in close to the intestinal wall covered in soft finger-like villi. The particles are absorbed through the villi into fine capillaries inside them, join a stream of round red blood cells flowing through a blood vessel, and are carried along the vessel toward muscle tissue, where a few particles leave the vessel and enter a muscle cell. No text, no labels, no captions, no logos, no people's faces, no cuts, nothing frightening or gory.",
+   "duration": 12,
+   "resolution": "720p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "explainer-muscle": {
+  "request_id": "01a1c7d7-50a1-7c50-98a7-42196a1120ec",
+  "request": {
+   "prompt": "High-end 3D medical animation for a science documentary, one continuous smooth camera move, photorealistic translucent materials, soft warm cream and coral tones with glowing teal accents, clean studio lighting, shallow depth of field, calm and precise, accurate simplified anatomy. A translucent glass-like human arm slowly curls a dumbbell; the camera pushes into the working biceps and down to bundles of long striated muscle fibers that tense under load. Tiny glowing teal particles arrive through fine capillaries running alongside the fibers and pass into a muscle fiber. Inside the fiber the particles link together into new glowing strands that weave into the existing filaments, and the fiber becomes visibly thicker and denser. The camera pulls back out to the arm, which looks slightly stronger. No text, no labels, no captions, no logos, no people's faces, no cuts, nothing frightening or gory.",
+   "duration": 12,
+   "resolution": "720p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
  }
 }
