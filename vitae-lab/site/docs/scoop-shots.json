@@ -102,5 +102,44 @@
   },
   "endpoint": "bytedance/seedance-2.5/text-to-video",
   "submitted": "2026-11-10"
+ },
+ "shaker": {
+  "request_id": "01a1c7d9-98c2-7078-9bcc-18a8dd87a1e1",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean and appetizing, calm pace, slow motion. A scoop of pale cream-colored vanilla protein powder is tipped into a plain, unbranded, translucent frosted protein shaker bottle that already holds cold water. The flip-top lid snaps shut, the shaker is shaken firmly a few times, and through the translucent side the powder and water blend into a smooth, creamy, pale shake with fine bubbles. The shaker comes to rest upright on a pale stone surface. The camera stays close and level with the bottle. No faces, no text, no labels, no logos, no brand marks, no measurement markings, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "softgel2": {
+  "request_id": "01a1c7da-88e6-7599-9fb7-6348ebe7aeca",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean, calm pace, slow motion. Three small vitamin softgels lie on a pale stone surface. Each softgel is an elongated oval, like a small rugby ball or an olive, clearly longer than it is wide, about twice as long as wide, never round and never a sphere. They are smooth, glossy, translucent golden-amber gelatin filled with clear oil, with a faint seam along the length. Warm light passes through them and casts glowing amber shadows. One softgel rocks gently and settles. The camera slides slowly past at their level, very close. No hands, no people, no text, no printing on the pills, no labels, no logos, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
+ },
+ "capsules2": {
+  "request_id": "01a1c7da-8a27-7622-800f-f3633f35f506",
+  "request": {
+   "prompt": "Photorealistic macro product film, one continuous shot, bright warm studio daylight on a seamless warm off-white background, soft natural shadows, shallow depth of field, clean, calm pace, slow motion. Three hard two-piece capsules fall in slow motion and land softly on a pale stone surface, tumble once and settle. Each capsule is a long cylinder with two rounded ends, like a small pill-shaped tube, about three times as long as it is wide, never round and never a ball. Each is made of two matte white halves, one slightly wider than the other, with a visible join line around the middle where the halves overlap. The camera is low and close and tilts gently down to follow them. No hands, no people, no text, no printing on the pills, no labels, no logos, no cuts.",
+   "duration": 5,
+   "resolution": "1080p",
+   "aspect_ratio": "16:9",
+   "generate_audio": false,
+   "bitrate_mode": "high"
+  },
+  "endpoint": "bytedance/seedance-2.5/text-to-video",
+  "submitted": "2026-11-10"
  }
 }
