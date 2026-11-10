@@ -51,3 +51,52 @@ $38.83.
 `products.js` (facts, research notes), the cart and router in `site.js`, the 13 checks in
 `tests/vitae-site-e2e.mjs`, the six jar cut-outs and six product films in `media/`, and every document
 in `docs/`.
+
+## Owner's verdict on the test shot, and two films he asked to add (10 Nov 2026)
+
+He likes the look of the test shot ("I do like"). He asked for two short explainer films, simple enough
+for anyone, with the science checked.
+
+### Film 1: "Where it goes" (about 12 s)
+
+What is true and safe to show, for every product in the range:
+
+1. You swallow it. It reaches the stomach and then the small intestine.
+2. In the small intestine it is broken down as far as it needs to be and passes through the gut wall.
+   Protein and collagen are split into amino acids and small peptides. Creatine, magnesium and vitamin D
+   are absorbed largely as they are; vitamin D is fat-soluble and is absorbed along with dietary fat.
+3. It enters the bloodstream.
+4. Blood carries it around the body, and cells take up what they use. Muscle takes up creatine and amino
+   acids. Vitamin D is first converted by the liver and then the kidneys into its active form.
+
+Do not show: a product "targeting" one organ, anything being cured or repaired, speeds or percentages of
+absorption (no figure has been verified for these products), or a glow that implies an instant effect.
+
+### Film 2: "How muscle is built" (about 12 s)
+
+1. Training comes first. Lifting stresses muscle fibres; that stress is the signal to rebuild.
+2. Amino acids from protein arrive in the blood and enter the muscle cell. They are the building blocks.
+3. The cell assembles them into new muscle protein (muscle protein synthesis).
+4. Repeated over weeks of training and adequate protein, fibres get thicker. That is muscle growth.
+5. Creatine's part is separate and should be shown separately: it is stored in muscle as phosphocreatine
+   and helps recycle the cell's quick energy (ATP) during short, hard efforts, so you can do a little
+   more work in a session.
+
+Sources already in `CLAIMS-REGISTER.md`: Morton 2018 (protein with resistance training), Kreider 2017
+(creatine raises muscle creatine stores; high-intensity performance). The digestion and conversion steps
+are standard physiology and still need a named reference (NIH Office of Dietary Supplements fact sheets
+for vitamin D and magnesium; a physiology text for protein digestion) before publication.
+
+Rules for both films:
+
+- Stylized 3D, in the bright studio look of the test shot: clean translucent shapes, not surgical
+  anatomy. One idea per beat. Captions are real HTML text over the film, not baked in.
+- Training must be visibly the trigger in film 2. The film must never suggest powder alone builds muscle.
+- These are structure/function statements: the FDA disclaimer shows with them, and a qualified reviewer
+  must approve the wording before launch.
+- A video model cannot be trusted with biology. Storyboard each beat as a still first, check it, then
+  animate from the approved stills (image-to-video with start and end frames).
+
+Budget note: about $50.90 of the $60 approval remains after the test shot. Two 12 s films at 1080p are
+about $27 on their own, so the product shots and these films will not all fit at 1080p. Options: make
+the explainers at 720p (about $11 for both), or ask the owner for more.
