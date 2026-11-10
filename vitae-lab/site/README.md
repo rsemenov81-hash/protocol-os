@@ -1,4 +1,4 @@
-# Vitae Lab storefront prototype (v3)
+# Vitae Lab storefront prototype (v4)
 
 Status on 10 Nov 2026: **prototype complete. Storefront not implemented in Shopify. Not launch-ready.**
 
@@ -14,21 +14,22 @@ Supporting documents are in `docs/`: `SOURCE-MANIFEST.md` (sources, assets, Higg
 `COPY-DECK.md`, `CLAIMS-REGISTER.md`, `QA-REPORT.md` (+ `qa/` screenshots), `LAUNCH-CHECKLIST.md`,
 `SHOPIFY.md`.
 
-## The idea: one morning on the mountain, filmed
+## The idea: one place, one scroll
 
-v2 put still jar cut-outs on a filmed ledge. The owner's verdict was that it copied the draft and did not
-move. v3 films the products.
+The owner's notes on v3: the mountain scenes, cream sections and repeated product films broke the page
+into pieces; the writing was defensive; the homepage was long; one line contradicted the chocolate page;
+and the artwork disclosure was too prominent. v4 answers each.
 
-1. **Arrival.** The opening is a flight through mist down to the terraces. "Your goals" rotates four
-   words; "Your solution" rotates the six product names, and the jar for the name on screen stands below
-   it and leans a few degrees toward the pointer.
-2. **Mist.** The reading sections are plain warm paper. Each filmed stage dissolves into it.
-3. **Six product films.** Each product is a title card: the real jar on a stone ledge, the camera arcing
-   around it with real parallax, mist passing in front and behind, light moving over the label. The words
-   sit on the shadowed side of the valley. The hour runs from dawn (creatine) to dusk (magnesium).
-4. **What's inside.** Two slow-motion material films, powder pouring and a softgel beside a capsule,
-   above the comparison table. A drop of water on slate carries the labels heading.
-5. **After dark.** The footer.
+1. **One scene.** The terraces at first light stay fixed behind the whole page. Nothing has its own
+   background; only a veil deepens as you leave the opening so text stays readable.
+2. **Jars that come to you.** Each product is a frame taller than the screen. Its contents pin, and
+   scrolling moves the jar from far and low to close and level, turning slightly, the way Apple's product
+   pages do. It is plain scrolling: nothing is captured or delayed, and with motion paused or reduced the
+   frames are ordinary static sections. On phones the jar scales in normal flow without pinning.
+3. **Short homepage.** Opening, the comparison table (differences up front), six product frames, goals,
+   research folded into six expandable notes, questions. The water stage, material films, quality and
+   about sections are gone or reduced to a line.
+4. **Product films live on product pages**, one per product, where the full research notes also sit.
 
 ## What exists, and which build is canonical
 
@@ -67,7 +68,7 @@ npm ci && npx playwright install chromium && npm run e2e:vitae     # 13 checks
 | `site.css` | Tokens, stages, mist sections, product frames, cart. |
 | `site.js` | Renders products and research from data, rotators, one-loop-at-a-time video, hash views, cart. No dependencies. |
 | `products.js` | Product facts and research notes. The only place a product fact is written. |
-| `media/` | Eleven filmed loops (MP4 + WebM), their posters, six jar cut-outs, logo masks. See the asset manifest. |
+| `media/` | The scene loop (wide and tall), six product films, their posters, six jar cut-outs, logo masks. See the asset manifest. |
 | `../../tests/vitae-site-e2e.mjs` | The checks. |
 
 ## Design tokens
@@ -88,26 +89,17 @@ match the labels.
 
 ## Component notes
 
-- **Stage.** A filmed plate: poster image first, then one muted loop faded in on top. An
-  IntersectionObserver picks the stage with the most pixels on screen; only that one's video has a source
-  and plays. Loops start after page load, never under reduced motion or Save-Data, and stop when the tab
-  is hidden. Loops are 250 to 900 KB; the opening flight is 1.2 MB.
-- **Product film.** `media/jar-<handle>.mp4`: generated from a first frame that is the real jar on the
-  ledge, then every frame has the exact label re-applied (see the asset manifest for the method and its
-  limits). The poster is that first frame.
-- **Product frame.** Film + words. On wide screens the words sit right of the jar over a dark wash; on
-  phones they sit on paper under the film. The hour of day is a CSS filter (`data-time`).
-- **Jar cut-out.** `media/pack-<handle>.webp`, used in the opening under the rotating name. It tilts up
-  to 7 degrees toward the pointer (not on touch, not when motion is paused).
-- **Scroll-linked motion.** Text blocks rise 16 px as they arrive. Nothing is dimmed, hidden or pinned,
-  and scrolling is never taken over.
-- **Rotators.** All items share one grid cell, so the longest reserves the space. Goals and products run
-  on different intervals so no goal is paired with a product. With motion off, all words and names list.
-- **Motion control.** "Pause motion" stops every loop, the rotators and the scroll-linked motion, and is
-  remembered.
-- **Cart.** Native `<dialog>`. `local` adapter for the preview (never takes an order); `shopify` adapter
-  for the Ajax Cart API, written but not yet run against the store.
-- **Preview-only parts.** `.preview` bar, `.preview-note` blocks, the "simulate products on sale" switch.
+- **Scene.** `.scene`, fixed, with `media/world.*` (wide) or `world-tall.*` (phones): poster first, loop
+  after load, never under reduced motion or Save-Data.
+- **Frame.** `#stories .frame`. `site.js` sets `--p` (0 to 1) from the frame's position on each scroll
+  frame; CSS turns it into the jar's translate, scale and turn. Pinned only at 52rem wide and 40rem tall
+  or more, and only with motion on.
+- **Jar.** `media/pack-<handle>.webp`, the owner's label visualization cut out with the owner's own
+  outline paths. No model touched these.
+- **Product film.** `media/jar-<handle>.*` on the product page only; see the asset manifest for how the
+  label was re-applied to every frame.
+- **Research.** One `<details>` per note on the homepage; expanded in full on each product page.
+- **Rotators, motion control, cart, preview-only parts:** as before.
 
 ## Proposed shopping navigation
 

@@ -1,5 +1,7 @@
 # Product and claims register
 
+> **v4 note (10 Nov 2026).** Theme wording changed (see the copy deck's v4 note). New or changed sentences to review: "Creatine and protein are the two best-studied things to add to [training]" (comparative; rests on rows 1–3); "The long game is staying strong and well nourished. These fit a routine you can keep up for years." (no lifespan claim, but implies long-term use); magnesium "is a simple way to top up"; collagen "Pair it with whey or your meals for the full set of amino acids." The magnesium page no longer says it is not sold as a sleep aid; the research note still explains why no sleep claim is made. The compare table now says "No allergens listed" where the supplier page lists none: confirm on final labels.
+
 Review date for every row: 9 Nov 2026; wording of rows 7 and 9 and the chocolate facts updated 10 Nov 2026 for v2. Reviewer: Claude (drafting and source checks only).
 **Nothing in this file has had qualified regulatory or legal review. No row is approved for
 publication.** I am not stating that any wording complies with FDA or FTC rules; the rows marked

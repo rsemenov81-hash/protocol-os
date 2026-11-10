@@ -1,5 +1,7 @@
 # QA report
 
+> **v4 note (10 Nov 2026).** The 13 automated checks were updated and pass on v4, including a new assertion that a jar grows as its frame is scrolled. Everything else in this report (accessibility scan, contrast, speed, screenshots list) describes earlier versions and has **not** been repeated on v4, which is now light text over one dark veiled scene throughout. Screenshots in `qa/` are from v4.
+
 Run 10 Nov 2026 against `vitae-lab/site/` served from a local static server. **The 13 automated checks were re-run on v3 and pass. The accessibility scan, contrast measurements and performance numbers below were taken on v2 and have not been repeated on v3**, which changed the product frames (text now light on a dark wash over film), added the material films and made the opening loop larger (1.2 MB instead of 0.4 MB).
 
 ## What this report covers, and what it does not

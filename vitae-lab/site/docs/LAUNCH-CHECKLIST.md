@@ -1,5 +1,7 @@
 # Launch checklist
 
+> **v4 note (10 Nov 2026).** Rebuilt after the owner's notes on v3: one fixed scene, scroll-driven jars, shorter homepage, warmer copy. Rows below that mention product films on the homepage, the water moment or cream/paper sections describe earlier versions. Open items are unchanged, plus: v4 has had only the automated checks; and the Longevity line now says these products "fit a routine you can keep up for years", which a reviewer should read as a claim.
+
 Status on 10 Nov 2026 (v3): **prototype complete. Not launch-ready.** An Unverified critical item blocks
 launch. Owner of every next step is Roman unless noted.
 

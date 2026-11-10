@@ -1,5 +1,7 @@
 # Source and asset manifest
 
+> **v4 note (10 Nov 2026).** The homepage now uses one fixed scene, `world.*` / `world-tall.*`: these are the v2 shots `opening-16x9` and `opening-9x16` (static terraces). The flight, powder, softgel, water and empty-ledge loops are no longer shipped; they were paid for and are unused. The six product films are used on product pages only. No new generations were made for v4, so the spend is unchanged.
+
 Compiled 9 Nov 2026. "Seen" means I opened the thing itself in this session. "Reported" means the
 handoff says so and I could not check.
 

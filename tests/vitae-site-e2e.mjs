@@ -166,22 +166,29 @@ try {
 
   await check('motion on: one loop, after load, pausable and remembered', async () => {
     const { context, page, seen } = await open();
-    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => { const v = document.querySelector('.stage--opening .stage__video'); return v.muted && v.loop && v.playsInline && /opening-tall\.(mp4|webm)$/.test(v.currentSrc); }), true);
-    await page.evaluate(() => document.querySelector('#story-magnesium-glycinate').scrollIntoView({ behavior: 'instant', block: 'center' }));
-    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && /jar-magnesium-glycinate\.(mp4|webm)$/.test(on[0].currentSrc); });
+    await page.waitForFunction(() => document.querySelector('.scene .stage__video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => { const v = document.querySelector('.scene .stage__video'); return v.muted && v.loop && v.playsInline && /world-tall\.(mp4|webm)$/.test(v.currentSrc); }), true);
+    // Scrolling through a product frame drives its jar: --p rises and the jar grows.
+    const size = () => page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); return [Number(f.style.getPropertyValue('--p')), f.querySelector('.pack').getBoundingClientRect().height]; });
+    await page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); scrollTo({ top: f.offsetTop - innerHeight * 0.8, behavior: 'instant' }); });
+    await page.waitForFunction(() => document.querySelector('#story-creatine-monohydrate').style.getPropertyValue('--p') !== '');
+    const far = await size();
+    await page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); scrollTo({ top: f.offsetTop + f.offsetHeight * 0.5, behavior: 'instant' }); });
+    await page.waitForFunction((p0) => Number(document.querySelector('#story-creatine-monohydrate').style.getPropertyValue('--p')) > p0 + 0.2, far[0]);
+    const near = await size();
+    assert.ok(near[1] > far[1] * 1.15, `jar should come closer: ${far[1]} -> ${near[1]}`);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('video')].filter((v) => !v.paused).length), 1, 'one loop on the page');
     await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
-    await page.waitForFunction(() => { const on = [...document.querySelectorAll('video')].filter((v) => !v.paused); return on.length === 1 && on[0].closest('.stage--opening'); });
     const btn = page.locator('#motion-btn');
     assert.equal(await btn.textContent(), 'Pause motion');
     await btn.click();
-    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').paused);
+    await page.waitForFunction(() => document.querySelector('.scene .stage__video').paused);
     assert.equal(await btn.textContent(), 'Play motion');
     assert.equal(await btn.getAttribute('aria-pressed'), 'true');
     await allShown(page);
     await page.reload();
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'off');
-    assert.equal(seen.video, 2, 'paused: no loop is fetched again (two were fetched while playing: the opening and one jar film)');
+    assert.equal(seen.video, 1, 'the loop is not fetched again while paused');
     await context.close();
   });
 
@@ -193,7 +200,7 @@ try {
       const { context, page, seen } = await open(opts);
       await page.waitForTimeout(600);
       assert.equal(seen.video, 0);
-      assert.equal(await page.locator('.stage--opening .stage__plate img').evaluate((i) => i.complete && i.naturalWidth > 0), true);
+      assert.equal(await page.locator('.scene img').evaluate((i) => i.complete && i.naturalWidth > 0), true);
       assert.equal(await page.locator('#stories .frame').count(), 6);
       if (name === 'reduced motion') {
         await allShown(page);
@@ -208,8 +215,8 @@ try {
   await check('no H.264 in the browser: the WebM loop plays instead', async () => {
     // Playwright's open-source Chromium (CI) has no H.264 decoder; force the same answer everywhere.
     const { context, page, seen } = await open({ init: () => { HTMLMediaElement.prototype.canPlayType = (t) => (/mp4/.test(t) ? '' : 'probably'); } });
-    await page.waitForFunction(() => document.querySelector('.stage--opening .stage__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => document.querySelector('.stage--opening .stage__video').currentSrc.endsWith('opening-tall.webm')), true);
+    await page.waitForFunction(() => document.querySelector('.scene .stage__video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => document.querySelector('.scene .stage__video').currentSrc.endsWith('world-tall.webm')), true);
     assert.equal(seen.video, 1);
     await context.close();
   });
@@ -217,7 +224,7 @@ try {
   await check('video unavailable: the poster stays and the page still works', async () => {
     const { context, page, seen } = await open({ noVideo: true });
     await page.waitForTimeout(600);
-    assert.equal(await page.locator('.stage--opening .stage__video').evaluate((v) => v.classList.contains('is-playing')), false);
+    assert.equal(await page.locator('.scene .stage__video').evaluate((v) => v.classList.contains('is-playing')), false);
     assert.equal(await page.locator('#stories .frame').count(), 6);
     assert.deepEqual(seen.errors, []);
     await context.close();

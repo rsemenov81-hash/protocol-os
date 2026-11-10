@@ -20,10 +20,9 @@
     const [w, h] = PACK[p.handle];
     return `<span class="pack ${cls}" data-handle="${p.handle}" style="--ar:${w}/${h}"><img src="media/pack-${p.handle}.webp" width="${w}" height="${h}" loading="lazy" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}."></span>`;
   }
-  // Each product has its own film: the real jar on the ledge with the camera arcing around it.
-  // The poster is the composited first frame, so the label in the still is exactly the artwork.
-  const sceneHTML = (p) => `<div class="frame__scene stage" data-stage>
-      <img class="stage__plate" src="media/jar-${p.handle}-poster.jpg" width="1280" height="720" loading="lazy" alt="${esc(p.name)} jar on a stone ledge above a misty valley. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}.">
+  // The product page opens on that product's film: the real jar with the camera arcing around it.
+  const filmHTML = (p) => `<div class="product__film" data-stage>
+      <img src="media/jar-${p.handle}-poster.jpg" width="1280" height="720" alt="${esc(p.name)} jar. Label reads: ${esc(p.rows.join(', '))}. ${esc(p.net)}.">
       <video class="stage__video" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" data-wide="media/jar-${p.handle}"></video></div>`;
 
   // ---------- simulated availability (preview bar) ----------
@@ -38,37 +37,40 @@
   // ---------- home: rotator, stories, compare table, research ----------
   const SHELF = [...PRODUCTS].sort((a, b) => a.order - b.order);   // dawn to dusk
   function renderHome() {
-    $('#stories').innerHTML = SHELF.map((p) => `<article class="frame" id="story-${p.handle}" data-time="${p.time}">
-      ${sceneHTML(p)}
-      <div class="frame__text">
-        <p class="kicker">No. ${p.no} · ${esc(p.descriptor)} · ${esc(p.net.replace('Net Wt ', ''))}</p>
-        <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
-        <p>${esc(p.summary)}</p>
-        ${factsHTML([p.facts[0], ['Servings', p.servings], ['Allergens', p.allergens]])}
-        <div class="actions"><a class="link" href="#${p.handle}">Read the label</a>${buyButton(p)}</div>
-      </div></article>`).join('');
+    // One frame per product. On wide screens the frame pins and scrolling drives the jar (see trackFrames).
+    $('#stories').innerHTML = SHELF.map((p) => `<article class="frame" id="story-${p.handle}">
+      <div class="frame__pin"><div class="wrap">
+        <div class="frame__jar">${packHTML(p)}</div>
+        <div class="frame__text">
+          <p class="kicker">No. ${p.no} · ${esc(p.key)}</p>
+          <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
+          <p>${esc(p.summary)}</p>
+          ${factsHTML([p.facts[0], ['Servings', p.servings], ['Good to know', p.allergens]])}
+          <div class="actions"><a class="link" href="#${p.handle}">Read the label</a>${buyButton(p)}</div>
+        </div>
+      </div></div></article>`).join('');
     $('#compare-body').innerHTML = SHELF.map((p) => `<tr><th scope="row"><a href="#${p.handle}">${esc(p.name)}</a></th><td>${esc(p.facts[0][1])}</td><td>${esc(p.key)}</td><td>${esc(p.servings)}</td><td>${esc(p.allergens)}</td></tr>`).join('');
-    $('#research-list').innerHTML = RESEARCH.map(studyHTML).join('');
+    $('#research-list').innerHTML = RESEARCH.map((r) => `<details id="study-${r.id}"><summary><small>${esc(r.ingredient)}</small>${esc(r.title)}</summary>${studyHTML(r)}</details>`).join('');
+    trackFrames();
     watchStages();
   }
   function studyHTML(r) {
-    return `<article class="study" id="study-${r.id}"><p class="study__meta">${esc(r.ingredient)}</p><h3>${esc(r.title)}</h3>
+    return `<div class="study">
       <dl><div><dt>What it says</dt><dd>${esc(r.says)}</dd></div><div><dt>What was studied</dt><dd>${esc(r.studied)}</dd></div><div><dt>Where it stops</dt><dd>${esc(r.limits)}</dd></div></dl>
-      <p class="study__cite">${esc(r.cite)} <a href="https://doi.org/${r.doi}" rel="noopener">doi:${esc(r.doi)}</a></p></article>`;
+      <p class="study__cite">${esc(r.cite)} <a href="https://doi.org/${r.doi}" rel="noopener">doi:${esc(r.doi)}</a></p></div>`;
   }
 
   // ---------- product view ----------
   const pending = (what) => `<p class="unavailable">${what} will be shown here once the final supplier label is transcribed.</p>`;
   function renderProduct(p) {
     const sec = (title, html) => `<section class="product__sec"><h2>${title}</h2>${html}</section>`;
-    $('#product-view').innerHTML = `<article class="product frame" data-product="${p.handle}" data-time="${p.time}">
-      ${sceneHTML(p)}
+    $('#product-view').innerHTML = `<article class="product" data-product="${p.handle}">
+      ${filmHTML(p)}
       <div class="wrap"><a class="product__back" href="#products">← All products</a>
         <div class="product__main">
           <p class="kicker">${esc(p.descriptor)} · Dietary supplement</p>
           <h1 tabindex="-1">${esc(p.name)}</h1>
           <p>${esc(p.summary)}</p>
-          <p class="caption">The jar shown is a visualization of review artwork, not a photograph of manufactured stock.</p>
           <div class="buy">
             <p class="buy__price">${priceText(p)}</p>
             <div class="buy__row">
@@ -78,12 +80,12 @@
             ${canBuy(p) ? '' : '<p class="unavailable">This product is not available to buy yet. The label is still being finalized with the manufacturer.</p>'}
             <p class="unavailable">Shipping and returns details will be published before the store opens.</p>
           </div>
-          ${sec('In a serving', factsHTML(p.facts))}
+          ${sec('In a serving', factsHTML(p.facts) + '<p class="unavailable">Jar shown is a visualization of review artwork.</p>')}
           ${sec('Who might consider it', `<p>${esc(p.consider)}</p>`)}
           ${sec('How to use it', p.use ? `<p class="quote">${esc(p.use)}</p><p class="unavailable">Directions as printed on the manufacturer’s current label.</p>` : pending('Directions'))}
           ${sec('Ingredients', p.ingredients ? `<p class="quote">${esc(p.ingredients)}</p>` : pending('The full ingredient list'))}
           ${sec('Allergens and warnings', `<p><strong>${esc(p.allergens)}.</strong></p>${p.warnings ? `<p class="quote">${esc(p.warnings)}</p>` : pending('Warnings')}`)}
-          ${sec('Evidence and limits', p.research.map((id) => studyHTML(RESEARCH.find((r) => r.id === id))).join('') + `<p class="fda">${FDA}</p>`)}
+          ${sec('Evidence and limits', p.research.map((id) => { const r = RESEARCH.find((x) => x.id === id); return `<h3>${esc(r.title)}</h3>${studyHTML(r)}`; }).join('') + `<p class="fda">${FDA}</p>`)}
           ${p.review.length ? `<div class="preview-note"><p>Preview note. Open label questions (${esc(p.sku)}; ${esc(p.verified)}):</p><ul>${p.review.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>` : `<p class="preview-note">Preview note. ${esc(p.sku)}; ${esc(p.verified)}. No open label questions recorded.</p>`}
         </div>
       </div></article>`;
@@ -123,7 +125,7 @@
   const stageWatch = new IntersectionObserver((entries) => {
     for (const e of entries) seen.set(e.target, e.isIntersecting ? e.intersectionRect.height : 0);
     let best = null;
-    for (const [el, px] of seen) if (el.isConnected && px > 0 && (!best || px > seen.get(best))) best = el;
+    for (const [el, px] of seen) if (el.isConnected && px > 0 && (!best || px > seen.get(best) || best.classList.contains('scene')) && !(best && el.classList.contains('scene'))) best = el;
     if (best !== activeStage) { activeStage = best; applyMotion(); }
   }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] });
   function watchStages() {
@@ -147,8 +149,25 @@
       } else video.pause();
     }
   }
+  // Each product frame gets --p, 0 to 1, for how far it has travelled through the viewport. CSS turns that
+  // into the jar coming closer. Plain scrolling throughout: nothing is captured or delayed.
+  let frames = [], ticking = false;
+  function trackFrames() { frames = $$('#stories .frame'); placeFrames(); }
+  function placeFrames() {
+    ticking = false;
+    const vh = innerHeight;
+    for (const f of frames) {
+      const r = f.getBoundingClientRect();
+      if (r.bottom < -vh || r.top > 2 * vh) continue;
+      const p = motion ? Math.min(1, Math.max(0, (vh - r.top) / (r.height + vh * 0.25))) : 0.5;
+      f.style.setProperty('--p', p.toFixed(4));
+    }
+  }
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(placeFrames); } }, { passive: true });
+  addEventListener('resize', placeFrames);
+
   // The jar in the opening leans a few degrees toward the pointer. Decorative; off with motion.
-  const openingStage = $('.stage--opening'), heroPacks = $('#hero-packs');
+  const openingStage = $('.opening'), heroPacks = $('#hero-packs');
   openingStage.addEventListener('pointermove', (e) => {
     if (!motion || e.pointerType === 'touch') return;
     const r = openingStage.getBoundingClientRect();
@@ -159,7 +178,7 @@
   // Media events do not bubble; capture them for every stage, including ones drawn later.
   document.addEventListener('playing', (e) => e.target.classList && e.target.classList.add('is-playing'), true);
   document.addEventListener('error', (e) => e.target.classList && e.target.classList.remove('is-playing'), true);
-  motionBtn.addEventListener('click', () => { motion = !motion; store.set('vitae-motion', motion); applyMotion(); });
+  motionBtn.addEventListener('click', () => { motion = !motion; store.set('vitae-motion', motion); applyMotion(); placeFrames(); });
   document.addEventListener('visibilitychange', applyMotion);
   addEventListener('load', applyMotion);
 
