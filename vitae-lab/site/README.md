@@ -1,4 +1,6 @@
-# Vitae Lab storefront prototype (v4)
+# Vitae Lab storefront prototype (v5, "The Scoop")
+
+> **v5 note, "The Scoop" (11 Nov 2026).** The homepage was rebuilt on a new concept the owner approved: a bright studio, and one short film per serving that scrolling plays forward and back (`.scrub` sections, `placeFrames` in `site.js`). The fixed mountain scene, the goal themes and the home research section are gone; research stays on product pages. Sections now: opening, five film chapters (the two wheys share the shaker film), comparison table, "How muscle is built", questions. Everything below this note describes v4 and is kept for history where it differs. Product pages still open on the older mountain jar films.
 
 Status on 10 Nov 2026: **prototype complete. Storefront not implemented in Shopify. Not launch-ready.**
 

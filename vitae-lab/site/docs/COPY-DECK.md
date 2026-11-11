@@ -1,5 +1,7 @@
 # Copy deck (v2)
 
+> **v5 note (11 Nov 2026).** Home copy changed: goal themes and the home research block were removed; a "How muscle is built" section with four steps was added (sentences listed in the claims register's v5 note); film disclosure line added under the comparison table and in the footer.
+
 > **v4 note (10 Nov 2026).** After the owner's notes the copy was warmed and shortened again. The goal themes now read: Strength, "Training does the heavy lifting. Creatine and protein are the two best-studied things to add to it."; Longevity, "The long game is staying strong and well nourished. These fit a routine you can keep up for years."; Everyday vitality, "The simple daily ones, with the amount printed right on the front."; Wellness, "Good everyday nutrition, one scoop or capsule at a time." The line promising directions and warnings "word for word" on every page is removed (it contradicted the chocolate page). The artwork disclosure moved from under the opening to one line beside each product's serving facts and the footer. Lines such as "A vague word", "Nothing on this shelf makes you live longer", "We do not sell this as a sleep aid" and the "Who makes it" paragraph are gone; the tables below still show them and are superseded where they differ. The current text is in `index.html` and `products.js`.
 
 "Before" is the owner's draft at `vitae-lab-storefront-review.rsemenov81.chatgpt.site`, read on 10 Nov

@@ -1,5 +1,7 @@
 # Source and asset manifest
 
+> **v5 note (11 Nov 2026).** New media, all generated with Higgsfield (Seedance 2.5 text-to-video; prompts and request IDs in `scoop-shots.json`): `scrub-open`, `scrub-pour`, `scrub-shaker`, `scrub-collagen`, `scrub-softgel`, `scrub-capsules` (1280×720, 24 fps, a keyframe every 4 frames so they can be scrubbed, `.mp4` + `.webm` + poster) and `how-muscle` (first 10.2 s of the `explainer-muscle` take). They show generic, unlabelled items and are disclosed on the page as illustrations, not footage of the products. `world.*` was removed. The jar cut-outs and product-page jar films are unchanged.
+
 > **v4 note (10 Nov 2026).** The homepage now uses one fixed scene, `world.*` / `world-tall.*`: these are the v2 shots `opening-16x9` and `opening-9x16` (static terraces). The flight, powder, softgel, water and empty-ledge loops are no longer shipped; they were paid for and are unused. The six product films are used on product pages only. No new generations were made for v4, so the spend is unchanged.
 
 Compiled 9 Nov 2026. "Seen" means I opened the thing itself in this session. "Reported" means the

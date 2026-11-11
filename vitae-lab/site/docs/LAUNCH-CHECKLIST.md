@@ -1,5 +1,7 @@
 # Launch checklist
 
+> **v5 note (11 Nov 2026).** Homepage rebuilt as "The Scoop" (see README). Nothing on this checklist has moved to done because of it; add: have the "How muscle is built" wording reviewed, and test film scrubbing on a real iPhone and in Safari.
+
 > **v4 note (10 Nov 2026).** Rebuilt after the owner's notes on v3: one fixed scene, scroll-driven jars, shorter homepage, warmer copy. Rows below that mention product films on the homepage, the water moment or cream/paper sections describe earlier versions. Open items are unchanged, plus: v4 has had only the automated checks; and the Longevity line now says these products "fit a routine you can keep up for years", which a reviewer should read as a claim.
 
 Status on 10 Nov 2026 (v3): **prototype complete. Not launch-ready.** An Unverified critical item blocks

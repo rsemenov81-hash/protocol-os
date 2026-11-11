@@ -34,26 +34,36 @@
     : `<button class="btn ${cls}" type="button" disabled>Not on sale yet</button>`;
   const factsHTML = (rows) => `<dl class="facts">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
 
-  // ---------- home: rotator, stories, compare table, research ----------
-  const SHELF = [...PRODUCTS].sort((a, b) => a.order - b.order);   // dawn to dusk
+  // ---------- home: one film per serving, the comparison table ----------
+  // Which film goes with which products. The two wheys share the shaker.
+  const FILMS = [
+    ['pour', ['creatine-monohydrate'], 'A scoop of white powder pouring into a glass of water.'],
+    ['shaker', ['vanilla-whey-isolate', 'chocolate-whey-blend'], 'A hand shaking a protein shaker bottle.'],
+    ['collagen', ['collagen-peptides'], 'Powder dissolving into a cup of black coffee.'],
+    ['softgel', ['vitamin-d3'], 'Amber softgels on a stone surface with light passing through them.'],
+    ['capsules', ['magnesium-glycinate'], 'Three white capsules resting on a stone surface.'],
+  ];
   function renderHome() {
-    // One frame per product. On wide screens the frame pins and scrolling drives the jar (see trackFrames).
-    $('#stories').innerHTML = SHELF.map((p) => `<article class="frame" id="story-${p.handle}">
-      <div class="frame__pin"><div class="wrap">
-        <div class="frame__jar">${packHTML(p)}</div>
-        <div class="frame__text">
-          <p class="kicker">No. ${p.no} · ${esc(p.key)}</p>
-          <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
-          <p>${esc(p.summary)}</p>
-          ${factsHTML([p.facts[0], ['Servings', p.servings], ['Good to know', p.allergens]])}
-          <div class="actions"><a class="link" href="#${p.handle}">Read the label</a>${buyButton(p)}</div>
-        </div>
-      </div></div></article>`).join('');
+    // On tall screens each film pins and scrolling plays it forward and back (see placeFrames).
+    $('#stories').innerHTML = FILMS.map(([film, handles, alt]) => `<article class="frame scrub${handles.length > 1 ? ' frame--duo' : ''}" data-scrub="${film}" data-lead="0.7">
+      <div class="scrub__pin">
+        <div class="scrub__film"><img src="media/scrub-${film}-poster.jpg" width="1280" height="720" loading="lazy" alt="${alt}">
+          <video class="stage__video" muted playsinline preload="none" tabindex="-1" aria-hidden="true"></video></div>
+        <div class="cards wrap">${handles.map((h) => { const p = byHandle(h); return `<div class="card" id="story-${p.handle}">
+          <a class="card__pack" href="#${p.handle}" tabindex="-1" aria-hidden="true">${packHTML(p)}</a>
+          <div class="card__text">
+            <p class="kicker">No. ${p.no} · ${esc(p.key)}</p>
+            <h3><a href="#${p.handle}">${esc(p.name)}</a></h3>
+            <p class="card__sum">${esc(p.summary)}</p>
+            <p class="card__line">${esc(p.facts[0][1])} · ${esc(p.servings)} servings · ${esc(p.allergens)}</p>
+            <div class="actions"><a class="link" href="#${p.handle}">Read the label</a>${buyButton(p)}</div>
+          </div></div>`; }).join('')}</div>
+      </div></article>`).join('');
     $('#compare-body').innerHTML = SHELF.map((p) => `<tr><th scope="row"><a href="#${p.handle}">${esc(p.name)}</a></th><td>${esc(p.facts[0][1])}</td><td>${esc(p.key)}</td><td>${esc(p.servings)}</td><td>${esc(p.allergens)}</td></tr>`).join('');
-    $('#research-list').innerHTML = RESEARCH.map((r) => `<details id="study-${r.id}"><summary><small>${esc(r.ingredient)}</small>${esc(r.title)}</summary>${studyHTML(r)}</details>`).join('');
     trackFrames();
     watchStages();
   }
+  const SHELF = [...PRODUCTS].sort((a, b) => a.order - b.order);
   function studyHTML(r) {
     return `<div class="study">
       <dl><div><dt>What it says</dt><dd>${esc(r.says)}</dd></div><div><dt>What was studied</dt><dd>${esc(r.studied)}</dd></div><div><dt>Where it stops</dt><dd>${esc(r.limits)}</dd></div></dl>
@@ -125,7 +135,7 @@
   const stageWatch = new IntersectionObserver((entries) => {
     for (const e of entries) seen.set(e.target, e.isIntersecting ? e.intersectionRect.height : 0);
     let best = null;
-    for (const [el, px] of seen) if (el.isConnected && px > 0 && (!best || px > seen.get(best) || best.classList.contains('scene')) && !(best && el.classList.contains('scene'))) best = el;
+    for (const [el, px] of seen) if (el.isConnected && px > 0 && (!best || px > seen.get(best))) best = el;
     if (best !== activeStage) { activeStage = best; applyMotion(); }
   }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] });
   function watchStages() {
@@ -137,7 +147,7 @@
     motionBtn.setAttribute('aria-pressed', String(!motion));
     motionBtn.firstChild.textContent = motion ? 'Pause' : 'Play';
     const allowed = motion && !saveData && !document.hidden && document.readyState === 'complete';   // posters first; loops only after load
-    for (const stage of seen.keys()) for (const video of $$('.stage__video', stage)) {
+    for (const stage of seen.keys()) for (const video of $$('.stage__video[data-wide]', stage)) {
       if (allowed && stage === activeStage) {
         if (!video.src) {
           // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
@@ -149,30 +159,52 @@
       } else video.pause();
     }
   }
-  // Each product frame gets --p, 0 to 1, for how far it has travelled through the viewport. CSS turns that
-  // into the jar coming closer. Plain scrolling throughout: nothing is captured or delayed.
-  // Movement is eased: each frame keeps a current value that glides toward where the scroll says it should be.
+  // Scroll-scrubbed films. Each .scrub element gets --p, 0 to 1, for how far it has travelled, and its
+  // film is set to that moment. Plain scrolling throughout: nothing is captured or delayed. Movement is
+  // eased: each film keeps a current value that glides toward where the scroll says it should be.
+  // The films are encoded with a keyframe every 4 frames so seeking is cheap in both directions.
   let frames = [], running = false;
-  function trackFrames() { frames = $$('#stories .frame').map((el) => ({ el, cur: 0.5 })); placeFrames(true); }
+  function trackFrames() { frames = $$('.scrub').map((el) => ({ el, video: $('video', el), lead: Number(el.dataset.lead), cur: 0 })); placeFrames(true); }
   function placeFrames(jump) {
     running = false;
-    const vh = innerHeight;
+    const vh = innerHeight, films = motion && !saveData && document.readyState === 'complete';
     let moving = false;
     for (const f of frames) {
       const r = f.el.getBoundingClientRect();
-      if (r.bottom < -vh || r.top > 2 * vh) continue;
-      const target = motion ? Math.min(1, Math.max(0, (vh - r.top) / (r.height + vh * 0.25))) : 0.5;
-      f.cur = jump === true || !motion ? target : f.cur + (target - f.cur) * 0.085;
+      if (!r.height || r.bottom < -vh || r.top > 2 * vh) continue;
+      const travel = Math.max(r.height - vh + f.lead * vh, vh * 0.6);
+      const target = motion ? Math.min(1, Math.max(0, (f.lead * vh - r.top) / travel)) : 1;
+      f.cur = jump === true || !motion ? target : f.cur + (target - f.cur) * 0.12;
       if (Math.abs(target - f.cur) > 0.0008) moving = true; else f.cur = target;
       f.el.style.setProperty('--p', f.cur.toFixed(4));
-      // The jar fades up as its frame arrives and away as it leaves, so one product hands over to the next.
-      f.el.style.setProperty('--o', motion ? Math.min(1, f.cur / 0.16, (1 - f.cur) / 0.12).toFixed(3) : '1');
+      const v = f.video;
+      if (!films) continue;
+      if (!v.src) {
+        // H.264 where the browser has it (every mainstream one); VP9 WebM for Chromium builds without it.
+        v.preload = 'auto';
+        v.src = `media/scrub-${f.el.dataset.scrub}.${v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? 'mp4' : 'webm'}`;
+        v.addEventListener('seeked', kick);
+        v.addEventListener('loadeddata', () => { v.classList.add('is-playing'); kick(); });
+        // ponytail: iOS only decodes after a play() call; play-then-pause unlocks seeking. Not verified on a real iPhone.
+        v.play().then(() => v.pause()).catch(() => {});
+      } else if (v.readyState >= 2 && !v.seeking) {
+        const t = f.cur * (v.duration - 0.05);
+        if (Math.abs(v.currentTime - t) > 0.02) { v.pause(); v.currentTime = t; }
+      }
     }
     if (moving) kick();
   }
   function kick() { if (!running) { running = true; requestAnimationFrame(placeFrames); } }
   addEventListener('scroll', kick, { passive: true });
   addEventListener('resize', () => placeFrames(true));
+  addEventListener('load', kick);
+
+  // The explainer's steps light up in time with its film. With the film paused they are simply a list.
+  $('#how-video').addEventListener('timeupdate', (e) => {
+    const t = e.target.currentTime, steps = $$('#how-steps li');
+    const on = steps.filter((li) => Number(li.dataset.at) <= t).pop();
+    steps.forEach((li) => li.classList.toggle('is-on', li === on));
+  });
 
   // The jar in the opening leans a few degrees toward the pointer. Decorative; off with motion.
   const openingStage = $('.opening'), heroPacks = $('#hero-packs');

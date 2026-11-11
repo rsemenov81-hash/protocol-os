@@ -1,5 +1,7 @@
 # QA report
 
+> **v5 note (11 Nov 2026).** The 13 automated checks were rewritten where the page changed and pass locally on v5 (Chromium, WebM path): films scrub forward and back with scroll, the explainer is the only film that plays by itself, reduced motion and Save-Data fetch no video and lose no content. A simulated wheel scroll at 1440×900 held about 60 frames a second with a film frame change on 501 of 569 frames. Not checked on v5: Safari, Firefox, any real phone (iOS film scrubbing relies on a play-then-pause unlock that has not been tried on a device), screen readers, contrast and performance scores. The screenshots in `qa/` are of earlier versions.
+
 > **v4 note (10 Nov 2026).** The 13 automated checks were updated and pass on v4, including a new assertion that a jar grows as its frame is scrolled. Everything else in this report (accessibility scan, contrast, speed, screenshots list) describes earlier versions and has **not** been repeated on v4, which is now light text over one dark veiled scene throughout. Screenshots in `qa/` are from v4.
 
 Run 10 Nov 2026 against `vitae-lab/site/` served from a local static server. **The 13 automated checks were re-run on v3 and pass. The accessibility scan, contrast measurements and performance numbers below were taken on v2 and have not been repeated on v3**, which changed the product frames (text now light on a dark wash over film), added the material films and made the opening loop larger (1.2 MB instead of 0.4 MB).

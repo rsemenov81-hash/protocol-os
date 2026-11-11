@@ -15,7 +15,15 @@ const server = createServer(async (req, res) => {
     const file = resolve(root, '.' + (path.endsWith('/') ? path + 'index.html' : path));
     if (!file.startsWith(root + '/')) throw Error();
     res.setHeader('Content-Type', types[extname(file)] || 'application/octet-stream');
-    res.end(await readFile(file));
+    const body = await readFile(file);
+    // Byte ranges, as every real host serves them: without them a browser cannot seek in a film.
+    const m = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range || '');
+    res.setHeader('Accept-Ranges', 'bytes');
+    if (!m) return res.end(body);
+    const from = Number(m[1]), to = m[2] ? Number(m[2]) : body.length - 1;
+    res.statusCode = 206;
+    res.setHeader('Content-Range', `bytes ${from}-${to}/${body.length}`);
+    res.end(body.subarray(from, to + 1));
   } catch { res.statusCode = 404; res.end(); }
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -164,31 +172,42 @@ try {
     await context.close();
   });
 
-  await check('motion on: one loop, after load, pausable and remembered', async () => {
+  await check('motion on: scrolling scrubs the films, pausable and remembered', async () => {
     const { context, page, seen } = await open();
-    await page.waitForFunction(() => document.querySelector('.scene .stage__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => { const v = document.querySelector('.scene .stage__video'); return v.muted && v.loop && v.playsInline && /world-tall\.(mp4|webm)$/.test(v.currentSrc); }), true);
-    // Scrolling through a product frame drives its jar: --p rises and the jar grows.
-    const size = () => page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); return [Number(f.style.getPropertyValue('--p')), f.querySelector('.pack').getBoundingClientRect().height]; });
-    await page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); scrollTo({ top: f.offsetTop - innerHeight * 0.8, behavior: 'instant' }); });
-    await page.waitForFunction(() => document.querySelector('#story-creatine-monohydrate').style.getPropertyValue('--p') !== '');
-    const far = await size();
-    await page.evaluate(() => { const f = document.querySelector('#story-creatine-monohydrate'); scrollTo({ top: f.offsetTop + f.offsetHeight * 0.5, behavior: 'instant' }); });
-    await page.waitForFunction((p0) => Number(document.querySelector('#story-creatine-monohydrate').style.getPropertyValue('--p')) > p0 + 0.2, far[0]);
-    const near = await size();
-    assert.ok(near[1] > far[1] * 1.08, `jar should come closer: ${far[1]} -> ${near[1]}`);
-    assert.equal(await page.evaluate(() => [...document.querySelectorAll('video')].filter((v) => !v.paused).length), 1, 'one loop on the page');
-    await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+    const film = (sel) => page.evaluate((s) => { const el = document.querySelector(s), v = el.querySelector('video'); return { p: Number(el.style.getPropertyValue('--p')), t: v.currentTime, d: v.duration, src: v.currentSrc, paused: v.paused }; }, sel);
+    // The opening film is loaded after the page, sits on its first frame, and never plays on its own.
+    await page.waitForFunction(() => document.querySelector('.opening video').readyState >= 2);
+    const start = await film('.opening');
+    assert.match(start.src, /scrub-open\.(mp4|webm)$/);
+    assert.ok(start.t < 0.2 && start.p === 0, 'opening starts on its first frame');
+    // Scrolling into a product chapter moves its film forward; scrolling back rewinds it.
+    const to = (f) => page.evaluate((f) => { const el = document.querySelector('[data-scrub="pour"]'); scrollTo({ top: el.offsetTop + (el.offsetHeight - innerHeight) * f, behavior: 'instant' }); }, f);
+    await to(0.8);
+    await page.waitForFunction(() => { const v = document.querySelector('[data-scrub="pour"] video'); return v.readyState >= 2 && v.currentTime > v.duration * 0.6; });
+    const late = await film('[data-scrub="pour"]');
+    assert.ok(late.p > 0.6 && late.paused);
+    assert.equal(await page.locator('#story-creatine-monohydrate').evaluate((c) => getComputedStyle(c).opacity), '1', 'the facts card has arrived');
+    await to(0.1);
+    await page.waitForFunction((t) => document.querySelector('[data-scrub="pour"] video').currentTime < t - 1, late.t);
+    // The explainer is the only film that plays by itself, and only while it is the one in view.
+    await page.locator('#how').scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector('#how-video').currentTime > 0.1);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('video')].filter((v) => !v.paused).length), 1, 'one film playing');
+    await page.locator('#how-steps li.is-on').waitFor();   // the step in step with the film
+    assert.equal(await page.locator('#how-steps li.is-on').count(), 1);
+    const before = seen.video;
     const btn = page.locator('#motion-btn');
     assert.equal(await btn.textContent(), 'Pause motion');
     await btn.click();
-    await page.waitForFunction(() => document.querySelector('.scene .stage__video').paused);
+    await page.waitForFunction(() => document.querySelector('#how-video').paused);
     assert.equal(await btn.textContent(), 'Play motion');
     assert.equal(await btn.getAttribute('aria-pressed'), 'true');
+    await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
     await allShown(page);
     await page.reload();
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'off');
-    assert.equal(seen.video, 1, 'the loop is not fetched again while paused');
+    await page.waitForTimeout(400);
+    assert.equal(seen.video, before, 'no film is fetched while paused');
     await context.close();
   });
 
@@ -200,8 +219,9 @@ try {
       const { context, page, seen } = await open(opts);
       await page.waitForTimeout(600);
       assert.equal(seen.video, 0);
-      assert.equal(await page.locator('.scene img').evaluate((i) => i.complete && i.naturalWidth > 0), true);
-      assert.equal(await page.locator('#stories .frame').count(), 6);
+      assert.equal(await page.locator('.opening img').first().evaluate((i) => i.complete && i.naturalWidth > 0), true);
+      assert.equal(await page.locator('#stories .card').count(), 6);
+      assert.equal(await page.locator('#how-steps li').count(), 4);
       if (name === 'reduced motion') {
         await allShown(page);
         assert.equal(await page.locator('#motion-btn').textContent(), 'Play motion');
@@ -212,20 +232,20 @@ try {
     });
   }
 
-  await check('no H.264 in the browser: the WebM loop plays instead', async () => {
+  await check('no H.264 in the browser: the WebM film is used instead', async () => {
     // Playwright's open-source Chromium (CI) has no H.264 decoder; force the same answer everywhere.
     const { context, page, seen } = await open({ init: () => { HTMLMediaElement.prototype.canPlayType = (t) => (/mp4/.test(t) ? '' : 'probably'); } });
-    await page.waitForFunction(() => document.querySelector('.scene .stage__video').currentTime > 0.1);
-    assert.equal(await page.evaluate(() => document.querySelector('.scene .stage__video').currentSrc.endsWith('world-tall.webm')), true);
-    assert.equal(seen.video, 1);
+    await page.waitForFunction(() => document.querySelector('.opening video').readyState >= 2);
+    assert.equal(await page.evaluate(() => document.querySelector('.opening video').currentSrc.endsWith('scrub-open.webm')), true);
+    assert.ok(seen.video >= 1);
     await context.close();
   });
 
-  await check('video unavailable: the poster stays and the page still works', async () => {
+  await check('video unavailable: the posters stay and the page still works', async () => {
     const { context, page, seen } = await open({ noVideo: true });
     await page.waitForTimeout(600);
-    assert.equal(await page.locator('.scene .stage__video').evaluate((v) => v.classList.contains('is-playing')), false);
-    assert.equal(await page.locator('#stories .frame').count(), 6);
+    assert.equal(await page.locator('.opening video').evaluate((v) => v.classList.contains('is-playing')), false);
+    assert.equal(await page.locator('#stories .card').count(), 6);
     assert.deepEqual(seen.errors, []);
     await context.close();
   });
