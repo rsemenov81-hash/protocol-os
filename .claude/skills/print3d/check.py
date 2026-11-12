@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Printability report + 4-view preview PNG for a mesh (STL/3MF/OBJ).
+"""Printability report + 4-view preview PNG for a mesh (STL or OBJ; 3MF also needs networkx and lxml).
 
     python check.py part.stl [--out part.png] [--bed 330 320 325]
     python check.py --test
@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import trimesh
 
-# ponytail: H3C volume from launch coverage (Nov 2026); verify on bambulab.com and fix here.
+# H3C build volume: Bambu's spec page and the "Bambu Lab H3C 0.4 nozzle" preset agree.
 BED = (330.0, 320.0, 325.0)
 FACES = {"-Z (as modeled)": [0, 0, -1], "+Z": [0, 0, 1], "-X": [-1, 0, 0],
          "+X": [1, 0, 0], "-Y": [0, -1, 0], "+Y": [0, 1, 0]}
@@ -35,8 +35,15 @@ def orientations(mesh):
 
 
 def fits(ext, bed=BED):
+    """Plate rotation in degrees at which the bounding box fits, or None."""
     x, y, z = ext
-    return z <= bed[2] and ((x <= bed[0] and y <= bed[1]) or (y <= bed[0] and x <= bed[1]))
+    if z > bed[2]:
+        return None
+    for deg in (0, 90, *range(5, 90, 5)):  # square first, then diagonal
+        c, s = abs(np.cos(np.radians(deg))), abs(np.sin(np.radians(deg)))
+        if x * c + y * s <= bed[0] and x * s + y * c <= bed[1]:
+            return deg
+    return None
 
 
 VIEWS = [("iso", (1, -1, 0.8), None), ("front (X-Z)", (0, -1, 0), "XZ"),
@@ -112,12 +119,15 @@ def render(mesh, out):
 
 def report(path, out, bed):
     mesh = trimesh.load(path, force="mesh")
-    ext, vol = mesh.extents, mesh.volume / 1000
+    ext, vol, deg = mesh.extents, mesh.volume / 1000, fits(mesh.extents, bed)
+    fit = "NO - split, reorient or scale" if deg is None else "YES" if deg in (0, 90) else f"YES, only turned ~{deg} deg on the plate"
     print(f"file        {path}")
-    print(f"size        {ext[0]:.1f} x {ext[1]:.1f} x {ext[2]:.1f} mm   "
-          f"fits {bed[0]:g}x{bed[1]:g}x{bed[2]:g}: {'YES' if fits(ext, bed) else 'NO - split, rotate or scale'}")
-    print(f"volume      {vol:.2f} cm3   solid-mass ceiling ~{vol * 1.25:.0f} g PLA/PETG "
-          f"(~{vol * 1.05:.0f} g ASA/ABS); slicer gives the real number")
+    print(f"size        {ext[0]:.1f} x {ext[1]:.1f} x {ext[2]:.1f} mm   fits {bed[0]:g}x{bed[1]:g}x{bed[2]:g}: {fit}")
+    if mesh.is_watertight:
+        print(f"volume      {vol:.2f} cm3   solid-mass ceiling ~{vol * 1.25:.0f} g PLA/PETG "
+              f"(~{vol * 1.05:.0f} g ASA/ABS); slicer gives the real number")
+    else:
+        print("volume      n/a: mesh is not watertight, fix the model before trusting any number")
     print(f"mesh        watertight={mesh.is_watertight}  bodies={mesh.body_count}  faces={len(mesh.faces)}")
     print("orientation overhang>45deg mm2 | height mm | face down")
     for area, h, name in orientations(mesh):
@@ -136,7 +146,8 @@ def _test():
     assert abs(overhang_mm2(tee) - 300) < 1e-6, overhang_mm2(tee)
     best = orientations(tee)[0]
     assert best[0] == 0 and "Y" in best[2], best  # lying flat needs no support
-    assert fits((300, 330, 100)) and not fits((340, 340, 10))
+    assert fits((300, 330, 100)) == 90 and fits((340, 340, 10)) is None and fits((10, 10, 400)) is None
+    assert fits((400, 20, 10)) not in (None, 0, 90), "a long thin part fits diagonally"
     print("ok")
 
 
