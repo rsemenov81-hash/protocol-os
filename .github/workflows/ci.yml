@@ -39,7 +39,9 @@ concurrency:
 jobs:
   ci:
     name: check · test · e2e
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.56.1 can't install browsers on.
+    # Bump together with a Playwright upgrade that lists 26.04 as supported.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       CI: true
