@@ -34,10 +34,28 @@ If you are running on their computer, run these yourself (the second one in the 
 ask them to type commands. In a cloud session you cannot: say so and have them start a Claude Code
 session on their computer instead.
 
-Tell them in plain words what happens and what to do: a browser window opens, they log in, then open
-every claim and its EOB for this year (last year too if offered), benefits and coverage, deductible /
-out-of-pocket totals, prior authorizations, prescriptions, and close the window when done. Output lands
-in `fehb/capture/` (`json/`, `docs/`, `text/`, `index.jsonl`).
+Tell them in plain words: a browser window opens, they log in, and they tell you when they are in.
+**The only thing they have to do is log in.** You do the clicking.
+
+The script prints `CONTROL http://127.0.0.1:<port>/<token>`. Drive the browser with curl against it:
+
+    curl -s $CONTROL/look            # where am I: URL, numbered clickable things, page text
+    curl -s "$CONTROL/click?n=12"    # click item 12 from the last look, then look again
+    curl -s "$CONTROL/goto?url=/x"   # same site only
+    curl -s $CONTROL/back | scroll | close (closes an extra tab) | done (closes the browser)
+
+Everything the portal returns while you browse is saved for you; you do not need to copy text out of `look`.
+Visit, and tick off as you go: every claim's detail page and its EOB for this year (last year too if
+offered), benefits and coverage, deductible / out-of-pocket totals, prior authorizations, prescriptions,
+plan documents. Scroll or page through long lists until they end. Then `done`.
+
+- You can only navigate. There is no way to type, and the script refuses clicks that look like they
+  change something (log out, submit, pay, delete, save, edit...). Do not look for ways around a refusal.
+- If a page needs typing, a date range changed, or an MFA prompt answered, ask the user to do that one
+  thing in the window, then carry on.
+- If `look` says "Login page", wait for the user. Never read or relay anything from a login screen.
+
+Output lands in `fehb/capture/` (`json/`, `docs/`, `text/`, `index.jsonl`).
 
 If the portal blocks the automated browser: they use their normal browser, DevTools → Network →
 "Export HAR (sanitized)" while browsing the same pages, and save it plus any downloaded EOB PDFs into
