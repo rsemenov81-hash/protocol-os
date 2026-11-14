@@ -25,14 +25,19 @@ enter ZIP, employee type, pay period, current plan; copy the results URL). Then:
 
 It writes every plan open to them next year, plus `current`: this year's terms of the plan they are in.
 
-## 2. Capture (the user does this, on their own computer)
+## 2. Capture (needs the user's own computer: a browser window has to appear on their screen)
 
     npm ci && npx playwright install chromium     # once
     node .claude/skills/fehb/capture.mjs          # default: member.carefirst.com; pass another URL to override
 
-Tell them what to open: every claim and its EOB for this year (last year too if offered), benefits and
-coverage, deductible / out-of-pocket totals, prior authorizations, prescriptions. Output lands in
-`fehb/capture/` (`json/`, `docs/`, `text/`, `index.jsonl`).
+If you are running on their computer, run these yourself (the second one in the background) and do not
+ask them to type commands. In a cloud session you cannot: say so and have them start a Claude Code
+session on their computer instead.
+
+Tell them in plain words what happens and what to do: a browser window opens, they log in, then open
+every claim and its EOB for this year (last year too if offered), benefits and coverage, deductible /
+out-of-pocket totals, prior authorizations, prescriptions, and close the window when done. Output lands
+in `fehb/capture/` (`json/`, `docs/`, `text/`, `index.jsonl`).
 
 If the portal blocks the automated browser: they use their normal browser, DevTools → Network →
 "Export HAR (sanitized)" while browsing the same pages, and save it plus any downloaded EOB PDFs into
