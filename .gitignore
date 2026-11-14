@@ -2,3 +2,4 @@ node_modules/
 .playwright/
 *.log
 __pycache__/
+/fehb/
