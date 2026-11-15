@@ -1,20 +1,29 @@
 ---
 name: print3d
-description: 3D-printing workflow for the user's Bambu Lab H3C, from idea to sliced print file. Use when the user wants something designed, modeled, fixed or printed ("make me a bracket", "print a holder for…", "slice this STL"), asks what filament to use or buy, or wants their filament inventory checked or updated.
+description: 3D-printing workflow for the user's Bambu Lab H3C, from idea to a running print. Use when the user wants something designed, modeled, fixed or printed ("make me a bracket", "print a holder for…", "slice this STL"), asks what filament to use or buy, or wants their filament inventory checked or updated.
 argument-hint: [what you want made]
 ---
 
-# print3d: idea → approved model → print-ready file on the H3C
+# print3d: idea → approved model → running print on the H3C
 
 Workspace: `print3d/` at the repo root.
 - `print3d/materials.md`: the inventory (filament, loaded tools, hardware, wish list). **Read it first, every time.**
 - `print3d/projects/<slug>/`: one folder per job, holding `notes.md` (spec, decisions, status), `model.py`, exports and previews.
+- `print3d/setup.md`: what works on this computer (paths, the slice command that ran, how prints get started). If it is missing, setup has not been done: run First-time setup before slicing.
 
 Scripts in this skill's directory:
 - `check.py`: printability report plus a 4-view preview PNG.
 - `flatten.py`: turns a Bambu Studio preset into one the command-line slicer can load.
 
 Python deps: `pip install build123d trimesh matplotlib` (only if the import fails).
+
+## Who does what
+Claude runs every piece of software: modeling, checking, slicing, starting the print, the inventory. The user does three things:
+- approves the design (Gate 1),
+- says the plate is clear and the filament is loaded (Gate 2),
+- handles the physical side: spools and removing parts.
+
+Never hand a software step to the user while you have a way to do it yourself. If you have none, say which step and what is missing.
 
 ## Printer: Bambu Lab H3C
 Checked against Bambu's spec page and the H3C presets in Bambu Studio 02.09.01.70 (Nov 2026).
@@ -50,7 +59,7 @@ Checked against Bambu's spec page and the H3C presets in Bambu Studio 02.09.01.7
    - support type and where support interfaces go,
    - brim, and the tool or filament for each body.
 7. **Slice.** Follow the Slicing section below. Report print time, grams per filament, and a stock check. If stock is short, stop and say so.
-8. **GATE 2: start.** The user confirms the plate is clear and the right filament is on each tool, then starts the print (see Hand-off).
+8. **GATE 2: go.** Ask in chat whether the plate is clear and the listed filament is on each tool. On an explicit yes for this job, start the print yourself (see Starting the print).
 9. **Log.** After the print, subtract the grams used in `materials.md`, then write in `notes.md` what to change next time. Commit.
 
 ## Material choice
@@ -125,18 +134,37 @@ The slicer ignores a misspelled key without complaint, so copy the names from he
 - `sliced_plates[0].total_predication` is the print time in seconds; `filaments[].total_used_g` the grams per filament; `warning_message` anything the slicer flagged.
 - Top-level `layer_height`, `wall_loops` and `sparse_infill_density` show whether the overrides took effect.
 
-**Parts made of several bodies in different materials or colours** are not automated: the CLI would arrange the STLs as separate objects and pull them apart. Hand them over through the app: drag all the part's STLs into Bambu Studio together, answer Yes to "load as a single object with multiple parts", and assign each part the filament listed in `notes.md`. (The CLI has `--load-assemble-list` for this; it is untested here.)
+**Parts made of several bodies in different materials or colours** can't go through the CLI as separate STLs: it would arrange them as separate objects and pull them apart. Build these in the Bambu Studio app with computer use: import all the part's STLs together, answer Yes to "load as a single object with multiple parts", assign each part the filament from `notes.md`, apply the job's settings, and slice there. (The CLI has `--load-assemble-list` for this; it is untested.)
 
-**If the CLI fails**, open the STL in the Bambu Studio app (`open -a BambuStudio <file>` on macOS, `start "" <file>` on Windows), give the user the settings from `notes.md`, and let them press Slice.
+**If the CLI fails**, slice in the Bambu Studio app with computer use: open the STL, pick the H3C presets, apply the settings from `notes.md`, press Slice, and read the time and grams off the screen.
 
-## Hand-off: starting the print
-- **Default:** open the `.gcode.3mf` in Bambu Studio, check the tool/filament mapping, and press Print. That one tap is Gate 2, and it stays.
-- **Hands-off sending (opt-in, not set up):** the printer must be in LAN-only mode with Developer Mode on. Then upload over FTPS and start over MQTT (for example the `bambulabs_api` Python package). This disconnects Bambu Cloud and Handy remote access. Set it up only if the user explicitly asks, and keep the plate-clear confirmation even then.
+## Starting the print
+Only after Gate 2, and only the job the user said yes to. Bambu Studio has no command for sending a print, so use the first route that works on this computer (`print3d/setup.md` says which):
 
-## Cloud sessions (Claude app on the phone)
-Steps 1–6 run fully in a cloud session. There is no Bambu Studio and no printer on the network there. Commit and push the project folder; slicing and printing happen on the computer next to the printer:
-- open this repo in Claude Code there and say "slice <slug>", or
-- attach that computer to the cloud session through Remote Control.
+1. **Computer use in the Bambu Studio app.** This keeps Bambu Cloud and the Handy app working. Open the sliced `.gcode.3mf`, choose Print, select the H3C, check that every filament maps to the tool `notes.md` names, and send it.
+2. **Direct to the printer over the home network.** This needs the printer in LAN-only mode with Developer Mode on, which disconnects Bambu Cloud and Handy, so ask the user before switching to it. It is not built: write and test it with the user present (FTPS upload, MQTT start; the `bambulabs_api` package may cover it). Keep the printer's access code outside the repo.
+3. **Neither works.** Open the sliced file in Bambu Studio, tell the user this one click is theirs and why, and fix the missing route afterwards.
+
+Rules for every route:
+- One yes starts one print. Never resend or restart after a failure without asking.
+- Before sending, look at the printer's state. If it is busy, shows an error, or asks for anything unexpected (a firmware update, a calibration, a filament mismatch), stop and report.
+- After sending, confirm from the app that the print started, then tell the user the job name and the expected finish time.
+
+## Where it runs
+The full pipeline needs a session that runs on the computer next to the printer: Bambu Studio and the printer are there. The user can still drive that session from their phone when it is shared through Remote Control.
+
+A cloud session has no Bambu Studio and no printer:
+- If it has tools for the user's computer (`mcp__remote-devices__computer_*`, an `enable__mcp__remote-devices__computer` tool, or a folder from `request_computer_folder`), use them and carry on.
+- Otherwise do steps 1–6, commit and push the project, and tell the user to continue with "slice and print <slug>" in a session on that computer.
+
+## First-time setup (once per computer, with the user present)
+Do this when `print3d/setup.md` is missing, or when the user says "set up print3d". Record each result in `print3d/setup.md` and commit it.
+
+1. Install the Python deps, then run `check.py --test` and `flatten.py --test`.
+2. Find Bambu Studio and its presets (table in Slicing). Record the version. If there are no H3C presets, ask the user to update Bambu Studio.
+3. Test the slice. Model a 20 mm cube, flatten the machine, `0.20mm Standard` and `Bambu PLA Matte` presets, and run the slice command. Fix what differs until `result.json` has `return_code` 0. Then write the exact working command into the Slicing section, replacing its Status paragraph.
+4. Test the print start. Find which route in Starting the print works here. For computer use, ask for access to Bambu Studio and walk the Print dialog up to, but not including, the final send. Then ask the user for a real go and print the cube.
+5. Ask the user which spool is on which tool, and fill the "Loaded" table in `materials.md`.
 
 ## Model and effort
 Run this on **Opus 5.5 or Fable 5.2 at high effort**. The skill does not pin a model: a pin lasts only for the turn that invokes the skill, and it would override a stronger model the user picked.
