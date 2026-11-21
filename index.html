@@ -1645,6 +1645,8 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
     { id: "anavar", name: "Anavar (Oxandrolone)", category: "Anabolic", icon: "💊", purpose: "Oral 17α-alkylated anabolic steroid with a high anabolic-to-androgenic ratio; does not aromatize, minimal water retention.", benefits: ["Lean mass and strength", "Hardness without bloat", "Well-tolerated oral"], protocol: { doseRange: "20–50 mg/day (often split AM/PM)", defaultDoseMcg: 5e4, timing: "AM, or split AM/PM", cycle: "6–8 weeks", cycleDays: 42, route: "Oral" }, reconstitution: { typicalVialMg: 0, defaultDiluentMl: 0 }, synergy: ["Testosterone base", "Liver support (TUDCA / NAC)"], avoid: ["Other 17α-alkylated orals at the same time", "Alcohol"], contraindications: ["Hepatic strain — ALT/AST", "Crushes HDL — monitor lipids", "Prostate cancer"] },
     { id: "deca", name: "Deca (Nandrolone Decanoate)", category: "Anabolic", icon: "💉", oil: true, purpose: "Long-ester injectable nandrolone (~6–8 day half-life): strong anabolic signal, joint/connective-tissue comfort, low aromatization but progestogenic.", benefits: ["Mass and strength", "Joint comfort", "Collagen synthesis"], protocol: { doseRange: "100–400 mg/week (1–2 shots)", defaultDoseMcg: 2e5, timing: "Same day(s) weekly", cycle: "10–16 weeks", cycleDays: 84, route: "IM" }, reconstitution: { typicalVialMg: 2e3, defaultDiluentMl: 10 }, synergy: ["Testosterone (always a T base)", "HCG"], avoid: ["Running without testosterone", "Other 19-nors (NPP/Tren) concurrently"], contraindications: ["Prolactin / libido suppression", "Polycythemia — monitor HCT", "Prostate cancer"] },
     { id: "npp", name: "NPP (Nandrolone Phenylpropionate)", category: "Anabolic", icon: "💉", oil: true, purpose: "Short-ester nandrolone (~2–3 day half-life): Deca's anabolic and joint profile with faster clearance and tighter dose control.", benefits: ["Mass and strength", "Joint comfort", "Fast on / fast off"], protocol: { doseRange: "50–100 mg every other day", defaultDoseMcg: 1e5, timing: "EOD or Mon/Wed/Fri", cycle: "8–12 weeks", cycleDays: 70, route: "IM" }, reconstitution: { typicalVialMg: 1e3, defaultDiluentMl: 10 }, synergy: ["Testosterone base", "HCG"], avoid: ["Running without testosterone", "Deca at the same time"], contraindications: ["Prolactin / libido suppression", "Polycythemia — monitor HCT", "Prostate cancer"] },
+    { id: "tren-ace", name: "Trenbolone Acetate", category: "Anabolic", icon: "💉", oil: true, purpose: "Short-ester 19-nor androgen (~1–2 day half-life): very strong anabolic and androgenic signal, does not aromatize but is progestogenic.", benefits: ["Lean mass and strength", "Recomposition", "Fast on / fast off"], protocol: { doseRange: "10–50 mg daily or EOD", defaultDoseMcg: 15e3, timing: "Daily, same time", cycle: "6–10 weeks", cycleDays: 56, route: "IM" }, reconstitution: { typicalVialMg: 1e3, defaultDiluentMl: 10 }, synergy: ["Testosterone base", "HCG"], avoid: ["Running without testosterone", "Stacking with other 19-nors (NPP / Deca) without labs"], contraindications: ["Kidney strain — watch creatinine / eGFR", "Blood pressure and lipids (HDL drop)", "Prolactin / libido, sleep and mood", "Polycythemia — monitor HCT"] },
+    { id: "hgh", name: "HGH (Somatropin)", category: "Hormone", icon: "💉", purpose: "Recombinant human growth hormone: raises IGF-1 directly (no pituitary step), for body composition, recovery and connective tissue.", benefits: ["Body composition", "Recovery and sleep depth", "Skin, tendon and joint support"], protocol: { doseRange: "1–4 IU daily", defaultDoseMcg: 2, timing: "Morning (spares overnight glucose)", cycle: "Continuous, labs every 8–12 weeks", cycleDays: 90, route: "SubQ" }, reconstitution: { typicalVialMg: 3.33, defaultDiluentMl: 1 }, synergy: ["GH secretagogues (watch total GH load)"], avoid: ["IGF-1 LR3 at the same time without labs"], contraindications: ["Rising glucose / insulin resistance — watch CGM and A1c", "Water retention, carpal tunnel symptoms", "Active cancer"] },
     { id: "primobolan", name: "Primobolan (Methenolone Enanthate)", category: "Anabolic", icon: "💉", oil: true, purpose: "DHT-derived injectable: mild, non-aromatizing lean-tissue and hardening agent with a low side-effect profile.", benefits: ["Lean tissue retention", "No aromatization / water", "Gentle on blood pressure"], protocol: { doseRange: "300–600 mg/week (2 shots)", defaultDoseMcg: 3e5, timing: "2×/week", cycle: "10–16 weeks", cycleDays: 84, route: "IM" }, reconstitution: { typicalVialMg: 1e3, defaultDiluentMl: 10 }, synergy: ["Testosterone base", "Anavar (dry stack)"], avoid: ["Expecting fast mass gains"], contraindications: ["Hair loss (DHT-derived)", "Lipid shifts — monitor", "Prostate cancer"] },
     { id: "testosterone-cypionate", name: "Testosterone Cypionate", category: "Hormone", icon: "⚡", oil: true, purpose: "Long-ester testosterone (~5–8 day half-life); TRT and cycle foundation. Small daily / EOD SubQ shots give the steadiest levels.", benefits: ["Muscle", "Libido", "Mood", "Energy", "Bone"], protocol: { doseRange: "20 mg/day SubQ · 100–200 mg/week TRT", defaultDoseMcg: 2e4, timing: "Daily AM or split 2×/week", cycle: "Ongoing", cycleDays: 365, route: "SubQ or IM" }, reconstitution: { typicalVialMg: 2e3, defaultDiluentMl: 10 }, synergy: ["HCG (always)", "Anastrozole only if E2 runs high"], avoid: ["TRT without HCG", "Skipping bloodwork"], contraindications: ["Polycythemia (monitor HCT)", "Prostate cancer", "Untreated sleep apnea"] },
     { id: "testosterone-enanthate", name: "Testosterone Enanthate", category: "Hormone", icon: "⚡", oil: true, purpose: "Long-ester testosterone (~4–5 day half-life); interchangeable with cypionate for TRT and cycles. Injected 1–2×/week or in small daily shots.", benefits: ["Muscle", "Libido", "Mood", "Energy", "Bone"], protocol: { doseRange: "100–200 mg/week TRT · 250–500 mg/week cycle", defaultDoseMcg: 1e5, timing: "Split 2×/week or daily SubQ", cycle: "Ongoing / 12–16 weeks", cycleDays: 365, route: "SubQ or IM" }, reconstitution: { typicalVialMg: 2500, defaultDiluentMl: 10 }, synergy: ["HCG (always)", "Anastrozole only if E2 runs high"], avoid: ["TRT without HCG", "Skipping bloodwork"], contraindications: ["Polycythemia (monitor HCT)", "Prostate cancer", "Untreated sleep apnea"] }
@@ -2264,6 +2266,71 @@ input[type=range].aurora-range::-moz-range-thumb{width:28px;height:28px;border:n
           };
           ps.unshift(ap);
           ls = ls.concat(buildBackfillLogs(ap, FROM, "2026-09-28", { idPrefix: "bf_m1_anavar_", doseMcg: 5e4, doseUnit: "mg", time: "08:00", notes: "Back-dated · Anavar 50 mg/day, Aug 22 – Sep 28" }, ls));
+        }
+        return { protocols: ps, logs: ls };
+      }
+    },
+    {
+      // 2026-11-21 (Roman, confirmed through the peptide-tracker dose check; everything tagged needsReview):
+      //  (1) HGH (somatropin) 2 IU every morning since 2026-06-01, ongoing.
+      //  (2) Trenbolone acetate daily since 2026-11-03: 10 mg through 2026-11-20, 15 mg from 2026-11-21.
+      // Both are added as active protocols and back-filled up to yesterday; today is left for the user.
+      id: "m2_roman_hgh_tren_2026-11",
+      profile: "Roman",
+      appliesTo({ protocols, logs }) {
+        const historic = (d) => dkValid(dkOf(d)) && dkOf(d) <= "2026-10-02";
+        return protocols.some((p) => p.profile === "Roman" && historic(p.startDate)) || logs.some((l) => l.profile === "Roman" && historic(l.datetime));
+      },
+      run({ protocols, logs }, todayDk) {
+        let ps = protocols.slice(), ls = logs.slice();
+        const flag = (arr) => arr.map((l) => ({ ...l, needsReview: true }));
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        if (!ps.some((p) => p.id === "p_m2_hgh")) {
+          const hp = {
+            id: "p_m2_hgh",
+            profile: "Roman",
+            peptideId: "hgh",
+            peptideName: "HGH (Somatropin)",
+            doseMcg: 2,
+            doseUnit: "IU",
+            doseValue: 2,
+            route: "inj",
+            schedule: { days: ALL_DAYS.slice(), timeOfDay: "morning" },
+            cycleDays: null,
+            startDate: "2026-06-01",
+            active: true,
+            createdAt: now,
+            backfilled: true,
+            needsReview: true
+          };
+          ps.unshift(hp);
+          ls = ls.concat(flag(buildBackfillLogs(hp, "2026-06-01", dkAdd(todayDk, -1), { idPrefix: "bf_m2_hgh_", time: "07:00", notes: "Back-dated · HGH 2 IU daily since Jun 1" }, ls)));
+        }
+        if (!ps.some((p) => p.id === "p_m2_tren")) {
+          const sched = { days: ALL_DAYS.slice(), timeOfDay: "morning" };
+          const tp = {
+            id: "p_m2_tren",
+            profile: "Roman",
+            peptideId: "tren-ace",
+            peptideName: "Trenbolone Acetate",
+            doseMcg: 15e3,
+            doseUnit: "mg",
+            doseValue: 15,
+            route: "inj",
+            schedule: sched,
+            cycleDays: null,
+            startDate: "2026-11-03",
+            active: true,
+            createdAt: now,
+            backfilled: true,
+            needsReview: true,
+            timeline: timelineSorted([
+              { id: "tl_m2_tren_base", from: null, schedule: sched, doseMcg: 1e4, doseUnit: "mg", doseValue: 10 },
+              { id: "tl_m2_tren_15", from: "2026-11-21", schedule: sched, doseMcg: 15e3, doseUnit: "mg", doseValue: 15 }
+            ])
+          };
+          ps.unshift(tp);
+          ls = ls.concat(flag(buildBackfillLogs(tp, "2026-11-03", dkAdd(todayDk, -1), { idPrefix: "bf_m2_tren_", time: "07:00", notes: "Back-dated · Tren Ace 10 mg/day Nov 3–20, 15 mg/day from Nov 21" }, ls)));
         }
         return { protocols: ps, logs: ls };
       }
