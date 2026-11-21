@@ -118,7 +118,12 @@ try {
   check('migration: testosterone back-filled through yesterday, not today',
     tBack.length > 30 && !logs.some((l) => l.protocolId === 'p_live_t' && l.datetime.startsWith(today)) && !tBack.some((l) => l.datetime.startsWith(yesterday)),
     String(tBack.length));
-  check('migration: marker stored', meta && meta.migrations && meta.migrations.length === 1);
+  check('migration: marker stored', meta && meta.migrations && meta.migrations.includes('m1_roman_test_daily_anavar_2026-10'));
+  check('migration m2: HGH + Tren Ace protocols added and flagged',
+    meta.migrations.includes('m2_roman_hgh_tren_2026-11') &&
+    protos.some((p) => p.id === 'p_m2_hgh' && p.doseUnit === 'IU' && p.needsReview) &&
+    protos.some((p) => p.id === 'p_m2_tren' && p.needsReview) &&
+    !logs.some((l) => /^p_m2_/.test(l.protocolId || '') && l.datetime.startsWith(today)));
   const an = protos.find((p) => p.id === 'p_m1_anavar');
   check('migration: Anavar protocol finished (endDate, inactive)', an && an.endDate === '2026-09-28' && an.active === false);
 

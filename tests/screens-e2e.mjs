@@ -33,6 +33,8 @@ const FIXTURE = {
     { id: 'v_ss', peptideId: 'ss31', peptideName: 'SS-31', mgPerVial: 10, diluentMl: 2, totalMcg: 10000, remainingMcg: 6000, mcgPerMl: 5000, mcgPerUnit: 50, unitsPerDose: 40, doseMcg: 2000, active: true, formType: 'liquid' },
   ],
   logs: [],
+  // m2 (Roman's HGH + Tren back-fill) would add two compounds to this screen fixture; screens stay at four.
+  meta: { migrations: ['m2_roman_hgh_tren_2026-11'] },
 };
 const results = [];
 const check = (name, ok, detail) => { results.push({ name, ok: !!ok }); console.log((ok ? 'ok   ' : 'FAIL ') + name + (!ok && detail ? ' — ' + detail : '')); };
@@ -65,6 +67,7 @@ const newCtx = async (browser, { sync = false } = {}) => {
       localStorage.setItem('protocol_os_protocols', JSON.stringify(fx.protocols));
       localStorage.setItem('protocol_os_vials', JSON.stringify(fx.vials));
       localStorage.setItem('protocol_os_logs', JSON.stringify(fx.logs));
+      if (fx.meta) localStorage.setItem('protocol_os_meta', JSON.stringify(fx.meta));
       localStorage.setItem('protocol_os_loaded_v4', 'true');
       localStorage.setItem('protocol_os_active_profile', 'Roman');
       if (sync) { localStorage.setItem('protocol_os_sync_url', 'https://sync.test'); localStorage.setItem('protocol_os_sync_token', 't'); }

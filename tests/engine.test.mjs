@@ -117,7 +117,7 @@ describe('migration m1 (Roman: daily testosterone + Anavar cycle) against a live
   };
   const r1 = m.runMigrations(live, 'Roman', TODAY);
   eq(r1.changed, true, 'm1 ran');
-  eq(r1.meta.migrations.length, 1, 'marker written');
+  eq(r1.meta.migrations.includes('m1_roman_test_daily_anavar_2026-10'), true, 'marker written');
   const t = r1.protocols.find((p) => p.id === 'p_live_t');
   eq(t.timeline.length, 2, 'testosterone timeline');
   eq(t.timeline[1].from, '2026-08-22', 'daily from Aug 22');
@@ -147,4 +147,31 @@ describe('migration m1 (Roman: daily testosterone + Anavar cycle) against a live
   eq(recentResult.changed, false, 'first new regimen cannot trigger historical backfill after reload');
   eq(recentResult.logs.length, 1, 'new regimen keeps only its actual log');
   eq(m.runMigrations({ ...fresh, logs: [{ ...live.logs[0], profile: 'Scott' }] }, 'Roman', TODAY).changed, false, 'another profile history cannot seed Roman');
+});
+
+describe('migration m2 (Roman: HGH since Jun 1 + Tren Ace 10 -> 15 mg)', () => {
+  const T2 = '2026-11-21';
+  const live = {
+    protocols: [{ id: 'p_live_t', profile: 'Roman', peptideId: 'testosterone', peptideName: 'Testosterone Cyp (20mg / 10u)', doseMcg: 40000, doseUnit: 'mg', schedule: { days: [1, 3, 5], timeOfDay: 'morning' }, startDate: '2026-05-29', active: true }],
+    logs: [], vials: [], meta: { migrations: ['m1_roman_test_daily_anavar_2026-10'] },
+  };
+  const r1 = m.runMigrations(live, 'Roman', T2);
+  eq(r1.meta.migrations.includes('m2_roman_hgh_tren_2026-11'), true, 'm2 marker written');
+  const h = r1.protocols.find((p) => p.id === 'p_m2_hgh');
+  eq([h.active, h.doseUnit, h.doseValue, h.startDate, h.schedule.days.length, h.needsReview], [true, 'IU', 2, '2026-06-01', 7, true], 'HGH protocol');
+  const hLogs = r1.logs.filter((l) => l.protocolId === 'p_m2_hgh');
+  eq(hLogs.length, m.dkDiff('2026-11-20', '2026-06-01') + 1, 'HGH back-filled every day Jun 1..Nov 20');
+  eq([hLogs[0].doseUnit, hLogs[0].doseValue, hLogs[0].needsReview], ['IU', 2, true], 'HGH log shape');
+  const tr = r1.protocols.find((p) => p.id === 'p_m2_tren');
+  eq(m.materializeProto(tr, T2).doseValue, 15, 'Tren 15 mg from today');
+  eq(m.protoAt(tr, '2026-11-10').doseValue, 10, 'Tren 10 mg before today');
+  const trLogs = r1.logs.filter((l) => l.protocolId === 'p_m2_tren');
+  eq(trLogs.length, 18, 'Tren back-filled Nov 3..Nov 20');
+  eq(trLogs.every((l) => l.doseValue === 10 && l.doseUnit === 'mg'), true, 'all back-filled Tren entries are 10 mg');
+  eq(r1.logs.some((l) => l.datetime.startsWith(T2)), false, 'today not auto-logged');
+  const r3 = m.runMigrations({ ...r1, meta: { migrations: ['m1_roman_test_daily_anavar_2026-10'] } }, 'Roman', T2);
+  eq(r3.logs.length, r1.logs.length, 're-run adds nothing');
+  eq(m.runMigrations(live, 'Scott', T2).changed, false, 'Roman only');
+  const recent = { protocols: [{ ...live.protocols[0], startDate: '2026-11-01' }], logs: [], meta: {} };
+  eq(m.runMigrations(recent, 'Roman', T2).changed, false, 'a newer install never gets this history');
 });
