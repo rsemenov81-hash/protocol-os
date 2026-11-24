@@ -49,7 +49,7 @@ data saving and slow connections use the still background. The pause preference 
 and playback stops while the document is hidden. The original five-second visual was made
 with Higgsfield, job `dd17e098-6d7b-4d33-922d-bf355372ce3b`, from the generic forest artwork.
 
-Deploy `worker.js` version 1.1.0 to the existing Worker, preserving `SCOTT_KV`, both access
+Deploy `worker.js` version 1.2.0 to the existing Worker, preserving `SCOTT_KV`, both access
 secrets, VAPID data, subscriptions, and the existing cron. The authenticated `GET /document?id=…`
 route returns an original PDF or CSV from `document:doc_<20 hex characters>` in KV. Each
 object contains `name`, `mime`, `base64`, and `sha256`; the response is never cached. Keep
@@ -109,7 +109,7 @@ has to turn reminders on again.
 
 ## 6. Check it
 
-- Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.1.0"}`.
+- Open `https://scott-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.2.0"}`.
 - Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Monday the
   Protocol tab shows Testosterone Cypionate, Nandrolone Decanoate and Anavar.
 - Load the supplement stacks: open the import link Roman was given (see *Supplement stacks* below). The
@@ -182,3 +182,27 @@ and shadows create depth. Hover lift applies only to fine pointers and is disabl
 for reduced motion. No new continuously animated effects, dependencies or backend
 changes are introduced. Deploy these two assets alongside the HTML and its matching
 content-versioned stylesheet.
+
+### Northwest DC autumn edition (November 2026)
+
+The scenic layer uses a Higgsfield API generation of an autumn residential street
+inspired by Dupont Circle, Shaw and Logan Circle. No personal records were sent
+to the generation provider. The prompt excludes federal landmarks and monuments.
+Model: `bytedance/seedance-2.5/text-to-video`; request
+`01a20b33-1998-754e-b14f-450b4901ae60`. The completed 10-second, 1080p output was
+trimmed with a short loop crossfade and compressed into a silent 9.2-second film:
+`autumn-dc.mp4`, an open-codec `autumn-dc.webm` fallback, and a matching JPG poster.
+`autumn.css` replaces the pop-art presentation. Publish these files with the HTML,
+`cinematic.css`, and manifest. Motion stays off for reduced-motion/data-saving
+preferences, pauses offscreen or in hidden tabs, and has a persistent pause control.
+
+Date-effective protocol support now reads optional private `scheduleHistory`
+snapshots with inclusive `through` dates, plus compound `startDate`/`endDate` bounds.
+The frontend, dose logging checks and reminder worker must be deployed together
+before importing dated protocol changes. History exports retain recorded doses
+and use names/units from the applicable snapshot. Explicit reactivation starts
+today and preserves the preceding interval. Actual protocol updates, lab values
+and original PDFs belong only in authenticated storage, never in this public repo.
+
+Validation: Scott Chromium/WebKit regression tests, cinematic autoplay/pause,
+offscreen/reduced-motion/data-saving tests, and date-history/reminder tests.

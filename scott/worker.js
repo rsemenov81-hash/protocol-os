@@ -31,7 +31,7 @@
 // KV binding: SCOTT_KV. Keys: "state" (the whole record), "vapid" (push keypair), "subs" (devices),
 // "sent:<device>:<date>:<block | block:n | stack-am | stack-pm>" (2-day markers so a reminder goes out once).
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const STATE_KEY = 'state';
 const ALLOWED_ORIGINS = ['https://rsemenov81-hash.github.io'];
 const MAX_LOGS = 5000;
@@ -88,6 +88,18 @@ const SEED = {
 };
 
 const isPill = (c) => c.kind === 'supp' || c.kind === 'med';
+
+// Keep this date resolver aligned with the inline frontend. Historical snapshots
+// are private state; this generic logic contains no personal regimen data.
+function protocolOn(c, date) {
+  const key = date.slice(0, 10);
+  const prior = (Array.isArray(c.scheduleHistory) ? c.scheduleHistory : [])
+    .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.through || '') && h.through >= key && h.protocol)
+    .sort((a, b) => a.through.localeCompare(b.through))[0];
+  const p = prior ? { ...prior.protocol, id: c.id } : { ...c };
+  if ((p.startDate && key < p.startDate) || (p.endDate && key > p.endDate)) p.active = false;
+  return p;
+}
 
 // ---------- http helpers ----------
 function corsHeaders(req) {
@@ -183,9 +195,12 @@ async function handleLog(req, env, role) {
 
   const log = body.log;
   if (!log || typeof log !== 'object') return fail(req, 400, 'Send { log } or { deleteId }');
-  const c = s.compounds.find(x => x.id === log.compoundId);
-  if (!c) return fail(req, 400, 'Unknown compound');
+  const current = s.compounds.find(x => x.id === log.compoundId);
+  if (!current) return fail(req, 400, 'Unknown compound');
   if (typeof log.datetime !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(log.datetime)) return fail(req, 400, 'Bad date/time');
+  const c = protocolOn(current, log.datetime);
+  const day = log.datetime.slice(0, 10);
+  if ((c.startDate && day < c.startDate) || (c.endDate && day > c.endDate)) return fail(req, 400, 'This compound is not scheduled for that date');
   const pill = isPill(c);
   const dose = Number(log.doseMcg);
   if (!pill) {
@@ -330,7 +345,7 @@ const dowOf = (dk) => new Date(dk + 'T12:00:00Z').getUTCDay();
 const addDays = (dk, n) => new Date(Date.parse(dk + 'T12:00:00Z') + n * 86400000).toISOString().slice(0, 10);
 function dueFor(s, dk, block) {
   const dow = dowOf(dk);
-  return s.compounds.filter(c => c.active !== false && !c.stack && blockOf(c) === block
+  return s.compounds.map(c => protocolOn(c, dk)).filter(c => c.active !== false && !c.stack && blockOf(c) === block
     && ((c.schedule && c.schedule.days) || [0, 1, 2, 3, 4, 5, 6]).includes(dow)
     && !s.logs.some(l => l.compoundId === c.id && (l.datetime || '').slice(0, 10) === dk));
 }
@@ -444,4 +459,4 @@ export default {
     ctx.waitUntil(runReminders(env, new Date()));
   },
 };
-export { runReminders };
+export { runReminders, protocolOn, dueFor };

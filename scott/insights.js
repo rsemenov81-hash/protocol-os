@@ -25,9 +25,12 @@ export function activityRows(data = {}, { query = '', from = '', to = '' } = {})
   const compounds = new Map(list(data.compounds).filter(Boolean).map(c => [c.id, c]));
   const terms = text(query).trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   return list(data.logs).filter(log => log && typeof log === 'object').map(log => {
-    const compound = compounds.get(log.compoundId);
+    const current = compounds.get(log.compoundId);
     const datetime = text(log.datetime);
     const date = validDate(datetime.slice(0, 10)) ? datetime.slice(0, 10) : '';
+    const historical = date ? list(current?.scheduleHistory).filter(h => h && validDate(h.through) && h.through >= date && h.protocol)
+      .sort((a, b) => a.through.localeCompare(b.through))[0]?.protocol : null;
+    const compound = historical || current;
     return {
       id: text(log.id), compoundId: text(log.compoundId),
       name: text(compound?.name) || 'Item no longer available',

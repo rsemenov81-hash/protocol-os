@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Scott">
-<meta name="theme-color" content="#f8f3e3">
+<meta name="theme-color" content="#151814">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d231b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23b392f0'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -207,17 +207,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 }
 </style>
 <link rel="stylesheet" href="refinement.css?v=4b1e4d2cff86">
-<link rel="stylesheet" href="pop-art.css?v=20261102a">
-<link rel="stylesheet" href="cinematic.css?v=20261102a">
+<link rel="stylesheet" href="autumn.css?v=a2152dbdff6e">
+<link rel="stylesheet" href="cinematic.css?v=066fb3b5039f">
 </head>
 <body>
 <header id="shellbar" class="app-shell"><button class="brand" data-act="tab" data-tab="protocol" aria-label="Scott’s home"><img src="assets/vitae-logo.png" alt="Vitae Lab"><span>Scott’s protocol<span class="brand-sub">Personal health, considered.</span></span></button><div class="shell-actions"><span id="sync-status"></span><button id="motion-toggle" class="motion-toggle" aria-label="Pause background" aria-pressed="false">Pause background</button><button class="iconbtn" id="shell-settings" data-act="reminders" aria-label="Reminders" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button></div></header>
-<div class="cinema-stage" aria-hidden="true"><div class="ambient cinema-frame"><video id="ambient-video" data-motion-src="./assets/cinematic-pop-art.mp4" data-motion-fallback-src="./assets/cinematic-pop-art.webm" muted loop playsinline preload="none" poster="assets/cinematic-pop-art-poster.jpg" tabindex="-1"></video></div></div>
+<div class="cinema-stage" aria-hidden="true"><div class="ambient cinema-frame"><video id="ambient-video" data-motion-src="./assets/autumn-dc.mp4" data-motion-fallback-src="./assets/autumn-dc.webm" muted loop playsinline preload="none" poster="assets/autumn-dc-poster.jpg" tabindex="-1"></video></div></div>
 <script type="module" src="motion.js?v=20261102cinema"></script>
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="app"></div>
 <div id="navigation" hidden></div>
-<script type="module" src="insights.js?v=1bf4ca8e9784" onload="if(typeof render==='function')render()"></script>
+<script type="module" src="insights.js?v=2b975b816312" onload="if(typeof render==='function')render()"></script>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Protocol details" aria-hidden="true" tabindex="-1" inert></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -388,12 +388,38 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 let flashId = null; // card that just logged — plays the check pop once
 
 /* ════════ schedule logic ════════ */
+// Earlier schedules remain attached to the same compound, so old days and logs
+// use the directions in effect then. Dates are inclusive local calendar dates.
+function protocolOn(c, date) {
+  const key = typeof date === 'string' ? date.slice(0, 10) : dkey(date);
+  const prior = (Array.isArray(c.scheduleHistory) ? c.scheduleHistory : [])
+    .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.through || '') && h.through >= key && h.protocol)
+    .sort((a, b) => a.through.localeCompare(b.through))[0];
+  const p = prior ? { ...prior.protocol, id: c.id } : { ...c };
+  if ((p.startDate && key < p.startDate) || (p.endDate && key > p.endDate)) p.active = false;
+  return p;
+}
+function reactivateProtocol(c, date) {
+  const previousDay = new Date(date + 'T12:00:00Z');
+  previousDay.setUTCDate(previousDay.getUTCDate() - 1);
+  const through = previousDay.toISOString().slice(0, 10);
+  const history = [...(Array.isArray(c.scheduleHistory) ? c.scheduleHistory : [])];
+  // A same-day restart must not replace the directions that preceded that day.
+  if (!history.some(h => h.through === through)) {
+    const snapshot = { ...c }; delete snapshot.scheduleHistory;
+    history.push({ through, protocol: snapshot });
+  }
+  const next = { ...c, active: true, startDate: date, scheduleHistory: history };
+  delete next.endDate;
+  return next;
+}
 const blockOf = (c) => {
   const days = c.schedule && c.schedule.days;
   if (Array.isArray(days) && days.length === 0) return 'prn';
   return /night|even|pm|bed/i.test(c.timing || '') ? 'pm' : 'am';
 };
 const dueOn = (c, date) => {
+  c = protocolOn(c, date);
   if (c.active === false) return false;
   const days = (c.schedule && c.schedule.days) || [0,1,2,3,4,5,6];
   if (days.length === 0) return false;
@@ -539,7 +565,7 @@ function doseCardHTML(c, glow) {
 }
 
 function protocolView() {
-  const comps = S.data.compounds.filter(c => c.active !== false && kindOf(c) === 'inject');
+  const comps = S.data.compounds.map(c => protocolOn(c, S.viewDate)).filter(c => c.active !== false && kindOf(c) === 'inject');
   const k = dkey(S.viewDate);
   const byBlock = { am: [], pm: [], prn: [] };
   comps.forEach(c => { if (dueOn(c, S.viewDate) || blockOf(c) === 'prn') byBlock[blockOf(c)].push(c); });
@@ -567,7 +593,7 @@ function protocolView() {
     if (S.role === 'admin') {
       body += `<button class="btn-primary" style="margin-top:18px" data-act="addcomp">${I.plus('#04211b')} Add compound</button>
       <div class="fine" style="margin-top:8px">Only you see this button.</div>`;
-      const inactive = S.data.compounds.filter(c => c.active === false && kindOf(c) === 'inject');
+      const inactive = S.data.compounds.map(c => protocolOn(c, S.viewDate)).filter(c => c.active === false && kindOf(c) === 'inject');
       if (inactive.length) body += `<div class="sect"><span class="t">Inactive</span><span class="r"></span><span class="c">${inactive.length}</span></div>` +
         inactive.map(c => `<div class="bench" style="margin-bottom:8px"><span style="font-size:13px;font-weight:600;color:var(--ink3)">${esc(c.name)}</span>
           <button class="btn-ghost" style="height:44px;font-size:13px" data-act="editcomp" data-id="${esc(c.id)}">Edit / Reactivate</button></div>`).join('');
@@ -1218,7 +1244,7 @@ function compForm(c) {
     calc();
     const fc = $('#f-cancel', sh); if (fc) fc.onclick = closeSheet;
     const fd = $('#f-deact', sh); if (fd) fd.onclick = async () => {
-      const next = S.data.compounds.map(x => x.id === c.id ? { ...x, active: x.active === false } : x);
+      const next = S.data.compounds.map(x => x.id === c.id ? (x.active === false ? reactivateProtocol(x, todayKey()) : { ...x, active: false }) : x);
       if (await adminWrite({ compounds: next }, c.active === false ? 'Reactivated' : 'Deactivated')) closeSheet();
     };
     $('#f-save', sh).onclick = async () => {
@@ -1559,7 +1585,7 @@ document.addEventListener('click', async (e) => {
   else if (act === 'closesheet') closeSheet();
   else if (act === 'opendose') {
     const c = S.data.compounds.find(x => x.id === el.dataset.id);
-    if (c) openDose(c);
+    if (c) openDose(protocolOn(c, S.viewDate));
   }
   else if (act === 'editcomp') { e.stopPropagation(); const c = S.data.compounds.find(x => x.id === el.dataset.id); if (c) compForm(c); }
   else if (act === 'addcomp') compForm(null);

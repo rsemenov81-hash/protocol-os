@@ -260,3 +260,28 @@ test('a failed refresh keeps loaded records and exposes a retry notice on every 
   assert.match(view,/Showing the last loaded records/); assert.match(view,/data-act="pull"/); assert.match(view,/Morning stack/);
   assert.equal(a.elements.get('#navigation').hidden,false);
 });
+
+test('historical checklist, progress ring and week dates retain retired items and prior weekdays', () => {
+  const a = app();
+  a.run(`S.role='member'; S.tab='protocol'; S.viewDate=new Date(2026,10,20);
+    const oldFixture={id:'changed',name:'Earlier schedule item',doseMcg:4000,unit:'mcg',active:true,timing:'Morning',schedule:{days:[1,5]}};
+    S.data.compounds=[
+      {...oldFixture,name:'Current schedule item',doseMcg:1000,schedule:{days:[1,3,5]},scheduleHistory:[{through:'2026-11-22',protocol:oldFixture}]},
+      {id:'retired',name:'Retired item',active:false,endDate:'2026-11-22',scheduleHistory:[{through:'2026-11-22',protocol:{...oldFixture,id:'retired',name:'Retired item'}}]},
+      {id:'new',name:'New item',active:true,startDate:'2026-11-23',doseMcg:1000,schedule:{days:[1,3,5]}}
+    ];
+    S.data.logs=[{id:'old-log',compoundId:'retired',datetime:'2026-11-20T09:00',doseMcg:4000}];`);
+  assert.match(a.run('ringHTML()'), /aria-label="1 of 2 doses logged"/);
+  const historical=a.run('protocolView()');
+  assert.match(historical,/Earlier schedule item/);
+  assert.match(historical,/Retired item/);
+  assert.doesNotMatch(historical,/Current schedule item|New item/);
+  assert.equal(a.run('tabItems().filter(c=>dueOn(c,new Date(2026,10,18))).length'),0,'earlier Wednesday must not borrow current weekdays');
+  assert.equal(a.run('tabItems().filter(c=>dueOn(c,new Date(2026,10,25))).length'),2,'week loop resolves each actual date');
+  a.run('S.viewDate=new Date(2026,10,25)');
+  assert.match(a.run('ringHTML()'),/aria-label="0 of 2 doses logged"/);
+  const currentView=a.run('protocolView()');
+  assert.match(currentView,/Current schedule item/);
+  assert.match(currentView,/New item/);
+  assert.doesNotMatch(currentView,/Earlier schedule item|Retired item/);
+});
