@@ -1,7 +1,7 @@
 /* A living view of old Northwest DC. Film is the only ambient motion.
    A lower scrim protects headings; records sit below on solid surfaces. */
 .cinema-stage{position:relative;z-index:0;width:100%;max-width:none;height:340px;margin:0;padding:0;pointer-events:none}
-.cinema-frame.ambient{position:absolute;inset:0;width:100%;height:100%;contain:paint;opacity:1;border:0;border-radius:0;background:#392d21 url('./assets/autumn-dc-poster.jpg') center 53%/cover no-repeat;box-shadow:none;isolation:isolate}
+.cinema-frame.ambient{position:absolute;inset:0;width:100%;height:100%;contain:paint;opacity:1;border:0;border-radius:0;background:#392d21 url('./assets/autumn-dc-blue-hour-poster.jpg') center 53%/cover no-repeat;box-shadow:none;isolation:isolate}
 .cinema-frame.ambient video{display:block;width:100%;height:100%;object-fit:cover;object-position:center 53%;opacity:1;filter:none}
 .cinema-frame.ambient::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(21,24,20,.03) 20%,rgba(21,24,20,.13) 38%,rgba(21,24,20,.7) 65%,#151814 100%)}
 #app{margin-top:-145px}

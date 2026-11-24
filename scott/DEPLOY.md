@@ -189,9 +189,9 @@ The scenic layer uses a Higgsfield API generation of an autumn residential stree
 inspired by Dupont Circle, Shaw and Logan Circle. No personal records were sent
 to the generation provider. The prompt excludes federal landmarks and monuments.
 Model: `bytedance/seedance-2.5/text-to-video`; request
-`01a20b33-1998-754e-b14f-450b4901ae60`. The completed 10-second, 1080p output was
-trimmed with a short loop crossfade and compressed into a silent 9.2-second film:
-`autumn-dc.mp4`, an open-codec `autumn-dc.webm` fallback, and a matching JPG poster.
+`01a20b3c-c901-76bb-814e-1f6300ecbc1f` (selected Option 3, blue-hour Logan Circle/Shaw). The completed 10-second, 1080p output was
+trimmed with a short loop crossfade and compressed into a silent 9.25-second film:
+`autumn-dc-blue-hour.mp4`, an open-codec `autumn-dc-blue-hour.webm` fallback, and a matching JPG poster.
 `autumn.css` replaces the pop-art presentation. Publish these files with the HTML,
 `cinematic.css`, and manifest. Motion stays off for reduced-motion/data-saving
 preferences, pauses offscreen or in hidden tabs, and has a persistent pause control.
