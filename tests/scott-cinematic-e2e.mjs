@@ -26,8 +26,11 @@ try{
    await button.click();await page.waitForFunction(()=>document.querySelector('video').paused);assert.equal(await button.textContent(),'Play background');
    await button.click();await page.waitForFunction(()=>!document.querySelector('video').paused);
    await page.screenshot({path:resolve(root,'.playwright/scott-cinematic/mobile-synthetic.png'),fullPage:true});
-   await page.evaluate(()=>scrollTo(0,document.body.scrollHeight));await page.waitForFunction(()=>document.querySelector('video').paused);
-   await page.evaluate(()=>scrollTo(0,0));await page.waitForFunction(()=>!document.querySelector('video').paused);
+   // Short Today pages may leave part of the taller scenic hero visible even at
+   // the bottom. Ensure an actually offscreen state before testing suspension.
+   await page.evaluate(()=>{document.body.style.minHeight=`${document.querySelector('video').getBoundingClientRect().bottom+innerHeight+120}px`;scrollTo(0,document.body.scrollHeight);});
+   await page.waitForFunction(()=>document.querySelector('video').getBoundingClientRect().bottom<=0&&document.querySelector('video').paused);
+   await page.evaluate(()=>{document.body.style.minHeight='';scrollTo(0,0);});await page.waitForFunction(()=>!document.querySelector('video').paused);
    await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:resolve(root,'.playwright/scott-cinematic/desktop-synthetic.png'),fullPage:true});
    for(const label of ['Stacks','Labs','Progress','More']){await page.getByRole('tab',{name:label,exact:true}).click();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
    await button.click();await page.reload();await page.waitForLoadState('networkidle');assert.equal(await video.getAttribute('src'),null);assert.equal(await button.textContent(),'Play background');
