@@ -1,7 +1,7 @@
 // Tests for kris/worker.js (the kris-protocol Cloudflare Worker). Plain Node 22: `node --test tests/kris-worker.test.mjs`.
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import worker from '../kris/worker.js';
+import worker, { protocolOn } from '../kris/worker.js';
 
 const BASE = 'https://kris-protocol.example.workers.dev';
 const APP_ORIGIN = 'https://rsemenov81-hash.github.io';
@@ -179,5 +179,54 @@ describe('CORS', () => {
     const r = await worker.fetch(new Request(BASE + '/log', { method: 'OPTIONS', headers: { Origin: APP_ORIGIN } }), env);
     assert.equal(r.status, 204);
     assert.match(r.headers.get('Access-Control-Allow-Headers'), /Authorization/);
+  });
+});
+
+describe('date-effective protocol changes and IU precision', () => {
+  const earlier = { id: 'fixture', name: 'Earlier item', unit: 'mcg', doseMcg: 4000, active: true, schedule: { days: [1, 5] } };
+  const changed = { ...earlier, doseMcg: 1000, schedule: { days: [1, 3, 5] }, scheduleHistory: [{ through: '2026-11-22', protocol: earlier }] };
+  const retired = { ...earlier, id: 'retired', active: false, endDate: '2026-11-22', scheduleHistory: [{ through: '2026-11-22', protocol: { ...earlier, id: 'retired' } }] };
+  const iu = { id: 'iu-fixture', name: 'IU fixture', unit: 'IU', doseMcg: 2, mcgPerUnit: 0.1, active: true, startDate: '2026-11-23', schedule: { days: [1, 2, 3, 4, 5] } };
+  async function seed() {
+    const s = { _rev: 3, compounds: [changed, retired, iu], logs: [], labs: [], scans: [] };
+    await env.KRIS_KV.put('state', JSON.stringify(s));
+  }
+  test('history restores prior weekdays, dose and active state at inclusive date boundaries', () => {
+    assert.equal(protocolOn(changed, '2026-11-22').doseMcg, 4000);
+    assert.deepEqual(protocolOn(changed, '2026-11-22').schedule.days, [1, 5]);
+    assert.equal(protocolOn(changed, '2026-11-23').doseMcg, 1000);
+    assert.equal(protocolOn(retired, '2026-11-22').active, true);
+    assert.equal(protocolOn(retired, '2026-11-23').active, false);
+    assert.equal(protocolOn(iu, '2026-11-22').active, false);
+    assert.equal(protocolOn(iu, '2026-11-23').active, true);
+    assert.equal(changed.doseMcg, 1000, 'date lookup must not mutate stored state');
+  });
+  test('historical logging uses its historical gate and keeps old logs after current changes', async () => {
+    await seed();
+    const historic = await logAs('roman-code', { id: 'old', compoundId: 'fixture', datetime: '2026-11-20T09:00', doseMcg: 6000 });
+    assert.equal(historic.status, 200, '1.5x old dose is not evaluated as 6x new dose');
+    const current = await logAs('roman-code', { id: 'current', compoundId: 'fixture', datetime: '2026-11-23T09:00', doseMcg: 6000 });
+    assert.equal(current.status, 422, 'current 5x gate remains enforced');
+    assert.equal((await state()).logs[0].doseMcg, 6000);
+  });
+  test('logs outside explicit start and end dates are rejected without altering history', async () => {
+    await seed();
+    assert.equal((await logAs('roman-code', { compoundId: 'iu-fixture', datetime: '2026-11-22T21:00', doseMcg: 2, units: 20 })).status, 400);
+    assert.equal((await logAs('roman-code', { compoundId: 'retired', datetime: '2026-11-23T08:00', doseMcg: 4000 })).status, 400);
+    assert.deepEqual((await state()).logs, []);
+    assert.equal((await logAs('roman-code', { compoundId: 'retired', datetime: '2026-11-20T08:00', doseMcg: 4000 })).status, 200);
+  });
+  test('IU values and fractional adjustments retain IU rather than rounding or converting to mass', async () => {
+    await seed();
+    const full = await logAs('kris-code', { id: 'iu-full', compoundId: 'iu-fixture', datetime: '2026-11-23T21:00', doseMcg: 2, units: 20 });
+    assert.equal(full.status, 200);
+    assert.equal(full.body.log.doseMcg, 2);
+    assert.equal(full.body.log.units, 20);
+    const fraction = await logAs('kris-code', { id: 'iu-fraction', compoundId: 'iu-fixture', datetime: '2026-11-24T21:00', doseMcg: 2.05, units: 20.5 });
+    assert.equal(fraction.status, 200);
+    assert.equal(fraction.body.log.doseMcg, 2.05);
+    assert.equal(fraction.body.log.units, 20.5);
+    assert.equal((await state()).compounds.find(c => c.id === 'iu-fixture').unit, 'IU');
+    assert.equal((await logAs('kris-code', { compoundId: 'iu-fixture', datetime: '2026-11-25T21:00', doseMcg: 10, units: 100 })).status, 422, '5x IU gate remains enforced');
   });
 });

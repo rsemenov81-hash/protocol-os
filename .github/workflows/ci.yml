@@ -74,6 +74,12 @@ jobs:
       - name: Scott cinematic motion checks
         run: npm run e2e:scott-cinematic
 
+      - name: Kris browser regression suite
+        run: npm run e2e:kris
+
+      - name: Kris cinematic motion checks
+        run: npm run e2e:kris-cinematic
+
       - name: Trey browser regression suite
         run: npm run e2e:trey
 
