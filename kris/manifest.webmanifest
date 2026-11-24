@@ -1,0 +1,23 @@
+{
+  "id": "./",
+  "name": "Kris \u00b7 Protocol",
+  "short_name": "Kris",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#151814",
+  "theme_color": "#151814",
+  "icons": [
+    {
+      "src": "../scott/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../scott/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

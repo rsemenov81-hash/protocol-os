@@ -15,7 +15,7 @@
 // KV binding: KRIS_KV. One key, "state", holds the whole record. When it is empty the worker starts
 // from SEED below (Kris's protocol as of 2026-10-04), so the app opens with the protocol already built.
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const STATE_KEY = 'state';
 const ALLOWED_ORIGINS = ['https://rsemenov81-hash.github.io'];
 const MAX_LOGS = 5000;
@@ -67,6 +67,18 @@ const SEED = {
   labs: [],
   scans: [],
 };
+
+// Private snapshots keep old days and dose logs tied to the directions then in
+// effect. Keep the resolver aligned with the frontend's local-calendar lookup.
+function protocolOn(c, date) {
+  const key = date.slice(0, 10);
+  const prior = (Array.isArray(c.scheduleHistory) ? c.scheduleHistory : [])
+    .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.through || '') && h.through >= key && h.protocol)
+    .sort((a, b) => a.through.localeCompare(b.through))[0];
+  const p = prior ? { ...prior.protocol, id: c.id } : { ...c };
+  if ((p.startDate && key < p.startDate) || (p.endDate && key > p.endDate)) p.active = false;
+  return p;
+}
 
 // ---------- http helpers ----------
 function corsHeaders(req) {
@@ -162,11 +174,14 @@ async function handleLog(req, env, role) {
 
   const log = body.log;
   if (!log || typeof log !== 'object') return fail(req, 400, 'Send { log } or { deleteId }');
-  const c = s.compounds.find(x => x.id === log.compoundId);
-  if (!c) return fail(req, 400, 'Unknown compound');
+  const current = s.compounds.find(x => x.id === log.compoundId);
+  if (!current) return fail(req, 400, 'Unknown compound');
   const dose = Number(log.doseMcg);
   if (!Number.isFinite(dose) || dose <= 0) return fail(req, 400, 'Dose must be above zero');
   if (typeof log.datetime !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(log.datetime)) return fail(req, 400, 'Bad date/time');
+  const c = protocolOn(current, log.datetime);
+  const day = log.datetime.slice(0, 10);
+  if ((c.startDate && day < c.startDate) || (c.endDate && day > c.endDate)) return fail(req, 400, 'This compound is not scheduled for that date');
   const rec = Number(c.doseMcg) || 0;
   if (rec > 0 && dose / rec >= 5) return fail(req, 422, `Blocked by the dose gate: ${(dose / rec).toFixed(1)}× the set dose`);
 
@@ -175,7 +190,9 @@ async function handleLog(req, env, role) {
   if (existing && role !== 'admin' && existing.by && existing.by !== role) return fail(req, 403, 'Logged by Roman — ask him to change it');
   const units = Number(log.units);
   const entry = {
-    id, compoundId: c.id, datetime: log.datetime.slice(0, 16), doseMcg: Math.round(dose),
+    // doseMcg is the legacy field name; IU compounds carry IU here, including
+    // fractional IU from a syringe adjustment. Never reinterpret IU as mass.
+    id, compoundId: c.id, datetime: log.datetime.slice(0, 16), doseMcg: c.unit === 'IU' ? dose : Math.round(dose),
     units: Number.isFinite(units) ? Math.round(units * 10) / 10 : null,
     by: existing && role === 'admin' && existing.by ? existing.by : role,
   };
@@ -208,3 +225,4 @@ export default {
     }
   },
 };
+export { protocolOn };

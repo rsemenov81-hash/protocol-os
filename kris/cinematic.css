@@ -1,0 +1,26 @@
+/* A living view of old Northwest DC. Film is the only ambient motion.
+   A lower scrim protects headings; records sit below on solid surfaces. */
+.cinema-stage{position:relative;z-index:0;width:100%;max-width:none;height:340px;margin:0;padding:0;pointer-events:none}
+.cinema-frame.ambient{position:absolute;inset:0;width:100%;height:100%;contain:paint;opacity:1;border:0;border-radius:0;background:#392d21 url('../scott/assets/autumn-dc-blue-hour-poster.jpg') center 53%/cover no-repeat;box-shadow:none;isolation:isolate}
+.cinema-frame.ambient video{display:block;width:100%;height:100%;object-fit:cover;object-position:center 53%;opacity:1;filter:none}
+.cinema-frame.ambient::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(21,24,20,.03) 20%,rgba(21,24,20,.13) 38%,rgba(21,24,20,.7) 65%,#151814 100%)}
+#app{margin-top:-145px}
+.page-head{min-height:0;padding-top:0;padding-bottom:20px;margin-bottom:14px}
+.page-protocol,.page-labs,.page-progress,.page-more,.page-history{min-height:0}
+.page-heading{align-items:flex-end}
+.page-heading>div{max-width:calc(100% - 60px)}
+.page-heading:has(>div:only-child)>div{max-width:100%}
+.page-head .eyebrow,.page-head .big-title,.page-head .page-intro,.page-head .sub,.page-head .back-link{text-shadow:0 2px 20px rgba(0,0,0,.65)}
+.page-head .week,.page-head .today-link{text-shadow:none}
+.page-protocol .page-heading::after,.page-head h1::after{display:none}
+.dose-photo,.dose-photo:hover{transform:none!important}
+.motion-toggle{min-height:44px;transition:background-color .18s ease,border-color .18s ease}
+.motion-toggle:hover:not(:disabled){background:#3b382b;border-color:#c7af7b}
+#app:has(#tok){max-width:460px;padding:0 20px;margin-top:-118px}
+#app:has(#tok)>div{min-height:0!important;padding:30px 24px!important;background:#22251e;border:1px solid #5c5542;border-radius:22px;box-shadow:0 18px 60px #0005}
+.retry-state{margin:0 auto;padding-top:28px;background:var(--bg)}
+@media(min-width:700px){.cinema-stage{height:420px}#app{margin-top:-170px}.cinema-frame.ambient::after{background:linear-gradient(180deg,rgba(21,24,20,.02) 18%,rgba(21,24,20,.08) 38%,rgba(21,24,20,.74) 70%,#151814 100%)}}
+@media(min-width:900px){.cinema-stage{height:460px}.cinema-frame.ambient{background-position:center 54%}.cinema-frame.ambient video{object-position:center 54%}#app{margin-top:-185px;padding-top:0}.page-head{min-height:0;padding-top:0;padding-bottom:26px;margin-bottom:10px}.page-protocol .big-title{font-size:84px}.page-head .week{margin-top:28px}.page-heading>div{max-width:calc(100% - 72px)}}
+@media(min-width:1500px){.cinema-stage{height:510px}#app{margin-top:-195px}}
+@media(max-width:360px){.cinema-stage{height:310px}#app{margin-top:-135px}.page-head{padding-left:0;padding-right:0}.page-heading{gap:12px}}
+@media(prefers-reduced-motion:reduce){.cinema-frame.ambient video{display:none}.motion-toggle{transition:none}}

@@ -1,66 +1,41 @@
-# Kris Protocol — one-time setup
+# Kris Protocol — deployment
 
-The app is `kris/index.html`. GitHub Pages serves it at
-**https://rsemenov81-hash.github.io/protocol-os/kris/** once this branch is merged to `main`.
+The app is served by GitHub Pages at
+**https://rsemenov81-hash.github.io/protocol-os/kris/**.
+Its existing backend is **https://kris-protocol.rsemenov81.workers.dev**.
 
-It talks to its own Cloudflare Worker, `kris-protocol`, at `https://kris-protocol.rsemenov81.workers.dev`.
-That worker does not exist yet. These steps create it. It takes about five minutes, all in the
-Cloudflare dashboard in Chrome.
+## Frontend
 
-## 1. Create the storage
+Merge verified frontend changes to `main`; GitHub Pages publishes that branch.
+Kris shares the selected blue-hour neighborhood film and logo from `../scott/assets/`.
+Keep those shared files when deploying this app. The styles and motion preference
+are scoped to Kris. Reduced motion and data saving use the still poster.
 
-Dashboard → **Storage & Databases → KV → Create a namespace**. Name it `kris-protocol`, then click **Add**.
+Run `npm run check`, `npm test` and `npm run e2e:kris` plus `npm run e2e:kris-cinematic` before publication.
+The browser suite uses synthetic records and intercepts every backend request.
 
-## 2. Create the worker
+## Worker and private records
 
-1. Dashboard → **Workers & Pages → Create → Create Worker** (the "Hello World" starter).
-2. Name it exactly **`kris-protocol`**. The name sets the address the app calls.
-3. Click **Deploy**, then **Edit code**.
-4. Open `kris/worker.js` on GitHub, click the **copy** icon at the top of the file.
-5. Back in the editor, click inside the code, press **Cmd + A**, then **Cmd + V**, then **Deploy**.
+Deploy `kris/worker.js` to the existing `kris-protocol` Worker, retaining its
+`KRIS_KV` binding and `ADMIN_CODE` / `MEMBER_CODE` secrets. Keep deployment
+credentials, namespace identifiers, state backups and current health records
+outside this public repository.
 
-## 3. Connect the storage
+Check `/health` after deployment. `/state`, `/admin` and `/log` require an access
+code; the public frontend never embeds one. Administration uses revision checks
+so an older edit cannot overwrite a newer save.
 
-**Workers & Pages → kris-protocol → Settings → Bindings → Add → KV namespace**.
+Current protocols are stored privately. Date-effective changes retain prior
+snapshots in `scheduleHistory`, each with an inclusive `through` calendar date.
+`startDate` / `endDate` constrain active dates; the UI and dose gate resolve the
+same historical directions. Deactivation preserves the compound ID and logs.
 
-- Variable name: **`KRIS_KV`** (exactly this).
-- KV namespace: `kris-protocol`.
+For IU compounds, the legacy `doseMcg` field stores the IU amount when `unit` is
+`IU`; `mcgPerUnit` then means IU per U-100 syringe unit. Fractional IU values are
+preserved. Do not infer a vial size or dilution when it has not been supplied.
 
-Save. Cloudflare redeploys the worker.
+## Access
 
-## 4. Set the two access codes
-
-**Workers & Pages → kris-protocol → Settings → Variables and Secrets → Add**, twice, both of type *Secret*:
-
-| Name | Who uses it | What it allows |
-| --- | --- | --- |
-| `ADMIN_CODE` | You | Edit compounds, blood panels and InBody scans. Log or remove any dose. |
-| `MEMBER_CODE` | Kris | Log his own doses. |
-
-Pick long codes that are hard to guess, and make the two different. Click **Deploy** to apply them.
-
-## 5. Check it
-
-- Open `https://kris-protocol.rsemenov81.workers.dev/health` in a browser. It answers `{"ok":true,"version":"1.0.0"}`.
-- Open the app link above and enter your `ADMIN_CODE`. The header shows **ADMIN**, and on a Saturday the
-  Today tab shows all five compounds.
-- Send Kris the app link and his `MEMBER_CODE`. On iPhone he opens it in Safari, taps **Share → Add to Home Screen**,
-  and it appears as **Kris** with a blue dot icon.
-
-## What is preloaded
-
-The worker starts with this protocol the first time it runs. After that, edit it in the app with the pencil on each card.
-
-| Compound | Dose | Days | Draw |
-| --- | --- | --- | --- |
-| Retatrutide | 2 mg | Saturday | 10 mg vial + 2 mL BAC = 50 mcg per unit, so 40 units (0.4 mL). One vial lasts 5 weeks. |
-| HCG | 250 IU | Tuesday, Saturday | 10,000 IU vial + 2 mL BAC = 50 IU per unit, so 5 units (0.05 mL). |
-| Testosterone Cypionate | 75 mg | Tuesday, Saturday | 250 mg/mL oil = 2.5 mg per unit, so 30 units (0.3 mL). |
-| Nandrolone | 100 mg | Saturday | 300 mg/mL oil = 3 mg per unit, so 33.3 units (0.33 mL). |
-| KLOW | 2.4 mg | Daily, evening | 80 mg in a 3 mL pen cartridge = 26.7 mg/mL, so 9 units (0.09 mL). One cartridge lasts 33 days. |
-
-## Codes and safety
-
-- The codes live only in Cloudflare secrets, never in the code or the repo.
-- To lock someone out, change their secret. Their phone asks for a code again on its next sync.
-- The dose gate runs on the worker as well as in the app: a dose at 5× or more of the set dose is refused.
+Kris signs in with his existing member code. Roman uses his existing admin code.
+On iPhone, use Safari → Share → Add to Home Screen. Codes remain Cloudflare
+secrets and can be rotated there without changing the app source.
